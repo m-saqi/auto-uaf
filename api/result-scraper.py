@@ -10,6 +10,7 @@ import re
 import random
 import logging
 import uuid
+from datetime import datetime, timedelta
 
 # Set up logging
 logging.basicConfig(level=logging.INFO)
@@ -45,6 +46,10 @@ class handler(BaseHTTPRequestHandler):
         try:
             if 'action=test' in self.path:
                 self.handle_test_connection()
+            elif 'action=check_session' in self.path:
+                self.handle_check_session()
+            elif 'action=scrape_single' in self.path:
+                self.handle_scrape_single()
             else:
                 self.send_response(404)
                 self._set_cors_headers()
@@ -58,6 +63,10 @@ class handler(BaseHTTPRequestHandler):
                 self.handle_scrape()
             elif 'action=save' in self.path:
                 self.handle_save()
+            elif 'action=clear_session' in self.path:
+                self.handle_clear_session()
+            elif 'action=scrape_single' in self.path:
+                self.handle_scrape_single()
             else:
                 self.send_response(404)
                 self._set_cors_headers()
@@ -107,6 +116,122 @@ class handler(BaseHTTPRequestHandler):
         except Exception as e:
             response_data = {'success': False, 'message': f'Connection test error: {str(e)}'}
             self.send_success_response(response_data)
+
+    def handle_check_session(self):
+        """Check if session exists and has data"""
+        try:
+            session_id = self.headers.get('Session-Id') or self.headers.get('session_id')
+            if not session_id:
+                self.send_error_response(400, 'No session ID provided')
+                return
+                
+            session_data = self.load_from_session(session_id)
+            if session_data:
+                response_data = {
+                    'success': True, 
+                    'hasData': True,
+                    'recordCount': len(session_data),
+                    'message': f'Session has {len(session_data)} records'
+                }
+            else:
+                response_data = {
+                    'success': True, 
+                    'hasData': False,
+                    'recordCount': 0,
+                    'message': 'Session has no data'
+                }
+                
+            self.send_success_response(response_data)
+            
+        except Exception as e:
+            self.send_error_response(500, f"Error checking session: {str(e)}")
+
+    def handle_clear_session(self):
+        """Manually clear a session"""
+        try:
+            content_length = int(self.headers['Content-Length'])
+            post_data = self.rfile.read(content_length)
+            data = json.loads(post_data)
+            
+            session_id = data.get('sessionId')
+            if not session_id:
+                self.send_error_response(400, 'No session ID provided')
+                return
+                
+            self.delete_session(session_id)
+            response_data = {'success': True, 'message': 'Session cleared successfully'}
+            self.send_success_response(response_data)
+            
+        except Exception as e:
+            self.send_error_response(500, f"Error clearing session: {str(e)}")
+
+    def handle_scrape_single(self):
+        """Handle single result scraping for GPA calculator"""
+        try:
+            if self.command == 'GET':
+                # Handle GET request
+                query_params = self.path.split('?')
+                if len(query_params) > 1:
+                    params = query_params[1].split('&')
+                    registration_number = None
+                    for param in params:
+                        if param.startswith('registrationNumber='):
+                            registration_number = param.split('=')[1]
+                            break
+                    
+                    if not registration_number:
+                        self.send_error_response(400, 'No registration number provided')
+                        return
+                    
+                    # Scrape results
+                    success, message, result_data = self.scrape_uaf_results(registration_number)
+                    
+                    # Calculate GPA if successful
+                    if success and result_data:
+                        gpa_data = self.calculate_gpa_cgpa(result_data)
+                        response = {
+                            'success': success, 
+                            'message': message, 
+                            'resultData': result_data,
+                            'gpaData': gpa_data
+                        }
+                    else:
+                        response = {'success': success, 'message': message, 'resultData': result_data}
+                    
+                    self.send_success_response(response)
+                else:
+                    self.send_error_response(400, 'No registration number provided')
+            else:
+                # Handle POST request
+                content_length = int(self.headers['Content-Length'])
+                post_data = self.rfile.read(content_length)
+                data = json.loads(post_data)
+                
+                registration_number = data.get('registrationNumber')
+                
+                if not registration_number:
+                    self.send_error_response(400, 'No registration number provided')
+                    return
+                
+                # Scrape results
+                success, message, result_data = self.scrape_uaf_results(registration_number)
+                
+                # Calculate GPA if successful
+                if success and result_data:
+                    gpa_data = self.calculate_gpa_cgpa(result_data)
+                    response = {
+                        'success': success, 
+                        'message': message, 
+                        'resultData': result_data,
+                        'gpaData': gpa_data
+                    }
+                else:
+                    response = {'success': success, 'message': message, 'resultData': result_data}
+                
+                self.send_success_response(response)
+                
+        except Exception as e:
+            self.send_error_response(500, f"Error scraping single result: {str(e)}")
 
     def handle_scrape(self):
         content_length = int(self.headers['Content-Length'])
@@ -177,10 +302,216 @@ class handler(BaseHTTPRequestHandler):
             
             self.wfile.write(excel_data)
             
-            # Clean up session file after successful download
-            self.delete_session(session_id)
+            # DO NOT clean up session file - keep it for future downloads
+            # Session will be automatically cleaned up after 1 hour
         else:
             self.send_error_response(400, 'No results to save')
+
+    def calculate_quality_points(self, marks, credit_hours):
+        """Calculate quality points based on UAF grading system"""
+        try:
+            marks = float(marks)
+            credit_hours = int(credit_hours)
+            
+            # Handle F grade cases first
+            if credit_hours == 5 and marks < 40:
+                return 0.0
+            elif credit_hours == 4 and marks < 32:
+                return 0.0
+            elif credit_hours == 3 and marks < 24:
+                return 0.0
+            elif credit_hours == 2 and marks < 16:
+                return 0.0
+            elif credit_hours == 1 and marks < 8:
+                return 0.0
+            
+            # Calculate quality points for passing grades
+            if credit_hours == 5:
+                if marks >= 80:
+                    return 20.0
+                elif marks >= 50:
+                    return 20.0 - ((80.0 - marks) * 0.33333)
+                else:  # marks between 40-50
+                    return 10.0 - ((50.0 - marks) * 0.5)
+            
+            elif credit_hours == 4:
+                if marks >= 64:
+                    return 16.0
+                elif marks >= 40:
+                    return 16.0 - ((64.0 - marks) * 0.33333)
+                else:  # marks between 32-40
+                    return 8.0 - ((40.0 - marks) * 0.5)
+            
+            elif credit_hours == 3:
+                if marks >= 48:
+                    return 12.0
+                elif marks >= 30:
+                    return 12.0 - ((48.0 - marks) * 0.33333)
+                else:  # marks between 24-30
+                    return 6.0 - ((30.0 - marks) * 0.5)
+            
+            elif credit_hours == 2:
+                if marks >= 32:
+                    return 8.0
+                elif marks >= 20:
+                    return 8.0 - ((32.0 - marks) * 0.33333)
+                else:  # marks between 16-20
+                    return 4.0 - ((20.0 - marks) * 0.5)
+            
+            elif credit_hours == 1:
+                if marks >= 16:
+                    return 4.0
+                elif marks >= 10:
+                    return 4.0 - ((16.0 - marks) * 0.33333)
+                else:  # marks between 8-10
+                    return 2.0 - ((10.0 - marks) * 0.5)
+            
+            return 0.0
+            
+        except (ValueError, TypeError):
+            return 0.0
+
+    def get_grade(self, marks, credit_hours):
+        """Get letter grade based on marks and credit hours"""
+        try:
+            marks = float(marks)
+            
+            # Determine passing marks threshold based on credit hours
+            if credit_hours == 5:
+                passing_marks = 40
+            elif credit_hours == 4:
+                passing_marks = 32
+            elif credit_hours == 3:
+                passing_marks = 24
+            elif credit_hours == 2:
+                passing_marks = 16
+            elif credit_hours == 1:
+                passing_marks = 8
+            else:
+                passing_marks = 50  # Default
+            
+            if marks < passing_marks:
+                return "F"
+            
+            # Grade ranges (approximate based on UAF system)
+            if marks >= 80:
+                return "A"
+            elif marks >= 70:
+                return "B"
+            elif marks >= 60:
+                return "C"
+            elif marks >= 50:
+                return "D"
+            else:
+                return "F"
+                
+        except (ValueError, TypeError):
+            return "F"
+
+    def calculate_gpa_cgpa(self, result_data):
+        """Calculate GPA and CGPA from result data"""
+        try:
+            # Organize by semester
+            semesters = {}
+            student_info = {}
+            
+            for result in result_data:
+                # Extract student info from first record
+                if not student_info:
+                    student_info = {
+                        'name': result.get('StudentName', ''),
+                        'registration': result.get('RegistrationNo', '')
+                    }
+                
+                # Extract semester information
+                semester = result.get('Semester', 'Unknown')
+                if semester not in semesters:
+                    semesters[semester] = []
+                
+                # Extract course details
+                course_code = result.get('CourseCode', '')
+                course_title = result.get('CourseTitle', '')
+                credit_hours_str = result.get('CreditHours', '0')
+                marks_str = result.get('Total', '0')
+                
+                # Parse credit hours (handle formats like "3(3-0)")
+                credit_hours = 0
+                if credit_hours_str:
+                    # Extract numbers from string
+                    numbers = re.findall(r'\d+', credit_hours_str)
+                    if numbers:
+                        credit_hours = int(numbers[0])
+                
+                # Parse marks
+                marks = 0
+                try:
+                    marks = float(marks_str) if marks_str else 0
+                except (ValueError, TypeError):
+                    marks = 0
+                
+                # Calculate quality points and grade
+                quality_points = self.calculate_quality_points(marks, credit_hours)
+                grade = self.get_grade(marks, credit_hours)
+                
+                # Add to semester data
+                semesters[semester].append({
+                    'courseCode': course_code,
+                    'courseTitle': course_title,
+                    'creditHours': credit_hours,
+                    'marks': marks,
+                    'qualityPoints': round(quality_points, 2),
+                    'grade': grade
+                })
+            
+            # Calculate GPA for each semester and overall CGPA
+            semester_gpa = {}
+            total_quality_points = 0
+            total_credit_hours = 0
+            
+            for semester, courses in semesters.items():
+                semester_quality_points = 0
+                semester_credit_hours = 0
+                
+                for course in courses:
+                    semester_quality_points += course['qualityPoints']
+                    semester_credit_hours += course['creditHours']
+                
+                if semester_credit_hours > 0:
+                    semester_gpa[semester] = {
+                        'gpa': round(semester_quality_points / semester_credit_hours, 4),
+                        'percentage': round((semester_quality_points / semester_credit_hours) * 25, 2),
+                        'courses': courses
+                    }
+                    
+                    total_quality_points += semester_quality_points
+                    total_credit_hours += semester_credit_hours
+            
+            # Calculate overall CGPA
+            cgpa = 0
+            cgpa_percentage = 0
+            if total_credit_hours > 0:
+                cgpa = round(total_quality_points / total_credit_hours, 4)
+                cgpa_percentage = round((total_quality_points / total_credit_hours) * 25, 2)
+            
+            return {
+                'studentInfo': student_info,
+                'cgpa': cgpa,
+                'cgpaPercentage': cgpa_percentage,
+                'semesters': semester_gpa,
+                'totalQualityPoints': total_quality_points,
+                'totalCreditHours': total_credit_hours
+            }
+            
+        except Exception as e:
+            logger.error(f"Error calculating GPA: {str(e)}")
+            return {
+                'studentInfo': {'name': '', 'registration': ''},
+                'cgpa': 0,
+                'cgpaPercentage': 0,
+                'semesters': {},
+                'totalQualityPoints': 0,
+                'totalCreditHours': 0
+            }
 
     def scrape_uaf_results(self, registration_number):
         """Main function to scrape UAF results"""
@@ -410,15 +741,25 @@ class handler(BaseHTTPRequestHandler):
         try:
             session_file = os.path.join(DATA_DIR, f"session_{session_id}.json")
             
-            existing_data = []
+            # Load existing data or create new array
             if os.path.exists(session_file):
                 with open(session_file, 'r') as f:
                     existing_data = json.load(f)
+            else:
+                existing_data = []
             
+            # Add metadata about when this data was added
+            for result in result_data:
+                result['_scrapedAt'] = datetime.now().isoformat()
+            
+            # Append new data to existing data
             existing_data.extend(result_data)
             
+            # Save back to file
             with open(session_file, 'w') as f:
                 json.dump(existing_data, f)
+                
+            logger.info(f"Saved {len(result_data)} records to session {session_id}, total records: {len(existing_data)}")
                 
         except Exception as e:
             logger.error(f"Error saving to session {session_id}: {e}")
@@ -429,7 +770,22 @@ class handler(BaseHTTPRequestHandler):
             
             if os.path.exists(session_file):
                 with open(session_file, 'r') as f:
-                    return json.load(f)
+                    data = json.load(f)
+                    
+                # Clean up old data (older than 1 hour)
+                one_hour_ago = datetime.now() - timedelta(hours=1)
+                filtered_data = [
+                    item for item in data 
+                    if '_scrapedAt' not in item or 
+                    datetime.fromisoformat(item['_scrapedAt']) > one_hour_ago
+                ]
+                
+                # If we filtered out data, save the cleaned version
+                if len(filtered_data) != len(data):
+                    with open(session_file, 'w') as f:
+                        json.dump(filtered_data, f)
+                    
+                return filtered_data
             return None
         except Exception as e:
             logger.error(f"Error loading from session {session_id}: {e}")
@@ -440,5 +796,6 @@ class handler(BaseHTTPRequestHandler):
             session_file = os.path.join(DATA_DIR, f"session_{session_id}.json")
             if os.path.exists(session_file):
                 os.remove(session_file)
+                logger.info(f"Deleted session {session_id}")
         except Exception as e:
             logger.error(f"Error deleting session {session_id}: {e}")
