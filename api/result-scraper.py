@@ -1,0 +1,444 @@
+from http.server import BaseHTTPRequestHandler
+import json
+import requests
+from bs4 import BeautifulSoup
+from openpyxl import Workbook
+from io import BytesIO
+import os
+import time
+import re
+import random
+import logging
+import uuid
+
+# Set up logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
+# Use /tmp directory for session storage
+DATA_DIR = "/tmp/uaftools_data"
+if not os.path.exists(DATA_DIR):
+    os.makedirs(DATA_DIR)
+
+# User agents
+USER_AGENTS = [
+    'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+    'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Safari/537.36',
+    'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:109.0) Gecko/20100101 Firefox/121.0',
+    'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+    'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Edge/120.0.0.0'
+]
+
+class handler(BaseHTTPRequestHandler):
+    def _set_cors_headers(self):
+        self.send_header('Access-Control-Allow-Origin', '*')
+        self.send_header('Access-Control-Allow-Methods', 'GET, POST, OPTIONS')
+        self.send_header('Access-Control-Allow-Headers', 'Content-Type')
+    
+    def do_OPTIONS(self):
+        self.send_response(200)
+        self._set_cors_headers()
+        self.end_headers()
+        return
+
+    def do_GET(self):
+        try:
+            if 'action=test' in self.path:
+                self.handle_test_connection()
+            else:
+                self.send_response(404)
+                self._set_cors_headers()
+                self.end_headers()
+        except Exception as e:
+            self.send_error_response(500, f"Server error: {str(e)}")
+
+    def do_POST(self):
+        try:
+            if 'action=scrape' in self.path:
+                self.handle_scrape()
+            elif 'action=save' in self.path:
+                self.handle_save()
+            else:
+                self.send_response(404)
+                self._set_cors_headers()
+                self.end_headers()
+        except Exception as e:
+            self.send_error_response(500, f"Server error: {str(e)}")
+
+    def send_error_response(self, status_code, message):
+        self.send_response(status_code)
+        self._set_cors_headers()
+        self.send_header('Content-Type', 'application/json')
+        self.end_headers()
+        response = {'success': False, 'message': message}
+        self.wfile.write(json.dumps(response).encode())
+
+    def send_success_response(self, data):
+        self.send_response(200)
+        self._set_cors_headers()
+        self.send_header('Content-Type', 'application/json')
+        self.end_headers()
+        self.wfile.write(json.dumps(data).encode())
+
+    def handle_test_connection(self):
+        try:
+            # Test connection to UAF LMS
+            test_url = 'http://lms.uaf.edu.pk/login/index.php'
+            
+            try:
+                response = requests.get(test_url, timeout=10, headers={
+                    'User-Agent': random.choice(USER_AGENTS),
+                })
+                
+                if response.status_code == 200:
+                    response_data = {'success': True, 'message': 'Connection to UAF LMS successful'}
+                    self.send_success_response(response_data)
+                    return
+                else:
+                    response_data = {'success': False, 'message': f'UAF LMS returned status code: {response.status_code}'}
+                    self.send_success_response(response_data)
+                    return
+                    
+            except Exception as e:
+                response_data = {'success': False, 'message': f'Connection error: {str(e)}'}
+                self.send_success_response(response_data)
+                return
+            
+        except Exception as e:
+            response_data = {'success': False, 'message': f'Connection test error: {str(e)}'}
+            self.send_success_response(response_data)
+
+    def handle_scrape(self):
+        content_length = int(self.headers['Content-Length'])
+        post_data = self.rfile.read(content_length)
+        data = json.loads(post_data)
+        
+        registration_number = data.get('registrationNumber')
+        session_id = data.get('sessionId')
+        
+        if not registration_number:
+            self.send_error_response(400, 'No registration number provided')
+            return
+            
+        if not session_id:
+            self.send_error_response(400, 'No session ID provided')
+            return
+        
+        # Scrape results
+        success, message, result_data = self.scrape_uaf_results(registration_number)
+        
+        # Save result to session file if successful
+        if success and result_data:
+            self.save_to_session(session_id, result_data)
+            
+        response = {'success': success, 'message': message, 'resultData': result_data}
+        self.send_success_response(response)
+
+    def handle_save(self):
+        content_length = int(self.headers['Content-Length'])
+        post_data = self.rfile.read(content_length)
+        data = json.loads(post_data)
+        
+        filename = data.get('filename', 'student_results')
+        session_id = data.get('sessionId')
+        
+        if not session_id:
+            self.send_error_response(400, 'No session ID provided')
+            return
+            
+        # Load results from session file
+        session_results = self.load_from_session(session_id)
+        
+        if session_results:
+            # Create Excel file
+            wb = Workbook()
+            ws = wb.active
+            ws.title = "Results"
+            
+            # Add headers if we have data
+            if session_results:
+                headers = list(session_results[0].keys())
+                ws.append(headers)
+                
+                # Add data
+                for result in session_results:
+                    ws.append([result.get(header, '') for header in headers])
+            
+            # Save to bytes buffer
+            output = BytesIO()
+            wb.save(output)
+            excel_data = output.getvalue()
+            
+            self.send_response(200)
+            self._set_cors_headers()
+            self.send_header('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+            self.send_header('Content-Disposition', f'attachment; filename="{filename}.xlsx"')
+            self.end_headers()
+            
+            self.wfile.write(excel_data)
+            
+            # Clean up session file after successful download
+            self.delete_session(session_id)
+        else:
+            self.send_error_response(400, 'No results to save')
+
+    def scrape_uaf_results(self, registration_number):
+        """Main function to scrape UAF results"""
+        try:
+            # Create session
+            session = requests.Session()
+            session.headers.update({
+                'User-Agent': random.choice(USER_AGENTS),
+                'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
+                'Accept-Language': 'en-US,en;q=0.5',
+                'Connection': 'keep-alive',
+                'Upgrade-Insecure-Requests': '1',
+            })
+            
+            # Step 1: Get login page to extract token
+            login_url = "http://lms.uaf.edu.pk/login/index.php"
+            try:
+                response = session.get(login_url, timeout=15)
+                
+                if response.status_code != 200:
+                    return False, f"UAF LMS returned status code {response.status_code}. The server may be down.", None
+                    
+            except requests.exceptions.RequestException as e:
+                return False, f"Network error: {str(e)}. UAF LMS may be unavailable.", None
+            
+            # Step 2: Extract JavaScript-generated token
+            token = self.extract_js_token(response.text)
+            if not token:
+                # Try alternative method - look for the hidden input field
+                soup = BeautifulSoup(response.text, 'html.parser')
+                token_input = soup.find('input', {'id': 'token'})
+                if token_input and token_input.get('value'):
+                    token = token_input.get('value')
+                else:
+                    return False, "Could not extract security token from UAF LMS", None
+            
+            # Step 3: Submit form with correct field names
+            result_url = "http://lms.uaf.edu.pk/course/uaf_student_result.php"
+            form_data = {
+                'token': token,
+                'Register': registration_number
+            }
+            
+            headers = {
+                'Referer': login_url,
+                'Origin': 'http://lms.uaf.edu.pk',
+                'Content-Type': 'application/x-www-form-urlencoded'
+            }
+            
+            try:
+                response = session.post(result_url, data=form_data, headers=headers, timeout=20)
+                
+                if response.status_code != 200:
+                    return False, f"UAF LMS returned status code {response.status_code}", None
+                    
+            except requests.exceptions.RequestException as e:
+                return False, f"Network error during result fetch: {str(e)}", None
+            
+            # Step 4: Parse results
+            return self.parse_uaf_results(response.text, registration_number)
+            
+        except Exception as e:
+            logger.error(f"Unexpected error: {str(e)}")
+            return False, f"Unexpected error: {str(e)}", None
+
+    def extract_js_token(self, html_content):
+        """Extract JavaScript-generated token from UAF LMS"""
+        try:
+            # Look for the JavaScript that sets the token value
+            js_pattern = r"document\.getElementById\('token'\)\.value\s*=\s*'([^']+)'"
+            match = re.search(js_pattern, html_content)
+            
+            if match:
+                return match.group(1)
+            
+            # Alternative patterns
+            patterns = [
+                r"token.*value.*=.*'([^']+)'",
+                r"value.*=.*'([a-f0-9]{64})'",  # Look for 64-character hex values
+                r"id=\"token\" value=\"([^\"]+)\"",  # Direct HTML attribute
+            ]
+            
+            for pattern in patterns:
+                match = re.search(pattern, html_content, re.IGNORECASE)
+                if match:
+                    return match.group(1)
+            
+            return None
+            
+        except Exception as e:
+            logger.error(f"Token extraction error: {str(e)}")
+            return None
+
+    def parse_uaf_results(self, html_content, registration_number):
+        """Parse UAF results"""
+        try:
+            soup = BeautifulSoup(html_content, 'html.parser')
+            
+            # Check if access is blocked or no results
+            page_text = soup.get_text().lower()
+            if any(blocked_text in page_text for blocked_text in ['blocked', 'access denied', 'not available', 'till result submission', 'suspended']):
+                return False, "Access blocked by UAF LMS", None
+            
+            # Check if no results found
+            if "no result" in page_text or "no records" in page_text:
+                return False, f"No results found for registration number: {registration_number}", None
+            
+            # Extract student information
+            student_info = {}
+            
+            # Look for student information in the first table
+            info_tables = soup.find_all('table')
+            if info_tables:
+                # First table usually contains student info
+                first_table = info_tables[0]
+                rows = first_table.find_all('tr')
+                
+                for row in rows:
+                    cols = row.find_all('td')
+                    if len(cols) == 2:
+                        key = cols[0].text.strip().replace(':', '').replace('#', '').replace(' ', '')
+                        value = cols[1].text.strip()
+                        student_info[key] = value
+            
+            # Set defaults
+            if 'Registration' not in student_info:
+                student_info['Registration'] = registration_number
+            
+            # Extract results from tables
+            student_results = []
+            
+            # Look for result tables (usually the second or third table)
+            for table in soup.find_all('table'):
+                rows = table.find_all('tr')
+                
+                # Result tables have many rows and specific headers
+                if len(rows) > 5:
+                    # Check if first row contains result headers
+                    header_row = rows[0]
+                    header_text = header_row.get_text().lower()
+                    
+                    if any(term in header_text for term in ['sr', 'semester', 'course', 'teacher', 'credit', 'mid', 'assignment', 'final', 'practical', 'total', 'grade']):
+                        # Process each data row (skip header)
+                        for i in range(1, len(rows)):
+                            row = rows[i]
+                            cols = row.find_all('td')
+                            
+                            if len(cols) >= 5:  # At least 5 columns expected
+                                result_data = {
+                                    'RegistrationNo': student_info.get('Registration', registration_number),
+                                    'StudentName': student_info.get('StudentFullName', student_info.get('StudentName', '')),
+                                    'SrNo': cols[0].text.strip() if len(cols) > 0 else '',
+                                    'Semester': cols[1].text.strip() if len(cols) > 1 else '',
+                                    'TeacherName': cols[2].text.strip() if len(cols) > 2 else '',
+                                    'CourseCode': cols[3].text.strip() if len(cols) > 3 else '',
+                                    'CourseTitle': cols[4].text.strip() if len(cols) > 4 else '',
+                                    'CreditHours': cols[5].text.strip() if len(cols) > 5 else '',
+                                    'Mid': cols[6].text.strip() if len(cols) > 6 else '',
+                                    'Assignment': cols[7].text.strip() if len(cols) > 7 else '',
+                                    'Final': cols[8].text.strip() if len(cols) > 8 else '',
+                                    'Practical': cols[9].text.strip() if len(cols) > 9 else '',
+                                    'Total': cols[10].text.strip() if len(cols) > 10 else '',
+                                    'Grade': cols[11].text.strip() if len(cols) > 11 else ''
+                                }
+                                
+                                student_results.append(result_data)
+            
+            if student_results:
+                return True, f"Successfully extracted {len(student_results)} records for {registration_number}", student_results
+            else:
+                # Check if we might have found the data but in a different format
+                if "result award list" in page_text.lower():
+                    # Try alternative parsing method
+                    alt_results = self.alternative_parse(soup, registration_number, student_info)
+                    if alt_results:
+                        return True, f"Successfully extracted {len(alt_results)} records using alternative method", alt_results
+                
+                return False, f"No result data found for registration number: {registration_number}", None
+                    
+        except Exception as e:
+            logger.error(f"Error parsing results: {str(e)}")
+            return False, f"Error parsing results: {str(e)}", None
+
+    def alternative_parse(self, soup, registration_number, student_info):
+        """Alternative parsing method for different table structures"""
+        try:
+            student_results = []
+            
+            # Find all tables
+            tables = soup.find_all('table')
+            
+            for table in tables:
+                rows = table.find_all('tr')
+                
+                # Look for rows with data (more than 2 columns)
+                for row in rows:
+                    cols = row.find_all('td')
+                    if len(cols) >= 6:  # At least 6 columns for a result row
+                        # Check if first column is a number (likely a serial number)
+                        if cols[0].text.strip().isdigit():
+                            result_data = {
+                                'RegistrationNo': registration_number,
+                                'StudentName': student_info.get('StudentFullName', student_info.get('StudentName', '')),
+                                'SrNo': cols[0].text.strip(),
+                                'Semester': cols[1].text.strip() if len(cols) > 1 else '',
+                                'TeacherName': cols[2].text.strip() if len(cols) > 2 else '',
+                                'CourseCode': cols[3].text.strip() if len(cols) > 3 else '',
+                                'CourseTitle': cols[4].text.strip() if len(cols) > 4 else '',
+                                'CreditHours': cols[5].text.strip() if len(cols) > 5 else '',
+                                'Mid': cols[6].text.strip() if len(cols) > 6 else '',
+                                'Assignment': cols[7].text.strip() if len(cols) > 7 else '',
+                                'Final': cols[8].text.strip() if len(cols) > 8 else '',
+                                'Practical': cols[9].text.strip() if len(cols) > 9 else '',
+                                'Total': cols[10].text.strip() if len(cols) > 10 else '',
+                                'Grade': cols[11].text.strip() if len(cols) > 11 else ''
+                            }
+                            
+                            student_results.append(result_data)
+            
+            return student_results if student_results else None
+            
+        except Exception as e:
+            logger.error(f"Error in alternative parsing: {str(e)}")
+            return None
+
+    def save_to_session(self, session_id, result_data):
+        try:
+            session_file = os.path.join(DATA_DIR, f"session_{session_id}.json")
+            
+            existing_data = []
+            if os.path.exists(session_file):
+                with open(session_file, 'r') as f:
+                    existing_data = json.load(f)
+            
+            existing_data.extend(result_data)
+            
+            with open(session_file, 'w') as f:
+                json.dump(existing_data, f)
+                
+        except Exception as e:
+            logger.error(f"Error saving to session {session_id}: {e}")
+
+    def load_from_session(self, session_id):
+        try:
+            session_file = os.path.join(DATA_DIR, f"session_{session_id}.json")
+            
+            if os.path.exists(session_file):
+                with open(session_file, 'r') as f:
+                    return json.load(f)
+            return None
+        except Exception as e:
+            logger.error(f"Error loading from session {session_id}: {e}")
+            return None
+
+    def delete_session(self, session_id):
+        try:
+            session_file = os.path.join(DATA_DIR, f"session_{session_id}.json")
+            if os.path.exists(session_file):
+                os.remove(session_file)
+        except Exception as e:
+            logger.error(f"Error deleting session {session_id}: {e}")
