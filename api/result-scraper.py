@@ -11,6 +11,8 @@ import random
 import logging
 import uuid
 from datetime import datetime, timedelta
+import asyncio
+import aiohttp
 
 # Set up logging
 logging.basicConfig(level=logging.INFO)
@@ -476,7 +478,7 @@ class handler(BaseHTTPRequestHandler):
                     alt_results = self.alternative_parse(soup, registration_number, student_info)
                     if alt_results:
                         return True, f"Successfully extracted {len(alt_results)} records using alternative method", alt_results
-                
+
                 return False, f"No result data found for registration number: {registration_number}", None
                     
         except Exception as e:
