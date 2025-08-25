@@ -421,6 +421,43 @@
       border-top-right-radius: var(--radius);
     }
 
+    /* Button alignment improvements */
+    .btn-container {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+    
+    @media (max-width: 576px) {
+      .btn-container {
+        flex-direction: column;
+        align-items: center;
+      }
+      
+      .btn-container .btn {
+        width: 100%;
+        max-width: 280px;
+      }
+    }
+
+    /* Mobile table improvements */
+    .table-container {
+      overflow-x: auto;
+    }
+    
+    @media (max-width: 768px) {
+      .course-table {
+        min-width: 600px; /* Force horizontal scrolling on small screens */
+      }
+      
+      .course-table th, 
+      .course-table td {
+        padding: 0.5rem;
+        font-size: 0.875rem;
+      }
+    }
+
     /* ----------- DARK MODE IMPROVED ----------- */
     [data-theme="dark"] body{background:linear-gradient(180deg,#0b0e13 0%, #0f1320 70%); color:#f1f5f9;}
     [data-theme="dark"] .navbar{background-color:rgba(17,24,39,.75);}
@@ -550,7 +587,7 @@
           <span class="badge rounded-pill badge-brand mb-3">University of Agriculture Faisalabad</span>
           <h1 class="display-5 mb-3">Fetch Your <span style="color:var(--brand)">Results Automatically</span><br/>from UAF LMS</h1>
           <p class="lead mb-4">Enter your <strong>registration number</strong> to fetch your results directly from UAF LMS. The calculator will automatically compute your GPA based on UAF grading ranges.</p>
-          <div class="d-flex gap-2">
+          <div class="d-flex gap-2 btn-container">
             <a href="#Auto-Calculator" 
                class="btn btn-primary-action btn-lg rounded-pill" 
                style="font-size: 1.05rem; padding: 0.9rem;">
@@ -602,7 +639,7 @@
                   <div class="form-text">Enter your UAF registration number</div>
                 </div>
                 
-                <div class="d-flex gap-2">
+                <div class="d-flex gap-2 btn-container">
                   <button type="submit" class="btn btn-primary-action rounded-pill">
                     <i class="fa-solid fa-cloud-arrow-down me-2"></i>Fetch Result
                   </button>
@@ -630,7 +667,7 @@
               </div>
               
               <!-- Log Action Buttons -->
-              <div class="d-flex gap-2 mt-3">
+              <div class="d-flex gap-2 mt-3 btn-container">
                 <button id="downloadLogBtn" class="btn btn-secondary-action rounded-pill">
                   <i class="fa-solid fa-file-lines me-2"></i>Download Log
                 </button>
@@ -1024,85 +1061,96 @@
         }
       }
       
-      // Calculate quality points based on UAF grading system
+      // Calculate quality points based on UAF grading system (from the table)
       function calculateQualityPoints(marks, creditHours) {
-        marks = parseInt(marks);
+        marks = parseFloat(marks);
         creditHours = parseInt(creditHours);
-
-        let qualityPoints = 0;
-
+        
+        // For 5 credit hours (100 total marks)
         if (creditHours === 5) {
-          if (marks >= 80) {
-            qualityPoints = 20;
-          } else if (marks >= 50) {
-            qualityPoints = 20 - ((80 - marks) * 0.33333);
-          } else if (marks < 50) {
-            qualityPoints = 10 - ((50 - marks) * 0.5);
-          }
-          if (marks < 40) {
-            qualityPoints = 0;
-          }
-        } else if (creditHours === 4) {
-          if (marks >= 64) {
-            qualityPoints = 16;
-          } else if (marks >= 40) {
-            qualityPoints = 16 - ((64 - marks) * 0.33333);
-          } else if (marks < 40) {
-            qualityPoints = 8 - ((40 - marks) * 0.5);
-          }
-          if (marks < 32) {
-            qualityPoints = 0;
-          }
-        } else if (creditHours === 3) {
-          if (marks >= 48) {
-            qualityPoints = 12;
-          } else if (marks >= 30) {
-            qualityPoints = 12 - ((48 - marks) * 0.33333);
-          } else if (marks < 30) {
-            qualityPoints = 6 - ((30 - marks) * 0.5);
-          }
-          if (marks < 24) {
-            qualityPoints = 0;
-          }
-        } else if (creditHours === 2) {
-          if (marks >= 32) {
-            qualityPoints = 8;
-          } else if (marks >= 20) {
-            qualityPoints = 8 - ((32 - marks) * 0.33333);
-          } else if (marks < 20) {
-            qualityPoints = 4 - ((20 - marks) * 0.5);
-          }
-          if (marks < 16) {
-            qualityPoints = 0;
-          }
-        } else if (creditHours === 1) {
-          if (marks >= 16) {
-            qualityPoints = 4;
-          } else if (marks >= 10) {
-            qualityPoints = 4 - ((16 - marks) * 0.33333);
-          } else if (marks < 10) {
-            qualityPoints = 2 - ((10 - marks) * 0.5);
-          }
-          if (marks < 8) {
-            qualityPoints = 0;
-          }
+          if (marks >= 80) return 20.0;
+          if (marks >= 75) return 19.0;
+          if (marks >= 70) return 18.0;
+          if (marks >= 65) return 17.0;
+          if (marks >= 60) return 16.0;
+          if (marks >= 55) return 15.0;
+          if (marks >= 50) return 14.0;
+          if (marks >= 45) return 13.0;
+          if (marks >= 40) return 12.0;
+          return 0.0; // Fail
         }
-
-        return parseFloat(qualityPoints.toFixed(2));
+        
+        // For 4 credit hours (80 total marks)
+        if (creditHours === 4) {
+          if (marks >= 64) return 16.0;
+          if (marks >= 60) return 15.0;
+          if (marks >= 56) return 14.0;
+          if (marks >= 52) return 13.0;
+          if (marks >= 48) return 12.0;
+          if (marks >= 44) return 11.0;
+          if (marks >= 40) return 10.0;
+          if (marks >= 36) return 9.0;
+          if (marks >= 32) return 8.0;
+          return 0.0; // Fail
+        }
+        
+        // For 3 credit hours (60 total marks)
+        if (creditHours === 3) {
+          if (marks >= 48) return 12.0;
+          if (marks >= 45) return 11.0;
+          if (marks >= 42) return 10.0;
+          if (marks >= 39) return 9.0;
+          if (marks >= 36) return 8.0;
+          if (marks >= 33) return 7.0;
+          if (marks >= 30) return 6.0;
+          if (marks >= 27) return 5.0;
+          if (marks >= 24) return 4.0;
+          return 0.0; // Fail
+        }
+        
+        // For 2 credit hours (40 total marks)
+        if (creditHours === 2) {
+          if (marks >= 32) return 8.0;
+          if (marks >= 30) return 7.0;
+          if (marks >= 28) return 6.0;
+          if (marks >= 26) return 5.0;
+          if (marks >= 24) return 4.0;
+          if (marks >= 22) return 3.0;
+          if (marks >= 20) return 2.0;
+          if (marks >= 18) return 1.5;
+          if (marks >= 16) return 1.0;
+          return 0.0; // Fail
+        }
+        
+        // For 1 credit hour (20 total marks)
+        if (creditHours === 1) {
+          if (marks >= 16) return 4.0;
+          if (marks >= 15) return 3.67;
+          if (marks >= 14) return 3.33;
+          if (marks >= 13) return 3.0;
+          if (marks >= 12) return 2.67;
+          if (marks >= 11) return 2.33;
+          if (marks >= 10) return 2.0;
+          if (marks >= 9) return 1.5;
+          if (marks >= 8) return 1.0;
+          return 0.0; // Fail
+        }
+        
+        // Default case (should not happen with UAF courses)
+        return 0.0;
       }
       
-      // Get grade based on marks
-      function getGrade(marks) {
-        marks = parseInt(marks);
-        if (marks >= 85) return "A";
-        if (marks >= 80) return "A-";
-        if (marks >= 75) return "B+";
-        if (marks >= 70) return "B";
-        if (marks >= 65) return "B-";
-        if (marks >= 60) return "C+";
-        if (marks >= 55) return "C";
-        if (marks >= 50) return "C-";
-        if (marks >= 40) return "D";
+      // Get grade based on marks (UAF system)
+      function getGrade(marks, creditHours) {
+        marks = parseFloat(marks);
+        
+        // Determine grade based on percentage
+        const percentage = (marks / (creditHours * 20)) * 100;
+        
+        if (percentage >= 80) return "A";
+        if (percentage >= 65) return "B";
+        if (percentage >= 50) return "C";
+        if (percentage >= 40) return "D";
         return "F";
       }
       
@@ -1144,14 +1192,14 @@
         
         resultData.forEach(course => {
           const courseCode = course.CourseCode;
-          const marks = parseInt(course.Total) || 0;
+          const marks = parseFloat(course.Total) || 0;
           
           if (!courseMap.has(courseCode)) {
             courseMap.set(courseCode, course);
           } else {
             // Check if this is a better attempt
             const existingCourse = courseMap.get(courseCode);
-            const existingMarks = parseInt(existingCourse.Total) || 0;
+            const existingMarks = parseFloat(existingCourse.Total) || 0;
             
             if (marks > existingMarks) {
               // Mark the existing course as extra enrolled
@@ -1198,10 +1246,10 @@
           }
           
           const creditHours = parseInt(course.CreditHours) || 0;
-          const marks = parseInt(course.Total) || 0;
+          const marks = parseFloat(course.Total) || 0;
           const qualityPoints = calculateQualityPoints(marks, creditHours);
-          const grade = getGrade(marks);
-          const maxMarks = 100; // Assuming all courses are out of 100
+          const grade = getGrade(marks, creditHours);
+          const maxMarks = creditHours * 20; // UAF system: 20 marks per credit hour
           
           const courseData = {
             code: course.CourseCode || '',
@@ -1282,7 +1330,7 @@
             </div>
             <div class="col-md-6">
               <div class="mb-3">
-                <strong>Marks Obtained:</strong> ${course.marks}/100
+                <strong>Marks Obtained:</strong> ${course.marks}/${course.maxMarks}
               </div>
               <div class="mb-3">
                 <strong>Quality Points:</strong> ${course.qualityPoints.toFixed(2)}
@@ -1351,7 +1399,7 @@
                 <p class="mb-0 text-body-secondary small">${semester.marksPercentage.toFixed(2)}%</p>
               </div>
             </div>
-            <div class="table-responsive">
+            <div class="table-container">
               <table class="course-table">
                 <thead>
                   <tr>
@@ -1373,7 +1421,7 @@
                         </div>
                       </td>
                       <td>${course.creditHours}</td>
-                      <td>${course.marks}</td>
+                      <td>${course.marks}/${course.maxMarks}</td>
                       <td>
                         <span class="grade-badge grade-${course.grade}">${course.grade}</span>
                       </td>
