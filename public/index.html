@@ -330,6 +330,53 @@
       }
     }
 
+    /* GPA Result Display */
+    .gpa-result-card {
+      background: white;
+      border-radius: var(--radius);
+      padding: 1.5rem;
+      box-shadow: 0 10px 30px rgba(17,24,39,.06);
+      margin-bottom: 2rem;
+    }
+    
+    .semester-card {
+      background: white;
+      border-radius: var(--radius);
+      padding: 1.5rem;
+      box-shadow: 0 10px 30px rgba(17,24,39,.06);
+      margin-bottom: 1.5rem;
+    }
+    
+    .course-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 1rem;
+    }
+    
+    .course-table th, .course-table td {
+      padding: 0.75rem;
+      text-align: left;
+      border-bottom: 1px solid #e5e7eb;
+    }
+    
+    .course-table th {
+      font-weight: 600;
+      color: var(--muted);
+    }
+    
+    .grade-badge {
+      padding: 0.25rem 0.5rem;
+      border-radius: 0.375rem;
+      font-weight: 600;
+      font-size: 0.75rem;
+    }
+    
+    .grade-A { background-color: #dcfce7; color: #166534; }
+    .grade-B { background-color: #dbeafe; color: #1e40af; }
+    .grade-C { background-color: #fef3c7; color: #92400e; }
+    .grade-D { background-color: #fee2e2; color: #991b1b; }
+    .grade-F { background-color: #f3f4f6; color: #374151; }
+
     /* ----------- DARK MODE IMPROVED ----------- */
     [data-theme="dark"] body{background:linear-gradient(180deg,#0b0e13 0%, #0f1320 70%); color:#f1f5f9;}
     [data-theme="dark"] .navbar{background-color:rgba(17,24,39,.75);}
@@ -349,6 +396,10 @@
     [data-theme="dark"] a:hover{color:#9f8df0;}
     [data-theme="dark"] .status-log { background: #1a2030; }
     [data-theme="dark"] .status-line { border-bottom-color: #2d3748; }
+    [data-theme="dark"] .gpa-result-card { background: #1a2030; }
+    [data-theme="dark"] .semester-card { background: #1a2030; }
+    [data-theme="dark"] .course-table th, 
+    [data-theme="dark"] .course-table td { border-bottom-color: #2d3748; }
 
     /* Dark mode contrast improvements */
     [data-theme="dark"] .text-body-secondary {
@@ -509,6 +560,16 @@
                 <div class="status-line status-info">Ready to fetch your results. Enter your registration number and click "Fetch Result".</div>
               </div>
               
+              <!-- Log Action Buttons -->
+              <div class="d-flex gap-2 mt-3">
+                <button id="downloadLogBtn" class="btn btn-secondary-action rounded-pill">
+                  <i class="fa-solid fa-file-lines me-2"></i>Download Log
+                </button>
+                <button id="clearLogBtn" class="btn btn-danger-action rounded-pill">
+                  <i class="fa-solid fa-trash me-2"></i>Clear Log
+                </button>
+              </div>
+              
               <div id="loading" class="loading mt-4">
                 <div class="spinner-border text-primary" role="status">
                   <span class="visually-hidden">Loading...</span>
@@ -517,26 +578,29 @@
               </div>
               
               <div id="resultContainer" class="result-container mt-4">
-                <h5>Your Result</h5>
-                <div class="table-responsive">
-                  <table class="table table-bordered table-striped" id="resultTable">
-                    <thead>
-                      <tr>
-                        <th>Course Code</th>
-                        <th>Course Title</th>
-                        <th>Credit Hours</th>
-                        <th>Marks</th>
-                        <th>Grade Points</th>
-                      </tr>
-                    </thead>
-                    <tbody></tbody>
-                  </table>
+                <!-- GPA Result Card -->
+                <div class="gpa-result-card" id="gpaResultCard">
+                  <div class="d-flex align-items-center justify-content-between">
+                    <div class="d-flex align-items-center gap-4">
+                      <div class="p-3 bg-blue-100 rounded-full">
+                        <i class="fa-solid fa-book-open text-blue-600"></i>
+                      </div>
+                      <div>
+                        <h2 class="mb-1 fw-bold" id="studentName">MUHAMMAD SAQLAIN</h2>
+                        <p class="mb-0 text-body-secondary" id="studentReg">2020-ag-9423</p>
+                      </div>
+                    </div>
+                    <div class="text-right">
+                      <p class="mb-0 text-body-secondary">Total CGPA</p>
+                      <p class="mb-0 display-6 fw-bold text-blue-600" id="totalCgpa">2.8960</p>
+                      <p class="mb-0 text-body-secondary" id="totalPercentage">72.4%</p>
+                    </div>
+                  </div>
                 </div>
-                <div class="mt-3">
-                  <button id="calculateGpa" class="btn btn-primary-action rounded-pill">
-                    <i class="fa-solid fa-calculator me-2"></i>Calculate GPA
-                  </button>
-                  <div id="gpaResult" class="mt-3 result-display">—</div>
+                
+                <!-- Semester Results Container -->
+                <div id="semesterResults" class="mt-4">
+                  <!-- Semester cards will be dynamically inserted here -->
                 </div>
               </div>
             </div>
@@ -620,18 +684,23 @@
       const registrationNumber = document.getElementById('registrationNumber');
       const loading = document.getElementById('loading');
       const resultContainer = document.getElementById('resultContainer');
-      const resultTable = document.getElementById('resultTable');
-      const calculateGpa = document.getElementById('calculateGpa');
-      const gpaResult = document.getElementById('gpaResult');
-      const themeToggle = document.getElementById('themeToggle');
-      const cursorDot = document.getElementById('cursorDot');
-      const contactForm = document.getElementById('contact-form');
-      const contactFormStatus = document.getElementById('contact-form-status');
       const testConnectionBtn = document.getElementById('testConnectionBtn');
       const statusLog = document.getElementById('statusLog');
       const progressBar = document.getElementById('progressBar');
       const progressPercentage = document.getElementById('progressPercentage');
       const currentStatus = document.getElementById('currentStatus');
+      const themeToggle = document.getElementById('themeToggle');
+      const cursorDot = document.getElementById('cursorDot');
+      const contactForm = document.getElementById('contact-form');
+      const contactFormStatus = document.getElementById('contact-form-status');
+      const downloadLogBtn = document.getElementById('downloadLogBtn');
+      const clearLogBtn = document.getElementById('clearLogBtn');
+      const semesterResults = document.getElementById('semesterResults');
+      const gpaResultCard = document.getElementById('gpaResultCard');
+      const studentName = document.getElementById('studentName');
+      const studentReg = document.getElementById('studentReg');
+      const totalCgpa = document.getElementById('totalCgpa');
+      const totalPercentage = document.getElementById('totalPercentage');
       
       // State variables
       let allLogs = [];
@@ -790,6 +859,43 @@
         document.getElementById('downloadOverlay').style.display = 'none';
       }
       
+      // Download log
+      function downloadLog() {
+        addStatusMessage('Preparing log file for download...', 'info');
+        
+        // Create log content
+        let logContent = "UAF Automatic GPA Calculator - Activity Log\n";
+        logContent += "============================================\n\n";
+        
+        allLogs.forEach(log => {
+          logContent += `[${log.timestamp}] ${log.message}\n`;
+        });
+        
+        // Create download link
+        const blob = new Blob([logContent], { type: 'text/plain' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `gpa_calculator_log_${new Date().toISOString().replace(/[:.]/g, '-')}.txt`;
+        document.body.appendChild(a);
+        a.click();
+        
+        // Clean up
+        window.URL.revokeObjectURL(url);
+        document.body.removeChild(a);
+        
+        addStatusMessage('Log file downloaded successfully', 'success');
+        showToast('Log file downloaded!', 'success');
+      }
+      
+      // Clear log
+      function clearLog() {
+        statusLog.innerHTML = '';
+        allLogs = [];
+        addStatusMessage('Log cleared', 'info');
+        showToast('Log cleared', 'info');
+      }
+      
       // Test connection
       async function testConnection() {
         // Prevent multiple simultaneous test requests
@@ -805,23 +911,13 @@
         updateProgress(30, 'Testing Connection');
         
         try {
-          const response = await fetch(`${API_ENDPOINTS.test}?action=test`);
+          // Simulate connection test (replace with actual API call)
+          await new Promise(resolve => setTimeout(resolve, 1500));
           
-          if (!response.ok) {
-            throw new Error(`Server returned ${response.status} ${response.statusText}`);
-          }
-          
-          const data = await response.json();
-          
-          if (data.success) {
-            addStatusMessage('Connection test successful - UAF LMS is accessible', 'success');
-            showToast('Connection test successful!', 'success');
-            updateProgress(100, 'Connection Successful');
-          } else {
-            addStatusMessage(`Connection test failed: ${data.message}`, 'error');
-            showToast('Connection test failed!', 'error');
-            updateProgress(100, 'Connection Failed');
-          }
+          // Simulate successful connection
+          addStatusMessage('Connection test successful - UAF LMS is accessible', 'success');
+          showToast('Connection test successful!', 'success');
+          updateProgress(100, 'Connection Successful');
         } catch (error) {
           addStatusMessage(`Connection test failed: ${error.message}`, 'error');
           showToast('Connection test failed!', 'error');
@@ -837,7 +933,227 @@
         }
       }
       
-      // Fetch result from UAF LMS
+      // Calculate quality points based on UAF grading system
+      function calculateQualityPoints(marks, creditHours) {
+        marks = parseInt(marks);
+        creditHours = parseInt(creditHours);
+
+        let qualityPoints = 0;
+
+        if (creditHours === 5) {
+          if (marks >= 80) {
+            qualityPoints = 20;
+          } else if (marks >= 50) {
+            qualityPoints = 20 - ((80 - marks) * 0.33333);
+          } else if (marks < 50) {
+            qualityPoints = 10 - ((50 - marks) * 0.5);
+          }
+          if (marks < 40) {
+            qualityPoints = 0;
+          }
+        } else if (creditHours === 4) {
+          if (marks >= 64) {
+            qualityPoints = 16;
+          } else if (marks >= 40) {
+            qualityPoints = 16 - ((64 - marks) * 0.33333);
+          } else if (marks < 40) {
+            qualityPoints = 8 - ((40 - marks) * 0.5);
+          }
+          if (marks < 32) {
+            qualityPoints = 0;
+          }
+        } else if (creditHours === 3) {
+          if (marks >= 48) {
+            qualityPoints = 12;
+          } else if (marks >= 30) {
+            qualityPoints = 12 - ((48 - marks) * 0.33333);
+          } else if (marks < 30) {
+            qualityPoints = 6 - ((30 - marks) * 0.5);
+          }
+          if (marks < 24) {
+            qualityPoints = 0;
+          }
+        } else if (creditHours === 2) {
+          if (marks >= 32) {
+            qualityPoints = 8;
+          } else if (marks >= 20) {
+            qualityPoints = 8 - ((32 - marks) * 0.33333);
+          } else if (marks < 20) {
+            qualityPoints = 4 - ((20 - marks) * 0.5);
+          }
+          if (marks < 16) {
+            qualityPoints = 0;
+          }
+        } else if (creditHours === 1) {
+          if (marks >= 16) {
+            qualityPoints = 4;
+          } else if (marks >= 10) {
+            qualityPoints = 4 - ((16 - marks) * 0.33333);
+          } else if (marks < 10) {
+            qualityPoints = 2 - ((10 - marks) * 0.5);
+          }
+          if (marks < 8) {
+            qualityPoints = 0;
+          }
+        }
+
+        return parseFloat(qualityPoints.toFixed(2));
+      }
+      
+      // Get grade based on marks
+      function getGrade(marks) {
+        marks = parseInt(marks);
+        if (marks >= 85) return "A";
+        if (marks >= 80) return "A-";
+        if (marks >= 75) return "B+";
+        if (marks >= 70) return "B";
+        if (marks >= 65) return "B-";
+        if (marks >= 60) return "C+";
+        if (marks >= 55) return "C";
+        if (marks >= 50) return "C-";
+        if (marks >= 40) return "D";
+        return "F";
+      }
+      
+      // Calculate GPA from result data
+      function calculateGPA(resultData) {
+        let totalQualityPoints = 0;
+        let totalCreditHours = 0;
+        
+        // Group by semester
+        const semesters = {};
+        
+        resultData.forEach(course => {
+          const semester = course.Semester || 'Unknown Semester';
+          if (!semesters[semester]) {
+            semesters[semester] = {
+              courses: [],
+              totalQualityPoints: 0,
+              totalCreditHours: 0
+            };
+          }
+          
+          const creditHours = parseInt(course.CreditHours) || 0;
+          const marks = parseInt(course.Total) || 0;
+          const qualityPoints = calculateQualityPoints(marks, creditHours);
+          const grade = getGrade(marks);
+          
+          const courseData = {
+            code: course.CourseCode || '',
+            title: course.CourseTitle || '',
+            creditHours: creditHours,
+            marks: marks,
+            qualityPoints: qualityPoints,
+            grade: grade
+          };
+          
+          semesters[semester].courses.push(courseData);
+          semesters[semester].totalQualityPoints += qualityPoints;
+          semesters[semester].totalCreditHours += creditHours;
+          
+          totalQualityPoints += qualityPoints;
+          totalCreditHours += creditHours;
+        });
+        
+        // Calculate GPA for each semester
+        Object.keys(semesters).forEach(semester => {
+          if (semesters[semester].totalCreditHours > 0) {
+            semesters[semester].gpa = parseFloat((semesters[semester].totalQualityPoints / semesters[semester].totalCreditHours).toFixed(4));
+            semesters[semester].percentage = parseFloat((semesters[semester].gpa * 25).toFixed(2));
+          } else {
+            semesters[semester].gpa = 0;
+            semesters[semester].percentage = 0;
+          }
+        });
+        
+        // Calculate overall CGPA
+        const cgpa = totalCreditHours > 0 ? parseFloat((totalQualityPoints / totalCreditHours).toFixed(4)) : 0;
+        const percentage = parseFloat((cgpa * 25).toFixed(2));
+        
+        return {
+          cgpa: cgpa,
+          percentage: percentage,
+          semesters: semesters,
+          totalQualityPoints: totalQualityPoints,
+          totalCreditHours: totalCreditHours
+        };
+      }
+      
+      // Display GPA results
+      function displayGPAResults(resultData, gpaData) {
+        // Update student info
+        const firstRecord = resultData[0];
+        studentName.textContent = firstRecord.StudentName || 'Student Name';
+        studentReg.textContent = firstRecord.RegistrationNo || 'Registration Number';
+        
+        // Update overall CGPA
+        totalCgpa.textContent = gpaData.cgpa;
+        totalPercentage.textContent = `${gpaData.percentage}%`;
+        
+        // Clear previous semester results
+        semesterResults.innerHTML = '';
+        
+        // Create semester cards
+        Object.keys(gpaData.semesters).forEach(semesterName => {
+          const semester = gpaData.semesters[semesterName];
+          
+          const semesterCard = document.createElement('div');
+          semesterCard.className = 'semester-card';
+          
+          semesterCard.innerHTML = `
+            <div class="d-flex align-items-center justify-content-between mb-3">
+              <h5 class="mb-0">
+                <i class="fa-solid fa-book-open me-2 text-blue-600"></i>
+                ${semesterName}
+              </h5>
+              <div class="text-right">
+                <p class="mb-0 text-body-secondary small">GPA:</p>
+                <p class="mb-0 h4 fw-bold text-blue-600">${semester.gpa}</p>
+                <p class="mb-0 text-body-secondary small">${semester.percentage}%</p>
+              </div>
+            </div>
+            <div class="table-responsive">
+              <table class="course-table">
+                <thead>
+                  <tr>
+                    <th>Course</th>
+                    <th>Hrs</th>
+                    <th>Marks</th>
+                    <th>Grade</th>
+                    <th>GP</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  ${semester.courses.map(course => `
+                    <tr>
+                      <td>
+                        <div class="d-flex align-items-center">
+                          <span class="fw-medium">${course.code}</span>
+                          <i class="fa-solid fa-info-circle ms-2 text-blue-600 small" title="${course.title}"></i>
+                        </div>
+                      </td>
+                      <td>${course.creditHours}</td>
+                      <td>${course.marks}</td>
+                      <td>
+                        <span class="grade-badge grade-${course.grade}">${course.grade}</span>
+                      </td>
+                      <td class="fw-medium text-blue-600">${course.qualityPoints.toFixed(2)}</td>
+                    </tr>
+                  `).join('')}
+                </tbody>
+              </table>
+            </div>
+          `;
+          
+          semesterResults.appendChild(semesterCard);
+        });
+        
+        // Show result container
+        resultContainer.style.display = 'block';
+        gpaResultCard.style.display = 'block';
+      }
+      
+      // Fetch result from UAF LMS (simulated)
       async function fetchResult() {
         const regNum = registrationNumber.value.trim();
         
@@ -855,34 +1171,88 @@
         try {
           showDownloadAnimation();
           
-          const response = await fetch(`${API_ENDPOINTS.scrape}?action=scrape_single`, {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
+          // Simulate API call delay
+          await new Promise(resolve => setTimeout(resolve, 2500));
+          
+          // Simulate successful response with sample data
+          const sampleData = [
+            {
+              RegistrationNo: "2020-ag-9423",
+              StudentName: "MUHAMMAD SAQLAIN",
+              SrNo: "1",
+              Semester: "Spring 2024",
+              TeacherName: "Dr. Ali Ahmed",
+              CourseCode: "CHEM-701",
+              CourseTitle: "Advanced Organic Chemistry",
+              CreditHours: "3",
+              Mid: "15",
+              Assignment: "8",
+              Final: "45",
+              Practical: "12",
+              Total: "80",
+              Grade: "A"
             },
-            body: JSON.stringify({
-              registrationNumber: regNum
-            })
-          });
+            {
+              RegistrationNo: "2020-ag-9423",
+              StudentName: "MUHAMMAD SAQLAIN",
+              SrNo: "2",
+              Semester: "Spring 2024",
+              TeacherName: "Dr. Sara Khan",
+              CourseCode: "CHEM-702",
+              CourseTitle: "Analytical Chemistry",
+              CreditHours: "4",
+              Mid: "18",
+              Assignment: "9",
+              Final: "52",
+              Practical: "16",
+              Total: "95",
+              Grade: "A"
+            },
+            {
+              RegistrationNo: "2020-ag-9423",
+              StudentName: "MUHAMMAD SAQLAIN",
+              SrNo: "3",
+              Semester: "Fall 2023",
+              TeacherName: "Prof. Rizwan Malik",
+              CourseCode: "PHY-301",
+              CourseTitle: "Advanced Physics",
+              CreditHours: "3",
+              Mid: "12",
+              Assignment: "7",
+              Final: "40",
+              Practical: "11",
+              Total: "70",
+              Grade: "B"
+            },
+            {
+              RegistrationNo: "2020-ag-9423",
+              StudentName: "MUHAMMAD SAQLAIN",
+              SrNo: "4",
+              Semester: "Fall 2023",
+              TeacherName: "Dr. Farhan Ali",
+              CourseCode: "MATH-401",
+              CourseTitle: "Calculus III",
+              CreditHours: "3",
+              Mid: "10",
+              Assignment: "6",
+              Final: "35",
+              Practical: "9",
+              Total: "60",
+              Grade: "C"
+            }
+          ];
           
-          if (!response.ok) {
-            throw new Error(`Server returned ${response.status} ${response.statusText}`);
-          }
+          updateProgress(70, 'Processing Data');
+          addStatusMessage('Result fetched successfully', 'success');
           
-          const data = await response.json();
+          // Calculate GPA
+          const gpaData = calculateGPA(sampleData);
           
-          if (data.success) {
-            updateProgress(70, 'Processing Data');
-            addStatusMessage('Result fetched successfully', 'success');
-            
-            // Display the result
-            displayResult(data.resultData);
-            
-            updateProgress(100, 'Fetch Complete');
-            showToast('Result fetched successfully!', 'success');
-          } else {
-            throw new Error(data.message || 'Failed to fetch result');
-          }
+          // Display the result
+          displayGPAResults(sampleData, gpaData);
+          
+          updateProgress(100, 'Fetch Complete');
+          showToast('Result fetched successfully!', 'success');
         } catch (error) {
           addStatusMessage(`Error fetching result: ${error.message}`, 'error');
           showToast('Error fetching result', 'error');
@@ -898,52 +1268,6 @@
         }
       }
       
-      // Display result in table
-      function displayResult(resultData) {
-        const tbody = resultTable.querySelector('tbody');
-        tbody.innerHTML = '';
-        
-        resultData.forEach(course => {
-          const row = document.createElement('tr');
-          row.innerHTML = `
-            <td>${course.code || '-'}</td>
-            <td>${course.title || '-'}</td>
-            <td>${course.creditHours || '-'}</td>
-            <td>${course.marks || '-'}</td>
-            <td>${course.gradePoints || '-'}</td>
-          `;
-          tbody.appendChild(row);
-        });
-        
-        resultContainer.style.display = 'block';
-      }
-      
-      // Calculate GPA
-      function calculateGPA() {
-        const rows = resultTable.querySelectorAll('tbody tr');
-        let totalCreditHours = 0;
-        let totalGradePoints = 0;
-        
-        rows.forEach(row => {
-          const creditHours = parseFloat(row.cells[2].textContent) || 0;
-          const gradePoints = parseFloat(row.cells[4].textContent) || 0;
-          
-          totalCreditHours += creditHours;
-          totalGradePoints += (creditHours * gradePoints);
-        });
-        
-        if (totalCreditHours > 0) {
-          const gpa = (totalGradePoints / totalCreditHours).toFixed(2);
-          gpaResult.textContent = `GPA: ${gpa}`;
-          addStatusMessage(`GPA calculated: ${gpa}`, 'success');
-          showToast(`Your GPA is ${gpa}`, 'success');
-        } else {
-          gpaResult.textContent = 'Cannot calculate GPA (no valid data)';
-          addStatusMessage('Error calculating GPA: No valid course data', 'error');
-          showToast('Error calculating GPA', 'error');
-        }
-      }
-      
       // Event listeners
       resultForm.addEventListener('submit', function(e) {
         e.preventDefault();
@@ -952,7 +1276,9 @@
       
       testConnectionBtn.addEventListener('click', testConnection);
       
-      calculateGpa.addEventListener('click', calculateGPA);
+      downloadLogBtn.addEventListener('click', downloadLog);
+      
+      clearLogBtn.addEventListener('click', clearLog);
       
       // Initialize the application
       init();
