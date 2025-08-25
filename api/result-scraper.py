@@ -394,13 +394,23 @@ class handler(BaseHTTPRequestHandler):
                 return "F"
             
             # Grade ranges (approximate based on UAF system)
-            if marks >= 80:
+            if marks >= 85:
                 return "A"
+            elif marks >= 80:
+                return "A-"
+            elif marks >= 75:
+                return "B+"
             elif marks >= 70:
                 return "B"
+            elif marks >= 65:
+                return "B-"
             elif marks >= 60:
+                return "C+"
+            elif marks >= 55:
                 return "C"
             elif marks >= 50:
+                return "C-"
+            elif marks >= 40:
                 return "D"
             else:
                 return "F"
@@ -415,6 +425,32 @@ class handler(BaseHTTPRequestHandler):
             semesters = {}
             student_info = {}
             
+            # Process semester names for display
+            def format_semester_name(semester):
+                if not semester:
+                    return "Unknown Semester"
+                
+                # Handle different semester formats
+                if 'Winter' in semester:
+                    year_match = re.search(r'(\d{4}-\d{2,4})', semester)
+                    if year_match:
+                        year = year_match.group(0).split('-')[0]
+                        return f"Winter {year}"
+                elif 'Spring' in semester:
+                    year_match = re.search(r'(\d{4}-\d{2,4})', semester)
+                    if year_match:
+                        year = year_match.group(0).split('-')[1]
+                        return f"Spring {year}"
+                elif 'Summer' in semester:
+                    year_match = re.search(r'(\d{4}-\d{2,4})', semester)
+                    if year_match:
+                        year = year_match.group(0).split('-')[0]
+                        return f"Summer {year}"
+                
+                return semester
+            
+            # Process courses to handle duplicates (keep highest marks)
+            course_map = {}
             for result in result_data:
                 # Extract student info from first record
                 if not student_info:
@@ -423,13 +459,25 @@ class handler(BaseHTTPRequestHandler):
                         'registration': result.get('RegistrationNo', '')
                     }
                 
+                course_code = result.get('CourseCode', '')
+                marks = float(result.get('Total', 0))
+                
+                # If we've seen this course before, keep the highest marks
+                if course_code in course_map:
+                    existing_marks = float(course_map[course_code].get('Total', 0))
+                    if marks > existing_marks:
+                        course_map[course_code] = result
+                else:
+                    course_map[course_code] = result
+            
+            # Group by semester
+            for course_code, result in course_map.items():
                 # Extract semester information
-                semester = result.get('Semester', 'Unknown')
+                semester = format_semester_name(result.get('Semester', 'Unknown'))
                 if semester not in semesters:
                     semesters[semester] = []
                 
                 # Extract course details
-                course_code = result.get('CourseCode', '')
                 course_title = result.get('CourseTitle', '')
                 credit_hours_str = result.get('CreditHours', '0')
                 marks_str = result.get('Total', '0')
@@ -460,46 +508,63 @@ class handler(BaseHTTPRequestHandler):
                     'creditHours': credit_hours,
                     'marks': marks,
                     'qualityPoints': round(quality_points, 2),
-                    'grade': grade
+                    'grade': grade,
+                    'fullDetails': result  # Store all details
                 })
             
             # Calculate GPA for each semester and overall CGPA
             semester_gpa = {}
             total_quality_points = 0
             total_credit_hours = 0
+            total_marks_obtained = 0
+            total_max_marks = 0
             
             for semester, courses in semesters.items():
                 semester_quality_points = 0
                 semester_credit_hours = 0
+                semester_marks_obtained = 0
+                semester_max_marks = 0
                 
                 for course in courses:
                     semester_quality_points += course['qualityPoints']
                     semester_credit_hours += course['creditHours']
+                    semester_marks_obtained += course['marks']
+                    semester_max_marks += 100  # Assuming all courses are out of 100
                 
                 if semester_credit_hours > 0:
                     semester_gpa[semester] = {
                         'gpa': round(semester_quality_points / semester_credit_hours, 4),
                         'percentage': round((semester_quality_points / semester_credit_hours) * 25, 2),
+                        'marksPercentage': round((semester_marks_obtained / semester_max_marks) * 100, 2),
                         'courses': courses
                     }
                     
                     total_quality_points += semester_quality_points
                     total_credit_hours += semester_credit_hours
+                    total_marks_obtained += semester_marks_obtained
+                    total_max_marks += semester_max_marks
             
             # Calculate overall CGPA
             cgpa = 0
             cgpa_percentage = 0
+            cgpa_marks_percentage = 0
             if total_credit_hours > 0:
                 cgpa = round(total_quality_points / total_credit_hours, 4)
                 cgpa_percentage = round((total_quality_points / total_credit_hours) * 25, 2)
+            
+            if total_max_marks > 0:
+                cgpa_marks_percentage = round((total_marks_obtained / total_max_marks) * 100, 2)
             
             return {
                 'studentInfo': student_info,
                 'cgpa': cgpa,
                 'cgpaPercentage': cgpa_percentage,
+                'cgpaMarksPercentage': cgpa_marks_percentage,
                 'semesters': semester_gpa,
                 'totalQualityPoints': total_quality_points,
-                'totalCreditHours': total_credit_hours
+                'totalCreditHours': total_credit_hours,
+                'totalMarksObtained': total_marks_obtained,
+                'totalMaxMarks': total_max_marks
             }
             
         except Exception as e:
@@ -508,9 +573,12 @@ class handler(BaseHTTPRequestHandler):
                 'studentInfo': {'name': '', 'registration': ''},
                 'cgpa': 0,
                 'cgpaPercentage': 0,
+                'cgpaMarksPercentage': 0,
                 'semesters': {},
                 'totalQualityPoints': 0,
-                'totalCreditHours': 0
+                'totalCreditHours': 0,
+                'totalMarksObtained': 0,
+                'totalMaxMarks': 0
             }
 
     def scrape_uaf_results(self, registration_number):
