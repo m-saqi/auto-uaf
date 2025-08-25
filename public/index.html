@@ -160,11 +160,11 @@
     /* Toast notifications */
     #toast-container {
       position: fixed;
-      top: 25px;
+      bottom: 25px;
       right: 20px;
       z-index: 9999;
       display: flex;
-      flex-direction: column-reverse;
+      flex-direction: column-reverse; /* Changed to column-reverse for newer on top */
       gap: 10px;
     }
 
@@ -348,20 +348,6 @@
       position: relative;
     }
     
-    .delete-semester {
-      position: absolute;
-      top: 1rem;
-      right: 1rem;
-      color: #e74c3c;
-      cursor: pointer;
-      opacity: 0.7;
-      transition: opacity 0.2s;
-    }
-    
-    .delete-semester:hover {
-      opacity: 1;
-    }
-    
     .course-table {
       width: 100%;
       border-collapse: collapse;
@@ -391,17 +377,48 @@
     .grade-C { background-color: #fef3c7; color: #92400e; }
     .grade-D { background-color: #fee2e2; color: #991b1b; }
     .grade-F { background-color: #f3f4f6; color: #374151; }
-    
-    .extra-enrolled {
-      font-size: 0.7rem;
-      color: #e74c3c;
-      font-style: italic;
-    }
 
-    /* Recalculate button */
-    .recalculate-container {
-      text-align: center;
-      margin: 2rem 0;
+    .extra-enrolled-badge {
+      background-color: #fef3c7;
+      color: #92400e;
+      padding: 0.2rem 0.5rem;
+      border-radius: 0.25rem;
+      font-size: 0.7rem;
+      margin-left: 0.5rem;
+    }
+    
+    .delete-semester-btn {
+      position: absolute;
+      top: 1rem;
+      right: 1rem;
+      background: #fee2e2;
+      border: none;
+      border-radius: 50%;
+      width: 30px;
+      height: 30px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #dc2626;
+      cursor: pointer;
+    }
+    
+    .delete-semester-btn:hover {
+      background: #fecaca;
+    }
+    
+    .recalculate-btn {
+      margin-top: 1rem;
+    }
+    
+    .course-detail-modal .modal-content {
+      border-radius: var(--radius);
+    }
+    
+    .course-detail-modal .modal-header {
+      background: linear-gradient(180deg, rgba(122,106,216,.15), rgba(122,106,216,.05));
+      border-top-left-radius: var(--radius);
+      border-top-right-radius: var(--radius);
     }
 
     /* ----------- DARK MODE IMPROVED ----------- */
@@ -427,6 +444,13 @@
     [data-theme="dark"] .semester-card { background: #1a2030; }
     [data-theme="dark"] .course-table th, 
     [data-theme="dark"] .course-table td { border-bottom-color: #2d3748; }
+    [data-theme="dark"] .delete-semester-btn {
+      background: #7f1d1d;
+      color: #fecaca;
+    }
+    [data-theme="dark"] .delete-semester-btn:hover {
+      background: #991b1b;
+    }
 
     /* Dark mode contrast improvements */
     [data-theme="dark"] .text-body-secondary {
@@ -470,6 +494,24 @@
   <div id="downloadOverlay" style="display: none;">
     <div class="download-spinner"></div>
     <div class="download-text">Processing your result...</div>
+  </div>
+
+  <!-- Course Detail Modal -->
+  <div class="modal fade course-detail-modal" id="courseDetailModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="courseDetailModalTitle">Course Details</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body" id="courseDetailModalBody">
+          <!-- Course details will be populated here -->
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary rounded-pill" data-bs-dismiss="modal">Close</button>
+        </div>
+      </div>
+    </div>
   </div>
 
   <!-- Navbar -->
@@ -613,14 +655,14 @@
                         <i class="fa-solid fa-book-open text-blue-600"></i>
                       </div>
                       <div>
-                        <h2 class="mb-1 fw-bold" id="studentName">MUHAMMAD SAQLAIN</h2>
-                        <p class="mb-0 text-body-secondary" id="studentReg">2020-ag-9423</p>
+                        <h2 class="mb-1 fw-bold" id="studentName">Student Name</h2>
+                        <p class="mb-0 text-body-secondary" id="studentReg">Registration Number</p>
                       </div>
                     </div>
                     <div class="text-right">
                       <p class="mb-0 text-body-secondary">Total CGPA</p>
-                      <p class="mb-0 display-6 fw-bold text-blue-600" id="totalCgpa">2.8960</p>
-                      <p class="mb-0 text-body-secondary" id="totalPercentage">72.4%</p>
+                      <p class="mb-0 display-6 fw-bold text-blue-600" id="totalCgpa">0.00</p>
+                      <p class="mb-0 text-body-secondary" id="totalPercentage">0%</p>
                     </div>
                   </div>
                 </div>
@@ -631,8 +673,8 @@
                 </div>
                 
                 <!-- Recalculate Button -->
-                <div class="recalculate-container">
-                  <button id="recalculateBtn" class="btn btn-primary-action rounded-pill">
+                <div class="d-flex justify-content-center mt-4">
+                  <button id="recalculateBtn" class="btn btn-primary-action rounded-pill recalculate-btn">
                     <i class="fa-solid fa-calculator me-2"></i>Calculate CGPA Now
                   </button>
                 </div>
@@ -736,12 +778,13 @@
       const totalCgpa = document.getElementById('totalCgpa');
       const totalPercentage = document.getElementById('totalPercentage');
       const recalculateBtn = document.getElementById('recalculateBtn');
+      const courseDetailModal = new bootstrap.Modal(document.getElementById('courseDetailModal'));
       
       // State variables
       let allLogs = [];
       let testInProgress = false;
       let currentResultData = null;
-      let currentGpaData = null;
+      let currentGPAData = null;
       
       // API endpoints
       const API_ENDPOINTS = {
@@ -777,7 +820,7 @@
           <div class="toast-progress"></div>
         `;
         
-        toastContainer.appendChild(toast);
+        toastContainer.prepend(toast); // Changed to prepend so newer toasts appear on top
         
         // Animate in
         setTimeout(() => {
@@ -948,13 +991,24 @@
         updateProgress(30, 'Testing Connection');
         
         try {
-          // Simulate connection test (replace with actual API call)
-          await new Promise(resolve => setTimeout(resolve, 1500));
+          const response = await fetch(`${API_ENDPOINTS.test}?action=test`, {
+            method: 'GET',
+            headers: {
+              'Content-Type': 'application/json'
+            }
+          });
           
-          // Simulate successful connection
-          addStatusMessage('Connection test successful - UAF LMS is accessible', 'success');
-          showToast('Connection test successful!', 'success');
-          updateProgress(100, 'Connection Successful');
+          const data = await response.json();
+          
+          if (data.success) {
+            addStatusMessage('Connection test successful - UAF LMS is accessible', 'success');
+            showToast('Connection test successful!', 'success');
+            updateProgress(100, 'Connection Successful');
+          } else {
+            addStatusMessage(`Connection test failed: ${data.message}`, 'error');
+            showToast('Connection test failed!', 'error');
+            updateProgress(100, 'Connection Failed');
+          }
         } catch (error) {
           addStatusMessage(`Connection test failed: ${error.message}`, 'error');
           showToast('Connection test failed!', 'error');
@@ -968,38 +1022,6 @@
             updateProgress(0, 'Ready');
           }, 2000);
         }
-      }
-      
-      // Format semester name for display
-      function formatSemesterName(semester) {
-        if (!semester) return 'Unknown Semester';
-        
-        // Handle various semester formats
-        if (semester.includes('Winter')) {
-          const yearMatch = semester.match(/(\d{4})[-/](\d{2,4})/);
-          if (yearMatch) {
-            return `Winter ${yearMatch[1]}`;
-          }
-        } else if (semester.includes('Spring')) {
-          const yearMatch = semester.match(/(\d{4})[-/](\d{2,4})/);
-          if (yearMatch) {
-            const year = yearMatch[2].length === 2 ? `20${yearMatch[2]}` : yearMatch[2];
-            return `Spring ${year}`;
-          }
-        } else if (semester.includes('Summer')) {
-          const yearMatch = semester.match(/(\d{4})[-/](\d{2,4})/);
-          if (yearMatch) {
-            return `Summer ${yearMatch[1]}`;
-          }
-        } else if (semester.includes('Fall')) {
-          const yearMatch = semester.match(/(\d{4})[-/](\d{2,4})/);
-          if (yearMatch) {
-            return `Fall ${yearMatch[1]}`;
-          }
-        }
-        
-        // Return original if no pattern matched
-        return semester;
       }
       
       // Calculate quality points based on UAF grading system
@@ -1084,55 +1106,70 @@
         return "F";
       }
       
-      // Process result data to handle re-enrolled courses
-      function processResultData(resultData) {
-        const courseMap = new Map(); // To track best attempt for each course
-        const reEnrolledCourses = new Set(); // To track re-enrolled courses
+      // Process semester name for display
+      function formatSemesterName(semester) {
+        if (!semester) return "Unknown Semester";
         
-        // First pass: identify the best attempt for each course
+        // Handle different semester formats
+        if (semester.includes('Winter')) {
+          const yearMatch = semester.match(/(\d{4}-\d{2,4})/);
+          if (yearMatch) {
+            const year = yearMatch[0].split('-')[0];
+            return `Winter ${year}`;
+          }
+        } else if (semester.includes('Spring')) {
+          const yearMatch = semester.match(/(\d{4}-\d{2,4})/);
+          if (yearMatch) {
+            const year = yearMatch[0].split('-')[1];
+            return `Spring ${year}`;
+          }
+        } else if (semester.includes('Summer')) {
+          const yearMatch = semester.match(/(\d{4}-\d{2,4})/);
+          if (yearMatch) {
+            const year = yearMatch[0].split('-')[0];
+            return `Summer ${year}`;
+          }
+        }
+        
+        return semester;
+      }
+      
+      // Process result data to handle duplicate courses
+      function processResultData(resultData) {
+        if (!resultData || !Array.isArray(resultData)) return [];
+        
+        // Group by course code and keep only the highest marks
+        const courseMap = new Map();
+        const extraEnrolledCourses = new Set();
+        
         resultData.forEach(course => {
-          const courseCode = course.CourseCode || '';
+          const courseCode = course.CourseCode;
           const marks = parseInt(course.Total) || 0;
-          const creditHours = parseInt(course.CreditHours) || 0;
-          const qualityPoints = calculateQualityPoints(marks, creditHours);
           
-          if (courseMap.has(courseCode)) {
-            // Course already exists, compare quality points
-            const existing = courseMap.get(courseCode);
-            if (qualityPoints > existing.qualityPoints) {
-              courseMap.set(courseCode, {
-                ...course,
-                qualityPoints,
-                isReEnrolled: true
-              });
-              reEnrolledCourses.add(courseCode);
-            }
+          if (!courseMap.has(courseCode)) {
+            courseMap.set(courseCode, course);
           } else {
-            // New course
-            courseMap.set(courseCode, {
-              ...course,
-              qualityPoints,
-              isReEnrolled: false
-            });
+            // Check if this is a better attempt
+            const existingCourse = courseMap.get(courseCode);
+            const existingMarks = parseInt(existingCourse.Total) || 0;
+            
+            if (marks > existingMarks) {
+              // Mark the existing course as extra enrolled
+              extraEnrolledCourses.add(`${existingCourse.CourseCode}-${existingCourse.Semester}`);
+              courseMap.set(courseCode, course);
+            } else {
+              // Mark this course as extra enrolled
+              extraEnrolledCourses.add(`${course.CourseCode}-${course.Semester}`);
+            }
           }
         });
         
-        // Second pass: create processed data with best attempts
-        const processedData = [];
-        const seenCourses = new Set();
-        
-        resultData.forEach(course => {
-          const courseCode = course.CourseCode || '';
-          const bestAttempt = courseMap.get(courseCode);
-          
-          // Only add the best attempt for each course
-          if (!seenCourses.has(courseCode) && bestAttempt) {
-            processedData.push({
-              ...bestAttempt,
-              isExtraEnrolled: reEnrolledCourses.has(courseCode)
-            });
-            seenCourses.add(courseCode);
-          }
+        // Convert back to array and mark extra enrolled courses
+        const processedData = Array.from(courseMap.values()).map(course => {
+          return {
+            ...course,
+            isExtraEnrolled: extraEnrolledCourses.has(`${course.CourseCode}-${course.Semester}`)
+          };
         });
         
         return processedData;
@@ -1140,9 +1177,6 @@
       
       // Calculate GPA from result data
       function calculateGPA(resultData) {
-        // Process data to handle re-enrolled courses
-        const processedData = processResultData(resultData);
-        
         let totalQualityPoints = 0;
         let totalCreditHours = 0;
         let totalMarksObtained = 0;
@@ -1151,7 +1185,7 @@
         // Group by semester
         const semesters = {};
         
-        processedData.forEach(course => {
+        resultData.forEach(course => {
           const semester = formatSemesterName(course.Semester);
           if (!semesters[semester]) {
             semesters[semester] = {
@@ -1167,16 +1201,18 @@
           const marks = parseInt(course.Total) || 0;
           const qualityPoints = calculateQualityPoints(marks, creditHours);
           const grade = getGrade(marks);
-          const maxMarks = 100; // Assuming max marks is 100 for all courses
+          const maxMarks = 100; // Assuming all courses are out of 100
           
           const courseData = {
             code: course.CourseCode || '',
             title: course.CourseTitle || '',
             creditHours: creditHours,
             marks: marks,
+            maxMarks: maxMarks,
             qualityPoints: qualityPoints,
             grade: grade,
-            isExtraEnrolled: course.isExtraEnrolled || false
+            isExtraEnrolled: course.isExtraEnrolled || false,
+            fullDetails: course // Store all details for modal
           };
           
           semesters[semester].courses.push(courseData);
@@ -1221,6 +1257,62 @@
         };
       }
       
+      // Show course details in modal
+      function showCourseDetails(course) {
+        const modalTitle = document.getElementById('courseDetailModalTitle');
+        const modalBody = document.getElementById('courseDetailModalBody');
+        
+        modalTitle.textContent = `${course.code} - ${course.title}`;
+        
+        modalBody.innerHTML = `
+          <div class="row">
+            <div class="col-md-6">
+              <div class="mb-3">
+                <strong>Course Code:</strong> ${course.code}
+              </div>
+              <div class="mb-3">
+                <strong>Course Title:</strong> ${course.title}
+              </div>
+              <div class="mb-3">
+                <strong>Credit Hours:</strong> ${course.creditHours}
+              </div>
+              <div class="mb-3">
+                <strong>Grade:</strong> <span class="grade-badge grade-${course.grade}">${course.grade}</span>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="mb-3">
+                <strong>Marks Obtained:</strong> ${course.marks}/100
+              </div>
+              <div class="mb-3">
+                <strong>Quality Points:</strong> ${course.qualityPoints.toFixed(2)}
+              </div>
+              <div class="mb-3">
+                <strong>Status:</strong> ${course.isExtraEnrolled ? '<span class="extra-enrolled-badge">Extra Enrolled</span>' : 'Regular'}
+              </div>
+            </div>
+          </div>
+          ${course.fullDetails.TeacherName ? `
+          <div class="mt-3">
+            <strong>Teacher:</strong> ${course.fullDetails.TeacherName}
+          </div>
+          ` : ''}
+          ${course.fullDetails.Mid || course.fullDetails.Final || course.fullDetails.Practical || course.fullDetails.Assignment ? `
+          <div class="mt-4">
+            <h6>Detailed Marks:</h6>
+            <div class="row">
+              ${course.fullDetails.Mid ? `<div class="col-6 col-md-3"><strong>Mid:</strong> ${course.fullDetails.Mid}</div>` : ''}
+              ${course.fullDetails.Final ? `<div class="col-6 col-md-3"><strong>Final:</strong> ${course.fullDetails.Final}</div>` : ''}
+              ${course.fullDetails.Practical ? `<div class="col-6 col-md-3"><strong>Practical:</strong> ${course.fullDetails.Practical}</div>` : ''}
+              ${course.fullDetails.Assignment ? `<div class="col-6 col-md-3"><strong>Assignment:</strong> ${course.fullDetails.Assignment}</div>` : ''}
+            </div>
+          </div>
+          ` : ''}
+        `;
+        
+        courseDetailModal.show();
+      }
+      
       // Display GPA results
       function displayGPAResults(resultData, gpaData) {
         // Update student info
@@ -1229,8 +1321,8 @@
         studentReg.textContent = firstRecord.RegistrationNo || 'Registration Number';
         
         // Update overall CGPA
-        totalCgpa.textContent = gpaData.cgpa;
-        totalPercentage.textContent = `${gpaData.marksPercentage}%`;
+        totalCgpa.textContent = gpaData.cgpa.toFixed(4);
+        totalPercentage.textContent = `${gpaData.marksPercentage.toFixed(2)}%`;
         
         // Clear previous semester results
         semesterResults.innerHTML = '';
@@ -1241,10 +1333,13 @@
           
           const semesterCard = document.createElement('div');
           semesterCard.className = 'semester-card';
-          semesterCard.dataset.semester = semesterName;
+          semesterCard.id = `semester-${semesterName.replace(/\s+/g, '-').toLowerCase()}`;
+          semesterCard.dataset.semesterName = semesterName;
           
           semesterCard.innerHTML = `
-            <i class="fas fa-times delete-semester" title="Remove semester"></i>
+            <button class="delete-semester-btn" data-semester="${semesterName}">
+              <i class="fa-solid fa-times"></i>
+            </button>
             <div class="d-flex align-items-center justify-content-between mb-3">
               <h5 class="mb-0">
                 <i class="fa-solid fa-book-open me-2 text-blue-600"></i>
@@ -1252,8 +1347,8 @@
               </h5>
               <div class="text-right">
                 <p class="mb-0 text-body-secondary small">GPA:</p>
-                <p class="mb-0 h4 fw-bold text-blue-600">${semester.gpa}</p>
-                <p class="mb-0 text-body-secondary small">${semester.marksPercentage}%</p>
+                <p class="mb-0 h4 fw-bold text-blue-600">${semester.gpa.toFixed(4)}</p>
+                <p class="mb-0 text-body-secondary small">${semester.marksPercentage.toFixed(2)}%</p>
               </div>
             </div>
             <div class="table-responsive">
@@ -1272,9 +1367,9 @@
                     <tr>
                       <td>
                         <div class="d-flex align-items-center">
-                          <span class="fw-medium">${course.code}</span>
+                          <span class="fw-medium course-code" style="cursor: pointer;" data-course='${JSON.stringify(course).replace(/'/g, "&#39;")}'>${course.code}</span>
+                          ${course.isExtraEnrolled ? '<span class="extra-enrolled-badge">Extra</span>' : ''}
                           <i class="fa-solid fa-info-circle ms-2 text-blue-600 small" title="${course.title}"></i>
-                          ${course.isExtraEnrolled ? '<span class="extra-enrolled ms-2">Extra Enrolled</span>' : ''}
                         </div>
                       </td>
                       <td>${course.creditHours}</td>
@@ -1290,14 +1385,23 @@
             </div>
           `;
           
-          // Add delete event listener
-          const deleteBtn = semesterCard.querySelector('.delete-semester');
-          deleteBtn.addEventListener('click', () => {
-            semesterCard.remove();
-            showToast(`Semester ${semesterName} removed`, 'info');
-          });
-          
           semesterResults.appendChild(semesterCard);
+        });
+        
+        // Add event listeners to course codes
+        document.querySelectorAll('.course-code').forEach(element => {
+          element.addEventListener('click', function() {
+            const courseData = JSON.parse(this.dataset.course.replace(/&#39;/g, "'"));
+            showCourseDetails(courseData);
+          });
+        });
+        
+        // Add event listeners to delete buttons
+        document.querySelectorAll('.delete-semester-btn').forEach(button => {
+          button.addEventListener('click', function() {
+            const semesterName = this.dataset.semester;
+            deleteSemester(semesterName);
+          });
         });
         
         // Show result container
@@ -1305,49 +1409,44 @@
         gpaResultCard.style.display = 'block';
       }
       
-      // Recalculate CGPA based on visible semesters
-      function recalculateCGPA() {
-        if (!currentResultData || !currentGpaData) return;
+      // Delete a semester
+      function deleteSemester(semesterName) {
+        if (!currentResultData) return;
         
-        let totalQualityPoints = 0;
-        let totalCreditHours = 0;
-        let totalMarksObtained = 0;
-        let totalMaxMarks = 0;
-        
-        // Get all visible semester cards
-        const visibleSemesterCards = document.querySelectorAll('.semester-card:not([style*="display: none"])');
-        
-        if (visibleSemesterCards.length === 0) {
-          showToast('No semesters selected for calculation', 'warning');
-          return;
-        }
-        
-        // Calculate totals from visible semesters
-        visibleSemesterCards.forEach(card => {
-          const semesterName = card.dataset.semester;
-          const semester = currentGpaData.semesters[semesterName];
-          
-          if (semester) {
-            totalQualityPoints += semester.totalQualityPoints;
-            totalCreditHours += semester.totalCreditHours;
-            totalMarksObtained += semester.totalMarksObtained;
-            totalMaxMarks += semester.totalMaxMarks;
-          }
+        // Filter out courses from the deleted semester
+        const updatedResultData = currentResultData.filter(course => {
+          return formatSemesterName(course.Semester) !== semesterName;
         });
         
-        // Calculate new CGPA
-        const cgpa = totalCreditHours > 0 ? parseFloat((totalQualityPoints / totalCreditHours).toFixed(4)) : 0;
-        const percentage = parseFloat((cgpa * 25).toFixed(2));
-        const marksPercentage = totalMaxMarks > 0 ? parseFloat((totalMarksObtained / totalMaxMarks * 100).toFixed(2)) : 0;
+        // Update current data
+        currentResultData = updatedResultData;
+        
+        // Recalculate GPA
+        const processedData = processResultData(currentResultData);
+        currentGPAData = calculateGPA(processedData);
         
         // Update display
-        totalCgpa.textContent = cgpa;
-        totalPercentage.textContent = `${marksPercentage}%`;
+        displayGPAResults(currentResultData, currentGPAData);
         
-        showToast('CGPA recalculated successfully', 'success');
+        addStatusMessage(`Deleted semester: ${semesterName}`, 'info');
+        showToast(`Semester ${semesterName} deleted`, 'info');
       }
       
-      // Fetch result from UAF LMS (simulated)
+      // Recalculate CGPA
+      function recalculateCGPA() {
+        if (!currentResultData) return;
+        
+        const processedData = processResultData(currentResultData);
+        currentGPAData = calculateGPA(processedData);
+        
+        // Update display
+        displayGPAResults(currentResultData, currentGPAData);
+        
+        addStatusMessage('Recalculated CGPA based on current semesters', 'info');
+        showToast('CGPA recalculated successfully!', 'success');
+      }
+      
+      // Fetch result from UAF LMS
       async function fetchResult() {
         const regNum = registrationNumber.value.trim();
         
@@ -1365,121 +1464,38 @@
         try {
           showDownloadAnimation();
           
-          // Simulate API call delay
-          await new Promise(resolve => setTimeout(resolve, 2500));
-          
-          // Simulate successful response with sample data (including re-enrolled courses)
-          const sampleData = [
-            {
-              RegistrationNo: "2020-ag-9423",
-              StudentName: "MUHAMMAD SAQLAIN",
-              SrNo: "1",
-              Semester: "Winter Semester 2024-25",
-              TeacherName: "Dr. Ali Ahmed",
-              CourseCode: "CHEM-701",
-              CourseTitle: "Advanced Organic Chemistry",
-              CreditHours: "3",
-              Mid: "15",
-              Assignment: "8",
-              Final: "45",
-              Practical: "12",
-              Total: "80",
-              Grade: "A"
-            },
-            {
-              RegistrationNo: "2020-ag-9423",
-              StudentName: "MUHAMMAD SAQLAIN",
-              SrNo: "2",
-              Semester: "Winter Semester 2024-25",
-              TeacherName: "Dr. Sara Khan",
-              CourseCode: "CHEM-702",
-              CourseTitle: "Analytical Chemistry",
-              CreditHours: "4",
-              Mid: "18",
-              Assignment: "9",
-              Final: "52",
-              Practical: "16",
-              Total: "95",
-              Grade: "A"
-            },
-            {
-              RegistrationNo: "2020-ag-9423",
-              StudentName: "MUHAMMAD SAQLAIN",
-              SrNo: "3",
-              Semester: "Fall Semester 2023-24",
-              TeacherName: "Prof. Rizwan Malik",
-              CourseCode: "PHY-301",
-              CourseTitle: "Advanced Physics",
-              CreditHours: "3",
-              Mid: "12",
-              Assignment: "7",
-              Final: "40",
-              Practical: "11",
-              Total: "70",
-              Grade: "B"
-            },
-            {
-              RegistrationNo: "2020-ag-9423",
-              StudentName: "MUHAMMAD SAQLAIN",
-              SrNo: "4",
-              Semester: "Fall Semester 2023-24",
-              TeacherName: "Dr. Farhan Ali",
-              CourseCode: "MATH-401",
-              CourseTitle: "Calculus III",
-              CreditHours: "3",
-              Mid: "10",
-              Assignment: "6",
-              Final: "35",
-              Practical: "9",
-              Total: "60",
-              Grade: "C"
-            },
-            {
-              RegistrationNo: "2020-ag-9423",
-              StudentName: "MUHAMMAD SAQLAIN",
-              SrNo: "5",
-              Semester: "Spring Semester 2024-25",
-              TeacherName: "Dr. Ahmed Raza",
-              CourseCode: "CHEM-701",
-              CourseTitle: "Advanced Organic Chemistry",
-              CreditHours: "3",
-              Mid: "17",
-              Assignment: "9",
-              Final: "50",
-              Practical: "14",
-              Total: "90",
-              Grade: "A"
-            },
-            {
-              RegistrationNo: "2020-ag-9423",
-              StudentName: "MUHAMMAD SAQLAIN",
-              SrNo: "6",
-              Semester: "Summer Semester 2025",
-              TeacherName: "Dr. Noman Ali",
-              CourseCode: "BIO-501",
-              CourseTitle: "Advanced Biology",
-              CreditHours: "2",
-              Mid: "15",
-              Assignment: "8",
-              Final: "40",
-              Practical: "12",
-              Total: "75",
-              Grade: "B"
+          const response = await fetch(`${API_ENDPOINTS.scrape}?action=scrape_single&registrationNumber=${encodeURIComponent(regNum)}`, {
+            method: 'GET',
+            headers: {
+              'Content-Type': 'application/json'
             }
-          ];
+          });
           
-          updateProgress(70, 'Processing Data');
-          addStatusMessage('Result fetched successfully', 'success');
+          const data = await response.json();
           
-          // Calculate GPA
-          currentResultData = sampleData;
-          currentGpaData = calculateGPA(sampleData);
-          
-          // Display the result
-          displayGPAResults(sampleData, currentGpaData);
-          
-          updateProgress(100, 'Fetch Complete');
-          showToast('Result fetched successfully!', 'success');
+          if (data.success) {
+            updateProgress(70, 'Processing Data');
+            addStatusMessage('Result fetched successfully', 'success');
+            
+            // Store the raw result data
+            currentResultData = data.resultData;
+            
+            // Process the data (handle duplicates, etc.)
+            const processedData = processResultData(currentResultData);
+            
+            // Calculate GPA
+            currentGPAData = calculateGPA(processedData);
+            
+            // Display the result
+            displayGPAResults(currentResultData, currentGPAData);
+            
+            updateProgress(100, 'Fetch Complete');
+            showToast('Result fetched successfully!', 'success');
+          } else {
+            addStatusMessage(`Error: ${data.message}`, 'error');
+            showToast(data.message, 'error');
+            updateProgress(100, 'Error');
+          }
         } catch (error) {
           addStatusMessage(`Error fetching result: ${error.message}`, 'error');
           showToast('Error fetching result', 'error');
