@@ -160,11 +160,11 @@
     /* Toast notifications */
     #toast-container {
       position: fixed;
-      bottom: 25px;
+      top: 25px;
       right: 20px;
       z-index: 9999;
       display: flex;
-      flex-direction: column;
+      flex-direction: column-reverse;
       gap: 10px;
     }
 
@@ -345,6 +345,21 @@
       padding: 1.5rem;
       box-shadow: 0 10px 30px rgba(17,24,39,.06);
       margin-bottom: 1.5rem;
+      position: relative;
+    }
+    
+    .delete-semester {
+      position: absolute;
+      top: 1rem;
+      right: 1rem;
+      color: #e74c3c;
+      cursor: pointer;
+      opacity: 0.7;
+      transition: opacity 0.2s;
+    }
+    
+    .delete-semester:hover {
+      opacity: 1;
     }
     
     .course-table {
@@ -376,6 +391,18 @@
     .grade-C { background-color: #fef3c7; color: #92400e; }
     .grade-D { background-color: #fee2e2; color: #991b1b; }
     .grade-F { background-color: #f3f4f6; color: #374151; }
+    
+    .extra-enrolled {
+      font-size: 0.7rem;
+      color: #e74c3c;
+      font-style: italic;
+    }
+
+    /* Recalculate button */
+    .recalculate-container {
+      text-align: center;
+      margin: 2rem 0;
+    }
 
     /* ----------- DARK MODE IMPROVED ----------- */
     [data-theme="dark"] body{background:linear-gradient(180deg,#0b0e13 0%, #0f1320 70%); color:#f1f5f9;}
@@ -602,6 +629,13 @@
                 <div id="semesterResults" class="mt-4">
                   <!-- Semester cards will be dynamically inserted here -->
                 </div>
+                
+                <!-- Recalculate Button -->
+                <div class="recalculate-container">
+                  <button id="recalculateBtn" class="btn btn-primary-action rounded-pill">
+                    <i class="fa-solid fa-calculator me-2"></i>Calculate CGPA Now
+                  </button>
+                </div>
               </div>
             </div>
           </div>
@@ -701,10 +735,13 @@
       const studentReg = document.getElementById('studentReg');
       const totalCgpa = document.getElementById('totalCgpa');
       const totalPercentage = document.getElementById('totalPercentage');
+      const recalculateBtn = document.getElementById('recalculateBtn');
       
       // State variables
       let allLogs = [];
       let testInProgress = false;
+      let currentResultData = null;
+      let currentGpaData = null;
       
       // API endpoints
       const API_ENDPOINTS = {
@@ -933,6 +970,38 @@
         }
       }
       
+      // Format semester name for display
+      function formatSemesterName(semester) {
+        if (!semester) return 'Unknown Semester';
+        
+        // Handle various semester formats
+        if (semester.includes('Winter')) {
+          const yearMatch = semester.match(/(\d{4})[-/](\d{2,4})/);
+          if (yearMatch) {
+            return `Winter ${yearMatch[1]}`;
+          }
+        } else if (semester.includes('Spring')) {
+          const yearMatch = semester.match(/(\d{4})[-/](\d{2,4})/);
+          if (yearMatch) {
+            const year = yearMatch[2].length === 2 ? `20${yearMatch[2]}` : yearMatch[2];
+            return `Spring ${year}`;
+          }
+        } else if (semester.includes('Summer')) {
+          const yearMatch = semester.match(/(\d{4})[-/](\d{2,4})/);
+          if (yearMatch) {
+            return `Summer ${yearMatch[1]}`;
+          }
+        } else if (semester.includes('Fall')) {
+          const yearMatch = semester.match(/(\d{4})[-/](\d{2,4})/);
+          if (yearMatch) {
+            return `Fall ${yearMatch[1]}`;
+          }
+        }
+        
+        // Return original if no pattern matched
+        return semester;
+      }
+      
       // Calculate quality points based on UAF grading system
       function calculateQualityPoints(marks, creditHours) {
         marks = parseInt(marks);
@@ -1015,21 +1084,82 @@
         return "F";
       }
       
+      // Process result data to handle re-enrolled courses
+      function processResultData(resultData) {
+        const courseMap = new Map(); // To track best attempt for each course
+        const reEnrolledCourses = new Set(); // To track re-enrolled courses
+        
+        // First pass: identify the best attempt for each course
+        resultData.forEach(course => {
+          const courseCode = course.CourseCode || '';
+          const marks = parseInt(course.Total) || 0;
+          const creditHours = parseInt(course.CreditHours) || 0;
+          const qualityPoints = calculateQualityPoints(marks, creditHours);
+          
+          if (courseMap.has(courseCode)) {
+            // Course already exists, compare quality points
+            const existing = courseMap.get(courseCode);
+            if (qualityPoints > existing.qualityPoints) {
+              courseMap.set(courseCode, {
+                ...course,
+                qualityPoints,
+                isReEnrolled: true
+              });
+              reEnrolledCourses.add(courseCode);
+            }
+          } else {
+            // New course
+            courseMap.set(courseCode, {
+              ...course,
+              qualityPoints,
+              isReEnrolled: false
+            });
+          }
+        });
+        
+        // Second pass: create processed data with best attempts
+        const processedData = [];
+        const seenCourses = new Set();
+        
+        resultData.forEach(course => {
+          const courseCode = course.CourseCode || '';
+          const bestAttempt = courseMap.get(courseCode);
+          
+          // Only add the best attempt for each course
+          if (!seenCourses.has(courseCode) && bestAttempt) {
+            processedData.push({
+              ...bestAttempt,
+              isExtraEnrolled: reEnrolledCourses.has(courseCode)
+            });
+            seenCourses.add(courseCode);
+          }
+        });
+        
+        return processedData;
+      }
+      
       // Calculate GPA from result data
       function calculateGPA(resultData) {
+        // Process data to handle re-enrolled courses
+        const processedData = processResultData(resultData);
+        
         let totalQualityPoints = 0;
         let totalCreditHours = 0;
+        let totalMarksObtained = 0;
+        let totalMaxMarks = 0;
         
         // Group by semester
         const semesters = {};
         
-        resultData.forEach(course => {
-          const semester = course.Semester || 'Unknown Semester';
+        processedData.forEach(course => {
+          const semester = formatSemesterName(course.Semester);
           if (!semesters[semester]) {
             semesters[semester] = {
               courses: [],
               totalQualityPoints: 0,
-              totalCreditHours: 0
+              totalCreditHours: 0,
+              totalMarksObtained: 0,
+              totalMaxMarks: 0
             };
           }
           
@@ -1037,6 +1167,7 @@
           const marks = parseInt(course.Total) || 0;
           const qualityPoints = calculateQualityPoints(marks, creditHours);
           const grade = getGrade(marks);
+          const maxMarks = 100; // Assuming max marks is 100 for all courses
           
           const courseData = {
             code: course.CourseCode || '',
@@ -1044,15 +1175,20 @@
             creditHours: creditHours,
             marks: marks,
             qualityPoints: qualityPoints,
-            grade: grade
+            grade: grade,
+            isExtraEnrolled: course.isExtraEnrolled || false
           };
           
           semesters[semester].courses.push(courseData);
           semesters[semester].totalQualityPoints += qualityPoints;
           semesters[semester].totalCreditHours += creditHours;
+          semesters[semester].totalMarksObtained += marks;
+          semesters[semester].totalMaxMarks += maxMarks;
           
           totalQualityPoints += qualityPoints;
           totalCreditHours += creditHours;
+          totalMarksObtained += marks;
+          totalMaxMarks += maxMarks;
         });
         
         // Calculate GPA for each semester
@@ -1060,22 +1196,28 @@
           if (semesters[semester].totalCreditHours > 0) {
             semesters[semester].gpa = parseFloat((semesters[semester].totalQualityPoints / semesters[semester].totalCreditHours).toFixed(4));
             semesters[semester].percentage = parseFloat((semesters[semester].gpa * 25).toFixed(2));
+            semesters[semester].marksPercentage = parseFloat((semesters[semester].totalMarksObtained / semesters[semester].totalMaxMarks * 100).toFixed(2));
           } else {
             semesters[semester].gpa = 0;
             semesters[semester].percentage = 0;
+            semesters[semester].marksPercentage = 0;
           }
         });
         
         // Calculate overall CGPA
         const cgpa = totalCreditHours > 0 ? parseFloat((totalQualityPoints / totalCreditHours).toFixed(4)) : 0;
         const percentage = parseFloat((cgpa * 25).toFixed(2));
+        const marksPercentage = totalMaxMarks > 0 ? parseFloat((totalMarksObtained / totalMaxMarks * 100).toFixed(2)) : 0;
         
         return {
           cgpa: cgpa,
           percentage: percentage,
+          marksPercentage: marksPercentage,
           semesters: semesters,
           totalQualityPoints: totalQualityPoints,
-          totalCreditHours: totalCreditHours
+          totalCreditHours: totalCreditHours,
+          totalMarksObtained: totalMarksObtained,
+          totalMaxMarks: totalMaxMarks
         };
       }
       
@@ -1088,7 +1230,7 @@
         
         // Update overall CGPA
         totalCgpa.textContent = gpaData.cgpa;
-        totalPercentage.textContent = `${gpaData.percentage}%`;
+        totalPercentage.textContent = `${gpaData.marksPercentage}%`;
         
         // Clear previous semester results
         semesterResults.innerHTML = '';
@@ -1099,8 +1241,10 @@
           
           const semesterCard = document.createElement('div');
           semesterCard.className = 'semester-card';
+          semesterCard.dataset.semester = semesterName;
           
           semesterCard.innerHTML = `
+            <i class="fas fa-times delete-semester" title="Remove semester"></i>
             <div class="d-flex align-items-center justify-content-between mb-3">
               <h5 class="mb-0">
                 <i class="fa-solid fa-book-open me-2 text-blue-600"></i>
@@ -1109,7 +1253,7 @@
               <div class="text-right">
                 <p class="mb-0 text-body-secondary small">GPA:</p>
                 <p class="mb-0 h4 fw-bold text-blue-600">${semester.gpa}</p>
-                <p class="mb-0 text-body-secondary small">${semester.percentage}%</p>
+                <p class="mb-0 text-body-secondary small">${semester.marksPercentage}%</p>
               </div>
             </div>
             <div class="table-responsive">
@@ -1130,6 +1274,7 @@
                         <div class="d-flex align-items-center">
                           <span class="fw-medium">${course.code}</span>
                           <i class="fa-solid fa-info-circle ms-2 text-blue-600 small" title="${course.title}"></i>
+                          ${course.isExtraEnrolled ? '<span class="extra-enrolled ms-2">Extra Enrolled</span>' : ''}
                         </div>
                       </td>
                       <td>${course.creditHours}</td>
@@ -1145,12 +1290,61 @@
             </div>
           `;
           
+          // Add delete event listener
+          const deleteBtn = semesterCard.querySelector('.delete-semester');
+          deleteBtn.addEventListener('click', () => {
+            semesterCard.remove();
+            showToast(`Semester ${semesterName} removed`, 'info');
+          });
+          
           semesterResults.appendChild(semesterCard);
         });
         
         // Show result container
         resultContainer.style.display = 'block';
         gpaResultCard.style.display = 'block';
+      }
+      
+      // Recalculate CGPA based on visible semesters
+      function recalculateCGPA() {
+        if (!currentResultData || !currentGpaData) return;
+        
+        let totalQualityPoints = 0;
+        let totalCreditHours = 0;
+        let totalMarksObtained = 0;
+        let totalMaxMarks = 0;
+        
+        // Get all visible semester cards
+        const visibleSemesterCards = document.querySelectorAll('.semester-card:not([style*="display: none"])');
+        
+        if (visibleSemesterCards.length === 0) {
+          showToast('No semesters selected for calculation', 'warning');
+          return;
+        }
+        
+        // Calculate totals from visible semesters
+        visibleSemesterCards.forEach(card => {
+          const semesterName = card.dataset.semester;
+          const semester = currentGpaData.semesters[semesterName];
+          
+          if (semester) {
+            totalQualityPoints += semester.totalQualityPoints;
+            totalCreditHours += semester.totalCreditHours;
+            totalMarksObtained += semester.totalMarksObtained;
+            totalMaxMarks += semester.totalMaxMarks;
+          }
+        });
+        
+        // Calculate new CGPA
+        const cgpa = totalCreditHours > 0 ? parseFloat((totalQualityPoints / totalCreditHours).toFixed(4)) : 0;
+        const percentage = parseFloat((cgpa * 25).toFixed(2));
+        const marksPercentage = totalMaxMarks > 0 ? parseFloat((totalMarksObtained / totalMaxMarks * 100).toFixed(2)) : 0;
+        
+        // Update display
+        totalCgpa.textContent = cgpa;
+        totalPercentage.textContent = `${marksPercentage}%`;
+        
+        showToast('CGPA recalculated successfully', 'success');
       }
       
       // Fetch result from UAF LMS (simulated)
@@ -1174,13 +1368,13 @@
           // Simulate API call delay
           await new Promise(resolve => setTimeout(resolve, 2500));
           
-          // Simulate successful response with sample data
+          // Simulate successful response with sample data (including re-enrolled courses)
           const sampleData = [
             {
               RegistrationNo: "2020-ag-9423",
               StudentName: "MUHAMMAD SAQLAIN",
               SrNo: "1",
-              Semester: "Spring 2024",
+              Semester: "Winter Semester 2024-25",
               TeacherName: "Dr. Ali Ahmed",
               CourseCode: "CHEM-701",
               CourseTitle: "Advanced Organic Chemistry",
@@ -1196,7 +1390,7 @@
               RegistrationNo: "2020-ag-9423",
               StudentName: "MUHAMMAD SAQLAIN",
               SrNo: "2",
-              Semester: "Spring 2024",
+              Semester: "Winter Semester 2024-25",
               TeacherName: "Dr. Sara Khan",
               CourseCode: "CHEM-702",
               CourseTitle: "Analytical Chemistry",
@@ -1212,7 +1406,7 @@
               RegistrationNo: "2020-ag-9423",
               StudentName: "MUHAMMAD SAQLAIN",
               SrNo: "3",
-              Semester: "Fall 2023",
+              Semester: "Fall Semester 2023-24",
               TeacherName: "Prof. Rizwan Malik",
               CourseCode: "PHY-301",
               CourseTitle: "Advanced Physics",
@@ -1228,7 +1422,7 @@
               RegistrationNo: "2020-ag-9423",
               StudentName: "MUHAMMAD SAQLAIN",
               SrNo: "4",
-              Semester: "Fall 2023",
+              Semester: "Fall Semester 2023-24",
               TeacherName: "Dr. Farhan Ali",
               CourseCode: "MATH-401",
               CourseTitle: "Calculus III",
@@ -1239,6 +1433,38 @@
               Practical: "9",
               Total: "60",
               Grade: "C"
+            },
+            {
+              RegistrationNo: "2020-ag-9423",
+              StudentName: "MUHAMMAD SAQLAIN",
+              SrNo: "5",
+              Semester: "Spring Semester 2024-25",
+              TeacherName: "Dr. Ahmed Raza",
+              CourseCode: "CHEM-701",
+              CourseTitle: "Advanced Organic Chemistry",
+              CreditHours: "3",
+              Mid: "17",
+              Assignment: "9",
+              Final: "50",
+              Practical: "14",
+              Total: "90",
+              Grade: "A"
+            },
+            {
+              RegistrationNo: "2020-ag-9423",
+              StudentName: "MUHAMMAD SAQLAIN",
+              SrNo: "6",
+              Semester: "Summer Semester 2025",
+              TeacherName: "Dr. Noman Ali",
+              CourseCode: "BIO-501",
+              CourseTitle: "Advanced Biology",
+              CreditHours: "2",
+              Mid: "15",
+              Assignment: "8",
+              Final: "40",
+              Practical: "12",
+              Total: "75",
+              Grade: "B"
             }
           ];
           
@@ -1246,10 +1472,11 @@
           addStatusMessage('Result fetched successfully', 'success');
           
           // Calculate GPA
-          const gpaData = calculateGPA(sampleData);
+          currentResultData = sampleData;
+          currentGpaData = calculateGPA(sampleData);
           
           // Display the result
-          displayGPAResults(sampleData, gpaData);
+          displayGPAResults(sampleData, currentGpaData);
           
           updateProgress(100, 'Fetch Complete');
           showToast('Result fetched successfully!', 'success');
@@ -1279,6 +1506,8 @@
       downloadLogBtn.addEventListener('click', downloadLog);
       
       clearLogBtn.addEventListener('click', clearLog);
+      
+      recalculateBtn.addEventListener('click', recalculateCGPA);
       
       // Initialize the application
       init();
