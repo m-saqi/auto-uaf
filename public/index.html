@@ -4,18 +4,18 @@
   <!-- Meta -->
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>UAF Automatic GPA Calculator</title>
-  <meta name="description" content="UAF Automatic GPA Calculator that fetches your results directly from UAF LMS. Built for University of Agriculture Faisalabad students." />
+  <title>UAF CGPA Calculator</title>
+  <meta name="description" content="UAF CGPA Calculator that fetches your results directly from UAF LMS. Built for University of Agriculture Faisalabad students." />
   <link rel="canonical" href="https://uaftools.vercel.app/auto.html" />
-  <meta property="og:title" content="UAF Automatic GPA Calculator" />
-  <meta property="og:description" content="Fetch your results directly from UAF LMS and calculate GPA automatically." />
+  <meta property="og:title" content="UAF CGPA Calculator" />
+  <meta property="og:description" content="Fetch your results directly from UAF LMS and calculate CGPA automatically." />
   <meta property="og:type" content="website" />
   <meta property="og:site_name" content="UAF Tools" />
   <meta property="og:url" content="https://uaftools.vercel.app/auto.html" />
   <meta property="og:image" content="https://uaftools.vercel.app/uaftools.png" />
   <meta name="twitter:card" content="summary" />
-  <meta name="twitter:title" content="UAF Automatic GPA Calculator" />
-  <meta name="twitter:description" content="Fetch your results directly from UAF LMS and calculate GPA automatically." />
+  <meta name="twitter:title" content="UAF CGPA Calculator" />
+  <meta name="twitter:description" content="Fetch your results directly from UAF LMS and calculate CGPA automatically." />
 
   <!-- Brand -->
   <link rel="icon" type="image/x-icon" href="assets/images/favicon.ico" />
@@ -160,11 +160,11 @@
     /* Toast notifications */
     #toast-container {
       position: fixed;
-      bottom: 25px;
+      top: 25px;
       right: 20px;
       z-index: 9999;
       display: flex;
-      flex-direction: column-reverse; /* Changed to column-reverse for newer on top */
+      flex-direction: column-reverse;
       gap: 10px;
     }
 
@@ -273,63 +273,6 @@
       to { transform: scaleX(0); }
     }
 
-    /* Download animation overlay */
-    #downloadOverlay {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: rgba(0, 0, 0, 0.7);
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      z-index: 9999;
-      flex-direction: column;
-    }
-
-    .download-spinner {
-      border: 4px solid #f3f3f3;
-      border-top: 4px solid var(--brand);
-      border-radius: 50%;
-      width: 50px;
-      height: 50px;
-      animation: spin 1s linear infinite;
-      margin-bottom: 15px;
-    }
-
-    .download-text {
-      color: white;
-      font-size: 16px;
-      text-align: center;
-    }
-
-    @keyframes spin {
-      0% { transform: rotate(0deg); }
-      100% { transform: rotate(360deg); }
-    }
-
-    /* Custom cursor */
-    .cursor-dot {
-      position: fixed;
-      width: 10px;
-      height: 10px;
-      border-radius: 50%;
-      background: var(--brand);
-      pointer-events: none;
-      transform: translate(-50%, -50%);
-      opacity: .7;
-      z-index: 9999;
-      display: none;
-    }
-
-    /* Hide default cursor when custom cursor is active */
-    @media (min-width: 769px) {
-      .cursor-dot {
-        display: block;
-      }
-    }
-
     /* GPA Result Display */
     .gpa-result-card {
       background: white;
@@ -346,6 +289,15 @@
       box-shadow: 0 10px 30px rgba(17,24,39,.06);
       margin-bottom: 1.5rem;
       position: relative;
+    }
+    
+    .delete-semester {
+      position: absolute;
+      top: 1rem;
+      right: 1rem;
+      cursor: pointer;
+      color: #dc3545;
+      font-size: 1.2rem;
     }
     
     .course-table {
@@ -377,85 +329,29 @@
     .grade-C { background-color: #fef3c7; color: #92400e; }
     .grade-D { background-color: #fee2e2; color: #991b1b; }
     .grade-F { background-color: #f3f4f6; color: #374151; }
-
-    .extra-enrolled-badge {
-      background-color: #fef3c7;
-      color: #92400e;
-      padding: 0.2rem 0.5rem;
+    
+    .extra-enrolled {
+      background-color: #fff3cd;
+      color: #856404;
+      padding: 0.15rem 0.35rem;
       border-radius: 0.25rem;
       font-size: 0.7rem;
       margin-left: 0.5rem;
     }
     
-    .delete-semester-btn {
-      position: absolute;
-      top: 1rem;
-      right: 1rem;
-      background: #fee2e2;
-      border: none;
-      border-radius: 50%;
-      width: 30px;
-      height: 30px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: #dc2626;
-      cursor: pointer;
-    }
-    
-    .delete-semester-btn:hover {
-      background: #fecaca;
-    }
-    
-    .recalculate-btn {
-      margin-top: 1rem;
-    }
-    
-    .course-detail-modal .modal-content {
+    .course-details-modal .modal-content {
       border-radius: var(--radius);
     }
     
-    .course-detail-modal .modal-header {
+    .course-details-modal .modal-header {
       background: linear-gradient(180deg, rgba(122,106,216,.15), rgba(122,106,216,.05));
       border-top-left-radius: var(--radius);
       border-top-right-radius: var(--radius);
     }
-
-    /* Button alignment improvements */
-    .btn-container {
-      display: flex;
-      justify-content: center;
-      flex-wrap: wrap;
-      gap: 0.5rem;
-    }
     
-    @media (max-width: 576px) {
-      .btn-container {
-        flex-direction: column;
-        align-items: center;
-      }
-      
-      .btn-container .btn {
-        width: 100%;
-        max-width: 280px;
-      }
-    }
-
-    /* Mobile table improvements */
-    .table-container {
-      overflow-x: auto;
-    }
-    
-    @media (max-width: 768px) {
-      .course-table {
-        min-width: 600px; /* Force horizontal scrolling on small screens */
-      }
-      
-      .course-table th, 
-      .course-table td {
-        padding: 0.5rem;
-        font-size: 0.875rem;
-      }
+    .calculate-cgpa-btn {
+      margin-top: 1rem;
+      display: none;
     }
 
     /* ----------- DARK MODE IMPROVED ----------- */
@@ -481,13 +377,6 @@
     [data-theme="dark"] .semester-card { background: #1a2030; }
     [data-theme="dark"] .course-table th, 
     [data-theme="dark"] .course-table td { border-bottom-color: #2d3748; }
-    [data-theme="dark"] .delete-semester-btn {
-      background: #7f1d1d;
-      color: #fecaca;
-    }
-    [data-theme="dark"] .delete-semester-btn:hover {
-      background: #991b1b;
-    }
 
     /* Dark mode contrast improvements */
     [data-theme="dark"] .text-body-secondary {
@@ -501,6 +390,15 @@
     .cursor-dot{position:fixed; width:10px;height:10px;border-radius:50%; background:var(--brand); pointer-events:none; transform:translate(-50%, -50%); opacity:.7; mix-blend-mode:multiply; z-index:9999;}
     @media (max-width: 575.98px){
       .hero{padding:4rem 0 2rem;}
+      .d-flex.gap-2 {
+        flex-direction: column;
+        align-items: center;
+      }
+      .d-flex.gap-2 .btn {
+        width: 100%;
+        max-width: 300px;
+        margin-bottom: 0.5rem;
+      }
     }
 
     /* Ensure subject columns are 2-up on very small screens: change from col-12 col-md-6 -> col-6 col-md-6 */
@@ -521,27 +419,49 @@
         width: 48.3%;
       }
     }
+    
+    /* Mobile responsive table */
+    @media (max-width: 768px) {
+      .course-table {
+        display: block;
+        overflow-x: auto;
+        white-space: nowrap;
+      }
+    }
+    
+    /* Center buttons */
+    .center-buttons {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+    
+    @media (max-width: 576px) {
+      .center-buttons {
+        flex-direction: column;
+        align-items: center;
+      }
+      .center-buttons .btn {
+        width: 100%;
+        max-width: 300px;
+      }
+    }
   </style>
 </head>
 <body>
   <!-- Custom cursor -->
   <div class="cursor-dot" id="cursorDot"></div>
 
-  <!-- Download Animation Overlay -->
-  <div id="downloadOverlay" style="display: none;">
-    <div class="download-spinner"></div>
-    <div class="download-text">Processing your result...</div>
-  </div>
-
-  <!-- Course Detail Modal -->
-  <div class="modal fade course-detail-modal" id="courseDetailModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-lg">
+  <!-- Course Details Modal -->
+  <div class="modal fade course-details-modal" id="courseDetailsModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
       <div class="modal-content">
         <div class="modal-header">
-          <h5 class="modal-title" id="courseDetailModalTitle">Course Details</h5>
+          <h5 class="modal-title" id="courseDetailsModalTitle">Course Details</h5>
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
-        <div class="modal-body" id="courseDetailModalBody">
+        <div class="modal-body" id="courseDetailsModalBody">
           <!-- Course details will be populated here -->
         </div>
         <div class="modal-footer">
@@ -556,7 +476,7 @@
     <div class="container">
       <a class="navbar-brand d-flex align-items-center gap-2" href="/">
         <span class="badge rounded-pill badge-brand">UAF</span>
-        <span>Automatic <span class="text-body-secondary">GPA Calculator</span></span>
+        <span>CGPA <span class="text-body-secondary">Calculator</span></span>
       </a>
 
       <div class="d-flex align-items-center gap-2 order-lg-2">
@@ -585,9 +505,9 @@
       <div class="row align-items-center g-4">
         <div class="col-lg-7">
           <span class="badge rounded-pill badge-brand mb-3">University of Agriculture Faisalabad</span>
-          <h1 class="display-5 mb-3">Fetch Your <span style="color:var(--brand)">Results Automatically</span><br/>from UAF LMS</h1>
-          <p class="lead mb-4">Enter your <strong>registration number</strong> to fetch your results directly from UAF LMS. The calculator will automatically compute your GPA based on UAF grading ranges.</p>
-          <div class="d-flex gap-2 btn-container">
+          <h1 class="display-5 mb-3">Calculate Your <span style="color:var(--brand)">CGPA Automatically</span><br/>from UAF LMS</h1>
+          <p class="lead mb-4">Enter your <strong>registration number</strong> to fetch your results directly from UAF LMS. The calculator will automatically compute your CGPA based on UAF grading system.</p>
+          <div class="center-buttons">
             <a href="#Auto-Calculator" 
                class="btn btn-primary-action btn-lg rounded-pill" 
                style="font-size: 1.05rem; padding: 0.9rem;">
@@ -604,14 +524,14 @@
               <div class="d-flex align-items-center gap-3">
                 <div class="display-6" style="color:var(--brand);"><i class="fa-solid fa-robot"></i></div>
                 <div>
-                  <h5 class="mb-1 fw-bold">Automatic GPA Calculation</h5>
+                  <h5 class="mb-1 fw-bold">Automatic CGPA Calculation</h5>
                   <p class="mb-0 text-body-secondary">No manual inputs needed. Just enter your registration number.</p>
                 </div>
               </div>
               <hr class="my-4" />
               <ul class="list-unstyled m-0">
                 <li class="d-flex align-items-center gap-2 mb-2"><i class="fa-solid fa-check text-success"></i> Fetches results directly from UAF LMS</li>
-                <li class="d-flex align-items-center gap-2 mb-2"><i class="fa-solid fa-check text-success"></i> Automatic GPA calculation</li>
+                <li class="d-flex align-items-center gap-2 mb-2"><i class="fa-solid fa-check text-success"></i> Automatic CGPA calculation</li>
                 <li class="d-flex align-items-center gap-2"><i class="fa-solid fa-check text-success"></i> Same accurate UAF grading system</li>
               </ul>
             </div>
@@ -628,7 +548,7 @@
         <div class="col-md-10">
           <div class="card card-modern">
             <div class="card-header p-4">
-              <h4 class="mb-0"><i class="fa-solid fa-bolt me-2"></i>UAF Automatic GPA Calculator</h4>
+              <h4 class="mb-0"><i class="fa-solid fa-bolt me-2"></i>UAF CGPA Calculator</h4>
             </div>
             <div class="card-body p-4">
               <form id="resultForm">
@@ -639,7 +559,7 @@
                   <div class="form-text">Enter your UAF registration number</div>
                 </div>
                 
-                <div class="d-flex gap-2 btn-container">
+                <div class="center-buttons">
                   <button type="submit" class="btn btn-primary-action rounded-pill">
                     <i class="fa-solid fa-cloud-arrow-down me-2"></i>Fetch Result
                   </button>
@@ -659,21 +579,6 @@
                   <div id="progressBar" class="progress-bar" role="progressbar" style="width: 0%; background-color: var(--brand);" 
                       aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
                 </div>
-              </div>
-              
-              <!-- Status Log -->
-              <div class="status-log mt-4" id="statusLog">
-                <div class="status-line status-info">Ready to fetch your results. Enter your registration number and click "Fetch Result".</div>
-              </div>
-              
-              <!-- Log Action Buttons -->
-              <div class="d-flex gap-2 mt-3 btn-container">
-                <button id="downloadLogBtn" class="btn btn-secondary-action rounded-pill">
-                  <i class="fa-solid fa-file-lines me-2"></i>Download Log
-                </button>
-                <button id="clearLogBtn" class="btn btn-danger-action rounded-pill">
-                  <i class="fa-solid fa-trash me-2"></i>Clear Log
-                </button>
               </div>
               
               <div id="loading" class="loading mt-4">
@@ -709,12 +614,26 @@
                   <!-- Semester cards will be dynamically inserted here -->
                 </div>
                 
-                <!-- Recalculate Button -->
-                <div class="d-flex justify-content-center mt-4">
-                  <button id="recalculateBtn" class="btn btn-primary-action rounded-pill recalculate-btn">
+                <div class="center-buttons">
+                  <button id="calculateCgpaBtn" class="btn btn-success-action rounded-pill calculate-cgpa-btn">
                     <i class="fa-solid fa-calculator me-2"></i>Calculate CGPA Now
                   </button>
                 </div>
+              </div>
+              
+              <!-- Status Log -->
+              <div class="status-log mt-4" id="statusLog">
+                <div class="status-line status-info">Ready to fetch your results. Enter your registration number and click "Fetch Result".</div>
+              </div>
+              
+              <!-- Log Action Buttons -->
+              <div class="center-buttons mt-3">
+                <button id="downloadLogBtn" class="btn btn-secondary-action rounded-pill">
+                  <i class="fa-solid fa-file-lines me-2"></i>Download Log
+                </button>
+                <button id="clearLogBtn" class="btn btn-danger-action rounded-pill">
+                  <i class="fa-solid fa-trash me-2"></i>Clear Log
+                </button>
               </div>
             </div>
           </div>
@@ -814,14 +733,14 @@
       const studentReg = document.getElementById('studentReg');
       const totalCgpa = document.getElementById('totalCgpa');
       const totalPercentage = document.getElementById('totalPercentage');
-      const recalculateBtn = document.getElementById('recalculateBtn');
-      const courseDetailModal = new bootstrap.Modal(document.getElementById('courseDetailModal'));
+      const calculateCgpaBtn = document.getElementById('calculateCgpaBtn');
+      const courseDetailsModal = new bootstrap.Modal(document.getElementById('courseDetailsModal'));
       
       // State variables
       let allLogs = [];
       let testInProgress = false;
-      let currentResultData = null;
-      let currentGPAData = null;
+      let scrapedData = null;
+      let processedData = null;
       
       // API endpoints
       const API_ENDPOINTS = {
@@ -857,7 +776,7 @@
           <div class="toast-progress"></div>
         `;
         
-        toastContainer.prepend(toast); // Changed to prepend so newer toasts appear on top
+        toastContainer.appendChild(toast);
         
         // Animate in
         setTimeout(() => {
@@ -966,22 +885,12 @@
         }
       }
       
-      // Show download animation
-      function showDownloadAnimation() {
-        document.getElementById('downloadOverlay').style.display = 'flex';
-      }
-
-      // Hide download animation
-      function hideDownloadAnimation() {
-        document.getElementById('downloadOverlay').style.display = 'none';
-      }
-      
       // Download log
       function downloadLog() {
         addStatusMessage('Preparing log file for download...', 'info');
         
         // Create log content
-        let logContent = "UAF Automatic GPA Calculator - Activity Log\n";
+        let logContent = "UAF CGPA Calculator - Activity Log\n";
         logContent += "============================================\n\n";
         
         allLogs.forEach(log => {
@@ -993,7 +902,7 @@
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
-        a.download = `gpa_calculator_log_${new Date().toISOString().replace(/[:.]/g, '-')}.txt`;
+        a.download = `cgpa_calculator_log_${new Date().toISOString().replace(/[:.]/g, '-')}.txt`;
         document.body.appendChild(a);
         a.click();
         
@@ -1029,10 +938,7 @@
         
         try {
           const response = await fetch(`${API_ENDPOINTS.test}?action=test`, {
-            method: 'GET',
-            headers: {
-              'Content-Type': 'application/json'
-            }
+            method: 'GET'
           });
           
           const data = await response.json();
@@ -1061,243 +967,265 @@
         }
       }
       
-      // Calculate quality points based on UAF grading system (from the table)
-      function calculateQualityPoints(marks, creditHours) {
-        marks = parseFloat(marks);
-        creditHours = parseInt(creditHours);
-        
-        // For 5 credit hours (100 total marks)
-        if (creditHours === 5) {
-          if (marks >= 80) return 20.0;
-          if (marks >= 75) return 19.0;
-          if (marks >= 70) return 18.0;
-          if (marks >= 65) return 17.0;
-          if (marks >= 60) return 16.0;
-          if (marks >= 55) return 15.0;
-          if (marks >= 50) return 14.0;
-          if (marks >= 45) return 13.0;
-          if (marks >= 40) return 12.0;
-          return 0.0; // Fail
-        }
-        
-        // For 4 credit hours (80 total marks)
-        if (creditHours === 4) {
-          if (marks >= 64) return 16.0;
-          if (marks >= 60) return 15.0;
-          if (marks >= 56) return 14.0;
-          if (marks >= 52) return 13.0;
-          if (marks >= 48) return 12.0;
-          if (marks >= 44) return 11.0;
-          if (marks >= 40) return 10.0;
-          if (marks >= 36) return 9.0;
-          if (marks >= 32) return 8.0;
-          return 0.0; // Fail
-        }
-        
-        // For 3 credit hours (60 total marks)
-        if (creditHours === 3) {
-          if (marks >= 48) return 12.0;
-          if (marks >= 45) return 11.0;
-          if (marks >= 42) return 10.0;
-          if (marks >= 39) return 9.0;
-          if (marks >= 36) return 8.0;
-          if (marks >= 33) return 7.0;
-          if (marks >= 30) return 6.0;
-          if (marks >= 27) return 5.0;
-          if (marks >= 24) return 4.0;
-          return 0.0; // Fail
-        }
-        
-        // For 2 credit hours (40 total marks)
-        if (creditHours === 2) {
-          if (marks >= 32) return 8.0;
-          if (marks >= 30) return 7.0;
-          if (marks >= 28) return 6.0;
-          if (marks >= 26) return 5.0;
-          if (marks >= 24) return 4.0;
-          if (marks >= 22) return 3.0;
-          if (marks >= 20) return 2.0;
-          if (marks >= 18) return 1.5;
-          if (marks >= 16) return 1.0;
-          return 0.0; // Fail
-        }
-        
-        // For 1 credit hour (20 total marks)
-        if (creditHours === 1) {
-          if (marks >= 16) return 4.0;
-          if (marks >= 15) return 3.67;
-          if (marks >= 14) return 3.33;
-          if (marks >= 13) return 3.0;
-          if (marks >= 12) return 2.67;
-          if (marks >= 11) return 2.33;
-          if (marks >= 10) return 2.0;
-          if (marks >= 9) return 1.5;
-          if (marks >= 8) return 1.0;
-          return 0.0; // Fail
-        }
-        
-        // Default case (should not happen with UAF courses)
-        return 0.0;
-      }
-      
-      // Get grade based on marks (UAF system)
-      function getGrade(marks, creditHours) {
-        marks = parseFloat(marks);
-        
-        // Determine grade based on percentage
-        const percentage = (marks / (creditHours * 20)) * 100;
-        
-        if (percentage >= 80) return "A";
-        if (percentage >= 65) return "B";
-        if (percentage >= 50) return "C";
-        if (percentage >= 40) return "D";
-        return "F";
-      }
-      
       // Process semester name for display
-      function formatSemesterName(semester) {
-        if (!semester) return "Unknown Semester";
+      function processSemesterName(semester) {
+        if (!semester) return 'Unknown Semester';
         
         // Handle different semester formats
         if (semester.includes('Winter')) {
-          const yearMatch = semester.match(/(\d{4}-\d{2,4})/);
+          const yearMatch = semester.match(/(\d{4})-(\d{2,4})/);
           if (yearMatch) {
-            const year = yearMatch[0].split('-')[0];
-            return `Winter ${year}`;
+            return `Winter ${yearMatch[1]}`;
           }
         } else if (semester.includes('Spring')) {
-          const yearMatch = semester.match(/(\d{4}-\d{2,4})/);
-          if (yearMatch) {
-            const year = yearMatch[0].split('-')[1];
-            return `Spring ${year}`;
+          const yearMatch = semester.match(/(\d{4})-(\d{2,4})/);
+          if (yearMatch && yearMatch[2].length === 4) {
+            return `Spring ${yearMatch[2]}`;
+          } else if (yearMatch && yearMatch[2].length === 2) {
+            return `Spring 20${yearMatch[2]}`;
           }
         } else if (semester.includes('Summer')) {
-          const yearMatch = semester.match(/(\d{4}-\d{2,4})/);
+          const yearMatch = semester.match(/(\d{4})-(\d{2,4})/);
           if (yearMatch) {
-            const year = yearMatch[0].split('-')[0];
-            return `Summer ${year}`;
+            return `Summer ${yearMatch[1]}`;
+          }
+        } else if (semester.includes('Fall')) {
+          const yearMatch = semester.match(/(\d{4})-(\d{2,4})/);
+          if (yearMatch) {
+            return `Fall ${yearMatch[1]}`;
           }
         }
         
+        // Return original if no pattern matched
         return semester;
       }
       
-      // Process result data to handle duplicate courses
-      function processResultData(resultData) {
-        if (!resultData || !Array.isArray(resultData)) return [];
+      // Process scraped data to handle re-enrolled courses
+      function processScrapedData(data) {
+        if (!data || !data.resultData) return null;
         
-        // Group by course code and keep only the highest marks
-        const courseMap = new Map();
-        const extraEnrolledCourses = new Set();
+        const resultData = data.resultData;
+        const studentInfo = {
+          name: resultData[0]?.StudentName || '',
+          registration: resultData[0]?.RegistrationNo || ''
+        };
         
+        // Group by semester (processed name)
+        const semesters = {};
+        const courseHistory = {}; // Track course history for re-enrollment detection
+        
+        // First pass: organize by semester and track course history
         resultData.forEach(course => {
-          const courseCode = course.CourseCode;
-          const marks = parseFloat(course.Total) || 0;
+          const originalSemester = course.Semester || 'Unknown Semester';
+          const semesterName = processSemesterName(originalSemester);
+          const courseCode = course.CourseCode || '';
           
-          if (!courseMap.has(courseCode)) {
-            courseMap.set(courseCode, course);
-          } else {
-            // Check if this is a better attempt
-            const existingCourse = courseMap.get(courseCode);
-            const existingMarks = parseFloat(existingCourse.Total) || 0;
-            
-            if (marks > existingMarks) {
-              // Mark the existing course as extra enrolled
-              extraEnrolledCourses.add(`${existingCourse.CourseCode}-${existingCourse.Semester}`);
-              courseMap.set(courseCode, course);
-            } else {
-              // Mark this course as extra enrolled
-              extraEnrolledCourses.add(`${course.CourseCode}-${course.Semester}`);
+          if (!semesters[semesterName]) {
+            semesters[semesterName] = {
+              originalName: originalSemester,
+              courses: [],
+              totalQualityPoints: 0,
+              totalCreditHours: 0
+            };
+          }
+          
+          // Parse credit hours
+          let creditHours = 0;
+          const creditHoursStr = course.CreditHours || '0';
+          const numbers = creditHoursStr.match(/\d+/g);
+          if (numbers && numbers.length > 0) {
+            creditHours = parseInt(numbers[0]);
+          }
+          
+          // Parse marks
+          let marks = 0;
+          try {
+            marks = parseFloat(course.Total || '0');
+          } catch (e) {
+            marks = 0;
+          }
+          
+          // Get grade from scraped data
+          const grade = course.Grade || '';
+          
+          // Calculate quality points based on UAF system
+          const qualityPoints = calculateQualityPoints(marks, creditHours);
+          
+          const courseData = {
+            code: courseCode,
+            title: course.CourseTitle || '',
+            creditHours: creditHours,
+            marks: marks,
+            qualityPoints: qualityPoints,
+            grade: grade,
+            originalSemester: originalSemester,
+            teacher: course.TeacherName || '',
+            mid: course.Mid || '0',
+            assignment: course.Assignment || '0',
+            final: course.Final || '0',
+            practical: course.Practical || '0',
+            total: course.Total || '0',
+            isExtraEnrolled: false
+          };
+          
+          // Track course history
+          if (!courseHistory[courseCode]) {
+            courseHistory[courseCode] = [];
+          }
+          courseHistory[courseCode].push({
+            semester: semesterName,
+            marks: marks,
+            qualityPoints: qualityPoints,
+            data: courseData
+          });
+          
+          semesters[semesterName].courses.push(courseData);
+        });
+        
+        // Second pass: identify re-enrolled courses and mark them
+        Object.keys(courseHistory).forEach(courseCode => {
+          const history = courseHistory[courseCode];
+          if (history.length > 1) {
+            // Find the highest marks/quality points
+            let highest = history[0];
+            for (let i = 1; i < history.length; i++) {
+              if (history[i].marks > highest.marks) {
+                highest = history[i];
+              }
             }
+            
+            // Mark all other instances as extra enrolled
+            history.forEach(item => {
+              if (item !== highest) {
+                item.data.isExtraEnrolled = true;
+              }
+            });
           }
         });
         
-        // Convert back to array and mark extra enrolled courses
-        const processedData = Array.from(courseMap.values()).map(course => {
-          return {
-            ...course,
-            isExtraEnrolled: extraEnrolledCourses.has(`${course.CourseCode}-${course.Semester}`)
-          };
-        });
-        
-        return processedData;
+        return {
+          studentInfo: studentInfo,
+          semesters: semesters,
+          courseHistory: courseHistory
+        };
       }
       
-      // Calculate GPA from result data
-      function calculateGPA(resultData) {
+      // Calculate quality points based on UAF grading system
+      function calculateQualityPoints(marks, creditHours) {
+        marks = parseFloat(marks);
+        creditHours = parseInt(creditHours);
+
+        let qualityPoints = 0;
+
+        if (creditHours === 5) {
+          if (marks >= 80) {
+            qualityPoints = 20;
+          } else if (marks >= 50) {
+            qualityPoints = 20 - ((80 - marks) * 0.33333);
+          } else if (marks < 50) {
+            qualityPoints = 10 - ((50 - marks) * 0.5);
+          }
+          if (marks < 40) {
+            qualityPoints = 0;
+          }
+        } else if (creditHours === 4) {
+          if (marks >= 64) {
+            qualityPoints = 16;
+          } else if (marks >= 40) {
+            qualityPoints = 16 - ((64 - marks) * 0.33333);
+          } else if (marks < 40) {
+            qualityPoints = 8 - ((40 - marks) * 0.5);
+          }
+          if (marks < 32) {
+            qualityPoints = 0;
+          }
+        } else if (creditHours === 3) {
+          if (marks >= 48) {
+            qualityPoints = 12;
+          } else if (marks >= 30) {
+            qualityPoints = 12 - ((48 - marks) * 0.33333);
+          } else if (marks < 30) {
+            qualityPoints = 6 - ((30 - marks) * 0.5);
+          }
+          if (marks < 24) {
+            qualityPoints = 0;
+          }
+        } else if (creditHours === 2) {
+          if (marks >= 32) {
+            qualityPoints = 8;
+          } else if (marks >= 20) {
+            qualityPoints = 8 - ((32 - marks) * 0.33333);
+          } else if (marks < 20) {
+            qualityPoints = 4 - ((20 - marks) * 0.5);
+          }
+          if (marks < 16) {
+            qualityPoints = 0;
+          }
+        } else if (creditHours === 1) {
+          if (marks >= 16) {
+            qualityPoints = 4;
+          } else if (marks >= 10) {
+            qualityPoints = 4 - ((16 - marks) * 0.33333);
+          } else if (marks < 10) {
+            qualityPoints = 2 - ((10 - marks) * 0.5);
+          }
+          if (marks < 8) {
+            qualityPoints = 0;
+          }
+        }
+
+        return parseFloat(qualityPoints.toFixed(2));
+      }
+      
+      // Calculate CGPA from processed data
+      function calculateCGPA(processedData) {
+        if (!processedData) return null;
+        
         let totalQualityPoints = 0;
         let totalCreditHours = 0;
         let totalMarksObtained = 0;
         let totalMaxMarks = 0;
         
-        // Group by semester
-        const semesters = {};
-        
-        resultData.forEach(course => {
-          const semester = formatSemesterName(course.Semester);
-          if (!semesters[semester]) {
-            semesters[semester] = {
-              courses: [],
-              totalQualityPoints: 0,
-              totalCreditHours: 0,
-              totalMarksObtained: 0,
-              totalMaxMarks: 0
-            };
-          }
+        // Calculate for each semester
+        Object.keys(processedData.semesters).forEach(semesterName => {
+          const semester = processedData.semesters[semesterName];
+          semester.totalQualityPoints = 0;
+          semester.totalCreditHours = 0;
+          semester.totalMarksObtained = 0;
+          semester.totalMaxMarks = 0;
           
-          const creditHours = parseInt(course.CreditHours) || 0;
-          const marks = parseFloat(course.Total) || 0;
-          const qualityPoints = calculateQualityPoints(marks, creditHours);
-          const grade = getGrade(marks, creditHours);
-          const maxMarks = creditHours * 20; // UAF system: 20 marks per credit hour
+          semester.courses.forEach(course => {
+            // Only count non-extra enrolled courses for CGPA
+            if (!course.isExtraEnrolled) {
+              semester.totalQualityPoints += course.qualityPoints;
+              semester.totalCreditHours += course.creditHours;
+              semester.totalMarksObtained += course.marks;
+              semester.totalMaxMarks += course.creditHours * 100; // Assuming 100 is max marks per credit
+              
+              totalQualityPoints += course.qualityPoints;
+              totalCreditHours += course.creditHours;
+              totalMarksObtained += course.marks;
+              totalMaxMarks += course.creditHours * 100;
+            }
+          });
           
-          const courseData = {
-            code: course.CourseCode || '',
-            title: course.CourseTitle || '',
-            creditHours: creditHours,
-            marks: marks,
-            maxMarks: maxMarks,
-            qualityPoints: qualityPoints,
-            grade: grade,
-            isExtraEnrolled: course.isExtraEnrolled || false,
-            fullDetails: course // Store all details for modal
-          };
-          
-          semesters[semester].courses.push(courseData);
-          semesters[semester].totalQualityPoints += qualityPoints;
-          semesters[semester].totalCreditHours += creditHours;
-          semesters[semester].totalMarksObtained += marks;
-          semesters[semester].totalMaxMarks += maxMarks;
-          
-          totalQualityPoints += qualityPoints;
-          totalCreditHours += creditHours;
-          totalMarksObtained += marks;
-          totalMaxMarks += maxMarks;
-        });
-        
-        // Calculate GPA for each semester
-        Object.keys(semesters).forEach(semester => {
-          if (semesters[semester].totalCreditHours > 0) {
-            semesters[semester].gpa = parseFloat((semesters[semester].totalQualityPoints / semesters[semester].totalCreditHours).toFixed(4));
-            semesters[semester].percentage = parseFloat((semesters[semester].gpa * 25).toFixed(2));
-            semesters[semester].marksPercentage = parseFloat((semesters[semester].totalMarksObtained / semesters[semester].totalMaxMarks * 100).toFixed(2));
+          // Calculate semester GPA
+          if (semester.totalCreditHours > 0) {
+            semester.gpa = parseFloat((semester.totalQualityPoints / semester.totalCreditHours).toFixed(4));
+            semester.percentage = parseFloat((semester.totalMarksObtained / semester.totalMaxMarks * 100).toFixed(2));
           } else {
-            semesters[semester].gpa = 0;
-            semesters[semester].percentage = 0;
-            semesters[semester].marksPercentage = 0;
+            semester.gpa = 0;
+            semester.percentage = 0;
           }
         });
         
         // Calculate overall CGPA
         const cgpa = totalCreditHours > 0 ? parseFloat((totalQualityPoints / totalCreditHours).toFixed(4)) : 0;
-        const percentage = parseFloat((cgpa * 25).toFixed(2));
-        const marksPercentage = totalMaxMarks > 0 ? parseFloat((totalMarksObtained / totalMaxMarks * 100).toFixed(2)) : 0;
+        const percentage = totalMaxMarks > 0 ? parseFloat((totalMarksObtained / totalMaxMarks * 100).toFixed(2)) : 0;
         
         return {
           cgpa: cgpa,
           percentage: percentage,
-          marksPercentage: marksPercentage,
-          semesters: semesters,
           totalQualityPoints: totalQualityPoints,
           totalCreditHours: totalCreditHours,
           totalMarksObtained: totalMarksObtained,
@@ -1305,89 +1233,29 @@
         };
       }
       
-      // Show course details in modal
-      function showCourseDetails(course) {
-        const modalTitle = document.getElementById('courseDetailModalTitle');
-        const modalBody = document.getElementById('courseDetailModalBody');
-        
-        modalTitle.textContent = `${course.code} - ${course.title}`;
-        
-        modalBody.innerHTML = `
-          <div class="row">
-            <div class="col-md-6">
-              <div class="mb-3">
-                <strong>Course Code:</strong> ${course.code}
-              </div>
-              <div class="mb-3">
-                <strong>Course Title:</strong> ${course.title}
-              </div>
-              <div class="mb-3">
-                <strong>Credit Hours:</strong> ${course.creditHours}
-              </div>
-              <div class="mb-3">
-                <strong>Grade:</strong> <span class="grade-badge grade-${course.grade}">${course.grade}</span>
-              </div>
-            </div>
-            <div class="col-md-6">
-              <div class="mb-3">
-                <strong>Marks Obtained:</strong> ${course.marks}/${course.maxMarks}
-              </div>
-              <div class="mb-3">
-                <strong>Quality Points:</strong> ${course.qualityPoints.toFixed(2)}
-              </div>
-              <div class="mb-3">
-                <strong>Status:</strong> ${course.isExtraEnrolled ? '<span class="extra-enrolled-badge">Extra Enrolled</span>' : 'Regular'}
-              </div>
-            </div>
-          </div>
-          ${course.fullDetails.TeacherName ? `
-          <div class="mt-3">
-            <strong>Teacher:</strong> ${course.fullDetails.TeacherName}
-          </div>
-          ` : ''}
-          ${course.fullDetails.Mid || course.fullDetails.Final || course.fullDetails.Practical || course.fullDetails.Assignment ? `
-          <div class="mt-4">
-            <h6>Detailed Marks:</h6>
-            <div class="row">
-              ${course.fullDetails.Mid ? `<div class="col-6 col-md-3"><strong>Mid:</strong> ${course.fullDetails.Mid}</div>` : ''}
-              ${course.fullDetails.Final ? `<div class="col-6 col-md-3"><strong>Final:</strong> ${course.fullDetails.Final}</div>` : ''}
-              ${course.fullDetails.Practical ? `<div class="col-6 col-md-3"><strong>Practical:</strong> ${course.fullDetails.Practical}</div>` : ''}
-              ${course.fullDetails.Assignment ? `<div class="col-6 col-md-3"><strong>Assignment:</strong> ${course.fullDetails.Assignment}</div>` : ''}
-            </div>
-          </div>
-          ` : ''}
-        `;
-        
-        courseDetailModal.show();
-      }
-      
-      // Display GPA results
-      function displayGPAResults(resultData, gpaData) {
+      // Display CGPA results
+      function displayCGPAResults(processedData, cgpaData) {
         // Update student info
-        const firstRecord = resultData[0];
-        studentName.textContent = firstRecord.StudentName || 'Student Name';
-        studentReg.textContent = firstRecord.RegistrationNo || 'Registration Number';
+        studentName.textContent = processedData.studentInfo.name;
+        studentReg.textContent = processedData.studentInfo.registration;
         
         // Update overall CGPA
-        totalCgpa.textContent = gpaData.cgpa.toFixed(4);
-        totalPercentage.textContent = `${gpaData.marksPercentage.toFixed(2)}%`;
+        totalCgpa.textContent = cgpaData.cgpa;
+        totalPercentage.textContent = `${cgpaData.percentage}%`;
         
         // Clear previous semester results
         semesterResults.innerHTML = '';
         
         // Create semester cards
-        Object.keys(gpaData.semesters).forEach(semesterName => {
-          const semester = gpaData.semesters[semesterName];
+        Object.keys(processedData.semesters).forEach(semesterName => {
+          const semester = processedData.semesters[semesterName];
           
           const semesterCard = document.createElement('div');
           semesterCard.className = 'semester-card';
-          semesterCard.id = `semester-${semesterName.replace(/\s+/g, '-').toLowerCase()}`;
-          semesterCard.dataset.semesterName = semesterName;
+          semesterCard.dataset.semester = semesterName;
           
           semesterCard.innerHTML = `
-            <button class="delete-semester-btn" data-semester="${semesterName}">
-              <i class="fa-solid fa-times"></i>
-            </button>
+            <i class="fa-solid fa-trash delete-semester" title="Delete this semester"></i>
             <div class="d-flex align-items-center justify-content-between mb-3">
               <h5 class="mb-0">
                 <i class="fa-solid fa-book-open me-2 text-blue-600"></i>
@@ -1395,11 +1263,11 @@
               </h5>
               <div class="text-right">
                 <p class="mb-0 text-body-secondary small">GPA:</p>
-                <p class="mb-0 h4 fw-bold text-blue-600">${semester.gpa.toFixed(4)}</p>
-                <p class="mb-0 text-body-secondary small">${semester.marksPercentage.toFixed(2)}%</p>
+                <p class="mb-0 h4 fw-bold text-blue-600">${semester.gpa || 0}</p>
+                <p class="mb-0 text-body-secondary small">${semester.percentage || 0}%</p>
               </div>
             </div>
-            <div class="table-container">
+            <div class="table-responsive">
               <table class="course-table">
                 <thead>
                   <tr>
@@ -1412,16 +1280,16 @@
                 </thead>
                 <tbody>
                   ${semester.courses.map(course => `
-                    <tr>
+                    <tr class="${course.isExtraEnrolled ? 'table-warning' : ''}">
                       <td>
                         <div class="d-flex align-items-center">
                           <span class="fw-medium course-code" style="cursor: pointer;" data-course='${JSON.stringify(course).replace(/'/g, "&#39;")}'>${course.code}</span>
-                          ${course.isExtraEnrolled ? '<span class="extra-enrolled-badge">Extra</span>' : ''}
+                          ${course.isExtraEnrolled ? '<span class="extra-enrolled">Extra Enrolled</span>' : ''}
                           <i class="fa-solid fa-info-circle ms-2 text-blue-600 small" title="${course.title}"></i>
                         </div>
                       </td>
                       <td>${course.creditHours}</td>
-                      <td>${course.marks}/${course.maxMarks}</td>
+                      <td>${course.marks}</td>
                       <td>
                         <span class="grade-badge grade-${course.grade}">${course.grade}</span>
                       </td>
@@ -1436,62 +1304,86 @@
           semesterResults.appendChild(semesterCard);
         });
         
-        // Add event listeners to course codes
-        document.querySelectorAll('.course-code').forEach(element => {
-          element.addEventListener('click', function() {
+        // Add event listeners for course details and delete buttons
+        document.querySelectorAll('.course-code').forEach(el => {
+          el.addEventListener('click', function() {
             const courseData = JSON.parse(this.dataset.course.replace(/&#39;/g, "'"));
             showCourseDetails(courseData);
           });
         });
         
-        // Add event listeners to delete buttons
-        document.querySelectorAll('.delete-semester-btn').forEach(button => {
-          button.addEventListener('click', function() {
-            const semesterName = this.dataset.semester;
+        document.querySelectorAll('.delete-semester').forEach(btn => {
+          btn.addEventListener('click', function() {
+            const semesterCard = this.closest('.semester-card');
+            const semesterName = semesterCard.dataset.semester;
             deleteSemester(semesterName);
           });
         });
         
-        // Show result container
+        // Show result container and calculate button
         resultContainer.style.display = 'block';
         gpaResultCard.style.display = 'block';
+        calculateCgpaBtn.style.display = 'block';
+      }
+      
+      // Show course details in modal
+      function showCourseDetails(course) {
+        document.getElementById('courseDetailsModalTitle').textContent = `${course.code} - ${course.title}`;
+        
+        const modalBody = document.getElementById('courseDetailsModalBody');
+        modalBody.innerHTML = `
+          <div class="row">
+            <div class="col-md-6">
+              <p><strong>Teacher:</strong> ${course.teacher}</p>
+              <p><strong>Semester:</strong> ${course.originalSemester}</p>
+              <p><strong>Credit Hours:</strong> ${course.creditHours}</p>
+            </div>
+            <div class="col-md-6">
+              <p><strong>Mid Term:</strong> ${course.mid}</p>
+              <p><strong>Assignment:</strong> ${course.assignment}</p>
+              <p><strong>Final Term:</strong> ${course.final}</p>
+              ${course.practical ? `<p><strong>Practical:</strong> ${course.practical}</p>` : ''}
+            </div>
+          </div>
+          <div class="row mt-3">
+            <div class="col-12">
+              <div class="alert alert-info">
+                <p class="mb-1"><strong>Total Marks:</strong> ${course.total}</p>
+                <p class="mb-1"><strong>Grade:</strong> <span class="grade-badge grade-${course.grade}">${course.grade}</span></p>
+                <p class="mb-0"><strong>Quality Points:</strong> ${course.qualityPoints.toFixed(2)}</p>
+              </div>
+            </div>
+          </div>
+          ${course.isExtraEnrolled ? `
+          <div class="row mt-3">
+            <div class="col-12">
+              <div class="alert alert-warning">
+                <i class="fa-solid fa-exclamation-triangle me-2"></i>
+                This course was enrolled multiple times. Only the highest marks are counted toward CGPA.
+              </div>
+            </div>
+          </div>
+          ` : ''}
+        `;
+        
+        courseDetailsModal.show();
       }
       
       // Delete a semester
       function deleteSemester(semesterName) {
-        if (!currentResultData) return;
+        if (!processedData || !processedData.semesters[semesterName]) return;
         
-        // Filter out courses from the deleted semester
-        const updatedResultData = currentResultData.filter(course => {
-          return formatSemesterName(course.Semester) !== semesterName;
-        });
+        // Remove semester from processed data
+        delete processedData.semesters[semesterName];
         
-        // Update current data
-        currentResultData = updatedResultData;
-        
-        // Recalculate GPA
-        const processedData = processResultData(currentResultData);
-        currentGPAData = calculateGPA(processedData);
+        // Recalculate CGPA
+        const cgpaData = calculateCGPA(processedData);
         
         // Update display
-        displayGPAResults(currentResultData, currentGPAData);
+        displayCGPAResults(processedData, cgpaData);
         
         addStatusMessage(`Deleted semester: ${semesterName}`, 'info');
         showToast(`Semester ${semesterName} deleted`, 'info');
-      }
-      
-      // Recalculate CGPA
-      function recalculateCGPA() {
-        if (!currentResultData) return;
-        
-        const processedData = processResultData(currentResultData);
-        currentGPAData = calculateGPA(processedData);
-        
-        // Update display
-        displayGPAResults(currentResultData, currentGPAData);
-        
-        addStatusMessage('Recalculated CGPA based on current semesters', 'info');
-        showToast('CGPA recalculated successfully!', 'success');
       }
       
       // Fetch result from UAF LMS
@@ -1506,39 +1398,42 @@
         // Show loading animation
         loading.style.display = 'block';
         resultContainer.style.display = 'none';
+        calculateCgpaBtn.style.display = 'none';
         updateProgress(10, 'Starting Fetch');
         addStatusMessage(`Fetching result for registration number: ${regNum}`, 'info');
         
         try {
-          showDownloadAnimation();
-          
           const response = await fetch(`${API_ENDPOINTS.scrape}?action=scrape_single&registrationNumber=${encodeURIComponent(regNum)}`, {
-            method: 'GET',
-            headers: {
-              'Content-Type': 'application/json'
-            }
+            method: 'GET'
           });
+          
+          updateProgress(50, 'Processing Data');
           
           const data = await response.json();
           
           if (data.success) {
-            updateProgress(70, 'Processing Data');
+            scrapedData = data;
             addStatusMessage('Result fetched successfully', 'success');
+            updateProgress(70, 'Processing Data');
             
-            // Store the raw result data
-            currentResultData = data.resultData;
+            // Process the scraped data
+            processedData = processScrapedData(data);
             
-            // Process the data (handle duplicates, etc.)
-            const processedData = processResultData(currentResultData);
-            
-            // Calculate GPA
-            currentGPAData = calculateGPA(processedData);
-            
-            // Display the result
-            displayGPAResults(currentResultData, currentGPAData);
-            
-            updateProgress(100, 'Fetch Complete');
-            showToast('Result fetched successfully!', 'success');
+            if (processedData) {
+              // Calculate CGPA
+              const cgpaData = calculateCGPA(processedData);
+              
+              // Display the result
+              displayCGPAResults(processedData, cgpaData);
+              
+              addStatusMessage('CGPA calculated successfully', 'success');
+              updateProgress(100, 'Fetch Complete');
+              showToast('Result fetched successfully!', 'success');
+            } else {
+              addStatusMessage('Error processing result data', 'error');
+              showToast('Error processing result data', 'error');
+              updateProgress(100, 'Error');
+            }
           } else {
             addStatusMessage(`Error: ${data.message}`, 'error');
             showToast(data.message, 'error');
@@ -1550,13 +1445,26 @@
           updateProgress(100, 'Error');
         } finally {
           loading.style.display = 'none';
-          hideDownloadAnimation();
           
           // Reset progress after a delay
           setTimeout(() => {
             updateProgress(0, 'Ready');
           }, 2000);
         }
+      }
+      
+      // Recalculate CGPA when button is clicked
+      function recalculateCGPA() {
+        if (!processedData) return;
+        
+        const cgpaData = calculateCGPA(processedData);
+        
+        // Update overall CGPA
+        totalCgpa.textContent = cgpaData.cgpa;
+        totalPercentage.textContent = `${cgpaData.percentage}%`;
+        
+        showToast('CGPA recalculated successfully!', 'success');
+        addStatusMessage('CGPA recalculated based on current semesters', 'info');
       }
       
       // Event listeners
@@ -1571,7 +1479,7 @@
       
       clearLogBtn.addEventListener('click', clearLog);
       
-      recalculateBtn.addEventListener('click', recalculateCGPA);
+      calculateCgpaBtn.addEventListener('click', recalculateCGPA);
       
       // Initialize the application
       init();
