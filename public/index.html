@@ -354,92 +354,9 @@
       display: none;
     }
 
-    /* Undo notification */
-    .undo-notification {
-      position: fixed;
-      bottom: 20px;
-      left: 50%;
-      transform: translateX(-50%);
-      background: rgba(0, 0, 0, 0.8);
-      color: white;
-      padding: 12px 20px;
-      border-radius: 8px;
-      z-index: 10000;
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-      animation: fadeInUp 0.3s ease;
-    }
-    
-    .undo-notification button {
-      background: var(--brand);
-      border: none;
-      color: white;
-      padding: 4px 12px;
-      border-radius: 4px;
-      cursor: pointer;
-      font-weight: 500;
-    }
-    
-    .undo-notification button:hover {
-      background: var(--brand-600);
-    }
-    
-    @keyframes fadeInUp {
-      from {
-        opacity: 0;
-        transform: translate(-50%, 20px);
-      }
-      to {
-        opacity: 1;
-        transform: translate(-50%, 0);
-      }
-    }
-
-    /* ----------- DARK MODE IMPROVED ----------- */
-    [data-theme="dark"] body{background:linear-gradient(180deg,#0b0e13 0%, #0f1320 70%); color:#f1f5f9;}
-    [data-theme="dark"] .navbar{background-color:rgba(17,24,39,.75);}
-    [data-theme="dark"] .navbar .nav-link{color:#d1d5db;}
-    [data-theme="dark"] .navbar .nav-link:hover{color:#fff;}
-    [data-theme="dark"] .card-modern{background:#0f1422; color:#e5e7eb;}
-    [data-theme="dark"] .card-modern .card-header{background:linear-gradient(180deg, rgba(122,106,216,.25), rgba(122,106,216,.1));}
-    [data-theme="dark"] h1, [data-theme="dark"] h2, [data-theme="dark"] h3, [data-theme="dark"] h4, [data-theme="dark"] h5{color:#ffffff;}
-    [data-theme="dark"] .lead{color:#9ca3af;}
-    [data-theme="dark"] .subject-row{background:#1a1f2e; border-color:#2d3748;}
-    [data-theme="dark"] label{color:#e5e7eb;}
-    [data-theme="dark"] .form-control, [data-theme="dark"] .form-select{background:#0b1020; color:#f1f5f9; border-color:#374151;}
-    [data-theme="dark"] .form-control::placeholder{color:#9ca3af;}
-    [data-theme="dark"] .input-group-text{background:#1f2937; color:#e5e7eb;}
-    [data-theme="dark"] .footer{color:#9ca3af;}
-    [data-theme="dark"] a{color: rgb(122, 106, 216);}
-    [data-theme="dark"] a:hover{color:#9f8df0;}
-    [data-theme="dark"] .status-log { background: #1a2030; }
-    [data-theme="dark"] .status-line { border-bottom-color: #2d3748; }
-    [data-theme="dark"] .gpa-result-card { background: #1a2030; }
-    [data-theme="dark"] .semester-card { background: #1a2030; }
-    [data-theme="dark"] .course-table th, 
-    [data-theme="dark"] .course-table td { border-bottom-color: #2d3748; }
-    [data-theme="dark"] .undo-notification {
-      background: rgba(255, 255, 255, 0.9);
-      color: #1a1f2e;
-    }
-
-    /* Dark mode contrast improvements */
-    [data-theme="dark"] .text-body-secondary {
-      color: #d1d5db !important;
-    }
-    
-    [data-theme="dark"] .btn-primary-action {
-      color: #ffffff !important;
-    }
-
-    .cursor-dot{position:fixed; width:10px;height:10px;border-radius:50%; background:var(--brand); pointer-events:none; transform:translate(-50%, -50%); opacity:.7; mix-blend-mode:multiply; z-index:9999;}
-    
     /* Course action buttons */
     .course-actions {
-      display: flex;
-      gap: 8px;
+      display: block;
     }
     
     .course-actions i {
@@ -457,6 +374,25 @@
       background-color: rgba(220, 53, 69, 0.1);
     }
     
+    .restore-course {
+      color: #10ac84;
+    }
+    
+    .restore-course:hover {
+      background-color: rgba(16, 172, 132, 0.1);
+    }
+
+    /* Flash animation */
+    @keyframes flash {
+      0% { opacity: 1; }
+      50% { opacity: 0.3; }
+      100% { opacity: 1; }
+    }
+    
+    .flash {
+      animation: flash 0.5s ease;
+    }
+    
     /* Mobile responsive adjustments */
     @media (max-width: 575.98px){
       .hero{padding:4rem 0 2rem;}
@@ -471,12 +407,6 @@
       }
       
       /* Mobile notification text size */
-      .undo-notification {
-        font-size: 12px;
-        padding: 8px 12px;
-        bottom: 10px;
-      }
-      
       .toast {
         min-width: 250px;
         max-width: 300px;
@@ -542,6 +472,87 @@
         max-width: 300px;
       }
     }
+
+    /* ----------- DARK MODE IMPROVED ----------- */
+    [data-theme="dark"] body{background:linear-gradient(180deg,#0b0e13 0%, #0f1320 70%); color:#f1f5f9;}
+    [data-theme="dark"] .navbar{background-color:rgba(17,24,39,.75);}
+    [data-theme="dark"] .navbar .nav-link{color:#d1d5db;}
+    [data-theme="dark"] .navbar .nav-link:hover{color:#fff;}
+    [data-theme="dark"] .card-modern{background:#0f1422; color:#e5e7eb;}
+    [data-theme="dark"] .card-modern .card-header{background:linear-gradient(180deg, rgba(122,106,216,.25), rgba(122,106,216,.1));}
+    [data-theme="dark"] h1, [data-theme="dark"] h2, [data-theme="dark"] h3, [data-theme="dark"] h4, [data-theme="dark"] h5{color:#ffffff;}
+    [data-theme="dark"] .lead{color:#9ca3af;}
+    [data-theme="dark"] .subject-row{background:#1a1f2e; border-color:#2d3748;}
+    [data-theme="dark"] label{color:#e5e7eb;}
+    [data-theme="dark"] .form-control, [data-theme="dark"] .form-select{background:#0b1020; color:#f1f5f9; border-color:#374151;}
+    [data-theme="dark"] .form-control::placeholder{color:#9ca3af;}
+    [data-theme="dark"] .input-group-text{background:#1f2937; color:#e5e7eb;}
+    [data-theme="dark"] .footer{color:#9ca3af;}
+    [data-theme="dark"] a{color: rgb(122, 106, 216);}
+    [data-theme="dark"] a:hover{color:#9f8df0;}
+    [data-theme="dark"] .status-log { background: #1a2030; }
+    [data-theme="dark"] .status-line { border-bottom-color: #2d3748; }
+    [data-theme="dark"] .gpa-result-card { background: #1a2030; }
+    [data-theme="dark"] .semester-card { background: #1a2030; }
+    [data-theme="dark"] .course-table th, 
+    [data-theme="dark"] .course-table td { border-bottom-color: #2d3748; }
+    
+    /* Dark mode for course details modal */
+    [data-theme="dark"] .course-details-modal .modal-content {
+      background: #1a2030;
+      color: #e5e7eb;
+    }
+    
+    [data-theme="dark"] .course-details-modal .modal-header {
+      background: linear-gradient(180deg, rgba(122,106,216,.25), rgba(122,106,216,.1));
+      border-bottom-color: #2d3748;
+    }
+    
+    [data-theme="dark"] .course-details-modal .modal-header .btn-close {
+      filter: invert(1);
+    }
+    
+    [data-theme="dark"] .course-details-modal .alert-info {
+      background-color: rgba(23, 162, 184, 0.2);
+      border-color: rgba(23, 162, 184, 0.3);
+      color: #71d4f0;
+    }
+    
+    [data-theme="dark"] .course-details-modal .alert-warning {
+      background-color: rgba(255, 193, 7, 0.2);
+      border-color: rgba(255, 193, 7, 0.3);
+      color: #ffd965;
+    }
+
+    /* Dark mode contrast improvements */
+    [data-theme="dark"] .text-body-secondary {
+      color: #d1d5db !important;
+    }
+    
+    [data-theme="dark"] .btn-primary-action {
+      color: #ffffff !important;
+    }
+    
+    /* Dark mode course text improvements */
+    [data-theme="dark"] .course-code {
+      color: #e5e7eb;
+    }
+    
+    [data-theme="dark"] .course-table {
+      color: #e5e7eb;
+    }
+    
+    [data-theme="dark"] .grade-badge {
+      color: white !important;
+    }
+    
+    [data-theme="dark"] .grade-A { background-color: #166534; color: #dcfce7; }
+    [data-theme="dark"] .grade-B { background-color: #1e40af; color: #dbeafe; }
+    [data-theme="dark"] .grade-C { background-color: #92400e; color: #fef3c7; }
+    [data-theme="dark"] .grade-D { background-color: #991b1b; color: #fee2e2; }
+    [data-theme="dark"] .grade-F { background-color: #374151; color: #f3f4f6; }
+
+    .cursor-dot{position:fixed; width:10px;height:10px;border-radius:50%; background:var(--brand); pointer-events:none; transform:translate(-50%, -50%); opacity:.7; mix-blend-mode:multiply; z-index:9999;}
   </style>
 </head>
 <body>
@@ -836,8 +847,6 @@
       let testInProgress = false;
       let scrapedData = null;
       let processedData = null;
-      let deletedItems = []; // For undo functionality
-      let undoTimeout = null;
       
       // API endpoints
       const API_ENDPOINTS = {
@@ -889,41 +898,6 @@
             }
           }, 300);
         }, 3000);
-      }
-      
-      // Show undo notification
-      function showUndoNotification(message, undoCallback) {
-        // Clear any existing undo notification
-        const existingNotification = document.querySelector('.undo-notification');
-        if (existingNotification) {
-          existingNotification.remove();
-        }
-        
-        // Clear any existing timeout
-        if (undoTimeout) {
-          clearTimeout(undoTimeout);
-        }
-        
-        const notification = document.createElement('div');
-        notification.className = 'undo-notification';
-        notification.innerHTML = `
-          <span>${message}</span>
-          <button id="undoDeleteBtn">Undo</button>
-        `;
-        
-        document.body.appendChild(notification);
-        
-        // Set timeout to remove notification
-        undoTimeout = setTimeout(() => {
-          notification.remove();
-        }, 5000);
-        
-        // Add event listener for undo button
-        document.getElementById('undoDeleteBtn').addEventListener('click', function() {
-          notification.remove();
-          clearTimeout(undoTimeout);
-          undoCallback();
-        });
       }
       
       // Get icon for toast type
@@ -1217,7 +1191,8 @@
             practical: course.Practical || '0',
             total: course.Total || '0',
             isExtraEnrolled: false,
-            isRepeated: false
+            isRepeated: false,
+            isDeleted: false
           };
           
           // Track course history
@@ -1348,7 +1323,7 @@
           semester.totalMaxMarks = 0;
           
           semester.courses.forEach(course => {
-            // Only count non-extra enrolled courses for CGPA
+            // Only count non-extra enrolled and non-deleted courses for CGPA
             if (!course.isExtraEnrolled && !course.isDeleted) {
               semester.totalQualityPoints += course.qualityPoints;
               semester.totalCreditHours += course.creditHours;
@@ -1458,7 +1433,10 @@
                       </td>
                       <td class="fw-medium text-blue-600">${course.qualityPoints.toFixed(2)}</td>
                       <td class="course-actions">
-                        <i class="fa-solid fa-trash delete-course" data-course='${JSON.stringify(course).replace(/'/g, "&#39;")}' data-semester="${semesterName}" title="Delete this course"></i>
+                        ${course.isDeleted ? 
+                          `<i class="fa-solid fa-rotate-left restore-course" data-course='${JSON.stringify(course).replace(/'/g, "&#39;")}' data-semester="${semesterName}" title="Restore this course"></i>` : 
+                          `<i class="fa-solid fa-trash delete-course" data-course='${JSON.stringify(course).replace(/'/g, "&#39;")}' data-semester="${semesterName}" title="Delete this course"></i>`
+                        }
                       </td>
                     </tr>
                   `).join('')}
@@ -1491,6 +1469,14 @@
             const courseData = JSON.parse(this.dataset.course.replace(/&#39;/g, "'"));
             const semesterName = this.dataset.semester;
             deleteCourse(courseData, semesterName);
+          });
+        });
+        
+        document.querySelectorAll('.restore-course').forEach(btn => {
+          btn.addEventListener('click', function() {
+            const courseData = JSON.parse(this.dataset.course.replace(/&#39;/g, "'"));
+            const semesterName = this.dataset.semester;
+            restoreCourse(courseData, semesterName);
           });
         });
         
@@ -1546,27 +1532,20 @@
       function deleteSemester(semesterName) {
         if (!processedData || !processedData.semesters[semesterName]) return;
         
-        // Store the semester data for potential undo
-        const semesterData = JSON.parse(JSON.stringify(processedData.semesters[semesterName]));
-        deletedItems.push({
-          type: 'semester',
-          name: semesterName,
-          data: semesterData
+        // Mark all courses in the semester as deleted
+        processedData.semesters[semesterName].courses.forEach(course => {
+          course.isDeleted = true;
         });
-        
-        // Remove semester from processed data
-        delete processedData.semesters[semesterName];
         
         // Recalculate CGPA
         const cgpaData = calculateCGPA(processedData);
         
-        // Update display
+        // Update display with flash animation
         displayCGPAResults(processedData, cgpaData);
+        document.querySelector(`.semester-card[data-semester="${semesterName}"]`).classList.add('flash');
         
         addStatusMessage(`Deleted semester: ${semesterName}`, 'info');
-        showUndoNotification(`Semester "${semesterName}" deleted`, function() {
-          undoDelete();
-        });
+        showToast(`Semester "${semesterName}" deleted`, 'info');
       }
       
       // Delete a course
@@ -1579,63 +1558,44 @@
         
         if (courseIndex === -1) return;
         
-        // Store for undo
-        const deletedCourse = {
-          type: 'course',
-          semester: semesterName,
-          data: JSON.parse(JSON.stringify(semester.courses[courseIndex]))
-        };
-        
-        // Mark course as deleted instead of removing it
+        // Mark course as deleted
         semester.courses[courseIndex].isDeleted = true;
         
         // Recalculate CGPA
         const cgpaData = calculateCGPA(processedData);
         
-        // Update display
+        // Update display with flash animation
         displayCGPAResults(processedData, cgpaData);
-        
-        // Store for undo
-        deletedItems.push(deletedCourse);
+        const row = document.querySelector(`.delete-course[data-semester="${semesterName}"]`).closest('tr');
+        if (row) row.classList.add('flash');
         
         addStatusMessage(`Deleted course: ${course.code} from ${semesterName}`, 'info');
-        showUndoNotification(`Course "${course.code}" deleted`, function() {
-          undoDelete();
-        });
+        showToast(`Course "${course.code}" deleted`, 'info');
       }
       
-      // Undo delete operation
-      function undoDelete() {
-        if (deletedItems.length === 0) return;
+      // Restore a course
+      function restoreCourse(course, semesterName) {
+        if (!processedData || !processedData.semesters[semesterName]) return;
         
-        const lastDeleted = deletedItems.pop();
+        // Find the course index
+        const semester = processedData.semesters[semesterName];
+        const courseIndex = semester.courses.findIndex(c => c.code === course.code && c.marks === course.marks);
         
-        if (lastDeleted.type === 'semester') {
-          // Restore semester
-          processedData.semesters[lastDeleted.name] = lastDeleted.data;
-          addStatusMessage(`Restored semester: ${lastDeleted.name}`, 'info');
-          showToast(`Semester ${lastDeleted.name} restored`, 'success');
-        } else if (lastDeleted.type === 'course') {
-          // Restore course by removing the isDeleted flag
-          const semester = processedData.semesters[lastDeleted.semester];
-          if (semester) {
-            const courseIndex = semester.courses.findIndex(c => 
-              c.code === lastDeleted.data.code && c.marks === lastDeleted.data.marks
-            );
-            
-            if (courseIndex !== -1) {
-              semester.courses[courseIndex].isDeleted = false;
-              addStatusMessage(`Restored course: ${lastDeleted.data.code} to ${lastDeleted.semester}`, 'info');
-              showToast(`Course ${lastDeleted.data.code} restored`, 'success');
-            }
-          }
-        }
+        if (courseIndex === -1) return;
+        
+        // Mark course as not deleted
+        semester.courses[courseIndex].isDeleted = false;
         
         // Recalculate CGPA
         const cgpaData = calculateCGPA(processedData);
         
-        // Update display
+        // Update display with flash animation
         displayCGPAResults(processedData, cgpaData);
+        const row = document.querySelector(`.restore-course[data-semester="${semesterName}"]`).closest('tr');
+        if (row) row.classList.add('flash');
+        
+        addStatusMessage(`Restored course: ${course.code} in ${semesterName}`, 'info');
+        showToast(`Course "${course.code}" restored`, 'success');
       }
       
       // Recalculate CGPA when button is clicked
