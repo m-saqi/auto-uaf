@@ -471,7 +471,7 @@
     @media (max-width: 575.98px){
       .hero{padding:4rem 0 2rem;}
       .d-flex.gap-2 {
-        flex-direction: column;
+        flex-direction: row;
         align-items: center;
       }
       .d-flex.gap-2 .btn {
@@ -582,7 +582,7 @@
       </a>
 
       <div class="d-flex align-items-center gap-2 order-lg-2">
-        <button id="themeToggle" class="btn btn-sm btn-soft rounded-pill" type="button" aria-label="Toggle dark mode">
+        <button id="themeToggle" class="btn btn-sm btn-soft rounded-pill" type="button" style="margin-bottom: 0rem;" aria-label="Toggle dark mode">
           <i class="fa-solid fa-moon"></i>
         </button>
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNav">
@@ -608,14 +608,14 @@
         <div class="col-lg-7">
           <span class="badge rounded-pill badge-brand mb-3">University of Agriculture Faisalabad</span>
           <h1 class="display-5 mb-3">Calculate Your <span style="color:var(--brand)">CGPA Automatically</span><br/>from UAF LMS</h1>
-          <p class="lead mb-4">Enter your <strong>registration number</strong> to fetch your results directly from UAF LMS. The calculator will automatically compute your CGPA based on UAF grading system.</p>
+          <p class="lead mb-4">Enter your <strong>registration number</strong> to fetch your results directly from UAF LMS. The calculator will automatically compute your CGPA and Percentage based on UAF grading system.</p>
           <div class="d-flex gap-2">
             <a href="#Auto-Calculator" 
                class="btn btn-primary-action btn-lg rounded-pill" 
                style="font-size: 1.05rem; padding: 0.9rem;">
               <i class="fa-solid fa-bolt me-2"></i>Try It Now
             </a>
-            <a href="index.html#CGPA-Calculator" class="btn btn-secondary-action rounded-pill">
+            <a href="index.html#CGPA-Calculator" class="btn btn-secondary-action rounded-pill" style="display:block; padding:14px">
               <i class="fa-solid fa-calculator me-2"></i>Manual Calculator
             </a>
           </div>
