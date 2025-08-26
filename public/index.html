@@ -160,7 +160,7 @@
     /* Toast notifications */
     #toast-container {
       position: fixed;
-      bottom: 25px;
+      top: 25px;
       right: 20px;
       z-index: 9999;
       display: flex;
@@ -353,14 +353,8 @@
       margin-top: 1rem;
       display: none;
     }
-    
-    .delete-course {
-      color: #dc3545;
-      cursor: pointer;
-      margin-left: 0.5rem;
-      font-size: 0.9rem;
-    }
-    
+
+    /* Undo notification */
     .undo-notification {
       position: fixed;
       bottom: 20px;
@@ -368,10 +362,39 @@
       transform: translateX(-50%);
       background: rgba(0, 0, 0, 0.8);
       color: white;
-      padding: 10px 20px;
-      border-radius: 5px;
+      padding: 12px 20px;
+      border-radius: 8px;
       z-index: 10000;
-      display: none;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+      animation: fadeInUp 0.3s ease;
+    }
+    
+    .undo-notification button {
+      background: var(--brand);
+      border: none;
+      color: white;
+      padding: 4px 12px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-weight: 500;
+    }
+    
+    .undo-notification button:hover {
+      background: var(--brand-600);
+    }
+    
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translate(-50%, 20px);
+      }
+      to {
+        opacity: 1;
+        transform: translate(-50%, 0);
+      }
     }
 
     /* ----------- DARK MODE IMPROVED ----------- */
@@ -397,8 +420,10 @@
     [data-theme="dark"] .semester-card { background: #1a2030; }
     [data-theme="dark"] .course-table th, 
     [data-theme="dark"] .course-table td { border-bottom-color: #2d3748; }
-    [data-theme="dark"] .extra-enrolled { background-color: #5c4f0a; color: #ffd54f; }
-    [data-theme="dark"] .undo-notification { background: rgba(255, 255, 255, 0.9); color: #2d3748; }
+    [data-theme="dark"] .undo-notification {
+      background: rgba(255, 255, 255, 0.9);
+      color: #1a1f2e;
+    }
 
     /* Dark mode contrast improvements */
     [data-theme="dark"] .text-body-secondary {
@@ -412,6 +437,15 @@
     .cursor-dot{position:fixed; width:10px;height:10px;border-radius:50%; background:var(--brand); pointer-events:none; transform:translate(-50%, -50%); opacity:.7; mix-blend-mode:multiply; z-index:9999;}
     @media (max-width: 575.98px){
       .hero{padding:4rem 0 2rem;}
+      .d-flex.gap-2 {
+        flex-direction: column;
+        align-items: center;
+      }
+      .d-flex.gap-2 .btn {
+        width: 100%;
+        max-width: 300px;
+        margin-bottom: 0.5rem;
+      }
     }
 
     /* Ensure subject columns are 2-up on very small screens: change from col-12 col-md-6 -> col-6 col-md-6 */
@@ -442,9 +476,9 @@
       }
     }
     
-    /* Center buttons in scraping and log sections */
-    #Auto-Calculator .center-buttons,
-    #Auto-Calculator .center-buttons-log {
+    /* Center buttons only in specific sections */
+    .scraping-section .center-buttons,
+    .log-section .center-buttons {
       display: flex;
       justify-content: center;
       flex-wrap: wrap;
@@ -452,13 +486,13 @@
     }
     
     @media (max-width: 576px) {
-      #Auto-Calculator .center-buttons,
-      #Auto-Calculator .center-buttons-log {
+      .scraping-section .center-buttons,
+      .log-section .center-buttons {
         flex-direction: column;
         align-items: center;
       }
-      #Auto-Calculator .center-buttons .btn,
-      #Auto-Calculator .center-buttons-log .btn {
+      .scraping-section .center-buttons .btn,
+      .log-section .center-buttons .btn {
         width: 100%;
         max-width: 300px;
       }
@@ -468,12 +502,6 @@
 <body>
   <!-- Custom cursor -->
   <div class="cursor-dot" id="cursorDot"></div>
-
-  <!-- Undo Notification -->
-  <div class="undo-notification" id="undoNotification">
-    <span id="undoMessage"></span>
-    <button class="btn btn-sm btn-light ms-2" id="undoButton">Undo</button>
-  </div>
 
   <!-- Course Details Modal -->
   <div class="modal fade course-details-modal" id="courseDetailsModal" tabindex="-1" aria-hidden="true">
@@ -572,7 +600,7 @@
             <div class="card-header p-4">
               <h4 class="mb-0"><i class="fa-solid fa-bolt me-2"></i>UAF CGPA Calculator</h4>
             </div>
-            <div class="card-body p-4">
+            <div class="card-body p-4 scraping-section">
               <form id="resultForm">
                 <div class="mb-3">
                   <label for="registrationNumber" class="form-label">Registration Number</label>
@@ -649,7 +677,7 @@
               </div>
               
               <!-- Log Action Buttons -->
-              <div class="center-buttons-log mt-3">
+              <div class="log-section center-buttons mt-3">
                 <button id="downloadLogBtn" class="btn btn-secondary-action rounded-pill">
                   <i class="fa-solid fa-file-lines me-2"></i>Download Log
                 </button>
@@ -731,7 +759,6 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js"></script>
   
   <!-- App JS -->
-    <!-- App JS -->
   <script>
     document.addEventListener('DOMContentLoaded', function() {
       // Elements
@@ -758,16 +785,13 @@
       const totalPercentage = document.getElementById('totalPercentage');
       const calculateCgpaBtn = document.getElementById('calculateCgpaBtn');
       const courseDetailsModal = new bootstrap.Modal(document.getElementById('courseDetailsModal'));
-      const undoNotification = document.getElementById('undoNotification');
-      const undoMessage = document.getElementById('undoMessage');
-      const undoButton = document.getElementById('undoButton');
       
       // State variables
       let allLogs = [];
       let testInProgress = false;
       let scrapedData = null;
       let processedData = null;
-      let deletedItems = []; // For undo functionality
+      let deletedSemesters = [];
       let undoTimeout = null;
       
       // API endpoints
@@ -823,25 +847,42 @@
       }
       
       // Show undo notification
-      function showUndoNotification(message, undoCallback) {
+      function showUndoNotification(semesterName) {
+        // Clear any existing undo notification
+        const existingNotification = document.querySelector('.undo-notification');
+        if (existingNotification) {
+          existingNotification.remove();
+        }
+        
         // Clear any existing timeout
         if (undoTimeout) {
           clearTimeout(undoTimeout);
         }
         
-        undoMessage.textContent = message;
-        undoNotification.style.display = 'flex';
+        const notification = document.createElement('div');
+        notification.className = 'undo-notification';
+        notification.innerHTML = `
+          <span>Semester "${semesterName}" deleted</span>
+          <button id="undoDeleteBtn">Undo</button>
+        `;
         
-        // Set up undo button
-        undoButton.onclick = function() {
-            undoNotification.style.display = 'none';
-            undoCallback();
-        };
+        document.body.appendChild(notification);
         
-        // Set timeout to hide notification
+        // Set timeout to remove notification
         undoTimeout = setTimeout(() => {
-            undoNotification.style.display = 'none';
+          notification.remove();
+          // Clear the deleted semester from history if not undone
+          if (deletedSemesters.length > 0 && deletedSemesters[deletedSemesters.length - 1].semester === semesterName) {
+            deletedSemesters.pop();
+          }
         }, 5000);
+        
+        // Add event listener for undo button
+        document.getElementById('undoDeleteBtn').addEventListener('click', function() {
+          undoDeleteSemester();
+          notification.remove();
+          clearTimeout(undoTimeout);
+        });
       }
       
       // Get icon for toast type
@@ -991,12 +1032,6 @@
             method: 'GET'
           });
           
-          // Check if response is JSON
-          const contentType = response.headers.get('content-type');
-          if (!contentType || !contentType.includes('application/json')) {
-            throw new Error('Server returned non-JSON response');
-          }
-          
           const data = await response.json();
           
           if (data.success) {
@@ -1081,9 +1116,7 @@
               originalName: originalSemester,
               courses: [],
               totalQualityPoints: 0,
-              totalCreditHours: 0,
-              totalMarksObtained: 0,
-              totalMaxMarks: 0
+              totalCreditHours: 0
             };
           }
           
@@ -1109,15 +1142,11 @@
           // Calculate quality points based on UAF system
           const qualityPoints = calculateQualityPoints(marks, creditHours);
           
-          // Calculate max marks based on credit hours
-          const maxMarks = creditHours * 100; // 100 marks per credit hour
-          
           const courseData = {
             code: courseCode,
             title: course.CourseTitle || '',
             creditHours: creditHours,
             marks: marks,
-            maxMarks: maxMarks,
             qualityPoints: qualityPoints,
             grade: grade,
             originalSemester: originalSemester,
@@ -1127,8 +1156,8 @@
             final: course.Final || '0',
             practical: course.Practical || '0',
             total: course.Total || '0',
-            isRepeated: false,
-            isExtraEnrolled: false
+            isExtraEnrolled: false,
+            isRepeated: false
           };
           
           // Track course history
@@ -1157,15 +1186,11 @@
               }
             }
             
-            // Mark all instances as repeated
-            history.forEach(item => {
-              item.data.isRepeated = true;
-            });
-            
-            // Mark all other instances as extra enrolled
+            // Mark all other instances as extra enrolled and repeated
             history.forEach(item => {
               if (item !== highest) {
                 item.data.isExtraEnrolled = true;
+                item.data.isRepeated = true;
               }
             });
           }
@@ -1268,12 +1293,21 @@
               semester.totalQualityPoints += course.qualityPoints;
               semester.totalCreditHours += course.creditHours;
               semester.totalMarksObtained += course.marks;
-              semester.totalMaxMarks += course.maxMarks;
+              
+              // Calculate max marks based on credit hours
+              let maxMarks = 0;
+              if (course.creditHours === 5) maxMarks = 100;
+              else if (course.creditHours === 4) maxMarks = 80;
+              else if (course.creditHours === 3) maxMarks = 60;
+              else if (course.creditHours === 2) maxMarks = 40;
+              else if (course.creditHours === 1) maxMarks = 20;
+              
+              semester.totalMaxMarks += maxMarks;
+              totalMaxMarks += maxMarks;
               
               totalQualityPoints += course.qualityPoints;
               totalCreditHours += course.creditHours;
               totalMarksObtained += course.marks;
-              totalMaxMarks += course.maxMarks;
             }
           });
           
@@ -1344,7 +1378,6 @@
                     <th>Marks</th>
                     <th>Grade</th>
                     <th>GP</th>
-                    <th>Action</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -1353,8 +1386,8 @@
                       <td>
                         <div class="d-flex align-items-center">
                           <span class="fw-medium course-code" style="cursor: pointer;" data-course='${JSON.stringify(course).replace(/'/g, "&#39;")}'>${course.code}</span>
-                          ${course.isRepeated ? '<span class="extra-enrolled">Reptd.</span>' : ''}
                           ${course.isExtraEnrolled ? '<span class="extra-enrolled">Extra Enrolled</span>' : ''}
+                          ${course.isRepeated ? '<span class="extra-enrolled">Reptd.</span>' : ''}
                           <i class="fa-solid fa-info-circle ms-2 text-blue-600 small" title="${course.title}"></i>
                         </div>
                       </td>
@@ -1364,9 +1397,6 @@
                         <span class="grade-badge grade-${course.grade}">${course.grade}</span>
                       </td>
                       <td class="fw-medium text-blue-600">${course.qualityPoints.toFixed(2)}</td>
-                      <td>
-                        <i class="fa-solid fa-trash delete-course" data-course='${JSON.stringify(course).replace(/'/g, "&#39;")}' data-semester="${semesterName}" title="Delete this course"></i>
-                      </td>
                     </tr>
                   `).join('')}
                 </tbody>
@@ -1393,14 +1423,6 @@
           });
         });
         
-        document.querySelectorAll('.delete-course').forEach(btn => {
-          btn.addEventListener('click', function() {
-            const courseData = JSON.parse(this.dataset.course.replace(/&#39;/g, "'"));
-            const semesterName = this.dataset.semester;
-            deleteCourse(courseData, semesterName);
-          });
-        });
-        
         // Show result container and calculate button
         resultContainer.style.display = 'block';
         gpaResultCard.style.display = 'block';
@@ -1417,7 +1439,6 @@
             <div class="col-md-6">
               <p><strong>Teacher:</strong> ${course.teacher}</p>
               <p><strong>Credit Hours:</strong> ${course.creditHours}</p>
-              <p><strong>Max Marks:</strong> ${course.maxMarks}</p>
             </div>
             <div class="col-md-6">
               <p><strong>Mid Term:</strong> ${course.mid}</p>
@@ -1435,12 +1456,12 @@
               </div>
             </div>
           </div>
-          ${course.isRepeated ? `
+          ${course.isExtraEnrolled ? `
           <div class="row mt-3">
             <div class="col-12">
               <div class="alert alert-warning">
                 <i class="fa-solid fa-exclamation-triangle me-2"></i>
-                This course was repeated. Only the highest marks are counted toward CGPA.
+                This course was enrolled multiple times. Only the highest marks are counted toward CGPA.
               </div>
             </div>
           </div>
@@ -1454,12 +1475,13 @@
       function deleteSemester(semesterName) {
         if (!processedData || !processedData.semesters[semesterName]) return;
         
-        // Store for undo
-        const deletedSemester = {
-          type: 'semester',
-          name: semesterName,
-          data: JSON.parse(JSON.stringify(processedData.semesters[semesterName]))
-        };
+        // Store the semester data for potential undo
+        const semesterData = JSON.parse(JSON.stringify(processedData.semesters[semesterName]));
+        deletedSemesters.push({
+          semester: semesterName,
+          data: semesterData,
+          timestamp: Date.now()
+        });
         
         // Remove semester from processed data
         delete processedData.semesters[semesterName];
@@ -1470,109 +1492,28 @@
         // Update display
         displayCGPAResults(processedData, cgpaData);
         
-        // Store for undo
-        deletedItems.push(deletedSemester);
-        
         addStatusMessage(`Deleted semester: ${semesterName}`, 'info');
-        showToast(`Semester ${semesterName} deleted`, 'info');
-        
-        // Show undo notification
-        showUndoNotification(`Semester ${semesterName} deleted`, function() {
-          undoDelete();
-        });
+        showUndoNotification(semesterName);
       }
       
-      // Delete a course
-      function deleteCourse(course, semesterName) {
-        if (!processedData || !processedData.semesters[semesterName]) return;
+      // Undo delete semester
+      function undoDeleteSemester() {
+        if (deletedSemesters.length === 0) return;
         
-        // Find the course index
-        const semester = processedData.semesters[semesterName];
-        const courseIndex = semester.courses.findIndex(c => c.code === course.code && c.marks === course.marks);
-        
-        if (courseIndex === -1) return;
-        
-        // Store for undo
-        const deletedCourse = {
-          type: 'course',
-          semester: semesterName,
-          data: JSON.parse(JSON.stringify(semester.courses[courseIndex]))
-        };
-        
-        // Remove course from semester
-        semester.courses.splice(courseIndex, 1);
-        
-        // If semester is now empty, remove it
-        if (semester.courses.length === 0) {
-          delete processedData.semesters[semesterName];
-        }
-        
-        // Recalculate CGPA
-        const cgpaData = calculateCGPA(processedData);
-        
-        // Update display
-        displayCGPAResults(processedData, cgpaData);
-        
-        // Store for undo
-        deletedItems.push(deletedCourse);
-        
-        addStatusMessage(`Deleted course: ${course.code} from ${semesterName}`, 'info');
-        showToast(`Course ${course.code} deleted`, 'info');
-        
-        // Show undo notification
-        showUndoNotification(`Course ${course.code} deleted`, function() {
-          undoDelete();
-        });
-      }
-      
-      // Undo delete operation
-      function undoDelete() {
-        if (deletedItems.length === 0) return;
-        
-        const lastDeleted = deletedItems.pop();
-        
-        if (lastDeleted.type === 'semester') {
-          // Restore semester
-          processedData.semesters[lastDeleted.name] = lastDeleted.data;
-          addStatusMessage(`Restored semester: ${lastDeleted.name}`, 'info');
-          showToast(`Semester ${lastDeleted.name} restored`, 'success');
-        } else if (lastDeleted.type === 'course') {
-          // Restore course
-          if (!processedData.semesters[lastDeleted.semester]) {
-            processedData.semesters[lastDeleted.semester] = {
-              originalName: lastDeleted.semester,
-              courses: [],
-              totalQualityPoints: 0,
-              totalCreditHours: 0,
-              totalMarksObtained: 0,
-              totalMaxMarks: 0
-            };
-          }
+        const lastDeleted = deletedSemesters.pop();
+        if (lastDeleted && lastDeleted.data) {
+          // Restore the semester
+          processedData.semesters[lastDeleted.semester] = lastDeleted.data;
           
-          processedData.semesters[lastDeleted.semester].courses.push(lastDeleted.data);
-          addStatusMessage(`Restored course: ${lastDeleted.data.code} to ${lastDeleted.semester}`, 'info');
-          showToast(`Course ${lastDeleted.data.code} restored`, 'success');
+          // Recalculate CGPA
+          const cgpaData = calculateCGPA(processedData);
+          
+          // Update display
+          displayCGPAResults(processedData, cgpaData);
+          
+          addStatusMessage(`Restored semester: ${lastDeleted.semester}`, 'success');
+          showToast(`Semester ${lastDeleted.semester} restored`, 'success');
         }
-        
-        // Recalculate CGPA
-        const cgpaData = calculateCGPA(processedData);
-        
-        // Update display
-        displayCGPAResults(processedData, cgpaData);
-      }
-      
-      // Recalculate CGPA when button is clicked
-      function recalculateCGPA() {
-        if (!processedData) return;
-        
-        const cgpaData = calculateCGPA(processedData);
-        
-        // Update overall CGPA
-        totalCgpa.textContent = cgpaData.cgpa;
-        totalPercentage.textContent = `${cgpaData.percentage}%`;
-        
-        showToast('CGPA recalculated successfully!', 'success');
-        addStatusMessage('CGPA recalculated based on current semesters', 'info');
       }
       
       // Fetch result from UAF LMS
@@ -1595,14 +1536,6 @@
           const response = await fetch(`${API_ENDPOINTS.scrape}?action=scrape_single&registrationNumber=${encodeURIComponent(regNum)}`, {
             method: 'GET'
           });
-          
-          // Check if response is JSON
-          const contentType = response.headers.get('content-type');
-          if (!contentType || !contentType.includes('application/json')) {
-            // Handle non-JSON response (likely an error page)
-            const text = await response.text();
-            throw new Error('Server returned non-JSON response. The server may be down or experiencing issues.');
-          }
           
           updateProgress(50, 'Processing Data');
           
@@ -1650,6 +1583,20 @@
         }
       }
       
+      // Recalculate CGPA when button is clicked
+      function recalculateCGPA() {
+        if (!processedData) return;
+        
+        const cgpaData = calculateCGPA(processedData);
+        
+        // Update overall CGPA
+        totalCgpa.textContent = cgpaData.cgpa;
+        totalPercentage.textContent = `${cgpaData.percentage}%`;
+        
+        showToast('CGPA recalculated successfully!', 'success');
+        addStatusMessage('CGPA recalculated based on current semesters', 'info');
+      }
+      
       // Event listeners
       resultForm.addEventListener('submit', function(e) {
         e.preventDefault();
@@ -1664,15 +1611,9 @@
       
       calculateCgpaBtn.addEventListener('click', recalculateCGPA);
       
-      undoButton.addEventListener('click', function() {
-        undoNotification.style.display = 'none';
-        undoDelete();
-      });
-      
       // Initialize the application
       init();
     });
   </script>
 </body>
 </html>
-
