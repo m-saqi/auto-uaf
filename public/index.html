@@ -353,8 +353,15 @@
       margin-top: 1rem;
       display: none;
     }
-
-    /* Undo notification */
+    
+    /* Course deletion styles */
+    .delete-course {
+      color: #dc3545;
+      cursor: pointer;
+      margin-left: 0.5rem;
+      font-size: 0.9rem;
+    }
+    
     .undo-notification {
       position: fixed;
       bottom: 20px;
@@ -362,39 +369,10 @@
       transform: translateX(-50%);
       background: rgba(0, 0, 0, 0.8);
       color: white;
-      padding: 12px 20px;
-      border-radius: 8px;
+      padding: 10px 20px;
+      border-radius: 5px;
       z-index: 10000;
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-      animation: fadeInUp 0.3s ease;
-    }
-    
-    .undo-notification button {
-      background: var(--brand);
-      border: none;
-      color: white;
-      padding: 4px 12px;
-      border-radius: 4px;
-      cursor: pointer;
-      font-weight: 500;
-    }
-    
-    .undo-notification button:hover {
-      background: var(--brand-600);
-    }
-    
-    @keyframes fadeInUp {
-      from {
-        opacity: 0;
-        transform: translate(-50%, 20px);
-      }
-      to {
-        opacity: 1;
-        transform: translate(-50%, 0);
-      }
+      display: none;
     }
 
     /* ----------- DARK MODE IMPROVED ----------- */
@@ -420,10 +398,8 @@
     [data-theme="dark"] .semester-card { background: #1a2030; }
     [data-theme="dark"] .course-table th, 
     [data-theme="dark"] .course-table td { border-bottom-color: #2d3748; }
-    [data-theme="dark"] .undo-notification {
-      background: rgba(255, 255, 255, 0.9);
-      color: #1a1f2e;
-    }
+    [data-theme="dark"] .extra-enrolled { background-color: #5c4f0a; color: #ffd54f; }
+    [data-theme="dark"] .undo-notification { background: rgba(255, 255, 255, 0.9); color: #2d3748; }
 
     /* Dark mode contrast improvements */
     [data-theme="dark"] .text-body-secondary {
@@ -502,6 +478,12 @@
 <body>
   <!-- Custom cursor -->
   <div class="cursor-dot" id="cursorDot"></div>
+
+  <!-- Undo Notification -->
+  <div class="undo-notification" id="undoNotification">
+    <span id="undoMessage"></span>
+    <button class="btn btn-sm btn-light ms-2" id="undoButton">Undo</button>
+  </div>
 
   <!-- Course Details Modal -->
   <div class="modal fade course-details-modal" id="courseDetailsModal" tabindex="-1" aria-hidden="true">
@@ -785,13 +767,16 @@
       const totalPercentage = document.getElementById('totalPercentage');
       const calculateCgpaBtn = document.getElementById('calculateCgpaBtn');
       const courseDetailsModal = new bootstrap.Modal(document.getElementById('courseDetailsModal'));
+      const undoNotification = document.getElementById('undoNotification');
+      const undoMessage = document.getElementById('undoMessage');
+      const undoButton = document.getElementById('undoButton');
       
       // State variables
       let allLogs = [];
       let testInProgress = false;
       let scrapedData = null;
       let processedData = null;
-      let deletedSemesters = [];
+      let deletedItems = []; // For undo functionality
       let undoTimeout = null;
       
       // API endpoints
@@ -847,42 +832,25 @@
       }
       
       // Show undo notification
-      function showUndoNotification(semesterName) {
-        // Clear any existing undo notification
-        const existingNotification = document.querySelector('.undo-notification');
-        if (existingNotification) {
-          existingNotification.remove();
-        }
-        
+      function showUndoNotification(message, undoCallback) {
         // Clear any existing timeout
         if (undoTimeout) {
           clearTimeout(undoTimeout);
         }
         
-        const notification = document.createElement('div');
-        notification.className = 'undo-notification';
-        notification.innerHTML = `
-          <span>Semester "${semesterName}" deleted</span>
-          <button id="undoDeleteBtn">Undo</button>
-        `;
+        undoMessage.textContent = message;
+        undoNotification.style.display = 'flex';
         
-        document.body.appendChild(notification);
+        // Set up undo button
+        undoButton.onclick = function() {
+            undoNotification.style.display = 'none';
+            undoCallback();
+        };
         
-        // Set timeout to remove notification
+        // Set timeout to hide notification
         undoTimeout = setTimeout(() => {
-          notification.remove();
-          // Clear the deleted semester from history if not undone
-          if (deletedSemesters.length > 0 && deletedSemesters[deletedSemesters.length - 1].semester === semesterName) {
-            deletedSemesters.pop();
-          }
+            undoNotification.style.display = 'none';
         }, 5000);
-        
-        // Add event listener for undo button
-        document.getElementById('undoDeleteBtn').addEventListener('click', function() {
-          undoDeleteSemester();
-          notification.remove();
-          clearTimeout(undoTimeout);
-        });
       }
       
       // Get icon for toast type
@@ -1135,7 +1103,9 @@
               originalName: originalSemester,
               courses: [],
               totalQualityPoints: 0,
-              totalCreditHours: 0
+              totalCreditHours: 0,
+              totalMarksObtained: 0,
+              totalMaxMarks: 0
             };
           }
           
@@ -1161,11 +1131,15 @@
           // Calculate quality points based on UAF system
           const qualityPoints = calculateQualityPoints(marks, creditHours);
           
+          // Calculate max marks based on credit hours
+          const maxMarks = creditHours * 100; // 100 marks per credit hour
+          
           const courseData = {
             code: courseCode,
             title: course.CourseTitle || '',
             creditHours: creditHours,
             marks: marks,
+            maxMarks: maxMarks,
             qualityPoints: qualityPoints,
             grade: grade,
             originalSemester: originalSemester,
@@ -1175,8 +1149,8 @@
             final: course.Final || '0',
             practical: course.Practical || '0',
             total: course.Total || '0',
-            isExtraEnrolled: false,
-            isRepeated: false
+            isRepeated: false,
+            isExtraEnrolled: false
           };
           
           // Track course history
@@ -1205,11 +1179,15 @@
               }
             }
             
-            // Mark all other instances as extra enrolled and repeated
+            // Mark all instances as repeated
+            history.forEach(item => {
+              item.data.isRepeated = true;
+            });
+            
+            // Mark all other instances as extra enrolled
             history.forEach(item => {
               if (item !== highest) {
                 item.data.isExtraEnrolled = true;
-                item.data.isRepeated = true;
               }
             });
           }
@@ -1312,21 +1290,12 @@
               semester.totalQualityPoints += course.qualityPoints;
               semester.totalCreditHours += course.creditHours;
               semester.totalMarksObtained += course.marks;
-              
-              // Calculate max marks based on credit hours
-              let maxMarks = 0;
-              if (course.creditHours === 5) maxMarks = 100;
-              else if (course.creditHours === 4) maxMarks = 80;
-              else if (course.creditHours === 3) maxMarks = 60;
-              else if (course.creditHours === 2) maxMarks = 40;
-              else if (course.creditHours === 1) maxMarks = 20;
-              
-              semester.totalMaxMarks += maxMarks;
-              totalMaxMarks += maxMarks;
+              semester.totalMaxMarks += course.maxMarks;
               
               totalQualityPoints += course.qualityPoints;
               totalCreditHours += course.creditHours;
               totalMarksObtained += course.marks;
+              totalMaxMarks += course.maxMarks;
             }
           });
           
@@ -1397,6 +1366,7 @@
                     <th>Marks</th>
                     <th>Grade</th>
                     <th>GP</th>
+                    <th>Action</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -1405,8 +1375,8 @@
                       <td>
                         <div class="d-flex align-items-center">
                           <span class="fw-medium course-code" style="cursor: pointer;" data-course='${JSON.stringify(course).replace(/'/g, "&#39;")}'>${course.code}</span>
-                          ${course.isExtraEnrolled ? '<span class="extra-enrolled">Extra Enrolled</span>' : ''}
                           ${course.isRepeated ? '<span class="extra-enrolled">Reptd.</span>' : ''}
+                          ${course.isExtraEnrolled ? '<span class="extra-enrolled">Extra Enrolled</span>' : ''}
                           <i class="fa-solid fa-info-circle ms-2 text-blue-600 small" title="${course.title}"></i>
                         </div>
                       </td>
@@ -1416,6 +1386,9 @@
                         <span class="grade-badge grade-${course.grade}">${course.grade}</span>
                       </td>
                       <td class="fw-medium text-blue-600">${course.qualityPoints.toFixed(2)}</td>
+                      <td>
+                        <i class="fa-solid fa-trash delete-course" data-course='${JSON.stringify(course).replace(/'/g, "&#39;")}' data-semester="${semesterName}" title="Delete this course"></i>
+                      </td>
                     </tr>
                   `).join('')}
                 </tbody>
@@ -1442,6 +1415,14 @@
           });
         });
         
+        document.querySelectorAll('.delete-course').forEach(btn => {
+          btn.addEventListener('click', function() {
+            const courseData = JSON.parse(this.dataset.course.replace(/&#39;/g, "'"));
+            const semesterName = this.dataset.semester;
+            deleteCourse(courseData, semesterName);
+          });
+        });
+        
         // Show result container and calculate button
         resultContainer.style.display = 'block';
         gpaResultCard.style.display = 'block';
@@ -1458,6 +1439,7 @@
             <div class="col-md-6">
               <p><strong>Teacher:</strong> ${course.teacher}</p>
               <p><strong>Credit Hours:</strong> ${course.creditHours}</p>
+              <p><strong>Max Marks:</strong> ${course.maxMarks}</p>
             </div>
             <div class="col-md-6">
               <p><strong>Mid Term:</strong> ${course.mid}</p>
@@ -1475,12 +1457,12 @@
               </div>
             </div>
           </div>
-          ${course.isExtraEnrolled ? `
+          ${course.isRepeated ? `
           <div class="row mt-3">
             <div class="col-12">
               <div class="alert alert-warning">
                 <i class="fa-solid fa-exclamation-triangle me-2"></i>
-                This course was enrolled multiple times. Only the highest marks are counted toward CGPA.
+                This course was repeated. Only the highest marks are counted toward CGPA.
               </div>
             </div>
           </div>
@@ -1494,13 +1476,12 @@
       function deleteSemester(semesterName) {
         if (!processedData || !processedData.semesters[semesterName]) return;
         
-        // Store the semester data for potential undo
-        const semesterData = JSON.parse(JSON.stringify(processedData.semesters[semesterName]));
-        deletedSemesters.push({
-          semester: semesterName,
-          data: semesterData,
-          timestamp: Date.now()
-        });
+        // Store for undo
+        const deletedSemester = {
+          type: 'semester',
+          name: semesterName,
+          data: JSON.parse(JSON.stringify(processedData.semesters[semesterName]))
+        };
         
         // Remove semester from processed data
         delete processedData.semesters[semesterName];
@@ -1511,28 +1492,109 @@
         // Update display
         displayCGPAResults(processedData, cgpaData);
         
+        // Store for undo
+        deletedItems.push(deletedSemester);
+        
         addStatusMessage(`Deleted semester: ${semesterName}`, 'info');
-        showUndoNotification(semesterName);
+        showToast(`Semester ${semesterName} deleted`, 'info');
+        
+        // Show undo notification
+        showUndoNotification(`Semester ${semesterName} deleted`, function() {
+          undoDelete();
+        });
       }
       
-      // Undo delete semester
-      function undoDeleteSemester() {
-        if (deletedSemesters.length === 0) return;
+      // Delete a course
+      function deleteCourse(course, semesterName) {
+        if (!processedData || !processedData.semesters[semesterName]) return;
         
-        const lastDeleted = deletedSemesters.pop();
-        if (lastDeleted && lastDeleted.data) {
-          // Restore the semester
-          processedData.semesters[lastDeleted.semester] = lastDeleted.data;
-          
-          // Recalculate CGPA
-          const cgpaData = calculateCGPA(processedData);
-          
-          // Update display
-          displayCGPAResults(processedData, cgpaData);
-          
-          addStatusMessage(`Restored semester: ${lastDeleted.semester}`, 'success');
-          showToast(`Semester ${lastDeleted.semester} restored`, 'success');
+        // Find the course index
+        const semester = processedData.semesters[semesterName];
+        const courseIndex = semester.courses.findIndex(c => c.code === course.code && c.marks === course.marks);
+        
+        if (courseIndex === -1) return;
+        
+        // Store for undo
+        const deletedCourse = {
+          type: 'course',
+          semester: semesterName,
+          data: JSON.parse(JSON.stringify(semester.courses[courseIndex]))
+        };
+        
+        // Remove course from semester
+        semester.courses.splice(courseIndex, 1);
+        
+        // If semester is now empty, remove it
+        if (semester.courses.length === 0) {
+          delete processedData.semesters[semesterName];
         }
+        
+        // Recalculate CGPA
+        const cgpaData = calculateCGPA(processedData);
+        
+        // Update display
+        displayCGPAResults(processedData, cgpaData);
+        
+        // Store for undo
+        deletedItems.push(deletedCourse);
+        
+        addStatusMessage(`Deleted course: ${course.code} from ${semesterName}`, 'info');
+        showToast(`Course ${course.code} deleted`, 'info');
+        
+        // Show undo notification
+        showUndoNotification(`Course ${course.code} deleted`, function() {
+          undoDelete();
+        });
+      }
+      
+      // Undo delete operation
+      function undoDelete() {
+        if (deletedItems.length === 0) return;
+        
+        const lastDeleted = deletedItems.pop();
+        
+        if (lastDeleted.type === 'semester') {
+          // Restore semester
+          processedData.semesters[lastDeleted.name] = lastDeleted.data;
+          addStatusMessage(`Restored semester: ${lastDeleted.name}`, 'info');
+          showToast(`Semester ${lastDeleted.name} restored`, 'success');
+        } else if (lastDeleted.type === 'course') {
+          // Restore course
+          if (!processedData.semesters[lastDeleted.semester]) {
+            processedData.semesters[lastDeleted.semester] = {
+              originalName: lastDeleted.semester,
+              courses: [],
+              totalQualityPoints: 0,
+              totalCreditHours: 0,
+              totalMarksObtained: 0,
+              totalMaxMarks: 0
+            };
+          }
+          
+          processedData.semesters[lastDeleted.semester].courses.push(lastDeleted.data);
+          addStatusMessage(`Restored course: ${lastDeleted.data.code} to ${lastDeleted.semester}`, 'info');
+          showToast(`Course ${lastDeleted.data.code} restored`, 'success');
+        }
+        
+        // Recalculate CGPA
+        const cgpaData = calculateCGPA(processedData);
+        
+        // Update display
+        displayCGPAResults(processedData, cgpaData);
+      }
+      
+      // Recalculate CGPA when button is clicked
+      function recalculateCGPA() {
+        if (!processedData) return;
+        
+        const cgpaData = calculateCGPA(processedData);
+        
+        // Update overall CGPA
+        totalCgpa.textContent = cgpaData.cgpa;
+        totalPercentage.textContent = `${cgpaData.percentage}%`;
+        
+        showToast('CGPA recalculated successfully!', 'success');
+        addStatusMessage('CGPA recalculated based on current semesters', 'info');
       }
       
       // Fetch result from UAF LMS
@@ -1602,20 +1664,6 @@
         }
       }
       
-      // Recalculate CGPA when button is clicked
-      function recalculateCGPA() {
-        if (!processedData) return;
-        
-        const cgpaData = calculateCGPA(processedData);
-        
-        // Update overall CGPA
-        totalCgpa.textContent = cgpaData.cgpa;
-        totalPercentage.textContent = `${cgpaData.percentage}%`;
-        
-        showToast('CGPA recalculated successfully!', 'success');
-        addStatusMessage('CGPA recalculated based on current semesters', 'info');
-      }
-      
       // Event listeners
       resultForm.addEventListener('submit', function(e) {
         e.preventDefault();
@@ -1629,6 +1677,11 @@
       clearLogBtn.addEventListener('click', clearLog);
       
       calculateCgpaBtn.addEventListener('click', recalculateCGPA);
+      
+      undoButton.addEventListener('click', function() {
+        undoNotification.style.display = 'none';
+        undoDelete();
+      });
       
       // Initialize the application
       init();
