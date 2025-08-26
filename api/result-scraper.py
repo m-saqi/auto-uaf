@@ -13,6 +13,7 @@ import uuid
 from datetime import datetime, timedelta
 import asyncio
 import aiohttp
+import concurrent.futures
 
 # Set up logging
 logging.basicConfig(level=logging.INFO)
@@ -185,8 +186,8 @@ class handler(BaseHTTPRequestHandler):
                         self.send_error_response(400, 'No registration number provided')
                         return
                     
-                    # Scrape results
-                    success, message, result_data = self.scrape_uaf_results(registration_number)
+                    # Scrape results using async method for faster performance
+                    success, message, result_data = self.scrape_uaf_results_fast(registration_number)
                     
                     if success and result_data:
                         response = {
@@ -212,8 +213,8 @@ class handler(BaseHTTPRequestHandler):
                     self.send_error_response(400, 'No registration number provided')
                     return
                 
-                # Scrape results
-                success, message, result_data = self.scrape_uaf_results(registration_number)
+                # Scrape results using async method for faster performance
+                success, message, result_data = self.scrape_uaf_results_fast(registration_number)
                 
                 if success and result_data:
                     response = {
@@ -246,7 +247,7 @@ class handler(BaseHTTPRequestHandler):
             return
         
         # Scrape results
-        success, message, result_data = self.scrape_uaf_results(registration_number)
+        success, message, result_data = self.scrape_uaf_results_fast(registration_number)
         
         # Save result to session file if successful
         if success and result_data:
@@ -303,69 +304,78 @@ class handler(BaseHTTPRequestHandler):
         else:
             self.send_error_response(400, 'No results to save')
 
-    def scrape_uaf_results(self, registration_number):
-        """Main function to scrape UAF results"""
+    async def scrape_uaf_results_async(self, registration_number):
+        """Async version of the main scraping function"""
         try:
-            # Create session
-            session = requests.Session()
-            session.headers.update({
-                'User-Agent': random.choice(USER_AGENTS),
-                'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
-                'Accept-Language': 'en-US,en;q=0.5',
-                'Connection': 'keep-alive',
-                'Upgrade-Insecure-Requests': '1',
-            })
-            
-            # Step 1: Get login page to extract token
-            login_url = "http://lms.uaf.edu.pk/login/index.php"
-            try:
-                response = session.get(login_url, timeout=15)
+            async with aiohttp.ClientSession() as session:
+                # Step 1: Get login page to extract token
+                login_url = "http://lms.uaf.edu.pk/login/index.php"
                 
-                if response.status_code != 200:
-                    return False, f"UAF LMS returned status code {response.status_code}. The server may be down.", None
-                    
-            except requests.exceptions.RequestException as e:
-                return False, f"Network error: {str(e)}. UAF LMS may be unavailable.", None
-            
-            # Step 2: Extract JavaScript-generated token
-            token = self.extract_js_token(response.text)
-            if not token:
-                # Try alternative method - look for the hidden input field
-                soup = BeautifulSoup(response.text, 'html.parser')
-                token_input = soup.find('input', {'id': 'token'})
-                if token_input and token_input.get('value'):
-                    token = token_input.get('value')
-                else:
-                    return False, "Could not extract security token from UAF LMS", None
-            
-            # Step 3: Submit form with correct field names
-            result_url = "http://lms.uaf.edu.pk/course/uaf_student_result.php"
-            form_data = {
-                'token': token,
-                'Register': registration_number
-            }
-            
-            headers = {
-                'Referer': login_url,
-                'Origin': 'http://lms.uaf.edu.pk',
-                'Content-Type': 'application/x-www-form-urlencoded'
-            }
-            
-            try:
-                response = session.post(result_url, data=form_data, headers=headers, timeout=20)
+                try:
+                    async with session.get(login_url, timeout=aiohttp.ClientTimeout(total=15),
+                                          headers={'User-Agent': random.choice(USER_AGENTS)}) as response:
+                        if response.status != 200:
+                            return False, f"UAF LMS returned status code {response.status}. The server may be down.", None
+                        
+                        html_content = await response.text()
+                        
+                except Exception as e:
+                    return False, f"Network error: {str(e)}. UAF LMS may be unavailable.", None
                 
-                if response.status_code != 200:
-                    return False, f"UAF LMS returned status code {response.status_code}", None
-                    
-            except requests.exceptions.RequestException as e:
-                return False, f"Network error during result fetch: {str(e)}", None
-            
-            # Step 4: Parse results
-            return self.parse_uaf_results(response.text, registration_number)
-            
+                # Step 2: Extract JavaScript-generated token
+                token = self.extract_js_token(html_content)
+                if not token:
+                    # Try alternative method - look for the hidden input field
+                    soup = BeautifulSoup(html_content, 'html.parser')
+                    token_input = soup.find('input', {'id': 'token'})
+                    if token_input and token_input.get('value'):
+                        token = token_input.get('value')
+                    else:
+                        return False, "Could not extract security token from UAF LMS", None
+                
+                # Step 3: Submit form with correct field names
+                result_url = "http://lms.uaf.edu.pk/course/uaf_student_result.php"
+                form_data = {
+                    'token': token,
+                    'Register': registration_number
+                }
+                
+                headers = {
+                    'Referer': login_url,
+                    'Origin': 'http://lms.uaf.edu.pk',
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                    'User-Agent': random.choice(USER_AGENTS)
+                }
+                
+                try:
+                    async with session.post(result_url, data=form_data, headers=headers, 
+                                           timeout=aiohttp.ClientTimeout(total=20)) as response:
+                        
+                        if response.status != 200:
+                            return False, f"UAF LMS returned status code {response.status}", None
+                        
+                        result_html = await response.text()
+                        
+                except Exception as e:
+                    return False, f"Network error during result fetch: {str(e)}", None
+                
+                # Step 4: Parse results
+                return self.parse_uaf_results(result_html, registration_number)
+                
         except Exception as e:
-            logger.error(f"Unexpected error: {str(e)}")
+            logger.error(f"Unexpected error in async scraping: {str(e)}")
             return False, f"Unexpected error: {str(e)}", None
+
+    def scrape_uaf_results_fast(self, registration_number):
+        """Fast scraping using async method"""
+        # Run the async function in a new event loop
+        loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(loop)
+        try:
+            result = loop.run_until_complete(self.scrape_uaf_results_async(registration_number))
+            return result
+        finally:
+            loop.close()
 
     def extract_js_token(self, html_content):
         """Extract JavaScript-generated token from UAF LMS"""
@@ -479,7 +489,7 @@ class handler(BaseHTTPRequestHandler):
                     if alt_results:
                         return True, f"Successfully extracted {len(alt_results)} records using alternative method", alt_results
                 
-                                return False, f"No result data found for registration number: {registration_number}", None
+                return False, f"No result data found for registration number: {registration_number}", None
                     
         except Exception as e:
             logger.error(f"Error parsing results: {str(e)}")
