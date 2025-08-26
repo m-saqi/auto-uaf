@@ -444,28 +444,6 @@
       background-color: rgba(16, 172, 132, 0.1);
     }
     
-    /* Flash animation */
-    @keyframes flash {
-      0% { opacity: 0; }
-      50% { opacity: 1; }
-      100% { opacity: 0; }
-    }
-    
-    .flash-animation {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background-color: white;
-      z-index: 9998;
-      pointer-events: none;
-      animation: flash 0.5s ease-in-out;
-    }
-    
-    [data-theme="dark"] .flash-animation {
-      background-color: #0f1422;
-    }
     
     /* Mobile responsive adjustments */
     @media (max-width: 575.98px){
@@ -552,8 +530,6 @@
   <!-- Custom cursor -->
   <div class="cursor-dot" id="cursorDot"></div>
 
-  <!-- Flash animation element -->
-  <div class="flash-animation" id="flashAnimation" style="display: none;"></div>
 
   <!-- Course Details Modal -->
   <div class="modal fade course-details-modal" id="courseDetailsModal" tabindex="-1" aria-hidden="true">
@@ -837,7 +813,6 @@
       const totalPercentage = document.getElementById('totalPercentage');
       const calculateCgpaBtn = document.getElementById('calculateCgpaBtn');
       const courseDetailsModal = new bootstrap.Modal(document.getElementById('courseDetailsModal'));
-      const flashAnimation = document.getElementById('flashAnimation');
       
       // State variables
       let allLogs = [];
@@ -866,13 +841,7 @@
         document.body.appendChild(toastContainer);
       }
       
-      // Show flash animation
-      function showFlashAnimation() {
-        flashAnimation.style.display = 'block';
-        setTimeout(() => {
-          flashAnimation.style.display = 'none';
-        }, 500);
-      }
+
       
       // Show toast notification
       function showToast(message, type = 'success') {
@@ -1548,7 +1517,6 @@
         
         addStatusMessage(`Deleted semester: ${semesterName}`, 'info');
         showToast(`Semester ${semesterName} deleted`, 'info');
-        showFlashAnimation();
       }
       
       // Delete a course
@@ -1572,7 +1540,6 @@
         
         addStatusMessage(`Deleted course: ${course.code} from ${semesterName}`, 'info');
         showToast(`Course ${course.code} deleted`, 'info');
-        showFlashAnimation();
       }
       
       // Restore a course
@@ -1596,7 +1563,6 @@
         
         addStatusMessage(`Restored course: ${course.code} in ${semesterName}`, 'info');
         showToast(`Course ${course.code} restored`, 'success');
-        showFlashAnimation();
       }
       
       // Recalculate CGPA when button is clicked
