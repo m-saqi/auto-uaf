@@ -354,6 +354,68 @@
       display: none;
     }
 
+    /* ----------- DARK MODE IMPROVED ----------- */
+    [data-theme="dark"] body{background:linear-gradient(180deg,#0b0e13 0%, #0f1320 70%); color:#f1f5f9;}
+    [data-theme="dark"] .navbar{background-color:rgba(17,24,39,.75);}
+    [data-theme="dark"] .navbar .nav-link{color:#d1d5db;}
+    [data-theme="dark"] .navbar .nav-link:hover{color:#fff;}
+    [data-theme="dark"] .card-modern{background:#0f1422; color:#e5e7eb;}
+    [data-theme="dark"] .card-modern .card-header{background:linear-gradient(180deg, rgba(122,106,216,.25), rgba(122,106,216,.1));}
+    [data-theme="dark"] h1, [data-theme="dark"] h2, [data-theme="dark"] h3, [data-theme="dark"] h4, [data-theme="dark"] h5{color:#ffffff;}
+    [data-theme="dark"] .lead{color:#9ca3af;}
+    [data-theme="dark"] .subject-row{background:#1a1f2e; border-color:#2d3748;}
+    [data-theme="dark"] label{color:#e5e7eb;}
+    [data-theme="dark"] .form-control, [data-theme="dark"] .form-select{background:#0b1020; color:#f1f5f9; border-color:#374151;}
+    [data-theme="dark"] .form-control::placeholder{color:#9ca3af;}
+    [data-theme="dark"] .input-group-text{background:#1f2937; color:#e5e7eb;}
+    [data-theme="dark"] .footer{color:#9ca3af;}
+    [data-theme="dark"] a{color: rgb(122, 106, 216);}
+    [data-theme="dark"] a:hover{color:#9f8df0;}
+    [data-theme="dark"] .status-log { background: #1a2030; }
+    [data-theme="dark"] .status-line { border-bottom-color: #2d3748; }
+    [data-theme="dark"] .gpa-result-card { background: #1a2030; }
+    [data-theme="dark"] .semester-card { background: #1a2030; }
+    [data-theme="dark"] .course-table th, 
+    [data-theme="dark"] .course-table td { border-bottom-color: #2d3748; }
+    
+    /* Dark mode for course details modal */
+    [data-theme="dark"] .course-details-modal .modal-content {
+      background: #1a2030;
+      color: #e5e7eb;
+    }
+    
+    [data-theme="dark"] .course-details-modal .modal-header {
+      background: linear-gradient(180deg, rgba(122,106,216,.25), rgba(122,106,216,.1));
+      border-bottom-color: #2d3748;
+    }
+    
+    [data-theme="dark"] .course-details-modal .modal-header .btn-close {
+      filter: invert(1);
+    }
+    
+    [data-theme="dark"] .course-details-modal .alert-info {
+      background-color: rgba(23, 162, 184, 0.2);
+      border-color: rgba(23, 162, 184, 0.3);
+      color: #71d4f0;
+    }
+    
+    [data-theme="dark"] .course-details-modal .alert-warning {
+      background-color: rgba(255, 193, 7, 0.2);
+      border-color: rgba(255, 193, 7, 0.3);
+      color: #ffd351;
+    }
+
+    /* Dark mode contrast improvements */
+    [data-theme="dark"] .text-body-secondary {
+      color: #d1d5db !important;
+    }
+    
+    [data-theme="dark"] .btn-primary-action {
+      color: #ffffff !important;
+    }
+
+    .cursor-dot{position:fixed; width:10px;height:10px;border-radius:50%; background:var(--brand); pointer-events:none; transform:translate(-50%, -50%); opacity:.7; mix-blend-mode:multiply; z-index:9999;}
+    
     /* Course action buttons */
     .course-actions {
       display: block;
@@ -381,16 +443,28 @@
     .restore-course:hover {
       background-color: rgba(16, 172, 132, 0.1);
     }
-
+    
     /* Flash animation */
     @keyframes flash {
-      0% { opacity: 1; }
-      50% { opacity: 0.3; }
-      100% { opacity: 1; }
+      0% { opacity: 0; }
+      50% { opacity: 1; }
+      100% { opacity: 0; }
     }
     
-    .flash {
-      animation: flash 0.5s ease;
+    .flash-animation {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: white;
+      z-index: 9998;
+      pointer-events: none;
+      animation: flash 0.5s ease-in-out;
+    }
+    
+    [data-theme="dark"] .flash-animation {
+      background-color: #0f1422;
     }
     
     /* Mobile responsive adjustments */
@@ -472,92 +546,14 @@
         max-width: 300px;
       }
     }
-
-    /* ----------- DARK MODE IMPROVED ----------- */
-    [data-theme="dark"] body{background:linear-gradient(180deg,#0b0e13 0%, #0f1320 70%); color:#f1f5f9;}
-    [data-theme="dark"] .navbar{background-color:rgba(17,24,39,.75);}
-    [data-theme="dark"] .navbar .nav-link{color:#d1d5db;}
-    [data-theme="dark"] .navbar .nav-link:hover{color:#fff;}
-    [data-theme="dark"] .card-modern{background:#0f1422; color:#e5e7eb;}
-    [data-theme="dark"] .card-modern .card-header{background:linear-gradient(180deg, rgba(122,106,216,.25), rgba(122,106,216,.1));}
-    [data-theme="dark"] h1, [data-theme="dark"] h2, [data-theme="dark"] h3, [data-theme="dark"] h4, [data-theme="dark"] h5{color:#ffffff;}
-    [data-theme="dark"] .lead{color:#9ca3af;}
-    [data-theme="dark"] .subject-row{background:#1a1f2e; border-color:#2d3748;}
-    [data-theme="dark"] label{color:#e5e7eb;}
-    [data-theme="dark"] .form-control, [data-theme="dark"] .form-select{background:#0b1020; color:#f1f5f9; border-color:#374151;}
-    [data-theme="dark"] .form-control::placeholder{color:#9ca3af;}
-    [data-theme="dark"] .input-group-text{background:#1f2937; color:#e5e7eb;}
-    [data-theme="dark"] .footer{color:#9ca3af;}
-    [data-theme="dark"] a{color: rgb(122, 106, 216);}
-    [data-theme="dark"] a:hover{color:#9f8df0;}
-    [data-theme="dark"] .status-log { background: #1a2030; }
-    [data-theme="dark"] .status-line { border-bottom-color: #2d3748; }
-    [data-theme="dark"] .gpa-result-card { background: #1a2030; }
-    [data-theme="dark"] .semester-card { background: #1a2030; }
-    [data-theme="dark"] .course-table th, 
-    [data-theme="dark"] .course-table td { border-bottom-color: #2d3748; }
-    
-    /* Dark mode for course details modal */
-    [data-theme="dark"] .course-details-modal .modal-content {
-      background: #1a2030;
-      color: #e5e7eb;
-    }
-    
-    [data-theme="dark"] .course-details-modal .modal-header {
-      background: linear-gradient(180deg, rgba(122,106,216,.25), rgba(122,106,216,.1));
-      border-bottom-color: #2d3748;
-    }
-    
-    [data-theme="dark"] .course-details-modal .modal-header .btn-close {
-      filter: invert(1);
-    }
-    
-    [data-theme="dark"] .course-details-modal .alert-info {
-      background-color: rgba(23, 162, 184, 0.2);
-      border-color: rgba(23, 162, 184, 0.3);
-      color: #71d4f0;
-    }
-    
-    [data-theme="dark"] .course-details-modal .alert-warning {
-      background-color: rgba(255, 193, 7, 0.2);
-      border-color: rgba(255, 193, 7, 0.3);
-      color: #ffd965;
-    }
-
-    /* Dark mode contrast improvements */
-    [data-theme="dark"] .text-body-secondary {
-      color: #d1d5db !important;
-    }
-    
-    [data-theme="dark"] .btn-primary-action {
-      color: #ffffff !important;
-    }
-    
-    /* Dark mode course text improvements */
-    [data-theme="dark"] .course-code {
-      color: #e5e7eb;
-    }
-    
-    [data-theme="dark"] .course-table {
-      color: #e5e7eb;
-    }
-    
-    [data-theme="dark"] .grade-badge {
-      color: white !important;
-    }
-    
-    [data-theme="dark"] .grade-A { background-color: #166534; color: #dcfce7; }
-    [data-theme="dark"] .grade-B { background-color: #1e40af; color: #dbeafe; }
-    [data-theme="dark"] .grade-C { background-color: #92400e; color: #fef3c7; }
-    [data-theme="dark"] .grade-D { background-color: #991b1b; color: #fee2e2; }
-    [data-theme="dark"] .grade-F { background-color: #374151; color: #f3f4f6; }
-
-    .cursor-dot{position:fixed; width:10px;height:10px;border-radius:50%; background:var(--brand); pointer-events:none; transform:translate(-50%, -50%); opacity:.7; mix-blend-mode:multiply; z-index:9999;}
   </style>
 </head>
 <body>
   <!-- Custom cursor -->
   <div class="cursor-dot" id="cursorDot"></div>
+
+  <!-- Flash animation element -->
+  <div class="flash-animation" id="flashAnimation" style="display: none;"></div>
 
   <!-- Course Details Modal -->
   <div class="modal fade course-details-modal" id="courseDetailsModal" tabindex="-1" aria-hidden="true">
@@ -841,6 +837,7 @@
       const totalPercentage = document.getElementById('totalPercentage');
       const calculateCgpaBtn = document.getElementById('calculateCgpaBtn');
       const courseDetailsModal = new bootstrap.Modal(document.getElementById('courseDetailsModal'));
+      const flashAnimation = document.getElementById('flashAnimation');
       
       // State variables
       let allLogs = [];
@@ -867,6 +864,14 @@
         const toastContainer = document.createElement('div');
         toastContainer.id = 'toast-container';
         document.body.appendChild(toastContainer);
+      }
+      
+      // Show flash animation
+      function showFlashAnimation() {
+        flashAnimation.style.display = 'block';
+        setTimeout(() => {
+          flashAnimation.style.display = 'none';
+        }, 500);
       }
       
       // Show toast notification
@@ -1532,20 +1537,18 @@
       function deleteSemester(semesterName) {
         if (!processedData || !processedData.semesters[semesterName]) return;
         
-        // Mark all courses in the semester as deleted
-        processedData.semesters[semesterName].courses.forEach(course => {
-          course.isDeleted = true;
-        });
+        // Remove semester from processed data
+        delete processedData.semesters[semesterName];
         
         // Recalculate CGPA
         const cgpaData = calculateCGPA(processedData);
         
-        // Update display with flash animation
+        // Update display
         displayCGPAResults(processedData, cgpaData);
-        document.querySelector(`.semester-card[data-semester="${semesterName}"]`).classList.add('flash');
         
         addStatusMessage(`Deleted semester: ${semesterName}`, 'info');
-        showToast(`Semester "${semesterName}" deleted`, 'info');
+        showToast(`Semester ${semesterName} deleted`, 'info');
+        showFlashAnimation();
       }
       
       // Delete a course
@@ -1564,13 +1567,12 @@
         // Recalculate CGPA
         const cgpaData = calculateCGPA(processedData);
         
-        // Update display with flash animation
+        // Update display
         displayCGPAResults(processedData, cgpaData);
-        const row = document.querySelector(`.delete-course[data-semester="${semesterName}"]`).closest('tr');
-        if (row) row.classList.add('flash');
         
         addStatusMessage(`Deleted course: ${course.code} from ${semesterName}`, 'info');
-        showToast(`Course "${course.code}" deleted`, 'info');
+        showToast(`Course ${course.code} deleted`, 'info');
+        showFlashAnimation();
       }
       
       // Restore a course
@@ -1589,13 +1591,12 @@
         // Recalculate CGPA
         const cgpaData = calculateCGPA(processedData);
         
-        // Update display with flash animation
+        // Update display
         displayCGPAResults(processedData, cgpaData);
-        const row = document.querySelector(`.restore-course[data-semester="${semesterName}"]`).closest('tr');
-        if (row) row.classList.add('flash');
         
         addStatusMessage(`Restored course: ${course.code} in ${semesterName}`, 'info');
-        showToast(`Course "${course.code}" restored`, 'success');
+        showToast(`Course ${course.code} restored`, 'success');
+        showFlashAnimation();
       }
       
       // Recalculate CGPA when button is clicked
