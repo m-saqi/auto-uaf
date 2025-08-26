@@ -11,6 +11,8 @@ import random
 import logging
 import uuid
 from datetime import datetime, timedelta
+import asyncio
+import aiohttp
 
 # Set up logging
 logging.basicConfig(level=logging.INFO)
@@ -166,7 +168,7 @@ class handler(BaseHTTPRequestHandler):
             self.send_error_response(500, f"Error clearing session: {str(e)}")
 
     def handle_scrape_single(self):
-        """Handle single result scraping for GPA calculator"""
+        """Handle single result scraping for CGPA calculator"""
         try:
             if self.command == 'GET':
                 # Handle GET request
@@ -186,14 +188,11 @@ class handler(BaseHTTPRequestHandler):
                     # Scrape results
                     success, message, result_data = self.scrape_uaf_results(registration_number)
                     
-                    # Calculate GPA if successful
                     if success and result_data:
-                        gpa_data = self.calculate_gpa_cgpa(result_data)
                         response = {
                             'success': success, 
                             'message': message, 
-                            'resultData': result_data,
-                            'gpaData': gpa_data
+                            'resultData': result_data
                         }
                     else:
                         response = {'success': success, 'message': message, 'resultData': result_data}
@@ -216,14 +215,11 @@ class handler(BaseHTTPRequestHandler):
                 # Scrape results
                 success, message, result_data = self.scrape_uaf_results(registration_number)
                 
-                # Calculate GPA if successful
                 if success and result_data:
-                    gpa_data = self.calculate_gpa_cgpa(result_data)
                     response = {
                         'success': success, 
                         'message': message, 
-                        'resultData': result_data,
-                        'gpaData': gpa_data
+                        'resultData': result_data
                     }
                 else:
                     response = {'success': success, 'message': message, 'resultData': result_data}
@@ -306,280 +302,6 @@ class handler(BaseHTTPRequestHandler):
             # Session will be automatically cleaned up after 1 hour
         else:
             self.send_error_response(400, 'No results to save')
-
-    def calculate_quality_points(self, marks, credit_hours):
-        """Calculate quality points based on UAF grading system"""
-        try:
-            marks = float(marks)
-            credit_hours = int(credit_hours)
-            
-            # Handle F grade cases first
-            if credit_hours == 5 and marks < 40:
-                return 0.0
-            elif credit_hours == 4 and marks < 32:
-                return 0.0
-            elif credit_hours == 3 and marks < 24:
-                return 0.0
-            elif credit_hours == 2 and marks < 16:
-                return 0.0
-            elif credit_hours == 1 and marks < 8:
-                return 0.0
-            
-            # Calculate quality points for passing grades
-            if credit_hours == 5:
-                if marks >= 80:
-                    return 20.0
-                elif marks >= 50:
-                    return 20.0 - ((80.0 - marks) * 0.33333)
-                else:  # marks between 40-50
-                    return 10.0 - ((50.0 - marks) * 0.5)
-            
-            elif credit_hours == 4:
-                if marks >= 64:
-                    return 16.0
-                elif marks >= 40:
-                    return 16.0 - ((64.0 - marks) * 0.33333)
-                else:  # marks between 32-40
-                    return 8.0 - ((40.0 - marks) * 0.5)
-            
-            elif credit_hours == 3:
-                if marks >= 48:
-                    return 12.0
-                elif marks >= 30:
-                    return 12.0 - ((48.0 - marks) * 0.33333)
-                else:  # marks between 24-30
-                    return 6.0 - ((30.0 - marks) * 0.5)
-            
-            elif credit_hours == 2:
-                if marks >= 32:
-                    return 8.0
-                elif marks >= 20:
-                    return 8.0 - ((32.0 - marks) * 0.33333)
-                else:  # marks between 16-20
-                    return 4.0 - ((20.0 - marks) * 0.5)
-            
-            elif credit_hours == 1:
-                if marks >= 16:
-                    return 4.0
-                elif marks >= 10:
-                    return 4.0 - ((16.0 - marks) * 0.33333)
-                else:  # marks between 8-10
-                    return 2.0 - ((10.0 - marks) * 0.5)
-            
-            return 0.0
-            
-        except (ValueError, TypeError):
-            return 0.0
-
-    def get_grade(self, marks, credit_hours):
-        """Get letter grade based on marks and credit hours"""
-        try:
-            marks = float(marks)
-            
-            # Determine passing marks threshold based on credit hours
-            if credit_hours == 5:
-                passing_marks = 40
-            elif credit_hours == 4:
-                passing_marks = 32
-            elif credit_hours == 3:
-                passing_marks = 24
-            elif credit_hours == 2:
-                passing_marks = 16
-            elif credit_hours == 1:
-                passing_marks = 8
-            else:
-                passing_marks = 50  # Default
-            
-            if marks < passing_marks:
-                return "F"
-            
-            # Grade ranges (approximate based on UAF system)
-            if marks >= 85:
-                return "A"
-            elif marks >= 80:
-                return "A-"
-            elif marks >= 75:
-                return "B+"
-            elif marks >= 70:
-                return "B"
-            elif marks >= 65:
-                return "B-"
-            elif marks >= 60:
-                return "C+"
-            elif marks >= 55:
-                return "C"
-            elif marks >= 50:
-                return "C-"
-            elif marks >= 40:
-                return "D"
-            else:
-                return "F"
-                
-        except (ValueError, TypeError):
-            return "F"
-
-    def calculate_gpa_cgpa(self, result_data):
-        """Calculate GPA and CGPA from result data"""
-        try:
-            # Organize by semester
-            semesters = {}
-            student_info = {}
-            
-            # Process semester names for display
-            def format_semester_name(semester):
-                if not semester:
-                    return "Unknown Semester"
-                
-                # Handle different semester formats
-                if 'Winter' in semester:
-                    year_match = re.search(r'(\d{4}-\d{2,4})', semester)
-                    if year_match:
-                        year = year_match.group(0).split('-')[0]
-                        return f"Winter {year}"
-                elif 'Spring' in semester:
-                    year_match = re.search(r'(\d{4}-\d{2,4})', semester)
-                    if year_match:
-                        year = year_match.group(0).split('-')[1]
-                        return f"Spring {year}"
-                elif 'Summer' in semester:
-                    year_match = re.search(r'(\d{4}-\d{2,4})', semester)
-                    if year_match:
-                        year = year_match.group(0).split('-')[0]
-                        return f"Summer {year}"
-                
-                return semester
-            
-            # Process courses to handle duplicates (keep highest marks)
-            course_map = {}
-            for result in result_data:
-                # Extract student info from first record
-                if not student_info:
-                    student_info = {
-                        'name': result.get('StudentName', ''),
-                        'registration': result.get('RegistrationNo', '')
-                    }
-                
-                course_code = result.get('CourseCode', '')
-                marks = float(result.get('Total', 0))
-                
-                # If we've seen this course before, keep the highest marks
-                if course_code in course_map:
-                    existing_marks = float(course_map[course_code].get('Total', 0))
-                    if marks > existing_marks:
-                        course_map[course_code] = result
-                else:
-                    course_map[course_code] = result
-            
-            # Group by semester
-            for course_code, result in course_map.items():
-                # Extract semester information
-                semester = format_semester_name(result.get('Semester', 'Unknown'))
-                if semester not in semesters:
-                    semesters[semester] = []
-                
-                # Extract course details
-                course_title = result.get('CourseTitle', '')
-                credit_hours_str = result.get('CreditHours', '0')
-                marks_str = result.get('Total', '0')
-                
-                # Parse credit hours (handle formats like "3(3-0)")
-                credit_hours = 0
-                if credit_hours_str:
-                    # Extract numbers from string
-                    numbers = re.findall(r'\d+', credit_hours_str)
-                    if numbers:
-                        credit_hours = int(numbers[0])
-                
-                # Parse marks
-                marks = 0
-                try:
-                    marks = float(marks_str) if marks_str else 0
-                except (ValueError, TypeError):
-                    marks = 0
-                
-                # Calculate quality points and grade
-                quality_points = self.calculate_quality_points(marks, credit_hours)
-                grade = self.get_grade(marks, credit_hours)
-                
-                # Add to semester data
-                semesters[semester].append({
-                    'courseCode': course_code,
-                    'courseTitle': course_title,
-                    'creditHours': credit_hours,
-                    'marks': marks,
-                    'qualityPoints': round(quality_points, 2),
-                    'grade': grade,
-                    'fullDetails': result  # Store all details
-                })
-            
-            # Calculate GPA for each semester and overall CGPA
-            semester_gpa = {}
-            total_quality_points = 0
-            total_credit_hours = 0
-            total_marks_obtained = 0
-            total_max_marks = 0
-            
-            for semester, courses in semesters.items():
-                semester_quality_points = 0
-                semester_credit_hours = 0
-                semester_marks_obtained = 0
-                semester_max_marks = 0
-                
-                for course in courses:
-                    semester_quality_points += course['qualityPoints']
-                    semester_credit_hours += course['creditHours']
-                    semester_marks_obtained += course['marks']
-                    semester_max_marks += 100  # Assuming all courses are out of 100
-                
-                if semester_credit_hours > 0:
-                    semester_gpa[semester] = {
-                        'gpa': round(semester_quality_points / semester_credit_hours, 4),
-                        'percentage': round((semester_quality_points / semester_credit_hours) * 25, 2),
-                        'marksPercentage': round((semester_marks_obtained / semester_max_marks) * 100, 2),
-                        'courses': courses
-                    }
-                    
-                    total_quality_points += semester_quality_points
-                    total_credit_hours += semester_credit_hours
-                    total_marks_obtained += semester_marks_obtained
-                    total_max_marks += semester_max_marks
-            
-            # Calculate overall CGPA
-            cgpa = 0
-            cgpa_percentage = 0
-            cgpa_marks_percentage = 0
-            if total_credit_hours > 0:
-                cgpa = round(total_quality_points / total_credit_hours, 4)
-                cgpa_percentage = round((total_quality_points / total_credit_hours) * 25, 2)
-            
-            if total_max_marks > 0:
-                cgpa_marks_percentage = round((total_marks_obtained / total_max_marks) * 100, 2)
-            
-            return {
-                'studentInfo': student_info,
-                'cgpa': cgpa,
-                'cgpaPercentage': cgpa_percentage,
-                'cgpaMarksPercentage': cgpa_marks_percentage,
-                'semesters': semester_gpa,
-                'totalQualityPoints': total_quality_points,
-                'totalCreditHours': total_credit_hours,
-                'totalMarksObtained': total_marks_obtained,
-                'totalMaxMarks': total_max_marks
-            }
-            
-        except Exception as e:
-            logger.error(f"Error calculating GPA: {str(e)}")
-            return {
-                'studentInfo': {'name': '', 'registration': ''},
-                'cgpa': 0,
-                'cgpaPercentage': 0,
-                'cgpaMarksPercentage': 0,
-                'semesters': {},
-                'totalQualityPoints': 0,
-                'totalCreditHours': 0,
-                'totalMarksObtained': 0,
-                'totalMaxMarks': 0
-            }
 
     def scrape_uaf_results(self, registration_number):
         """Main function to scrape UAF results"""
@@ -757,7 +479,7 @@ class handler(BaseHTTPRequestHandler):
                     if alt_results:
                         return True, f"Successfully extracted {len(alt_results)} records using alternative method", alt_results
                 
-                return False, f"No result data found for registration number: {registration_number}", None
+                                return False, f"No result data found for registration number: {registration_number}", None
                     
         except Exception as e:
             logger.error(f"Error parsing results: {str(e)}")
