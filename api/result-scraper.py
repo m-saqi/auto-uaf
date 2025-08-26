@@ -102,14 +102,15 @@ class handler(BaseHTTPRequestHandler):
                     'User-Agent': random.choice(USER_AGENTS),
                 })
                 
+                # For test connection, we just need to check if we get a response
+                # Don't try to parse as JSON, just check if the server responds
                 if response.status_code == 200:
                     response_data = {'success': True, 'message': 'Connection to UAF LMS successful'}
-                    self.send_success_response(response_data)
-                    return
                 else:
                     response_data = {'success': False, 'message': f'UAF LMS returned status code: {response.status_code}'}
-                    self.send_success_response(response_data)
-                    return
+                
+                self.send_success_response(response_data)
+                return
                     
             except Exception as e:
                 response_data = {'success': False, 'message': f'Connection error: {str(e)}'}
