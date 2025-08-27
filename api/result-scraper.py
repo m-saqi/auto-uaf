@@ -11,6 +11,8 @@ import random
 import logging
 import uuid
 from datetime import datetime, timedelta
+import sqlite3
+import hashlib
 
 # Set up logging
 logging.basicConfig(level=logging.INFO)
@@ -20,6 +22,28 @@ logger = logging.getLogger(__name__)
 DATA_DIR = "/tmp/uaftools_data"
 if not os.path.exists(DATA_DIR):
     os.makedirs(DATA_DIR)
+
+# Database path
+DB_PATH = os.path.join(DATA_DIR, "saved_results.db")
+
+# Initialize database
+def init_db():
+    conn = sqlite3.connect(DB_PATH)
+    c = conn.cursor()
+    c.execute('''
+        CREATE TABLE IF NOT EXISTS saved_results (
+            id TEXT PRIMARY KEY,
+            registration_number TEXT NOT NULL,
+            student_data TEXT NOT NULL,
+            timestamp DATETIME DEFAULT CURRENT_TIMESTAMP
+        )
+    ''')
+    c.execute('''
+        CREATE INDEX IF NOT EXISTS idx_registration_number 
+        ON saved_results (registration_number)
+    ''')
+    conn.commit()
+    conn.close()
 
 # User agents
 USER_AGENTS = [
@@ -33,7 +57,7 @@ USER_AGENTS = [
 class handler(BaseHTTPRequestHandler):
     def _set_cors_headers(self):
         self.send_header('Access-Control-Allow-Origin', '*')
-        self.send_header('Access-Control-Allow-Methods', 'GET, POST, OPTIONS')
+        self.send_header('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, DELETE')
         self.send_header('Access-Control-Allow-Headers', 'Content-Type')
     
     def do_OPTIONS(self):
@@ -50,6 +74,8 @@ class handler(BaseHTTPRequestHandler):
                 self.handle_check_session()
             elif 'action=scrape_single' in self.path:
                 self.handle_scrape_single()
+            elif 'action=load_result' in self.path or 'load_result' in self.path:
+                self.handle_load_result()
             else:
                 self.send_response(404)
                 self._set_cors_headers()
@@ -61,12 +87,23 @@ class handler(BaseHTTPRequestHandler):
         try:
             if 'action=scrape' in self.path:
                 self.handle_scrape()
-            elif 'action=save' in self.path:
-                self.handle_save()
+            elif 'action=save' in self.path or 'save_result' in self.path:
+                self.handle_save_result()
             elif 'action=clear_session' in self.path:
                 self.handle_clear_session()
             elif 'action=scrape_single' in self.path:
                 self.handle_scrape_single()
+            else:
+                self.send_response(404)
+                self._set_cors_headers()
+                self.end_headers()
+        except Exception as e:
+            self.send_error_response(500, f"Server error: {str(e)}")
+
+    def do_DELETE(self):
+        try:
+            if 'action=save' in self.path or 'save_result' in self.path:
+                self.handle_delete_saved_result()
             else:
                 self.send_response(404)
                 self._set_cors_headers()
@@ -242,6 +279,152 @@ class handler(BaseHTTPRequestHandler):
                 
         except Exception as e:
             self.send_error_response(500, f"Error scraping single result: {str(e)}")
+
+    def handle_save_result(self):
+        """Save result data to database"""
+        try:
+            content_length = int(self.headers['Content-Length'])
+            post_data = self.rfile.read(content_length)
+            data = json.loads(post_data)
+            
+            registration_number = data.get('registrationNumber')
+            student_data = data.get('studentData')
+            timestamp = data.get('timestamp')
+            
+            if not registration_number or not student_data:
+                self.send_error_response(400, 'Missing required fields')
+                return
+            
+            # Initialize database
+            init_db()
+            
+            # Generate unique ID
+            result_id = hashlib.md5(f"{registration_number}_{timestamp}".encode()).hexdigest()
+            
+            # Save to database
+            conn = sqlite3.connect(DB_PATH)
+            c = conn.cursor()
+            
+            # Check if result already exists for this registration number and timestamp
+            c.execute('''
+                SELECT id FROM saved_results 
+                WHERE registration_number = ? AND timestamp = ?
+            ''', (registration_number, timestamp))
+            
+            existing_result = c.fetchone()
+            
+            if existing_result:
+                # Update existing record
+                c.execute('''
+                    UPDATE saved_results 
+                    SET student_data = ?
+                    WHERE id = ?
+                ''', (json.dumps(student_data), existing_result[0]))
+            else:
+                # Insert new record
+                c.execute('''
+                    INSERT INTO saved_results (id, registration_number, student_data, timestamp)
+                    VALUES (?, ?, ?, ?)
+                ''', (result_id, registration_number, json.dumps(student_data), timestamp))
+            
+            conn.commit()
+            conn.close()
+            
+            response_data = {
+                'success': True, 
+                'message': 'Result saved successfully',
+                'id': result_id
+            }
+            self.send_success_response(response_data)
+            
+        except Exception as e:
+            self.send_error_response(500, f"Error saving result: {str(e)}")
+
+    def handle_load_result(self):
+        """Load saved results from database"""
+        try:
+            query_params = self.path.split('?')
+            registration_number = None
+            
+            if len(query_params) > 1:
+                params = query_params[1].split('&')
+                for param in params:
+                    if param.startswith('registrationNumber='):
+                        registration_number = param.split('=')[1]
+                        break
+            
+            if not registration_number:
+                self.send_error_response(400, 'No registration number provided')
+                return
+            
+            # Initialize database
+            init_db()
+            
+            # Load from database
+            conn = sqlite3.connect(DB_PATH)
+            c = conn.cursor()
+            
+            c.execute('''
+                SELECT id, registration_number, student_data, timestamp
+                FROM saved_results 
+                WHERE registration_number = ?
+                ORDER BY timestamp DESC
+            ''', (registration_number,))
+            
+            results = c.fetchall()
+            conn.close()
+            
+            saved_results = []
+            for result in results:
+                saved_results.append({
+                    'id': result[0],
+                    'registration_number': result[1],
+                    'student_data': json.loads(result[2]),
+                    'timestamp': result[3]
+                })
+            
+            response_data = {
+                'success': True, 
+                'message': 'Results loaded successfully',
+                'savedResults': saved_results
+            }
+            self.send_success_response(response_data)
+            
+        except Exception as e:
+            self.send_error_response(500, f"Error loading results: {str(e)}")
+
+    def handle_delete_saved_result(self):
+        """Delete a saved result from database"""
+        try:
+            content_length = int(self.headers['Content-Length'])
+            post_data = self.rfile.read(content_length)
+            data = json.loads(post_data)
+            
+            result_id = data.get('id')
+            
+            if not result_id:
+                self.send_error_response(400, 'No result ID provided')
+                return
+            
+            # Initialize database
+            init_db()
+            
+            # Delete from database
+            conn = sqlite3.connect(DB_PATH)
+            c = conn.cursor()
+            
+            c.execute('DELETE FROM saved_results WHERE id = ?', (result_id,))
+            conn.commit()
+            conn.close()
+            
+            response_data = {
+                'success': True, 
+                'message': 'Result deleted successfully'
+            }
+            self.send_success_response(response_data)
+            
+        except Exception as e:
+            self.send_error_response(500, f"Error deleting result: {str(e)}")
 
     def handle_scrape(self):
         content_length = int(self.headers['Content-Length'])
@@ -603,3 +786,6 @@ class handler(BaseHTTPRequestHandler):
                 logger.info(f"Deleted session {session_id}")
         except Exception as e:
             logger.error(f"Error deleting session {session_id}: {e}")
+
+# Initialize database when module is loaded
+init_db()
