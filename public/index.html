@@ -842,144 +842,6 @@
         initTheme();
         initContactForm();
         createToastContainer();
-        initAddCustomCourseModal();
-      }
-      
-      // Initialize the add custom course modal
-      function initAddCustomCourseModal() {
-        // Create modal element
-        const modalHTML = `
-          <div class="modal fade" id="addCourseModal" tabindex="-1" aria-hidden="true">
-            <div class="modal-dialog modal-dialog-centered">
-              <div class="modal-content">
-                <div class="modal-header">
-                  <h5 class="modal-title">Add New Course</h5>
-                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                  <form id="addCourseForm" class="space-y-4">
-                    <input type="hidden" id="customCourseSemester" value="">
-                    <div class="row">
-                      <div class="col-md-6">
-                        <label class="form-label">Course Code</label>
-                        <input required placeholder="e.g., CS-101" class="form-control" type="text">
-                      </div>
-                      <div class="col-md-6">
-                        <label class="form-label">Credit Hours</label>
-                        <select required class="form-select">
-                          <option value="">Select Credit Hours</option>
-                          <option value="1">1</option>
-                          <option value="2">2</option>
-                          <option value="3">3</option>
-                          <option value="4">4</option>
-                          <option value="5">5</option>
-                        </select>
-                      </div>
-                    </div>
-                    <div class="row">
-                      <div class="col-12">
-                        <label class="form-label">Course Title <span class="text-muted">(Optional)</span></label>
-                        <input placeholder="e.g., Introduction to Computer Science" class="form-control" type="text">
-                      </div>
-                    </div>
-                    <div class="row">
-                      <div class="col-12">
-                        <label class="form-label">Obtained Marks</label>
-                        <input required min="0" step="0.1" class="form-control" type="number">
-                      </div>
-                    </div>
-                    <div class="row mt-3">
-                      <div class="col-12 d-flex justify-content-end gap-2">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                        <button type="submit" class="btn btn-primary">Add Course</button>
-                      </div>
-                    </div>
-                  </form>
-                </div>
-              </div>
-            </div>
-          </div>
-        `;
-        
-        // Add modal to body
-        document.body.insertAdjacentHTML('beforeend', modalHTML);
-        
-        // Add event listener for form submission
-        document.getElementById('addCourseForm').addEventListener('submit', function(e) {
-          e.preventDefault();
-          addCustomCourse();
-        });
-      }
-      
-      // Add custom course
-      function addCustomCourse() {
-        const form = document.getElementById('addCourseForm');
-        const semesterName = document.getElementById('customCourseSemester').value;
-        const formData = new FormData(form);
-        
-        const courseCode = form.querySelector('input[type="text"]').value;
-        const creditHours = parseInt(form.querySelector('select').value);
-        const courseTitle = form.querySelectorAll('input[type="text"]')[1].value;
-        const marks = parseFloat(form.querySelector('input[type="number"]').value);
-        
-        if (!courseCode || !creditHours || isNaN(marks) || !semesterName) {
-          showToast('Please fill all required fields', 'error');
-          return;
-        }
-        
-        // Calculate quality points
-        const qualityPoints = calculateQualityPoints(marks, creditHours);
-        
-        // Determine grade based on marks
-        let grade = 'F';
-        if (marks >= 85) grade = 'A';
-        else if (marks >= 80) grade = 'A-';
-        else if (marks >= 75) grade = 'B+';
-        else if (marks >= 70) grade = 'B';
-        else if (marks >= 65) grade = 'B-';
-        else if (marks >= 60) grade = 'C+';
-        else if (marks >= 55) grade = 'C';
-        else if (marks >= 50) grade = 'C-';
-        else if (marks >= 45) grade = 'D';
-        
-        const courseData = {
-          code: courseCode,
-          title: courseTitle || courseCode,
-          creditHours: creditHours,
-          marks: marks,
-          qualityPoints: qualityPoints,
-          grade: grade,
-          originalSemester: semesterName,
-          semesterName: semesterName,
-          semesterSortKey: processedData.semesters[semesterName]?.sortKey || '9999-9',
-          teacher: 'Custom',
-          mid: '0',
-          assignment: '0',
-          final: marks.toString(),
-          practical: '0',
-          total: marks.toString(),
-          isExtraEnrolled: false,
-          isRepeated: false,
-          isDeleted: false,
-          originalSemesterForRepeated: null,
-          isCustom: true
-        };
-        
-        // Add course to semester
-        processedData.semesters[semesterName].courses.push(courseData);
-        
-        // Recalculate CGPA
-        const cgpaData = calculateCGPA(processedData);
-        
-        // Update display
-        displayCGPAResults(processedData, cgpaData);
-        
-        // Close modal and reset form
-        bootstrap.Modal.getInstance(document.getElementById('addCourseModal')).hide();
-        form.reset();
-        
-        showToast('Custom course added successfully!', 'success');
-        addStatusMessage(`Added custom course: ${courseCode} to ${semesterName}`, 'info');
       }
       
       // Create a custom toast container
@@ -1219,7 +1081,7 @@
         } else if (semester.includes('Spring')) {
           const yearMatch = semester.match(/(\d{4})-(\d{2,4})/);
           if (yearMatch && yearMatch[2].length === 4) {
-            return `Spring ${yearMatch[2]`;
+            return `Spring ${yearMatch[2]}`;
           } else if (yearMatch && yearMatch[2].length === 2) {
             return `Spring 20${yearMatch[2]}`;
           }
@@ -1353,8 +1215,7 @@
             isExtraEnrolled: false,
             isRepeated: false,
             isDeleted: false,
-            originalSemesterForRepeated: null,
-            isCustom: false
+            originalSemesterForRepeated: null
           };
           
           // Track course history
@@ -1379,7 +1240,7 @@
             // Sort by semester order (chronological)
             history.sort((a, b) => a.semesterSortKey.localeCompare(b.semesterSortKey));
             
-            // Find the highest marks/quality points (this will be used for CGPA)
+            // Find the highest marks/quality points
             let highest = history[0];
             for (let i = 1; i < history.length; i++) {
               if (history[i].marks > highest.marks) {
@@ -1387,15 +1248,13 @@
               }
             }
             
-            // Mark the highest instance as repeated (this gets the "Reptd." label)
-            // The course with higher marks should show "Reptd." 
-            highest.data.isRepeated = true;
-            highest.data.originalSemesterForRepeated = history.find(h => h !== highest)?.semester;
-            
-            // Mark all other instances as extra enrolled (but don't show "Reptd." on them)
+            // Mark all other instances as extra enrolled and repeated
+            // Also set the original semester for repeated courses
             history.forEach(item => {
               if (item !== highest) {
                 item.data.isExtraEnrolled = true;
+                item.data.isRepeated = true;
+                item.data.originalSemesterForRepeated = highest.semester;
               }
             });
           }
@@ -1443,7 +1302,7 @@
           } else if (marks >= 30) {
             qualityPoints = 12 - ((48 - marks) * 0.33333);
           } else if (marks < 30) {
-            qualityPoints = 6 - ((30 - marks);
+            qualityPoints = 6 - ((30 - marks) * 0.5);
           }
           if (marks < 24) {
             qualityPoints = 0;
@@ -1562,22 +1421,17 @@
           semesterCard.dataset.semester = semesterName;
           
           semesterCard.innerHTML = `
-            <div class="d-flex justify-content-between align-items-start mb-3">
+            <i class="fa-solid fa-trash delete-semester" title="Delete this semester"></i>
+            <div class="d-flex align-items-center justify-content-between mb-3">
               <h5 class="mb-0">
                 <i class="fa-solid fa-book-open me-2 text-blue-600"></i>
                 ${semesterName}
               </h5>
-              <div class="d-flex gap-2">
-                <button class="btn btn-sm btn-primary add-course-btn" data-semester="${semesterName}" title="Add custom course">
-                  <i class="fa-solid fa-plus"></i> Add Course
-                </button>
-                <i class="fa-solid fa-trash delete-semester" title="Delete this semester"></i>
+              <div class="text-right">
+                <p class="mb-0 text-body-secondary small">GPA:</p>
+                <p class="mb-0 h4 fw-bold text-blue-600">${semester.gpa || 0}</p>
+                <p class="mb-0 text-body-secondary small">${semester.percentage || 0}%</p>
               </div>
-            </div>
-            <div class="text-right mb-3">
-              <p class="mb-0 text-body-secondary small">GPA:</p>
-              <p class="mb-0 h4 fw-bold text-blue-600">${semester.gpa || 0}</p>
-              <p class="mb-0 text-body-secondary small">${semester.percentage || 0}%</p>
             </div>
             <div class="table-responsive">
               <table class="course-table">
@@ -1597,7 +1451,7 @@
                       <td>
                         <div class="d-flex align-items-center">
                           <span class="fw-medium course-code clickable-info" data-course='${JSON.stringify(course).replace(/'/g, "&#39;")}'>${course.code}</span>
-                          ${course.isRepeated ? '<span class="extra-enrolled clickable-repeated" data-course=\'' + JSON.stringify(course).replace(/'/g, "&#39;") + '\'>Reptd.</span>' : ''}
+                          ${course.isExtraEnrolled ? '<span class="extra-enrolled">Reptd.</span>' : ''}
                           <i class="fa-solid fa-info-circle ms-2 clickable-info small" data-course='${JSON.stringify(course).replace(/'/g, "&#39;")}' title="${course.title}"></i>
                         </div>
                       </td>
@@ -1628,35 +1482,6 @@
           el.addEventListener('click', function() {
             const courseData = JSON.parse(this.dataset.course.replace(/&#39;/g, "'"));
             showCourseDetails(courseData);
-          });
-        });
-        
-        // Add event listeners for repeated course labels
-        document.querySelectorAll('.clickable-repeated').forEach(el => {
-          el.addEventListener('click', function() {
-            const courseData = JSON.parse(this.dataset.course.replace(/&#39;/g, "'"));
-            if (courseData.originalSemesterForRepeated) {
-              // Scroll to the original semester
-              const semesterElement = document.querySelector(`.semester-card[data-semester="${courseData.originalSemesterForRepeated}"]`);
-              if (semesterElement) {
-                semesterElement.scrollIntoView({ behavior: 'smooth' });
-                // Add highlight effect
-                semesterElement.style.transition = 'all 0.5s ease';
-                semesterElement.style.boxShadow = '0 0 20px rgba(122, 106, 216, 0.5)';
-                setTimeout(() => {
-                  semesterElement.style.boxShadow = '';
-                }, 2000);
-              }
-            }
-          });
-        });
-        
-        // Add event listeners for add course buttons
-        document.querySelectorAll('.add-course-btn').forEach(btn => {
-          btn.addEventListener('click', function() {
-            const semesterName = this.dataset.semester;
-            document.getElementById('customCourseSemester').value = semesterName;
-            bootstrap.Modal.getOrCreateInstance(document.getElementById('addCourseModal')).show();
           });
         });
         
@@ -1697,14 +1522,14 @@
         const modalBody = document.getElementById('courseDetailsModalBody');
         
         let repeatedInfoHtml = '';
-        if (course.isRepeated && course.originalSemesterForRepeated) {
+        if (course.isExtraEnrolled && course.originalSemesterForRepeated) {
           repeatedInfoHtml = `
             <div class="row mt-3">
               <div class="col-12">
                 <div class="alert alert-warning">
                   <i class="fa-solid fa-exclamation-triangle me-2"></i>
-                  <p class="mb-1">This is a repeated course. The marks and quality points are considered from this semester instead of the original enrollment in <strong class="clickable-semester" data-semester="${course.originalSemesterForRepeated}" style="cursor: pointer; text-decoration: underline;">${course.originalSemesterForRepeated}</strong></p>
-                  <p class="mb-0 small">Click on the semester name to view the original enrollment</p>
+                  <p class="mb-1">The Marks and Quality points of this Repeated subject will be considered in its <strong class="clickable-semester" data-semester="${course.originalSemesterForRepeated}" style="cursor: pointer; text-decoration: underline;">Original Semester (${course.originalSemesterForRepeated})</strong></p>
+                  <p class="mb-0 small">Click on the semester name to view it</p>
                 </div>
               </div>
             </div>
@@ -1717,7 +1542,6 @@
               <p><strong>Teacher:</strong> ${course.teacher}</p>
               <p><strong>Credit Hours:</strong> ${course.creditHours}</p>
               <p><strong>Semester:</strong> ${course.semesterName}</p>
-              ${course.isCustom ? '<p><strong>Type:</strong> Custom Course</p>' : ''}
             </div>
             <div class="col-md-6">
               <p><strong>Mid Term:</strong> ${course.mid}</p>
@@ -1793,7 +1617,7 @@
         semester.courses[courseIndex].isDeleted = true;
         
         // If this was the best instance of a repeated course, find the next best one
-        if (course.isRepeated) {
+        if (!course.isExtraEnrolled && course.isRepeated) {
           // Find all instances of this course
           const courseCode = course.code;
           const allInstances = [];
@@ -1818,13 +1642,9 @@
             allInstances.sort((a, b) => b.marks - a.marks);
             const bestInstance = allInstances[0];
             
-            // Mark the best instance as repeated
-            bestInstance.data.isRepeated = true;
-            
             // Update all other instances to point to this best instance
             allInstances.forEach((instance, index) => {
               if (index > 0) {
-                instance.data.isExtraEnrolled = true;
                 instance.data.originalSemesterForRepeated = bestInstance.semester;
               }
             });
@@ -1880,9 +1700,6 @@
             allInstances.sort((a, b) => b.marks - a.marks);
             const bestInstance = allInstances[0];
             
-            // Mark the best instance as repeated
-            bestInstance.data.isRepeated = true;
-            
             // Update all other instances to point to this best instance
             allInstances.forEach((instance, index) => {
               if (index > 0) {
@@ -1890,6 +1707,7 @@
                 instance.data.originalSemesterForRepeated = bestInstance.semester;
               } else {
                 instance.data.isExtraEnrolled = false;
+                instance.data.originalSemesterForRepeated = null;
               }
             });
           }
@@ -2006,3 +1824,4 @@
   </script>
 </body>
 </html>
+
