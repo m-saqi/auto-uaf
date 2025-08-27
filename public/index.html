@@ -829,7 +829,6 @@
       let testInProgress = false;
       let scrapedData = null;
       let processedData = null;
-      let customCoursesSemester = "Custom Courses"; // Semester name for custom courses
       
       // API endpoints
       const API_ENDPOINTS = {
@@ -859,6 +858,7 @@
                 </div>
                 <div class="modal-body">
                   <form id="addCourseForm" class="space-y-4">
+                    <input type="hidden" id="customCourseSemester" value="">
                     <div class="row">
                       <div class="col-md-6">
                         <label class="form-label">Course Code</label>
@@ -909,24 +909,12 @@
           e.preventDefault();
           addCustomCourse();
         });
-        
-        // Add button to open modal
-        const addCourseButton = document.createElement('button');
-        addCourseButton.className = 'btn btn-primary-action rounded-pill mt-3';
-        addCourseButton.innerHTML = '<i class="fa-solid fa-plus me-2"></i>Add Custom Course';
-        addCourseButton.setAttribute('data-bs-toggle', 'modal');
-        addCourseButton.setAttribute('data-bs-target', '#addCourseModal');
-        
-        // Add button to the center buttons container
-        const centerButtons = document.querySelector('.center-buttons');
-        if (centerButtons) {
-          centerButtons.appendChild(addCourseButton);
-        }
       }
       
       // Add custom course
       function addCustomCourse() {
         const form = document.getElementById('addCourseForm');
+        const semesterName = document.getElementById('customCourseSemester').value;
         const formData = new FormData(form);
         
         const courseCode = form.querySelector('input[type="text"]').value;
@@ -934,7 +922,7 @@
         const courseTitle = form.querySelectorAll('input[type="text"]')[1].value;
         const marks = parseFloat(form.querySelector('input[type="number"]').value);
         
-        if (!courseCode || !creditHours || isNaN(marks)) {
+        if (!courseCode || !creditHours || isNaN(marks) || !semesterName) {
           showToast('Please fill all required fields', 'error');
           return;
         }
@@ -961,9 +949,9 @@
           marks: marks,
           qualityPoints: qualityPoints,
           grade: grade,
-          originalSemester: customCoursesSemester,
-          semesterName: customCoursesSemester,
-          semesterSortKey: '9999-9', // Place custom courses at the end
+          originalSemester: semesterName,
+          semesterName: semesterName,
+          semesterSortKey: processedData.semesters[semesterName]?.sortKey || '9999-9',
           teacher: 'Custom',
           mid: '0',
           assignment: '0',
@@ -977,31 +965,8 @@
           isCustom: true
         };
         
-        // Initialize processedData if it doesn't exist
-        if (!processedData) {
-          processedData = {
-            studentInfo: {
-              name: 'Custom Student',
-              registration: 'Custom'
-            },
-            semesters: {},
-            courseHistory: {}
-          };
-        }
-        
-        // Add custom courses semester if it doesn't exist
-        if (!processedData.semesters[customCoursesSemester]) {
-          processedData.semesters[customCoursesSemester] = {
-            originalName: customCoursesSemester,
-            sortKey: '9999-9',
-            courses: [],
-            totalQualityPoints: 0,
-            totalCreditHours: 0
-          };
-        }
-        
         // Add course to semester
-        processedData.semesters[customCoursesSemester].courses.push(courseData);
+        processedData.semesters[semesterName].courses.push(courseData);
         
         // Recalculate CGPA
         const cgpaData = calculateCGPA(processedData);
@@ -1014,7 +979,7 @@
         form.reset();
         
         showToast('Custom course added successfully!', 'success');
-        addStatusMessage(`Added custom course: ${courseCode}`, 'info');
+        addStatusMessage(`Added custom course: ${courseCode} to ${semesterName}`, 'info');
       }
       
       // Create a custom toast container
@@ -1414,7 +1379,7 @@
             // Sort by semester order (chronological)
             history.sort((a, b) => a.semesterSortKey.localeCompare(b.semesterSortKey));
             
-            // Find the highest marks/quality points
+            // Find the highest marks/quality points (this will be used for CGPA)
             let highest = history[0];
             for (let i = 1; i < history.length; i++) {
               if (history[i].marks > highest.marks) {
@@ -1423,7 +1388,7 @@
             }
             
             // Mark all other instances as extra enrolled and repeated
-            // Also set the original semester for repeated courses
+            // The "Reptd." label should appear on the courses with LOWER marks
             history.forEach(item => {
               if (item !== highest) {
                 item.data.isExtraEnrolled = true;
@@ -1595,17 +1560,22 @@
           semesterCard.dataset.semester = semesterName;
           
           semesterCard.innerHTML = `
-            <i class="fa-solid fa-trash delete-semester" title="Delete this semester"></i>
-            <div class="d-flex align-items-center justify-content-between mb-3">
+            <div class="d-flex justify-content-between align-items-start mb-3">
               <h5 class="mb-0">
                 <i class="fa-solid fa-book-open me-2 text-blue-600"></i>
                 ${semesterName}
               </h5>
-              <div class="text-right">
-                <p class="mb-0 text-body-secondary small">GPA:</p>
-                <p class="mb-0 h4 fw-bold text-blue-600">${semester.gpa || 0}</p>
-                <p class="mb-0 text-body-secondary small">${semester.percentage || 0}%</p>
+              <div class="d-flex gap-2">
+                <button class="btn btn-sm btn-primary add-course-btn" data-semester="${semesterName}" title="Add custom course">
+                  <i class="fa-solid fa-plus"></i> Add Course
+                </button>
+                <i class="fa-solid fa-trash delete-semester" title="Delete this semester"></i>
               </div>
+            </div>
+            <div class="text-right mb-3">
+              <p class="mb-0 text-body-secondary small">GPA:</p>
+              <p class="mb-0 h4 fw-bold text-blue-600">${semester.gpa || 0}</p>
+              <p class="mb-0 text-body-secondary small">${semester.percentage || 0}%</p>
             </div>
             <div class="table-responsive">
               <table class="course-table">
@@ -1676,6 +1646,15 @@
                 }, 2000);
               }
             }
+          });
+        });
+        
+        // Add event listeners for add course buttons
+        document.querySelectorAll('.add-course-btn').forEach(btn => {
+          btn.addEventListener('click', function() {
+            const semesterName = this.dataset.semester;
+            document.getElementById('customCourseSemester').value = semesterName;
+            bootstrap.Modal.getOrCreateInstance(document.getElementById('addCourseModal')).show();
           });
         });
         
@@ -2019,6 +1998,7 @@
   </script>
 </body>
 </html>
+
 
 
 
