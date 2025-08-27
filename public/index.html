@@ -1068,9 +1068,42 @@
         }
       }
       
-      // Process semester name for display (keep original format)
+      // Process semester name for display (convert Winter 2024-2025 to Winter 2024, Spring 2024-2025 to Spring 2025)
       function processSemesterName(semester) {
         if (!semester) return 'Unknown Semester';
+        
+        // Handle different semester formats
+        if (semester.includes('Winter')) {
+          const yearMatch = semester.match(/(\d{4})-(\d{2,4})/);
+          if (yearMatch) {
+            return `Winter ${yearMatch[1]}`;
+          }
+        } else if (semester.includes('Spring')) {
+          const yearMatch = semester.match(/(\d{4})-(\d{2,4})/);
+          if (yearMatch && yearMatch[2].length === 4) {
+            return `Spring ${yearMatch[2]}`;
+          } else if (yearMatch && yearMatch[2].length === 2) {
+            return `Spring 20${yearMatch[2]}`;
+          }
+        } else if (semester.includes('Summer')) {
+          // Handle "Summer Semester 2025" -> "Summer 2025"
+          const yearMatch = semester.match(/(\d{4})-(\d{2,4})/);
+          if (yearMatch) {
+            return `Summer ${yearMatch[1]}`;
+          }
+          // Also handle "Summer Semester 2025" format
+          const summerMatch = semester.match(/Summer Semester (\d{4})/);
+          if (summerMatch) {
+            return `Summer ${summerMatch[1]}`;
+          }
+        } else if (semester.includes('Fall')) {
+          const yearMatch = semester.match(/(\d{4})-(\d{2,4})/);
+          if (yearMatch) {
+            return `Fall ${yearMatch[1]}`;
+          }
+        }
+        
+        // Return original if no pattern matched
         return semester;
       }
       
@@ -1080,10 +1113,9 @@
         
         // Extract year and season for chronological ordering
         let year = '';
-        let season = '';
         let seasonOrder = 9; // Default to last position
         
-        // Try to extract year
+        // Try to extract year from different patterns
         const yearMatch = semesterName.match(/\b(20\d{2})\b/);
         if (yearMatch) {
           year = yearMatch[1];
@@ -1122,7 +1154,7 @@
           registration: resultData[0]?.RegistrationNo || ''
         };
         
-        // Group by semester (original name)
+        // Group by semester (processed name)
         const semesters = {};
         const courseHistory = {}; // Track course history for re-enrollment detection
         
@@ -1584,6 +1616,41 @@
         // Mark course as deleted
         semester.courses[courseIndex].isDeleted = true;
         
+        // If this was the best instance of a repeated course, find the next best one
+        if (!course.isExtraEnrolled && course.isRepeated) {
+          // Find all instances of this course
+          const courseCode = course.code;
+          const allInstances = [];
+          
+          // Collect all instances of this course
+          Object.keys(processedData.semesters).forEach(sem => {
+            processedData.semesters[sem].courses.forEach(c => {
+              if (c.code === courseCode && !c.isDeleted) {
+                allInstances.push({
+                  semester: sem,
+                  marks: c.marks,
+                  qualityPoints: c.qualityPoints,
+                  data: c
+                });
+              }
+            });
+          });
+          
+          // If there are other instances, find the best one and update its status
+          if (allInstances.length > 0) {
+            // Sort by marks (highest first)
+            allInstances.sort((a, b) => b.marks - a.marks);
+            const bestInstance = allInstances[0];
+            
+            // Update all other instances to point to this best instance
+            allInstances.forEach((instance, index) => {
+              if (index > 0) {
+                instance.data.originalSemesterForRepeated = bestInstance.semester;
+              }
+            });
+          }
+        }
+        
         // Recalculate CGPA
         const cgpaData = calculateCGPA(processedData);
         
@@ -1606,6 +1673,45 @@
         
         // Mark course as not deleted
         semester.courses[courseIndex].isDeleted = false;
+        
+        // If this is a repeated course, we need to determine which instance should be used for CGPA
+        if (course.isRepeated) {
+          // Find all instances of this course
+          const courseCode = course.code;
+          const allInstances = [];
+          
+          // Collect all instances of this course
+          Object.keys(processedData.semesters).forEach(sem => {
+            processedData.semesters[sem].courses.forEach(c => {
+              if (c.code === courseCode && !c.isDeleted) {
+                allInstances.push({
+                  semester: sem,
+                  marks: c.marks,
+                  qualityPoints: c.qualityPoints,
+                  data: c
+                });
+              }
+            });
+          });
+          
+          // If there are multiple instances, find the best one
+          if (allInstances.length > 1) {
+            // Sort by marks (highest first)
+            allInstances.sort((a, b) => b.marks - a.marks);
+            const bestInstance = allInstances[0];
+            
+            // Update all other instances to point to this best instance
+            allInstances.forEach((instance, index) => {
+              if (index > 0) {
+                instance.data.isExtraEnrolled = true;
+                instance.data.originalSemesterForRepeated = bestInstance.semester;
+              } else {
+                instance.data.isExtraEnrolled = false;
+                instance.data.originalSemesterForRepeated = null;
+              }
+            });
+          }
+        }
         
         // Recalculate CGPA
         const cgpaData = calculateCGPA(processedData);
@@ -1718,4 +1824,5 @@
   </script>
 </body>
 </html>
+
 
