@@ -1,4 +1,802 @@
-<!-- Only the JavaScript part has been updated - the rest of the HTML remains the same -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <!-- Meta -->
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>UAF CGPA Calculator</title>
+  <meta name="description" content="UAF CGPA Calculator that fetches your results directly from UAF LMS. Built for University of Agriculture Faisalabad students." />
+  <link rel="canonical" href="https://uaftools.vercel.app/auto.html" />
+  <meta property="og:title" content="UAF CGPA Calculator" />
+  <meta property="og:description" content="Fetch your results directly from UAF LMS and calculate CGPA automatically." />
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="UAF Tools" />
+  <meta property="og:url" content="https://uaftools.vercel.app/auto.html" />
+  <meta property="og:image" content="https://uaftools.vercel.app/uaftools.png" />
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:title" content="UAF CGPA Calculator" />
+  <meta name="twitter:description" content="Fetch your results directly from UAF LMS and calculate CGPA automatically." />
+
+  <!-- Brand -->
+  <link rel="icon" type="image/x-icon" href="assets/images/favicon.ico" />
+
+  <!-- Fonts & Icons -->
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" rel="stylesheet" crossorigin="anonymous" referrerpolicy="no-referrer" />
+
+  <!-- Bootstrap 5 -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+
+  <!-- Theme Styles -->
+  <style>
+    :root{
+      --brand:#7a6ad8;
+      --brand-600:#6b5fca;
+      --brand-700:#5d52b8;
+      --text:#1b1f24;
+      --muted:#6b7280;
+      --radius:1.25rem;
+    }
+    html,body{font-family:"Poppins",system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,"Helvetica Neue",Arial,"Noto Sans",sans-serif;}
+    body{background:linear-gradient(180deg,#f8f9ff 0%, #ffffff 70%); min-height: 100vh; margin: 0; padding: 0;}
+    .navbar{backdrop-filter:saturate(180%) blur(12px); background-color:rgba(255,255,255,.7);}
+    .navbar .navbar-brand{font-weight:800; letter-spacing:.3px; color:var(--brand);}
+
+    .btn-brand{--bs-btn-bg:var(--brand); --bs-btn-border-color:var(--brand); --bs-btn-hover-bg:var(--brand-600); --bs-btn-hover-border-color:var(--brand-600);}
+    .btn-soft{background:#f2f0ff; color:var(--brand);}
+    .badge-brand{background:var(--brand);}
+
+    .btn-primary-action{
+      background: linear-gradient(180deg,var(--brand),var(--brand-700));
+      color: #fff;
+      border: 0;
+      box-shadow: 0 6px 18px rgba(122,106,216,.12);
+      cursor: pointer;
+    }
+    .btn-primary-action:hover {
+      background: linear-gradient(180deg,var(--brand-600),var(--brand-700));
+      color: #fff;
+      transform: translateY(-2px);
+    }
+    .btn-secondary-action{
+      background: #fff;
+      color: var(--brand);
+      border: 1px solid rgba(122,106,216,.12);
+      cursor: pointer;
+    }
+    .btn-secondary-action:hover {
+      background: #f8f9ff;
+      color: var(--brand);
+    }
+    .btn-danger-action {
+      background: #e74c3c;
+      color: white;
+      border: 0;
+      cursor: pointer;
+    }
+    .btn-danger-action:hover {
+      background: #c0392b;
+      color: white;
+    }
+    .btn-success-action {
+      background: #10ac84;
+      color: white;
+      border: 0;
+      cursor: pointer;
+    }
+    .btn-success-action:hover {
+      background: #0d916b;
+      color: white;
+    }
+
+    .hero{padding: 6rem 0 3rem;}
+    .hero h1{font-weight:800; line-height:1.05;}
+    .hero .lead{color:#4b5563;}
+
+    .card-modern{border:0; border-radius:var(--radius); box-shadow:0 10px 30px rgba(17,24,39,.06);}
+    .card-modern .card-header{border:0; border-top-left-radius:var(--radius); border-top-right-radius:var(--radius); background:linear-gradient(180deg, rgba(122,106,216,.15), rgba(122,106,216,.05));}
+    .form-select, .form-control{border-radius: .85rem;}
+    label{font-weight:600;}
+
+    .subject-row{border:1px dashed #e5e7eb; border-radius:1rem; padding:1rem; background:#fff;}
+    .result-display{font-size:1.75rem; font-weight:800; color:var(--brand);}
+
+    .progress-container {
+      margin-top: 1.5rem;
+    }
+    .progress {
+      height: 10px;
+      border-radius: 5px;
+    }
+    .progress-bar {
+      border-radius: 5px;
+      transition: width 0.3s ease;
+    }
+
+    .status-log {
+      max-height: 300px;
+      overflow-y: auto;
+      background: #f8f9fa;
+      border-radius: 0.5rem;
+      padding: 1rem;
+      font-family: monospace;
+      font-size: 0.875rem;
+      margin-bottom: 1rem;
+    }
+    .status-line {
+      margin-bottom: 0.5rem;
+      padding-bottom: 0.5rem;
+      border-bottom: 1px solid #e9ecef;
+      cursor: pointer;
+    }
+    .status-line:last-child {
+      margin-bottom: 0;
+      border-bottom: none;
+    }
+    .status-success { color: #28a745; }
+    .status-error { color: #dc3545; }
+    .status-warning { color: #fd7e14; }
+    .status-info { color: var(--brand); }
+
+    .footer{color:#9ca3af;}
+    a{color:var(--brand); text-decoration:none; cursor: pointer;}
+    a:hover{color:#9f8df0;}
+
+    /* Loading spinner styles */
+    .loading {
+      display: none;
+      text-align: center;
+      padding: 20px;
+    }
+    .loading p {
+      margin-top: 10px;
+    }
+
+    /* Result container styles */
+    .result-container {
+      display: none;
+    }
+
+    /* Toast notifications */
+    #toast-container {
+      position: fixed;
+      top: 25px;
+      right: 20px;
+      z-index: 9999;
+      display: flex;
+      flex-direction: column-reverse;
+      gap: 10px;
+    }
+
+    .toast {
+      background: white;
+      border-radius: 8px;
+      padding: 16px 20px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+      display: flex;
+      align-items: center;
+      min-width: 300px;
+      max-width: 400px;
+      transform: translateX(100%);
+      opacity: 0;
+      transition: transform 0.3s ease, opacity 0.3s ease;
+      position: relative;
+      overflow: hidden;
+      border-left: 4px solid var(--brand);
+    }
+
+    .toast.show {
+      transform: translateX(0);
+      opacity: 1;
+    }
+
+    .toast-success {
+      border-left-color: #10ac84;
+    }
+
+    .toast-error {
+      border-left-color: #e74c3c;
+    }
+
+    .toast-warning {
+      border-left-color: #f39c12;
+    }
+
+    .toast-info {
+      border-left-color: #3498db;
+    }
+
+    .toast-content {
+      display: flex;
+      align-items: center;
+      width: 100%;
+    }
+
+    .toast-icon {
+      margin-right: 12px;
+      font-size: 20px;
+    }
+
+    .toast-success .toast-icon {
+      color: #10ac84;
+    }
+
+    .toast-error .toast-icon {
+      color: #e74c3c;
+    }
+
+    .toast-warning .toast-icon {
+      color: #f39c12;
+    }
+
+    .toast-info .toast-icon {
+      color: #3498db;
+    }
+
+    .toast-message {
+      flex: 1;
+      font-weight: 500;
+      font-size: 14px;
+      color: #2d3748;
+    }
+
+    .toast-progress {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      height: 3px;
+      width: 100%;
+      background: rgba(0, 0, 0, 0.1);
+      transform: scaleX(1);
+      transform-origin: left;
+      animation: toastProgress 3s linear forwards;
+    }
+
+    .toast-success .toast-progress {
+      background: linear-gradient(to right, #10ac84, #0d916b);
+    }
+
+    .toast-error .toast-progress {
+      background: linear-gradient(to right, #e74c3c, #c0392b);
+    }
+
+    .toast-warning .toast-progress {
+      background: linear-gradient(to right, #f39c12, #e67e22);
+    }
+
+    .toast-info .toast-progress {
+      background: linear-gradient(to right, #3498db, #2980b9);
+    }
+
+    @keyframes toastProgress {
+      from { transform: scaleX(1); }
+      to { transform: scaleX(0); }
+    }
+
+    /* GPA Result Display */
+    .gpa-result-card {
+      background: white;
+      border-radius: var(--radius);
+      padding: 1.5rem;
+      box-shadow: 0 10px 30px rgba(17,24,39,.06);
+      margin-bottom: 2rem;
+    }
+    
+    .semester-card {
+      background: white;
+      border-radius: var(--radius);
+      padding: 1.5rem;
+      box-shadow: 0 10px 30px rgba(17,24,39,.06);
+      margin-bottom: 1.5rem;
+      position: relative;
+    }
+    
+    .delete-semester {
+      position: absolute;
+      top: 1rem;
+      right: 1rem;
+      cursor: pointer;
+      color: #dc3545;
+      font-size: 1.2rem;
+    }
+    
+    .course-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 1rem;
+    }
+    
+    .course-table th, .course-table td {
+      padding: 0.75rem;
+      text-align: left;
+      border-bottom: 1px solid #e5e7eb;
+    }
+    
+    .course-table th {
+      font-weight: 600;
+      color: var(--muted);
+    }
+    
+    .grade-badge {
+      padding: 0.25rem 0.5rem;
+      border-radius: 0.375rem;
+      font-weight: 600;
+      font-size: 0.75rem;
+    }
+    
+    .grade-A { background-color: #dcfce7; color: #166534; }
+    .grade-B { background-color: #dbeafe; color: #1e40af; }
+    .grade-C { background-color: #fef3c7; color: #92400e; }
+    .grade-D { background-color: #fee2e2; color: #991b1b; }
+    .grade-F { background-color: #f3f4f6; color: #374151; }
+    
+    .extra-enrolled {
+      background-color: #fff3cd;
+      color: #856404;
+      padding: 0.15rem 0.35rem;
+      border-radius: 0.25rem;
+      font-size: 0.7rem;
+      margin-left: 0.5rem;
+    }
+    
+    .course-details-modal .modal-content {
+      border-radius: var(--radius);
+    }
+    
+    .course-details-modal .modal-header {
+      background: linear-gradient(180deg, rgba(122,106,216,.15), rgba(122,106,216,.05));
+      border-top-left-radius: var(--radius);
+      border-top-right-radius: var(--radius);
+    }
+    
+    .calculate-cgpa-btn {
+      margin-top: 1rem;
+      display: none;
+    }
+
+    /* ----------- DARK MODE IMPROVED ----------- */
+    [data-theme="dark"] body{background:linear-gradient(180deg,#0b0e13 0%, #0f1320 70%); color:#f1f5f9;}
+    [data-theme="dark"] .navbar{background-color:rgba(17,24,39,.75);}
+    [data-theme="dark"] .navbar .nav-link{color:#d1d5db;}
+    [data-theme="dark"] .navbar .nav-link:hover{color:#fff;}
+    [data-theme="dark"] .card-modern{background:#0f1422; color:#e5e7eb;}
+    [data-theme="dark"] .card-modern .card-header{background:linear-gradient(180deg, rgba(122,106,216,.25), rgba(122,106,216,.1));}
+    [data-theme="dark"] h1, [data-theme="dark"] h2, [data-theme="dark"] h3, [data-theme="dark"] h4, [data-theme="dark"] h5{color:#ffffff;}
+    [data-theme="dark"] .lead{color:#9ca3af;}
+    [data-theme="dark"] .subject-row{background:#1a1f2e; border-color:#2d3748;}
+    [data-theme="dark"] label{color:#e5e7eb;}
+    [data-theme="dark"] .form-control, [data-theme="dark"] .form-select{background:#0b1020; color:#f1f5f9; border-color:#374151;}
+    [data-theme="dark"] .form-control::placeholder{color:#9ca3af;}
+    [data-theme="dark"] .input-group-text{background:#1f2937; color:#e5e7eb;}
+    [data-theme="dark"] .footer{color:#9ca3af;}
+    [data-theme="dark"] a{color: rgb(122, 106, 216);}
+    [data-theme="dark"] a:hover{color:#9f8df0;}
+    [data-theme="dark"] .status-log { background: #1a2030; }
+    [data-theme="dark"] .status-line { border-bottom-color: #2d3748; }
+    [data-theme="dark"] .gpa-result-card { background: #1a2030; }
+    [data-theme="dark"] .semester-card { background: #1a2030; }
+    [data-theme="dark"] .course-table th, 
+    [data-theme="dark"] .course-table td { border-bottom-color: #2d3748; }
+    
+    /* Dark mode for course details modal */
+    [data-theme="dark"] .course-details-modal .modal-content {
+      background: #1a2030;
+      color: #e5e7eb;
+    }
+    
+    [data-theme="dark"] .course-details-modal .modal-header {
+      background: linear-gradient(180deg, rgba(122,106,216,.25), rgba(122,106,216,.1));
+      border-bottom-color: #2d3748;
+    }
+    
+    [data-theme="dark"] .course-details-modal .modal-header .btn-close {
+      filter: invert(1);
+    }
+    
+    [data-theme="dark"] .course-details-modal .alert-info {
+      background-color: rgba(23, 162, 184, 0.2);
+      border-color: rgba(23, 162, 184, 0.3);
+      color: #71d4f0;
+    }
+    
+    [data-theme="dark"] .course-details-modal .alert-warning {
+      background-color: rgba(255, 193, 7, 0.2);
+      border-color: rgba(255, 193, 7, 0.3);
+      color: #ffd351;
+    }
+
+    /* Dark mode contrast improvements */
+    [data-theme="dark"] .text-body-secondary {
+      color: #d1d5db !important;
+    }
+    
+    [data-theme="dark"] .btn-primary-action {
+      color: #ffffff !important;
+    }
+
+    .cursor-dot{position:fixed; width:10px;height:10px;border-radius:50%; background:var(--brand); pointer-events:none; transform:translate(-50%, -50%); opacity:.7; mix-blend-mode:multiply; z-index:9999;}
+    
+    /* Course action buttons */
+    .course-actions {
+      display: block;
+    }
+    
+    .course-actions i {
+      cursor: pointer;
+      font-size: 14px;
+      padding: 4px;
+      border-radius: 4px;
+    }
+    
+    .delete-course {
+      color: #dc3545;
+    }
+    
+    .delete-course:hover {
+      background-color: rgba(220, 53, 69, 0.1);
+    }
+    
+    .restore-course {
+      color: #10ac84;
+    }
+    
+    .restore-course:hover {
+      background-color: rgba(16, 172, 132, 0.1);
+    }
+    
+    /* Clickable info icon */
+    .clickable-info {
+      cursor: pointer;
+      color: var(--brand);
+    }
+    
+    .clickable-info:hover {
+      opacity: 0.8;
+    }
+    
+    /* Mobile responsive adjustments */
+    @media (max-width: 575.98px){
+      .hero{padding:4rem 0 2rem;}
+      .d-flex.gap-2 {
+        flex-direction: row;
+        align-items: center;
+      }
+      .d-flex.gap-2 .btn {
+        width: 100%;
+        max-width: 300px;
+        margin-bottom: 0.5rem;
+      }
+      
+      /* Mobile notification text size */
+      .toast {
+        min-width: 250px;
+        max-width: 300px;
+        padding: 12px 16px;
+      }
+      
+      .toast-message {
+        font-size: 12px;
+      }
+    }
+
+    /* Ensure subject columns are 2-up on very small screens: change from col-12 col-md-6 -> col-6 col-md-6 */
+    @media (max-width: 420px){
+      .subject-row .col-6{padding-right:.4rem;padding-left:.4rem;}
+    }
+
+    @media (min-width: 992px) {
+      .navbar-expand-lg .navbar-nav .nav-link {
+        padding-right: var(--bs-navbar-nav-link-padding-x);
+        margin-right: 20px;
+      }
+    }
+    
+    @media (min-width: 768px) {
+      .col-md-4 {
+        flex: 0 0 auto;
+        width: 48.3%;
+      }
+    }
+    
+    /* Mobile responsive table */
+    @media (max-width: 768px) {
+      .course-table {
+        display: block;
+        overflow-x: auto;
+        white-space: nowrap;
+      }
+      
+      .course-table th:nth-child(5),
+      .course-table td:nth-child(5) {
+        display: none;
+      }
+    }
+    
+    /* Center buttons only in specific sections */
+    .scraping-section .center-buttons,
+    .log-section .center-buttons {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+    
+    @media (max-width: 576px) {
+      .scraping-section .center-buttons,
+      .log-section .center-buttons {
+        flex-direction: column;
+        align-items: center;
+      }
+      .scraping-section .center-buttons .btn,
+      .log-section .center-buttons .btn {
+        width: 100%;
+        max-width: 300px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Custom cursor -->
+  <div class="cursor-dot" id="cursorDot"></div>
+
+
+  <!-- Course Details Modal -->
+  <div class="modal fade course-details-modal" id="courseDetailsModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="courseDetailsModalTitle">Course Details</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body" id="courseDetailsModalBody">
+          <!-- Course details will be populated here -->
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary rounded-pill" data-bs-dismiss="modal">Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Navbar -->
+  <nav class="navbar navbar-expand-lg sticky-top border-bottom">
+    <div class="container">
+      <a class="navbar-brand d-flex align-items-center gap-2" href="/">
+        <span class="badge rounded-pill badge-brand">UAF</span>
+        <span>CGPA <span class="text-body-secondary">Calculator</span></span>
+      </a>
+
+      <div class="d-flex align-items-center gap-2 order-lg-2">
+        <button id="themeToggle" class="btn btn-sm btn-soft rounded-pill" type="button" style="margin-bottom: 0rem;" aria-label="Toggle dark mode">
+          <i class="fa-solid fa-moon"></i>
+        </button>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNav">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+      </div>
+
+      <div class="collapse navbar-collapse" id="mainNav">
+        <ul class="navbar-nav ms-auto align-items-lg-center">
+          <li class="nav-item"><a class="nav-link" href="index.html#Home">Home</a></li>
+          <li class="nav-item"><a class="nav-link" href="index.html#CGPA-Calculator">Manual Calculator</a></li>
+          <li class="nav-item"><a class="nav-link" href="uaf-results.html">UAF Results</a></li>
+          <li class="nav-item"><a class="nav-link" href="#contact-us">Contact</a></li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Hero -->
+  <section class="hero" id="Home">
+    <div class="container">
+      <div class="row align-items-center g-4">
+        <div class="col-lg-7">
+          <span class="badge rounded-pill badge-brand mb-3">University of Agriculture Faisalabad</span>
+          <h1 class="display-5 mb-3">Calculate Your <span style="color:var(--brand)">CGPA Automatically</span><br/>from UAF LMS</h1>
+          <p class="lead mb-4">Enter your <strong>registration number</strong> to fetch your results directly from UAF LMS. The calculator will automatically compute your CGPA and Percentage based on UAF grading system.</p>
+          <div class="d-flex gap-2">
+            <a href="#Auto-Calculator" 
+               class="btn btn-primary-action btn-lg rounded-pill" 
+               style="font-size: 1.05rem; padding: 0.9rem;">
+              <i class="fa-solid fa-bolt me-2"></i>Try It Now
+            </a>
+            <a href="index.html#CGPA-Calculator" class="btn btn-secondary-action rounded-pill" style="display:block; padding:14px">
+              <i class="fa-solid fa-calculator me-2"></i>Manual Calculator
+            </a>
+          </div>
+        </div>
+        <div class="col-lg-5">
+          <div class="card card-modern">
+            <div class="card-body p-4">
+              <div class="d-flex align-items-center gap-3">
+                <div class="display-6" style="color:var(--brand);"><i class="fa-solid fa-robot"></i></div>
+                <div>
+                  <h5 class="mb-1 fw-bold">Automatic CGPA Calculation</h5>
+                  <p class="mb-0 text-body-secondary">No manual inputs needed. Just enter your registration number.</p>
+                </div>
+              </div>
+              <hr class="my-4" />
+              <ul class="list-unstyled m-0">
+                <li class="d-flex align-items-center gap-2 mb-2"><i class="fa-solid fa-check text-success"></i> Fetches results directly from UAF LMS</li>
+                <li class="d-flex align-items-center gap-2 mb-2"><i class="fa-solid fa-check text-success"></i> Automatic CGPA calculation</li>
+                <li class="d-flex align-items-center gap-2"><i class="fa-solid fa-check text-success"></i> Same accurate UAF grading system</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div><!-- /row -->
+    </div>
+  </section>
+
+  <!-- Automatic Calculator Section -->
+  <section class="py-5" id="Auto-Calculator">
+    <div class="container">
+      <div class="row justify-content-center">
+        <div class="col-md-10">
+          <div class="card card-modern">
+            <div class="card-header p-4">
+              <h4 class="mb-0"><i class="fa-solid fa-bolt me-2"></i>UAF CGPA Calculator</h4>
+            </div>
+            <div class="card-body p-4 scraping-section">
+              <form id="resultForm">
+                <div class="mb-3">
+                  <label for="registrationNumber" class="form-label">Registration Number</label>
+                  <input type="text" class="form-control" id="registrationNumber" 
+                         placeholder="e.g., 2020-ag-1234" required>
+                  <div class="form-text">Enter your UAF registration number</div>
+                </div>
+                
+                <div class="center-buttons">
+                  <button type="submit" class="btn btn-primary-action rounded-pill">
+                    <i class="fa-solid fa-cloud-arrow-down me-2"></i>Fetch Result
+                  </button>
+                  <button id="testConnectionBtn" type="button" class="btn btn-secondary-action rounded-pill">
+                    <i class="fa-solid fa-vial me-2"></i>Test Connection
+                  </button>
+                </div>
+              </form>
+              
+              <!-- Progress Section -->
+              <div class="progress-container mt-4">
+                <div class="d-flex justify-content-between mb-2">
+                  <span>Status: <strong id="currentStatus">Ready</strong></span>
+                  <span><strong id="progressPercentage">0%</strong></span>
+                </div>
+                <div class="progress">
+                  <div id="progressBar" class="progress-bar" role="progressbar" style="width: 0%; background-color: var(--brand);" 
+                      aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+                </div>
+              </div>
+              
+              <div id="loading" class="loading mt-4">
+                <div class="spinner-border text-primary" role="status">
+                  <span class="visually-hidden">Loading...</span>
+                </div>
+                <p>Fetching your result from UAF LMS...</p>
+              </div>
+              
+              <div id="resultContainer" class="result-container mt-4">
+                <!-- GPA Result Card -->
+                <div class="gpa-result-card" id="gpaResultCard">
+                  <div class="d-flex align-items-center justify-content-between">
+                    <div class="d-flex align-items-center gap-4">
+                      <div class="p-3 bg-blue-100 rounded-full">
+                        <i class="fa-solid fa-book-open text-blue-600"></i>
+                      </div>
+                      <div>
+                        <h2 class="mb-1 fw-bold" id="studentName">Student Name</h2>
+                        <p class="mb-0 text-body-secondary" id="studentReg">Registration Number</p>
+                      </div>
+                    </div>
+                    <div class="text-right">
+                      <p class="mb-0 text-body-secondary">Total CGPA</p>
+                      <p class="mb-0 display-6 fw-bold text-blue-600" id="totalCgpa">0.00</p>
+                      <p class="mb-0 text-body-secondary" id="totalPercentage">0%</p>
+                    </div>
+                  </div>
+                </div>
+                
+                <!-- Semester Results Container -->
+                <div id="semesterResults" class="mt-4">
+                  <!-- Semester cards will be dynamically inserted here -->
+                </div>
+                
+                <div class="center-buttons">
+                  <button id="calculateCgpaBtn" class="btn btn-success-action rounded-pill calculate-cgpa-btn">
+                    <i class="fa-solid fa-calculator me-2"></i>Calculate CGPA Now
+                  </button>
+                </div>
+              </div>
+              
+              <!-- Status Log -->
+              <div class="status-log mt-4" id="statusLog">
+                <div class="status-line status-info">Ready to fetch your results. Enter your registration number and click "Fetch Result".</div>
+              </div>
+              
+              <!-- Log Action Buttons -->
+              <div class="log-section center-buttons mt-3">
+                <button id="downloadLogBtn" class="btn btn-secondary-action rounded-pill">
+                  <i class="fa-solid fa-file-lines me-2"></i>Download Log
+                </button>
+                <button id="clearLogBtn" class="btn btn-danger-action rounded-pill">
+                  <i class="fa-solid fa-trash me-2"></i>Clear Log
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Contact Section -->
+  <section class="py-5" id="contact-us">
+    <div class="container">
+      <div class="row g-4">
+        <div class="col-lg-6">
+          <h3 class="fw-bold mb-2">Contact</h3>
+          <p class="text-body-secondary">Questions or suggestions? Send a message.</p>
+          <form id="contact-form" action="https://formspree.io/f/xblrolwp" method="post" class="needs-validation" novalidate>
+            <div class="row g-3">
+              <div class="col-md-6">
+                <label class="form-label" for="name">Your Name</label>
+                <input class="form-control" id="name" name="name" placeholder="e.g., Ali Raza" required />
+                <div class="invalid-feedback">Please enter your name.</div>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label" for="email">Email</label>
+                <input type="email" class="form-control" id="email" name="email" placeholder="you@example.com" required />
+                <div class="invalid-feedback">Enter a valid email.</div>
+              </div>
+              <div class="col-12">
+                <label class="form-label" for="message">Message</label>
+                <textarea class="form-control" id="message" name="message" rows="4" placeholder="Write your message..." required></textarea>
+                <div class="invalid-feedback">Please write a message.</div>
+              </div>
+              <div class="col-12">
+                <button class="btn btn-primary-action rounded-pill" type="submit"><i class="fa-solid fa-paper-plane me-2"></i>Send</button>
+              </div>
+              <div id="contact-form-status" class="mt-2 small"></div>
+            </div>
+  </form>
+        </div>
+        <div class="col-lg-6">
+          <div class="h-100 p-4 p-lg-5 rounded-4" style="background:linear-gradient(180deg, rgba(122,106,216,.15), rgba(122,106,216,.05));">
+            <h5 class="fw-bold">Developer</h5>
+            <div class="d-flex align-items-center gap-3 mt-2">
+              <img src="assets/images/member-01.png" alt="Muhammad Saqlain" class="rounded-circle" width="56" height="56" />
+              <div>
+                <div class="fw-semibold">Muhammad Saqlain</div>
+                <div class="text-body-secondary small">BS Chemistry (2020–2024)</div>
+                <div class="d-flex gap-3 mt-2">
+                  <a class="text-decoration-none" href="https://www.facebook.com/UAFChemist.Rustam" target="_blank"><i class="fa-brands fa-facebook"></i></a>
+                  <a class="text-decoration-none" href="https://x.com/M_Saqlain_Akbar" target="_blank"><i class="fa-brands fa-x-twitter"></i></a>
+                  <a class="text-decoration-none" href="https://www.linkedin.com/in/muhammad-saqlain-akbar/" target="_blank"><i class="fa-brands fa-linkedin"></i></a>
+                </div>
+              </div>
+            </div>
+            <hr class="my-4" />
+            <p class="mb-0 small text-body-secondary">Share this tool with your friends to support the project. ♥</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="border-top py-4">
+    <div class="container text-center footer">
+      <div>© 2025 Saqlain. All rights reserved.</div>
+    </div>
+  </footer>
+
+  <!-- Vendor JS -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <!-- Add this new script reference -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js"></script>
+  
+  <!-- App JS -->
+  <!-- Only the JavaScript part has been updated - the rest of the HTML remains the same -->
 <script>
     document.addEventListener('DOMContentLoaded', function() {
       // Elements
@@ -1206,3 +2004,5 @@
       init();
     });
   </script>
+</body>
+</html>
