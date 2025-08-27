@@ -444,6 +444,15 @@
       background-color: rgba(16, 172, 132, 0.1);
     }
     
+    /* Clickable info icon */
+    .clickable-info {
+      cursor: pointer;
+      color: var(--brand);
+    }
+    
+    .clickable-info:hover {
+      opacity: 0.8;
+    }
     
     /* Mobile responsive adjustments */
     @media (max-width: 575.98px){
@@ -841,8 +850,6 @@
         document.body.appendChild(toastContainer);
       }
       
-
-      
       // Show toast notification
       function showToast(message, type = 'success') {
         const toastContainer = document.getElementById('toast-container');
@@ -1060,43 +1067,78 @@
         }
       }
       
-      // Process semester name for display
+      // Process semester name for display and sorting
       function processSemesterName(semester) {
-        if (!semester) return 'Unknown Semester';
+        if (!semester) return {displayName: 'Unknown Semester', sortKey: 'Unknown'};
         
-        // Handle different semester formats
+        // Extract year and season
+        let yearMatch = semester.match(/(\d{4})-(\d{2,4})/);
+        let season = '';
+        let year = '';
+        
         if (semester.includes('Winter')) {
-          const yearMatch = semester.match(/(\d{4})-(\d{2,4})/);
+          season = 'Winter';
           if (yearMatch) {
-            return `Winter ${yearMatch[1]}`;
+            year = yearMatch[1];
+          } else {
+            // Try to extract year from other patterns
+            const winterMatch = semester.match(/Winter.*?(\d{4})/);
+            if (winterMatch) {
+              year = winterMatch[1];
+            }
           }
         } else if (semester.includes('Spring')) {
-          const yearMatch = semester.match(/(\d{4})-(\d{2,4})/);
+          season = 'Spring';
           if (yearMatch && yearMatch[2].length === 4) {
-            return `Spring ${yearMatch[2]}`;
+            year = yearMatch[2];
           } else if (yearMatch && yearMatch[2].length === 2) {
-            return `Spring 20${yearMatch[2]}`;
+            year = `20${yearMatch[2]}`;
+          } else {
+            const springMatch = semester.match(/Spring.*?(\d{4})/);
+            if (springMatch) {
+              year = springMatch[1];
+            }
           }
         } else if (semester.includes('Summer')) {
-          // Handle "Summer Semester 2025" -> "Summer 2025"
-          const yearMatch = semester.match(/(\d{4})-(\d{2,4})/);
+          season = 'Summer';
           if (yearMatch) {
-            return `Summer ${yearMatch[1]}`;
-          }
-          // Also handle "Summer Semester 2025" format
-          const summerMatch = semester.match(/Summer Semester (\d{4})/);
-          if (summerMatch) {
-            return `Summer ${summerMatch[1]}`;
+            year = yearMatch[1];
+          } else {
+            const summerMatch = semester.match(/Summer.*?(\d{4})/);
+            if (summerMatch) {
+              year = summerMatch[1];
+            }
           }
         } else if (semester.includes('Fall')) {
-          const yearMatch = semester.match(/(\d{4})-(\d{2,4})/);
+          season = 'Fall';
           if (yearMatch) {
-            return `Fall ${yearMatch[1]}`;
+            year = yearMatch[1];
+          } else {
+            const fallMatch = semester.match(/Fall.*?(\d{4})/);
+            if (fallMatch) {
+              year = fallMatch[1];
+            }
           }
         }
         
-        // Return original if no pattern matched
-        return semester;
+        // Create display name and sort key
+        let displayName = semester;
+        let sortKey = 'Unknown';
+        
+        if (season && year) {
+          displayName = `${season} ${year}`;
+          // Create a sortable key: year + season order (Winter=1, Spring=2, Summer=3, Fall=4)
+          const seasonOrder = {Winter: 1, Spring: 2, Summer: 3, Fall: 4};
+          sortKey = `${year}-${seasonOrder[season] || 5}`;
+        }
+        
+        return {displayName, sortKey, originalName: semester};
+      }
+      
+      // Get semester order for sorting
+      function getSemesterOrder(semesterName) {
+        const {sortKey} = processSemesterName(semesterName);
+        return sortKey;
       }
       
       // Process scraped data to handle re-enrolled courses
@@ -1116,12 +1158,14 @@
         // First pass: organize by semester and track course history
         resultData.forEach(course => {
           const originalSemester = course.Semester || 'Unknown Semester';
-          const semesterName = processSemesterName(originalSemester);
+          const semesterInfo = processSemesterName(originalSemester);
+          const semesterName = semesterInfo.displayName;
           const courseCode = course.CourseCode || '';
           
           if (!semesters[semesterName]) {
             semesters[semesterName] = {
               originalName: originalSemester,
+              sortKey: semesterInfo.sortKey,
               courses: [],
               totalQualityPoints: 0,
               totalCreditHours: 0
@@ -1158,6 +1202,8 @@
             qualityPoints: qualityPoints,
             grade: grade,
             originalSemester: originalSemester,
+            processedSemester: semesterName,
+            semesterSortKey: semesterInfo.sortKey,
             teacher: course.TeacherName || '',
             mid: course.Mid || '0',
             assignment: course.Assignment || '0',
@@ -1166,7 +1212,8 @@
             total: course.Total || '0',
             isExtraEnrolled: false,
             isRepeated: false,
-            isDeleted: false
+            isDeleted: false,
+            originalSemesterForRepeated: null
           };
           
           // Track course history
@@ -1175,6 +1222,7 @@
           }
           courseHistory[courseCode].push({
             semester: semesterName,
+            semesterSortKey: semesterInfo.sortKey,
             marks: marks,
             qualityPoints: qualityPoints,
             data: courseData
@@ -1187,6 +1235,9 @@
         Object.keys(courseHistory).forEach(courseCode => {
           const history = courseHistory[courseCode];
           if (history.length > 1) {
+            // Sort by semester order (chronological)
+            history.sort((a, b) => a.semesterSortKey.localeCompare(b.semesterSortKey));
+            
             // Find the highest marks/quality points
             let highest = history[0];
             for (let i = 1; i < history.length; i++) {
@@ -1196,10 +1247,12 @@
             }
             
             // Mark all other instances as extra enrolled and repeated
+            // Also set the original semester for repeated courses
             history.forEach(item => {
               if (item !== highest) {
                 item.data.isExtraEnrolled = true;
                 item.data.isRepeated = true;
+                item.data.originalSemesterForRepeated = highest.semester;
               }
             });
           }
@@ -1288,8 +1341,13 @@
         let totalMarksObtained = 0;
         let totalMaxMarks = 0;
         
+        // Get sorted semester keys
+        const semesterKeys = Object.keys(processedData.semesters).sort((a, b) => {
+          return processedData.semesters[a].sortKey.localeCompare(processedData.semesters[b].sortKey);
+        });
+        
         // Calculate for each semester
-        Object.keys(processedData.semesters).forEach(semesterName => {
+        semesterKeys.forEach(semesterName => {
           const semester = processedData.semesters[semesterName];
           semester.totalQualityPoints = 0;
           semester.totalCreditHours = 0;
@@ -1357,8 +1415,13 @@
         // Clear previous semester results
         semesterResults.innerHTML = '';
         
-        // Create semester cards
-        Object.keys(processedData.semesters).forEach(semesterName => {
+        // Get sorted semester keys
+        const semesterKeys = Object.keys(processedData.semesters).sort((a, b) => {
+          return processedData.semesters[a].sortKey.localeCompare(processedData.semesters[b].sortKey);
+        });
+        
+        // Create semester cards in chronological order
+        semesterKeys.forEach(semesterName => {
           const semester = processedData.semesters[semesterName];
           
           const semesterCard = document.createElement('div');
@@ -1395,9 +1458,9 @@
                     <tr class="${course.isExtraEnrolled ? 'table-warning' : ''} ${course.isDeleted ? 'table-danger text-decoration-line-through' : ''}">
                       <td>
                         <div class="d-flex align-items-center">
-                          <span class="fw-medium course-code" style="cursor: pointer;" data-course='${JSON.stringify(course).replace(/'/g, "&#39;")}'>${course.code}</span>
-                          ${course.isExtraEnrolled ? '<span class="extra-enrolled">Extra Enrolled</span>' : ''}
-                          <i class="fa-solid fa-info-circle ms-2 text-blue-600 small" title="${course.title}"></i>
+                          <span class="fw-medium course-code clickable-info" data-course='${JSON.stringify(course).replace(/'/g, "&#39;")}'>${course.code}</span>
+                          ${course.isExtraEnrolled ? '<span class="extra-enrolled">Reptd.</span>' : ''}
+                          <i class="fa-solid fa-info-circle ms-2 clickable-info small" data-course='${JSON.stringify(course).replace(/'/g, "&#39;")}' title="${course.title}"></i>
                         </div>
                       </td>
                       <td>${course.creditHours}</td>
@@ -1423,7 +1486,7 @@
         });
         
         // Add event listeners for course details and delete buttons
-        document.querySelectorAll('.course-code').forEach(el => {
+        document.querySelectorAll('.clickable-info').forEach(el => {
           el.addEventListener('click', function() {
             const courseData = JSON.parse(this.dataset.course.replace(/&#39;/g, "'"));
             showCourseDetails(courseData);
@@ -1465,11 +1528,28 @@
         document.getElementById('courseDetailsModalTitle').textContent = `${course.code} - ${course.title}`;
         
         const modalBody = document.getElementById('courseDetailsModalBody');
+        
+        let repeatedInfoHtml = '';
+        if (course.isExtraEnrolled && course.originalSemesterForRepeated) {
+          repeatedInfoHtml = `
+            <div class="row mt-3">
+              <div class="col-12">
+                <div class="alert alert-warning">
+                  <i class="fa-solid fa-exclamation-triangle me-2"></i>
+                  <p class="mb-1">The Marks and Quality points of this Repeated subject will be considered in its <strong class="clickable-semester" data-semester="${course.originalSemesterForRepeated}" style="cursor: pointer; text-decoration: underline;">Original Semester (${course.originalSemesterForRepeated})</strong></p>
+                  <p class="mb-0 small">Click on the semester name to view it</p>
+                </div>
+              </div>
+            </div>
+          `;
+        }
+        
         modalBody.innerHTML = `
           <div class="row">
             <div class="col-md-6">
               <p><strong>Teacher:</strong> ${course.teacher}</p>
               <p><strong>Credit Hours:</strong> ${course.creditHours}</p>
+              <p><strong>Semester:</strong> ${course.processedSemester}</p>
             </div>
             <div class="col-md-6">
               <p><strong>Mid Term:</strong> ${course.mid}</p>
@@ -1487,17 +1567,29 @@
               </div>
             </div>
           </div>
-          ${course.isExtraEnrolled ? `
-          <div class="row mt-3">
-            <div class="col-12">
-              <div class="alert alert-warning">
-                <i class="fa-solid fa-exclamation-triangle me-2"></i>
-                This course was enrolled multiple times. Only the highest marks are counted toward CGPA.
-              </div>
-            </div>
-          </div>
-          ` : ''}
+          ${repeatedInfoHtml}
         `;
+        
+        // Add event listener for semester link if it exists
+        const semesterLink = modalBody.querySelector('.clickable-semester');
+        if (semesterLink) {
+          semesterLink.addEventListener('click', function() {
+            const semesterName = this.dataset.semester;
+            courseDetailsModal.hide();
+            
+            // Scroll to the semester
+            const semesterElement = document.querySelector(`.semester-card[data-semester="${semesterName}"]`);
+            if (semesterElement) {
+              semesterElement.scrollIntoView({ behavior: 'smooth' });
+              // Add highlight effect
+              semesterElement.style.transition = 'all 0.5s ease';
+              semesterElement.style.boxShadow = '0 0 20px rgba(122, 106, 216, 0.5)';
+              setTimeout(() => {
+                semesterElement.style.boxShadow = '';
+              }, 2000);
+            }
+          });
+        }
         
         courseDetailsModal.show();
       }
