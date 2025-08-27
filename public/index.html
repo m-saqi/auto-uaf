@@ -300,6 +300,15 @@
       font-size: 1.2rem;
     }
     
+    .add-course-btn {
+      position: absolute;
+      top: 1rem;
+      right: 3rem;
+      cursor: pointer;
+      color: var(--brand);
+      font-size: 1.2rem;
+    }
+    
     .course-table {
       width: 100%;
       border-collapse: collapse;
@@ -353,6 +362,83 @@
       margin-top: 1rem;
       display: none;
     }
+    
+    /* Saved Results Section */
+    .saved-results-container {
+      display: none;
+      margin-top: 2rem;
+    }
+    
+    .saved-result-card {
+      background: white;
+      border-radius: var(--radius);
+      padding: 1rem;
+      box-shadow: 0 5px 15px rgba(17,24,39,.06);
+      margin-bottom: 1rem;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    
+    .saved-result-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 25px rgba(17,24,39,.1);
+    }
+    
+    .saved-result-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 0.5rem;
+    }
+    
+    .saved-result-date {
+      font-size: 0.8rem;
+      color: var(--muted);
+    }
+    
+    .saved-result-actions {
+      display: flex;
+      gap: 0.5rem;
+    }
+    
+    .saved-result-action-btn {
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: var(--muted);
+      font-size: 0.9rem;
+    }
+    
+    .saved-result-action-btn:hover {
+      color: var(--brand);
+    }
+    
+    /* Add Course Form */
+    .add-course-form {
+      background: #f8f9fa;
+      border-radius: 0.5rem;
+      padding: 1rem;
+      margin-top: 1rem;
+      display: none;
+    }
+    
+    .form-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+      margin-bottom: 1rem;
+    }
+    
+    .form-group {
+      flex: 1;
+      min-width: 200px;
+    }
+    
+    /* Save to Web Button */
+    .save-to-web-btn {
+      margin-top: 1rem;
+      display: none;
+    }
 
     /* ----------- DARK MODE IMPROVED ----------- */
     [data-theme="dark"] body{background:linear-gradient(180deg,#0b0e13 0%, #0f1320 70%); color:#f1f5f9;}
@@ -377,6 +463,8 @@
     [data-theme="dark"] .semester-card { background: #1a2030; }
     [data-theme="dark"] .course-table th, 
     [data-theme="dark"] .course-table td { border-bottom-color: #2d3748; }
+    [data-theme="dark"] .saved-result-card { background: #1a2030; }
+    [data-theme="dark"] .add-course-form { background: #1a1f2e; }
     
     /* Dark mode for course details modal */
     [data-theme="dark"] .course-details-modal .modal-content {
@@ -539,7 +627,6 @@
   <!-- Custom cursor -->
   <div class="cursor-dot" id="cursorDot"></div>
 
-
   <!-- Course Details Modal -->
   <div class="modal fade course-details-modal" id="courseDetailsModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
@@ -553,6 +640,49 @@
         </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-secondary rounded-pill" data-bs-dismiss="modal">Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Add Course Modal -->
+  <div class="modal fade" id="addCourseModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Add Custom Course</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <form id="addCourseForm">
+            <input type="hidden" id="addCourseSemester" value="">
+            <div class="mb-3">
+              <label for="courseCode" class="form-label">Course Code</label>
+              <input type="text" class="form-control" id="courseCode" required>
+            </div>
+            <div class="mb-3">
+              <label for="courseTitle" class="form-label">Course Title</label>
+              <input type="text" class="form-control" id="courseTitle" required>
+            </div>
+            <div class="mb-3">
+              <label for="creditHours" class="form-label">Credit Hours</label>
+              <select class="form-select" id="creditHours" required>
+                <option value="1">1</option>
+                <option value="2">2</option>
+                <option value="3">3</option>
+                <option value="4">4</option>
+                <option value="5">5</option>
+              </select>
+            </div>
+            <div class="mb-3">
+              <label for="courseMarks" class="form-label">Marks Obtained</label>
+              <input type="number" class="form-control" id="courseMarks" min="0" max="100" required>
+            </div>
+          </form>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary rounded-pill" data-bs-dismiss="modal">Cancel</button>
+          <button type="button" class="btn btn-primary-action rounded-pill" id="saveCourseBtn">Add Course</button>
         </div>
       </div>
     </div>
@@ -697,7 +827,7 @@
                 </div>
                 
                 <!-- Semester Results Container -->
-                <div id="semesterResults" class="mt-4">
+                <div id="semesterResults" class="row mt-4">
                   <!-- Semester cards will be dynamically inserted here -->
                 </div>
                 
@@ -705,6 +835,17 @@
                   <button id="calculateCgpaBtn" class="btn btn-success-action rounded-pill calculate-cgpa-btn">
                     <i class="fa-solid fa-calculator me-2"></i>Calculate CGPA Now
                   </button>
+                  <button id="saveToWebBtn" class="btn btn-primary-action rounded-pill save-to-web-btn">
+                    <i class="fa-solid fa-cloud-arrow-up me-2"></i>Save to Web
+                  </button>
+                </div>
+              </div>
+              
+              <!-- Saved Results Section -->
+              <div id="savedResultsContainer" class="saved-results-container mt-4">
+                <h5 class="mb-3"><i class="fa-solid fa-floppy-disk me-2"></i>Saved Results</h5>
+                <div id="savedResultsList">
+                  <!-- Saved results will be populated here -->
                 </div>
               </div>
               
@@ -796,8 +937,7 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js"></script>
   
   <!-- App JS -->
-  <!-- Only the JavaScript part has been updated - the rest of the HTML remains the same -->
-<script>
+  <script>
     document.addEventListener('DOMContentLoaded', function() {
       // Elements
       const resultForm = document.getElementById('resultForm');
@@ -822,18 +962,27 @@
       const totalCgpa = document.getElementById('totalCgpa');
       const totalPercentage = document.getElementById('totalPercentage');
       const calculateCgpaBtn = document.getElementById('calculateCgpaBtn');
+      const saveToWebBtn = document.getElementById('saveToWebBtn');
+      const savedResultsContainer = document.getElementById('savedResultsContainer');
+      const savedResultsList = document.getElementById('savedResultsList');
       const courseDetailsModal = new bootstrap.Modal(document.getElementById('courseDetailsModal'));
+      const addCourseModal = new bootstrap.Modal(document.getElementById('addCourseModal'));
+      const saveCourseBtn = document.getElementById('saveCourseBtn');
+      const addCourseForm = document.getElementById('addCourseForm');
       
       // State variables
       let allLogs = [];
       let testInProgress = false;
       let scrapedData = null;
       let processedData = null;
+      let currentSessionId = null;
       
       // API endpoints
       const API_ENDPOINTS = {
         scrape: `/api/result-scraper`,
-        test: `/api/result-scraper`
+        test: `/api/result-scraper`,
+        save: `/api/save-result`,
+        load: `/api/load-result`
       };
       
       // Initialize the application
@@ -842,6 +991,13 @@
         initTheme();
         initContactForm();
         createToastContainer();
+        currentSessionId = generateSessionId();
+        checkSavedResults();
+      }
+      
+      // Generate a unique session ID
+      function generateSessionId() {
+        return 'session_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
       }
       
       // Create a custom toast container
@@ -1215,7 +1371,8 @@
             isExtraEnrolled: false,
             isRepeated: false,
             isDeleted: false,
-            originalSemesterForRepeated: null
+            originalSemesterForRepeated: null,
+            isCustom: false
           };
           
           // Track course history
@@ -1417,60 +1574,62 @@
           const semester = processedData.semesters[semesterName];
           
           const semesterCard = document.createElement('div');
-          semesterCard.className = 'semester-card';
-          semesterCard.dataset.semester = semesterName;
-          
+          semesterCard.className = 'col-md-6 mb-3';
           semesterCard.innerHTML = `
-            <i class="fa-solid fa-trash delete-semester" title="Delete this semester"></i>
-            <div class="d-flex align-items-center justify-content-between mb-3">
-              <h5 class="mb-0">
-                <i class="fa-solid fa-book-open me-2 text-blue-600"></i>
-                ${semesterName}
-              </h5>
-              <div class="text-right">
-                <p class="mb-0 text-body-secondary small">GPA:</p>
-                <p class="mb-0 h4 fw-bold text-blue-600">${semester.gpa || 0}</p>
-                <p class="mb-0 text-body-secondary small">${semester.percentage || 0}%</p>
+            <div class="semester-card" data-semester="${semesterName}">
+              <i class="fa-solid fa-trash delete-semester" title="Delete this semester"></i>
+              <i class="fa-solid fa-plus add-course-btn" title="Add custom course" data-semester="${semesterName}"></i>
+              <div class="d-flex align-items-center justify-content-between mb-3">
+                <h5 class="mb-0">
+                  <i class="fa-solid fa-book-open me-2 text-blue-600"></i>
+                  ${semesterName}
+                </h5>
+                <div class="text-right">
+                  <p class="mb-0 text-body-secondary small">GPA:</p>
+                  <p class="mb-0 h4 fw-bold text-blue-600">${semester.gpa || 0}</p>
+                  <p class="mb-0 text-body-secondary small">${semester.percentage || 0}%</p>
+                </div>
               </div>
-            </div>
-            <div class="table-responsive">
-              <table class="course-table">
-                <thead>
-                  <tr>
-                    <th>Course</th>
-                    <th>Hrs</th>
-                    <th>Marks</th>
-                    <th>Grade</th>
-                    <th>GP</th>
-                    <th>Action</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  ${semester.courses.map(course => `
-                    <tr class="${course.isExtraEnrolled ? 'table-warning' : ''} ${course.isDeleted ? 'table-danger text-decoration-line-through' : ''}">
-                      <td>
-                        <div class="d-flex align-items-center">
-                          <span class="fw-medium course-code clickable-info" data-course='${JSON.stringify(course).replace(/'/g, "&#39;")}'>${course.code}</span>
-                          ${course.isExtraEnrolled ? '<span class="extra-enrolled">Reptd.</span>' : ''}
-                          <i class="fa-solid fa-info-circle ms-2 clickable-info small" data-course='${JSON.stringify(course).replace(/'/g, "&#39;")}' title="${course.title}"></i>
-                        </div>
-                      </td>
-                      <td>${course.creditHours}</td>
-                      <td>${course.marks}</td>
-                      <td>
-                        <span class="grade-badge grade-${course.grade}">${course.grade}</span>
-                      </td>
-                      <td class="fw-medium text-blue-600">${course.qualityPoints.toFixed(2)}</td>
-                      <td class="course-actions">
-                        ${course.isDeleted ? 
-                          `<i class="fa-solid fa-rotate-left restore-course" data-course='${JSON.stringify(course).replace(/'/g, "&#39;")}' data-semester="${semesterName}" title="Restore this course"></i>` : 
-                          `<i class="fa-solid fa-trash delete-course" data-course='${JSON.stringify(course).replace(/'/g, "&#39;")}' data-semester="${semesterName}" title="Delete this course"></i>`
-                        }
-                      </td>
+              <div class="table-responsive">
+                <table class="course-table">
+                  <thead>
+                    <tr>
+                      <th>Course</th>
+                      <th>Hrs</th>
+                      <th>Marks</th>
+                      <th>Grade</th>
+                      <th>GP</th>
+                      <th>Action</th>
                     </tr>
-                  `).join('')}
-                </tbody>
-              </table>
+                  </thead>
+                  <tbody>
+                    ${semester.courses.map(course => `
+                      <tr class="${course.isExtraEnrolled ? 'table-warning' : ''} ${course.isDeleted ? 'table-danger text-decoration-line-through' : ''} ${course.isCustom ? 'table-info' : ''}">
+                        <td>
+                          <div class="d-flex align-items-center">
+                            <span class="fw-medium course-code clickable-info" data-course='${JSON.stringify(course).replace(/'/g, "&#39;")}'>${course.code}</span>
+                            ${course.isExtraEnrolled ? '<span class="extra-enrolled">Reptd.</span>' : ''}
+                            ${course.isCustom ? '<span class="extra-enrolled">Custom</span>' : ''}
+                            <i class="fa-solid fa-info-circle ms-2 clickable-info small" data-course='${JSON.stringify(course).replace(/'/g, "&#39;")}' title="${course.title}"></i>
+                          </div>
+                        </td>
+                        <td>${course.creditHours}</td>
+                        <td>${course.marks}</td>
+                        <td>
+                          <span class="grade-badge grade-${course.grade}">${course.grade}</span>
+                        </td>
+                        <td class="fw-medium text-blue-600">${course.qualityPoints.toFixed(2)}</td>
+                        <td class="course-actions">
+                          ${course.isDeleted ? 
+                            `<i class="fa-solid fa-rotate-left restore-course" data-course='${JSON.stringify(course).replace(/'/g, "&#39;")}' data-semester="${semesterName}" title="Restore this course"></i>` : 
+                            `<i class="fa-solid fa-trash delete-course" data-course='${JSON.stringify(course).replace(/'/g, "&#39;")}' data-semester="${semesterName}" title="Delete this course"></i>`
+                          }
+                        </td>
+                      </tr>
+                    `).join('')}
+                  </tbody>
+                </table>
+              </div>
             </div>
           `;
           
@@ -1490,6 +1649,13 @@
             const semesterCard = this.closest('.semester-card');
             const semesterName = semesterCard.dataset.semester;
             deleteSemester(semesterName);
+          });
+        });
+        
+        document.querySelectorAll('.add-course-btn').forEach(btn => {
+          btn.addEventListener('click', function() {
+            const semesterName = this.dataset.semester;
+            openAddCourseModal(semesterName);
           });
         });
         
@@ -1513,6 +1679,7 @@
         resultContainer.style.display = 'block';
         gpaResultCard.style.display = 'block';
         calculateCgpaBtn.style.display = 'block';
+        saveToWebBtn.style.display = 'block';
       }
       
       // Show course details in modal
@@ -1530,6 +1697,20 @@
                   <i class="fa-solid fa-exclamation-triangle me-2"></i>
                   <p class="mb-1">The Marks and Quality points of this Repeated subject will be considered in its <strong class="clickable-semester" data-semester="${course.originalSemesterForRepeated}" style="cursor: pointer; text-decoration: underline;">Original Semester (${course.originalSemesterForRepeated})</strong></p>
                   <p class="mb-0 small">Click on the semester name to view it</p>
+                </div>
+              </div>
+            </div>
+          `;
+        }
+        
+        let customInfoHtml = '';
+        if (course.isCustom) {
+          customInfoHtml = `
+            <div class="row mt-3">
+              <div class="col-12">
+                <div class="alert alert-info">
+                  <i class="fa-solid fa-info-circle me-2"></i>
+                  <p class="mb-0">This is a custom course added manually.</p>
                 </div>
               </div>
             </div>
@@ -1560,6 +1741,7 @@
             </div>
           </div>
           ${repeatedInfoHtml}
+          ${customInfoHtml}
         `;
         
         // Add event listener for semester link if it exists
@@ -1584,6 +1766,82 @@
         }
         
         courseDetailsModal.show();
+      }
+      
+      // Open add course modal
+      function openAddCourseModal(semesterName) {
+        document.getElementById('addCourseSemester').value = semesterName;
+        addCourseForm.reset();
+        addCourseModal.show();
+      }
+      
+      // Add custom course
+      function addCustomCourse() {
+        const semesterName = document.getElementById('addCourseSemester').value;
+        const courseCode = document.getElementById('courseCode').value;
+        const courseTitle = document.getElementById('courseTitle').value;
+        const creditHours = parseInt(document.getElementById('creditHours').value);
+        const marks = parseInt(document.getElementById('courseMarks').value);
+        
+        if (!courseCode || !courseTitle || !creditHours || isNaN(marks)) {
+          showToast('Please fill all fields correctly', 'error');
+          return;
+        }
+        
+        if (!processedData || !processedData.semesters[semesterName]) return;
+        
+        const semester = processedData.semesters[semesterName];
+        
+        // Calculate quality points
+        const qualityPoints = calculateQualityPoints(marks, creditHours);
+        
+        // Determine grade based on marks
+        let grade = 'F';
+        if (marks >= 85) grade = 'A';
+        else if (marks >= 80) grade = 'A-';
+        else if (marks >= 75) grade = 'B+';
+        else if (marks >= 70) grade = 'B';
+        else if (marks >= 65) grade = 'B-';
+        else if (marks >= 61) grade = 'C+';
+        else if (marks >= 58) grade = 'C';
+        else if (marks >= 55) grade = 'C-';
+        else if (marks >= 50) grade = 'D';
+        
+        const courseData = {
+          code: courseCode,
+          title: courseTitle,
+          creditHours: creditHours,
+          marks: marks,
+          qualityPoints: qualityPoints,
+          grade: grade,
+          originalSemester: semesterName,
+          semesterName: semesterName,
+          semesterSortKey: getSemesterOrderKey(semesterName),
+          teacher: 'Custom Course',
+          mid: '0',
+          assignment: '0',
+          final: marks.toString(),
+          practical: '0',
+          total: marks.toString(),
+          isExtraEnrolled: false,
+          isRepeated: false,
+          isDeleted: false,
+          originalSemesterForRepeated: null,
+          isCustom: true
+        };
+        
+        // Add course to semester
+        semester.courses.push(courseData);
+        
+        // Recalculate CGPA
+        const cgpaData = calculateCGPA(processedData);
+        
+        // Update display
+        displayCGPAResults(processedData, cgpaData);
+        
+        addCourseModal.hide();
+        showToast(`Course ${courseCode} added to ${semesterName}`, 'success');
+        addStatusMessage(`Added custom course: ${courseCode} to ${semesterName}`, 'info');
       }
       
       // Delete a semester
@@ -1737,6 +1995,168 @@
         addStatusMessage('CGPA recalculated based on current semesters', 'info');
       }
       
+      // Save result to web storage
+      async function saveToWeb() {
+        if (!processedData) {
+          showToast('No data to save', 'error');
+          return;
+        }
+        
+        const regNum = registrationNumber.value.trim();
+        if (!regNum) {
+          showToast('Please enter a registration number', 'error');
+          return;
+        }
+        
+        addStatusMessage('Saving result to web storage...', 'info');
+        updateProgress(30, 'Saving Data');
+        
+        try {
+          const response = await fetch(API_ENDPOINTS.save, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+              registrationNumber: regNum,
+              studentData: processedData,
+              timestamp: new Date().toISOString()
+            })
+          });
+          
+          const result = await response.json();
+          
+          if (result.success) {
+            addStatusMessage('Result saved successfully to web storage', 'success');
+            updateProgress(100, 'Save Complete');
+            showToast('Result saved successfully!', 'success');
+            
+            // Refresh saved results list
+            checkSavedResults();
+          } else {
+            addStatusMessage(`Error saving result: ${result.message}`, 'error');
+            updateProgress(100, 'Error');
+            showToast('Error saving result', 'error');
+          }
+        } catch (error) {
+          addStatusMessage(`Error saving result: ${error.message}`, 'error');
+          updateProgress(100, 'Error');
+          showToast('Error saving result', 'error');
+        }
+      }
+      
+      // Check for saved results
+      async function checkSavedResults() {
+        const regNum = registrationNumber.value.trim();
+        if (!regNum) return;
+        
+        try {
+          const response = await fetch(`${API_ENDPOINTS.load}?registrationNumber=${encodeURIComponent(regNum)}`);
+          const result = await response.json();
+          
+          if (result.success && result.savedResults && result.savedResults.length > 0) {
+            displaySavedResults(result.savedResults);
+          } else {
+            savedResultsContainer.style.display = 'none';
+          }
+        } catch (error) {
+          console.error('Error checking saved results:', error);
+          savedResultsContainer.style.display = 'none';
+        }
+      }
+      
+      // Display saved results
+      function displaySavedResults(savedResults) {
+        savedResultsList.innerHTML = '';
+        savedResultsContainer.style.display = 'block';
+        
+        savedResults.forEach((result, index) => {
+          const date = new Date(result.timestamp).toLocaleDateString();
+          const time = new Date(result.timestamp).toLocaleTimeString();
+          
+          const resultCard = document.createElement('div');
+          resultCard.className = 'saved-result-card';
+          resultCard.innerHTML = `
+            <div class="saved-result-header">
+              <div>
+                <strong>Saved Result ${index + 1}</strong>
+                <div class="saved-result-date">${date} at ${time}</div>
+              </div>
+              <div class="saved-result-actions">
+                <button class="saved-result-action-btn view-saved-result" data-index="${index}">
+                  <i class="fa-solid fa-eye"></i>
+                </button>
+                <button class="saved-result-action-btn delete-saved-result" data-index="${index}">
+                  <i class="fa-solid fa-trash"></i>
+                </button>
+              </div>
+            </div>
+          `;
+          
+          savedResultsList.appendChild(resultCard);
+        });
+        
+        // Add event listeners
+        document.querySelectorAll('.view-saved-result').forEach(btn => {
+          btn.addEventListener('click', function() {
+            const index = parseInt(this.dataset.index);
+            loadSavedResult(savedResults[index]);
+          });
+        });
+        
+        document.querySelectorAll('.delete-saved-result').forEach(btn => {
+          btn.addEventListener('click', function() {
+            const index = parseInt(this.dataset.index);
+            deleteSavedResult(savedResults[index].id);
+          });
+        });
+      }
+      
+      // Load saved result
+      function loadSavedResult(savedResult) {
+        processedData = savedResult.studentData;
+        
+        // Calculate CGPA
+        const cgpaData = calculateCGPA(processedData);
+        
+        // Display the result
+        displayCGPAResults(processedData, cgpaData);
+        
+        showToast('Saved result loaded successfully!', 'success');
+        addStatusMessage('Loaded saved result from web storage', 'info');
+      }
+      
+      // Delete saved result
+      async function deleteSavedResult(resultId) {
+        try {
+          const response = await fetch(API_ENDPOINTS.save, {
+            method: 'DELETE',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+              id: resultId
+            })
+          });
+          
+          const result = await response.json();
+          
+          if (result.success) {
+            showToast('Saved result deleted successfully!', 'success');
+            addStatusMessage('Deleted saved result from web storage', 'info');
+            
+            // Refresh saved results list
+            checkSavedResults();
+          } else {
+            showToast('Error deleting saved result', 'error');
+            addStatusMessage(`Error deleting saved result: ${result.message}`, 'error');
+          }
+        } catch (error) {
+          showToast('Error deleting saved result', 'error');
+          addStatusMessage(`Error deleting saved result: ${error.message}`, 'error');
+        }
+      }
+      
       // Fetch result from UAF LMS
       async function fetchResult() {
         const regNum = registrationNumber.value.trim();
@@ -1746,10 +2166,27 @@
           return;
         }
         
+        // Check if we have saved results first
+        try {
+          const response = await fetch(`${API_ENDPOINTS.load}?registrationNumber=${encodeURIComponent(regNum)}`);
+          const result = await response.json();
+          
+          if (result.success && result.savedResults && result.savedResults.length > 0) {
+            // Ask user if they want to load saved result
+            if (confirm('Saved results found for this registration number. Would you like to load the latest saved result instead of fetching from UAF LMS?')) {
+              loadSavedResult(result.savedResults[0]);
+              return;
+            }
+          }
+        } catch (error) {
+          console.error('Error checking saved results:', error);
+        }
+        
         // Show loading animation
         loading.style.display = 'block';
         resultContainer.style.display = 'none';
         calculateCgpaBtn.style.display = 'none';
+        saveToWebBtn.style.display = 'none';
         updateProgress(10, 'Starting Fetch');
         addStatusMessage(`Fetching result for registration number: ${regNum}`, 'info');
         
@@ -1780,6 +2217,9 @@
               addStatusMessage('CGPA calculated successfully', 'success');
               updateProgress(100, 'Fetch Complete');
               showToast('Result fetched successfully!', 'success');
+              
+              // Check for saved results
+              checkSavedResults();
             } else {
               addStatusMessage('Error processing result data', 'error');
               showToast('Error processing result data', 'error');
@@ -1818,10 +2258,22 @@
       
       calculateCgpaBtn.addEventListener('click', recalculateCGPA);
       
+      saveToWebBtn.addEventListener('click', saveToWeb);
+      
+      saveCourseBtn.addEventListener('click', addCustomCourse);
+      
+      registrationNumber.addEventListener('input', function() {
+        const regNum = this.value.trim();
+        if (regNum) {
+          checkSavedResults();
+        } else {
+          savedResultsContainer.style.display = 'none';
+        }
+      });
+      
       // Initialize the application
       init();
     });
   </script>
 </body>
 </html>
-
