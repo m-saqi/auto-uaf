@@ -796,7 +796,8 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js"></script>
   
   <!-- App JS -->
-  <script>
+  <!-- Only the JavaScript part has been updated - the rest of the HTML remains the same -->
+<script>
     document.addEventListener('DOMContentLoaded', function() {
       // Elements
       const resultForm = document.getElementById('resultForm');
@@ -1067,78 +1068,48 @@
         }
       }
       
-      // Process semester name for display and sorting
+      // Process semester name for display (keep original format)
       function processSemesterName(semester) {
-        if (!semester) return {displayName: 'Unknown Semester', sortKey: 'Unknown'};
-        
-        // Extract year and season
-        let yearMatch = semester.match(/(\d{4})-(\d{2,4})/);
-        let season = '';
-        let year = '';
-        
-        if (semester.includes('Winter')) {
-          season = 'Winter';
-          if (yearMatch) {
-            year = yearMatch[1];
-          } else {
-            // Try to extract year from other patterns
-            const winterMatch = semester.match(/Winter.*?(\d{4})/);
-            if (winterMatch) {
-              year = winterMatch[1];
-            }
-          }
-        } else if (semester.includes('Spring')) {
-          season = 'Spring';
-          if (yearMatch && yearMatch[2].length === 4) {
-            year = yearMatch[2];
-          } else if (yearMatch && yearMatch[2].length === 2) {
-            year = `20${yearMatch[2]}`;
-          } else {
-            const springMatch = semester.match(/Spring.*?(\d{4})/);
-            if (springMatch) {
-              year = springMatch[1];
-            }
-          }
-        } else if (semester.includes('Summer')) {
-          season = 'Summer';
-          if (yearMatch) {
-            year = yearMatch[1];
-          } else {
-            const summerMatch = semester.match(/Summer.*?(\d{4})/);
-            if (summerMatch) {
-              year = summerMatch[1];
-            }
-          }
-        } else if (semester.includes('Fall')) {
-          season = 'Fall';
-          if (yearMatch) {
-            year = yearMatch[1];
-          } else {
-            const fallMatch = semester.match(/Fall.*?(\d{4})/);
-            if (fallMatch) {
-              year = fallMatch[1];
-            }
-          }
-        }
-        
-        // Create display name and sort key
-        let displayName = semester;
-        let sortKey = 'Unknown';
-        
-        if (season && year) {
-          displayName = `${season} ${year}`;
-          // Create a sortable key: year + season order (Winter=1, Spring=2, Summer=3, Fall=4)
-          const seasonOrder = {Winter: 1, Spring: 2, Summer: 3, Fall: 4};
-          sortKey = `${year}-${seasonOrder[season] || 5}`;
-        }
-        
-        return {displayName, sortKey, originalName: semester};
+        if (!semester) return 'Unknown Semester';
+        return semester;
       }
       
-      // Get semester order for sorting
-      function getSemesterOrder(semesterName) {
-        const {sortKey} = processSemesterName(semesterName);
-        return sortKey;
+      // Extract semester order key for internal chronological sorting
+      function getSemesterOrderKey(semesterName) {
+        if (!semesterName) return '9999-9';
+        
+        // Extract year and season for chronological ordering
+        let year = '';
+        let season = '';
+        let seasonOrder = 9; // Default to last position
+        
+        // Try to extract year
+        const yearMatch = semesterName.match(/\b(20\d{2})\b/);
+        if (yearMatch) {
+          year = yearMatch[1];
+        } else {
+          // Try 2-digit year format
+          const shortYearMatch = semesterName.match(/\b(\d{2})\b/);
+          if (shortYearMatch) {
+            year = '20' + shortYearMatch[1];
+          }
+        }
+        
+        // Determine season order (Winter=1, Spring=2, Summer=3, Fall=4)
+        if (semesterName.toLowerCase().includes('winter')) {
+          seasonOrder = 1;
+        } else if (semesterName.toLowerCase().includes('spring')) {
+          seasonOrder = 2;
+        } else if (semesterName.toLowerCase().includes('summer')) {
+          seasonOrder = 3;
+        } else if (semesterName.toLowerCase().includes('fall')) {
+          seasonOrder = 4;
+        }
+        
+        // If we couldn't extract year, use a high number to push to end
+        if (!year) year = '9999';
+        
+        return `${year}-${seasonOrder}`;
       }
       
       // Process scraped data to handle re-enrolled courses
@@ -1151,21 +1122,20 @@
           registration: resultData[0]?.RegistrationNo || ''
         };
         
-        // Group by semester (processed name)
+        // Group by semester (original name)
         const semesters = {};
         const courseHistory = {}; // Track course history for re-enrollment detection
         
         // First pass: organize by semester and track course history
         resultData.forEach(course => {
           const originalSemester = course.Semester || 'Unknown Semester';
-          const semesterInfo = processSemesterName(originalSemester);
-          const semesterName = semesterInfo.displayName;
+          const semesterName = processSemesterName(originalSemester);
           const courseCode = course.CourseCode || '';
           
           if (!semesters[semesterName]) {
             semesters[semesterName] = {
               originalName: originalSemester,
-              sortKey: semesterInfo.sortKey,
+              sortKey: getSemesterOrderKey(originalSemester),
               courses: [],
               totalQualityPoints: 0,
               totalCreditHours: 0
@@ -1202,8 +1172,8 @@
             qualityPoints: qualityPoints,
             grade: grade,
             originalSemester: originalSemester,
-            processedSemester: semesterName,
-            semesterSortKey: semesterInfo.sortKey,
+            semesterName: semesterName,
+            semesterSortKey: getSemesterOrderKey(originalSemester),
             teacher: course.TeacherName || '',
             mid: course.Mid || '0',
             assignment: course.Assignment || '0',
@@ -1222,7 +1192,7 @@
           }
           courseHistory[courseCode].push({
             semester: semesterName,
-            semesterSortKey: semesterInfo.sortKey,
+            semesterSortKey: getSemesterOrderKey(originalSemester),
             marks: marks,
             qualityPoints: qualityPoints,
             data: courseData
@@ -1341,13 +1311,8 @@
         let totalMarksObtained = 0;
         let totalMaxMarks = 0;
         
-        // Get sorted semester keys
-        const semesterKeys = Object.keys(processedData.semesters).sort((a, b) => {
-          return processedData.semesters[a].sortKey.localeCompare(processedData.semesters[b].sortKey);
-        });
-        
-        // Calculate for each semester
-        semesterKeys.forEach(semesterName => {
+        // Calculate for each semester (in display order, not chronological)
+        Object.keys(processedData.semesters).forEach(semesterName => {
           const semester = processedData.semesters[semesterName];
           semester.totalQualityPoints = 0;
           semester.totalCreditHours = 0;
@@ -1415,13 +1380,8 @@
         // Clear previous semester results
         semesterResults.innerHTML = '';
         
-        // Get sorted semester keys
-        const semesterKeys = Object.keys(processedData.semesters).sort((a, b) => {
-          return processedData.semesters[a].sortKey.localeCompare(processedData.semesters[b].sortKey);
-        });
-        
-        // Create semester cards in chronological order
-        semesterKeys.forEach(semesterName => {
+        // Create semester cards in their original order (not chronological)
+        Object.keys(processedData.semesters).forEach(semesterName => {
           const semester = processedData.semesters[semesterName];
           
           const semesterCard = document.createElement('div');
@@ -1549,7 +1509,7 @@
             <div class="col-md-6">
               <p><strong>Teacher:</strong> ${course.teacher}</p>
               <p><strong>Credit Hours:</strong> ${course.creditHours}</p>
-              <p><strong>Semester:</strong> ${course.processedSemester}</p>
+              <p><strong>Semester:</strong> ${course.semesterName}</p>
             </div>
             <div class="col-md-6">
               <p><strong>Mid Term:</strong> ${course.mid}</p>
@@ -1758,3 +1718,4 @@
   </script>
 </body>
 </html>
+
