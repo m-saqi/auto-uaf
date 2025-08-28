@@ -279,7 +279,7 @@
       border-radius: var(--radius);
       padding: 1.5rem;
       box-shadow: 0 10px 30px rgba(17,24,39,.06);
-      margin-bottom: 2rem;
+      margin-bottom: 1.5rem;
     }
     
     .semester-card {
@@ -437,7 +437,6 @@
     /* Save to Web Button */
     .save-to-web-btn {
       margin-top: 1rem;
-      display: none;
     }
 
     /* ----------- DARK MODE IMPROVED ----------- */
@@ -592,11 +591,22 @@
         display: block;
         overflow-x: auto;
         white-space: nowrap;
+        font-size: 11.5px;
       }
       
       .course-table th:nth-child(5),
       .course-table td:nth-child(5) {
         display: none;
+      }
+      
+      .course-code {
+        display: block;
+      }
+      
+      .extra-enrolled {
+        display: block;
+        margin-left: 0;
+        margin-top: 0.25rem;
       }
     }
     
@@ -619,6 +629,55 @@
       .log-section .center-buttons .btn {
         width: 100%;
         max-width: 300px;
+      }
+    }
+    
+    /* New layout improvements */
+    .results-section {
+      margin-top: 2rem;
+    }
+    
+    .student-info-section {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1.5rem;
+      margin-bottom: 2rem;
+    }
+    
+    .student-details {
+      flex: 1;
+      min-width: 300px;
+    }
+    
+    .cgpa-display {
+      flex: 0 0 auto;
+      text-align: right;
+      min-width: 200px;
+    }
+    
+    .action-buttons {
+      display: flex;
+      gap: 1rem;
+      margin-top: 1.5rem;
+      flex-wrap: wrap;
+    }
+    
+    @media (max-width: 768px) {
+      .student-info-section {
+        flex-direction: column;
+      }
+      
+      .cgpa-display {
+        text-align: left;
+        margin-top: 1rem;
+      }
+      
+      .action-buttons {
+        flex-direction: column;
+      }
+      
+      .action-buttons .btn {
+        width: 100%;
       }
     }
   </style>
@@ -806,38 +865,36 @@
               </div>
               
               <div id="resultContainer" class="result-container mt-4">
-                <!-- GPA Result Card -->
-                <div class="gpa-result-card" id="gpaResultCard">
-                  <div class="d-flex align-items-center justify-content-between">
-                    <div class="d-flex align-items-center gap-4">
-                      <div class="p-3 bg-blue-100 rounded-full">
-                        <i class="fa-solid fa-book-open text-blue-600"></i>
-                      </div>
-                      <div>
-                        <h2 class="mb-1 fw-bold" id="studentName">Student Name</h2>
-                        <p class="mb-0 text-body-secondary" id="studentReg">Registration Number</p>
-                      </div>
-                    </div>
-                    <div class="text-right">
-                      <p class="mb-0 text-body-secondary">Total CGPA</p>
-                      <p class="mb-0 display-6 fw-bold text-blue-600" id="totalCgpa">0.00</p>
-                      <p class="mb-0 text-body-secondary" id="totalPercentage">0%</p>
-                    </div>
+                <!-- Student Info and CGPA Section -->
+                <div class="student-info-section">
+                  <div class="student-details">
+                    <h2 class="mb-1 fw-bold" id="studentName">Student Name</h2>
+                    <p class="mb-0 text-body-secondary" id="studentReg">Registration Number</p>
+                  </div>
+                  
+                  <div class="cgpa-display">
+                    <p class="mb-0 text-body-secondary">Total CGPA</p>
+                    <p class="mb-0 display-6 fw-bold text-blue-600" id="totalCgpa">0.00</p>
+                    <p class="mb-0 text-body-secondary" id="totalPercentage">0%</p>
                   </div>
                 </div>
                 
-                <!-- Semester Results Container -->
-                <div id="semesterResults" class="row mt-4">
-                  <!-- Semester cards will be dynamically inserted here -->
-                </div>
-                
-                <div class="center-buttons">
+                <!-- Action Buttons -->
+                <div class="action-buttons">
                   <button id="calculateCgpaBtn" class="btn btn-success-action rounded-pill calculate-cgpa-btn">
                     <i class="fa-solid fa-calculator me-2"></i>Calculate CGPA Now
                   </button>
                   <button id="saveToWebBtn" class="btn btn-primary-action rounded-pill save-to-web-btn">
                     <i class="fa-solid fa-cloud-arrow-up me-2"></i>Save to Web
                   </button>
+                </div>
+                
+                <!-- Semester Results Container -->
+                <div class="results-section">
+                  <h5 class="mb-3">Semester Results</h5>
+                  <div id="semesterResults" class="row">
+                    <!-- Semester cards will be dynamically inserted here -->
+                  </div>
                 </div>
               </div>
               
@@ -956,7 +1013,6 @@
       const downloadLogBtn = document.getElementById('downloadLogBtn');
       const clearLogBtn = document.getElementById('clearLogBtn');
       const semesterResults = document.getElementById('semesterResults');
-      const gpaResultCard = document.getElementById('gpaResultCard');
       const studentName = document.getElementById('studentName');
       const studentReg = document.getElementById('studentReg');
       const totalCgpa = document.getElementById('totalCgpa');
@@ -1677,7 +1733,6 @@
         
         // Show result container and calculate button
         resultContainer.style.display = 'block';
-        gpaResultCard.style.display = 'block';
         calculateCgpaBtn.style.display = 'block';
         saveToWebBtn.style.display = 'block';
       }
@@ -2024,19 +2079,30 @@
             })
           });
           
-          const result = await response.json();
-          
-          if (result.success) {
-            addStatusMessage('Result saved successfully to web storage', 'success');
-            updateProgress(100, 'Save Complete');
-            showToast('Result saved successfully!', 'success');
+          // Check if response is JSON
+          const contentType = response.headers.get('content-type');
+          if (contentType && contentType.includes('application/json')) {
+            const result = await response.json();
             
-            // Refresh saved results list
-            checkSavedResults();
+            if (result.success) {
+              addStatusMessage('Result saved successfully to web storage', 'success');
+              updateProgress(100, 'Save Complete');
+              showToast('Result saved successfully!', 'success');
+              
+              // Refresh saved results list
+              checkSavedResults();
+            } else {
+              addStatusMessage(`Error saving result: ${result.message}`, 'error');
+              updateProgress(100, 'Error');
+              showToast('Error saving result', 'error');
+            }
           } else {
-            addStatusMessage(`Error saving result: ${result.message}`, 'error');
+            // Handle non-JSON response
+            const text = await response.text();
+            addStatusMessage(`Error saving result: Server returned non-JSON response`, 'error');
             updateProgress(100, 'Error');
-            showToast('Error saving result', 'error');
+            showToast('Error saving result: Server issue', 'error');
+            console.error('Non-JSON response:', text);
           }
         } catch (error) {
           addStatusMessage(`Error saving result: ${error.message}`, 'error');
@@ -2052,12 +2118,21 @@
         
         try {
           const response = await fetch(`${API_ENDPOINTS.load}?registrationNumber=${encodeURIComponent(regNum)}`);
-          const result = await response.json();
           
-          if (result.success && result.savedResults && result.savedResults.length > 0) {
-            displaySavedResults(result.savedResults);
+          // Check if response is JSON
+          const contentType = response.headers.get('content-type');
+          if (contentType && contentType.includes('application/json')) {
+            const result = await response.json();
+            
+            if (result.success && result.savedResults && result.savedResults.length > 0) {
+              displaySavedResults(result.savedResults);
+            } else {
+              savedResultsContainer.style.display = 'none';
+            }
           } else {
+            // Handle non-JSON response
             savedResultsContainer.style.display = 'none';
+            console.error('Non-JSON response from load endpoint');
           }
         } catch (error) {
           console.error('Error checking saved results:', error);
@@ -2139,17 +2214,25 @@
             })
           });
           
-          const result = await response.json();
-          
-          if (result.success) {
-            showToast('Saved result deleted successfully!', 'success');
-            addStatusMessage('Deleted saved result from web storage', 'info');
+          // Check if response is JSON
+          const contentType = response.headers.get('content-type');
+          if (contentType && contentType.includes('application/json')) {
+            const result = await response.json();
             
-            // Refresh saved results list
-            checkSavedResults();
+            if (result.success) {
+              showToast('Saved result deleted successfully!', 'success');
+              addStatusMessage('Deleted saved result from web storage', 'info');
+              
+              // Refresh saved results list
+              checkSavedResults();
+            } else {
+              showToast('Error deleting saved result', 'error');
+              addStatusMessage(`Error deleting saved result: ${result.message}`, 'error');
+            }
           } else {
+            // Handle non-JSON response
             showToast('Error deleting saved result', 'error');
-            addStatusMessage(`Error deleting saved result: ${result.message}`, 'error');
+            addStatusMessage('Error deleting saved result: Server issue', 'error');
           }
         } catch (error) {
           showToast('Error deleting saved result', 'error');
@@ -2169,13 +2252,18 @@
         // Check if we have saved results first
         try {
           const response = await fetch(`${API_ENDPOINTS.load}?registrationNumber=${encodeURIComponent(regNum)}`);
-          const result = await response.json();
           
-          if (result.success && result.savedResults && result.savedResults.length > 0) {
-            // Ask user if they want to load saved result
-            if (confirm('Saved results found for this registration number. Would you like to load the latest saved result instead of fetching from UAF LMS?')) {
-              loadSavedResult(result.savedResults[0]);
-              return;
+          // Check if response is JSON
+          const contentType = response.headers.get('content-type');
+          if (contentType && contentType.includes('application/json')) {
+            const result = await response.json();
+            
+            if (result.success && result.savedResults && result.savedResults.length > 0) {
+              // Ask user if they want to load saved result
+              if (confirm('Saved results found for this registration number. Would you like to load the latest saved result instead of fetching from UAF LMS?')) {
+                loadSavedResult(result.savedResults[0]);
+                return;
+              }
             }
           }
         } catch (error) {
@@ -2197,38 +2285,49 @@
           
           updateProgress(50, 'Processing Data');
           
-          const data = await response.json();
-          
-          if (data.success) {
-            scrapedData = data;
-            addStatusMessage('Result fetched successfully', 'success');
-            updateProgress(70, 'Processing Data');
+          // Check if response is JSON
+          const contentType = response.headers.get('content-type');
+          if (contentType && contentType.includes('application/json')) {
+            const data = await response.json();
             
-            // Process the scraped data
-            processedData = processScrapedData(data);
-            
-            if (processedData) {
-              // Calculate CGPA
-              const cgpaData = calculateCGPA(processedData);
+            if (data.success) {
+              scrapedData = data;
+              addStatusMessage('Result fetched successfully', 'success');
+              updateProgress(70, 'Processing Data');
               
-              // Display the result
-              displayCGPAResults(processedData, cgpaData);
+              // Process the scraped data
+              processedData = processScrapedData(data);
               
-              addStatusMessage('CGPA calculated successfully', 'success');
-              updateProgress(100, 'Fetch Complete');
-              showToast('Result fetched successfully!', 'success');
-              
-              // Check for saved results
-              checkSavedResults();
+              if (processedData) {
+                // Calculate CGPA
+                const cgpaData = calculateCGPA(processedData);
+                
+                // Display the result
+                displayCGPAResults(processedData, cgpaData);
+                
+                addStatusMessage('CGPA calculated successfully', 'success');
+                updateProgress(100, 'Fetch Complete');
+                showToast('Result fetched successfully!', 'success');
+                
+                // Check for saved results
+                checkSavedResults();
+              } else {
+                addStatusMessage('Error processing result data', 'error');
+                showToast('Error processing result data', 'error');
+                updateProgress(100, 'Error');
+              }
             } else {
-              addStatusMessage('Error processing result data', 'error');
-              showToast('Error processing result data', 'error');
+              addStatusMessage(`Error: ${data.message}`, 'error');
+              showToast(data.message, 'error');
               updateProgress(100, 'Error');
             }
           } else {
-            addStatusMessage(`Error: ${data.message}`, 'error');
-            showToast(data.message, 'error');
+            // Handle non-JSON response
+            const text = await response.text();
+            addStatusMessage(`Error: Server returned non-JSON response`, 'error');
+            showToast('Error fetching result: Server issue', 'error');
             updateProgress(100, 'Error');
+            console.error('Non-JSON response:', text);
           }
         } catch (error) {
           addStatusMessage(`Error fetching result: ${error.message}`, 'error');
