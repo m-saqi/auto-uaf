@@ -744,6 +744,21 @@
       background: #e9ecef;
       color: var(--text);
     }
+    
+    /* Desktop-specific smaller text for semester sections */
+    @media (min-width: 992px) {
+      .semester-card {
+        font-size: 0.95rem;
+      }
+      
+      .semester-card h5 {
+        font-size: 1.15rem;
+      }
+      
+      .course-table {
+        font-size: 0.9rem;
+      }
+    }
   </style>
 </head>
 <body>
@@ -995,33 +1010,33 @@
             </div>
           </div>
           
-          <!-- Status Log Section -->
-          <div class="card card-modern">
-            <div class="card-header p-4">
-              <h4 class="mb-0"><i class="fa-solid fa-terminal me-2"></i>Status Log</h4>
-            </div>
-            <div class="card-body p-4">
-              <!-- Status Log -->
-              <div class="status-log" id="statusLog">
-                <div class="status-line status-info">Ready to fetch your results. Enter your registration number and click "Fetch Result".</div>
-              </div>
-              
-              <!-- Log Action Buttons -->
-              <div class="log-section center-buttons mt-3">
-                <button id="downloadLogBtn" class="btn btn-secondary-action rounded-pill">
-                  <i class="fa-solid fa-file-lines me-2"></i>Download Log
-                </button>
-                <button id="clearLogBtn" class="btn btn-danger-action rounded-pill">
-                  <i class="fa-solid fa-trash me-2"></i>Clear Log
-                </button>
-              </div>
-            </div>
-          </div>
-          
-        </div>
+  <!-- Status Log Section -->
+  <div class="card card-modern">
+    <div class="card-header p-4">
+      <h4 class="mb-0"><i class="fa-solid fa-terminal me-2"></i>Status Log</h4>
+    </div>
+    <div class="card-body p-4">
+      <!-- Status Log -->
+      <div class="status-log" id="statusLog">
+        <div class="status-line status-info">Ready to fetch your results. Enter your registration number and click "Fetch Result".</div>
+      </div>
+      
+      <!-- Log Action Buttons -->
+      <div class="log-section center-buttons mt-3">
+        <button id="downloadLogBtn" class="btn btn-secondary-action rounded-pill">
+          <i class="fa-solid fa-file-lines me-2"></i>Download Log
+        </button>
+        <button id="clearLogBtn" class="btn btn-danger-action rounded-pill">
+          <i class="fa-solid fa-trash me-2"></i>Clear Log
+        </button>
       </div>
     </div>
-  </section>
+  </div>
+  
+</div>
+</div>
+</div>
+</section>
 
   <!-- Contact Section -->
   <section class="py-5" id="contact-us">
@@ -2428,6 +2443,3 @@
   </script>
 </body>
 </html>
-
-
-
