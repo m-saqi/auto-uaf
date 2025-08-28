@@ -279,7 +279,7 @@
       border-radius: var(--radius);
       padding: 1.5rem;
       box-shadow: 0 10px 30px rgba(17,24,39,.06);
-      margin-bottom: 1.5rem;
+      margin-bottom: 2rem;
     }
     
     .semester-card {
@@ -437,6 +437,7 @@
     /* Save to Web Button */
     .save-to-web-btn {
       margin-top: 1rem;
+      display: none;
     }
 
     /* ----------- DARK MODE IMPROVED ----------- */
@@ -591,7 +592,7 @@
         display: block;
         overflow-x: auto;
         white-space: nowrap;
-        font-size: 11.5px;
+        font-size: 11.5px; /* Smaller font for mobile */
       }
       
       .course-table th:nth-child(5),
@@ -599,14 +600,35 @@
         display: none;
       }
       
-      .course-code {
-        display: block;
+      /* Make repeated course indicator appear below course code on mobile */
+      .course-code-container {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
       }
       
       .extra-enrolled {
-        display: block;
         margin-left: 0;
         margin-top: 0.25rem;
+      }
+      
+      /* Adjust spacing for mobile */
+      .semester-card {
+        padding: 1rem;
+      }
+      
+      .gpa-result-card {
+        padding: 1rem;
+      }
+      
+      /* Make buttons more touch-friendly */
+      .btn {
+        padding: 0.75rem 1rem;
+      }
+      
+      /* Adjust progress bar for mobile */
+      .progress-container {
+        margin-top: 1rem;
       }
     }
     
@@ -632,53 +654,17 @@
       }
     }
     
-    /* New layout improvements */
-    .results-section {
-      margin-top: 2rem;
+    /* Separated containers styling */
+    .separated-container {
+      background: white;
+      border-radius: var(--radius);
+      padding: 1.5rem;
+      box-shadow: 0 10px 30px rgba(17,24,39,.06);
+      margin-bottom: 1.5rem;
     }
     
-    .student-info-section {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 1.5rem;
-      margin-bottom: 2rem;
-    }
-    
-    .student-details {
-      flex: 1;
-      min-width: 300px;
-    }
-    
-    .cgpa-display {
-      flex: 0 0 auto;
-      text-align: right;
-      min-width: 200px;
-    }
-    
-    .action-buttons {
-      display: flex;
-      gap: 1rem;
-      margin-top: 1.5rem;
-      flex-wrap: wrap;
-    }
-    
-    @media (max-width: 768px) {
-      .student-info-section {
-        flex-direction: column;
-      }
-      
-      .cgpa-display {
-        text-align: left;
-        margin-top: 1rem;
-      }
-      
-      .action-buttons {
-        flex-direction: column;
-      }
-      
-      .action-buttons .btn {
-        width: 100%;
-      }
+    [data-theme="dark"] .separated-container {
+      background: #1a2030;
     }
   </style>
 </head>
@@ -863,63 +849,72 @@
                 </div>
                 <p>Fetching your result from UAF LMS...</p>
               </div>
-              
-              <div id="resultContainer" class="result-container mt-4">
-                <!-- Student Info and CGPA Section -->
-                <div class="student-info-section">
-                  <div class="student-details">
-                    <h2 class="mb-1 fw-bold" id="studentName">Student Name</h2>
-                    <p class="mb-0 text-body-secondary" id="studentReg">Registration Number</p>
-                  </div>
-                  
-                  <div class="cgpa-display">
-                    <p class="mb-0 text-body-secondary">Total CGPA</p>
-                    <p class="mb-0 display-6 fw-bold text-blue-600" id="totalCgpa">0.00</p>
-                    <p class="mb-0 text-body-secondary" id="totalPercentage">0%</p>
-                  </div>
+            </div>
+          </div>
+          
+          <!-- Separated Student Info Container -->
+          <div id="studentInfoContainer" class="separated-container mt-4" style="display: none;">
+            <div class="d-flex align-items-center justify-content-between">
+              <div class="d-flex align-items-center gap-4">
+                <div class="p-3 bg-blue-100 rounded-full">
+                  <i class="fa-solid fa-book-open text-blue-600"></i>
                 </div>
-                
-                <!-- Action Buttons -->
-                <div class="action-buttons">
-                  <button id="calculateCgpaBtn" class="btn btn-success-action rounded-pill calculate-cgpa-btn">
-                    <i class="fa-solid fa-calculator me-2"></i>Calculate CGPA Now
-                  </button>
-                  <button id="saveToWebBtn" class="btn btn-primary-action rounded-pill save-to-web-btn">
-                    <i class="fa-solid fa-cloud-arrow-up me-2"></i>Save to Web
-                  </button>
-                </div>
-                
-                <!-- Semester Results Container -->
-                <div class="results-section">
-                  <h5 class="mb-3">Semester Results</h5>
-                  <div id="semesterResults" class="row">
-                    <!-- Semester cards will be dynamically inserted here -->
-                  </div>
+                <div>
+                  <h2 class="mb-1 fw-bold" id="studentName">Student Name</h2>
+                  <p class="mb-0 text-body-secondary" id="studentReg">Registration Number</p>
                 </div>
               </div>
-              
-              <!-- Saved Results Section -->
-              <div id="savedResultsContainer" class="saved-results-container mt-4">
-                <h5 class="mb-3"><i class="fa-solid fa-floppy-disk me-2"></i>Saved Results</h5>
-                <div id="savedResultsList">
-                  <!-- Saved results will be populated here -->
-                </div>
+              <div class="text-right">
+                <p class="mb-0 text-body-secondary">Total CGPA</p>
+                <p class="mb-0 display-6 fw-bold text-blue-600" id="totalCgpa">0.00</p>
+                <p class="mb-0 text-body-secondary" id="totalPercentage">0%</p>
               </div>
-              
-              <!-- Status Log -->
-              <div class="status-log mt-4" id="statusLog">
-                <div class="status-line status-info">Ready to fetch your results. Enter your registration number and click "Fetch Result".</div>
-              </div>
-              
-              <!-- Log Action Buttons -->
-              <div class="log-section center-buttons mt-3">
-                <button id="downloadLogBtn" class="btn btn-secondary-action rounded-pill">
-                  <i class="fa-solid fa-file-lines me-2"></i>Download Log
-                </button>
-                <button id="clearLogBtn" class="btn btn-danger-action rounded-pill">
-                  <i class="fa-solid fa-trash me-2"></i>Clear Log
-                </button>
-              </div>
+            </div>
+          </div>
+          
+          <!-- Separated Semester Results Container -->
+          <div id="semesterResults" class="separated-container mt-4" style="display: none;">
+            <h4 class="mb-4"><i class="fa-solid fa-book me-2"></i>Semester Results</h4>
+            <div class="row">
+              <!-- Semester cards will be dynamically inserted here -->
+            </div>
+          </div>
+          
+          <!-- Action Buttons Container -->
+          <div id="actionButtonsContainer" class="separated-container mt-4" style="display: none;">
+            <div class="center-buttons">
+              <button id="calculateCgpaBtn" class="btn btn-success-action rounded-pill">
+                <i class="fa-solid fa-calculator me-2"></i>Calculate CGPA Now
+              </button>
+              <button id="saveToWebBtn" class="btn btn-primary-action rounded-pill">
+                <i class="fa-solid fa-cloud-arrow-up me-2"></i>Save to Web
+              </button>
+            </div>
+          </div>
+          
+          <!-- Saved Results Section -->
+          <div id="savedResultsContainer" class="separated-container mt-4" style="display: none;">
+            <h5 class="mb-3"><i class="fa-solid fa-floppy-disk me-2"></i>Saved Results</h5>
+            <div id="savedResultsList">
+              <!-- Saved results will be populated here -->
+            </div>
+          </div>
+          
+          <!-- Status Log Container -->
+          <div class="separated-container mt-4">
+            <h5 class="mb-3"><i class="fa-solid fa-terminal me-2"></i>Status Log</h5>
+            <div class="status-log" id="statusLog">
+              <div class="status-line status-info">Ready to fetch your results. Enter your registration number and click "Fetch Result".</div>
+            </div>
+            
+            <!-- Log Action Buttons -->
+            <div class="log-section center-buttons mt-3">
+              <button id="downloadLogBtn" class="btn btn-secondary-action rounded-pill">
+                <i class="fa-solid fa-file-lines me-2"></i>Download Log
+              </button>
+              <button id="clearLogBtn" class="btn btn-danger-action rounded-pill">
+                <i class="fa-solid fa-trash me-2"></i>Clear Log
+              </button>
             </div>
           </div>
         </div>
@@ -956,7 +951,7 @@
               </div>
               <div id="contact-form-status" class="mt-2 small"></div>
             </div>
-  </form>
+          </form>
         </div>
         <div class="col-lg-6">
           <div class="h-100 p-4 p-lg-5 rounded-4" style="background:linear-gradient(180deg, rgba(122,106,216,.15), rgba(122,106,216,.05));">
@@ -1000,7 +995,6 @@
       const resultForm = document.getElementById('resultForm');
       const registrationNumber = document.getElementById('registrationNumber');
       const loading = document.getElementById('loading');
-      const resultContainer = document.getElementById('resultContainer');
       const testConnectionBtn = document.getElementById('testConnectionBtn');
       const statusLog = document.getElementById('statusLog');
       const progressBar = document.getElementById('progressBar');
@@ -1013,12 +1007,14 @@
       const downloadLogBtn = document.getElementById('downloadLogBtn');
       const clearLogBtn = document.getElementById('clearLogBtn');
       const semesterResults = document.getElementById('semesterResults');
+      const studentInfoContainer = document.getElementById('studentInfoContainer');
       const studentName = document.getElementById('studentName');
       const studentReg = document.getElementById('studentReg');
       const totalCgpa = document.getElementById('totalCgpa');
       const totalPercentage = document.getElementById('totalPercentage');
       const calculateCgpaBtn = document.getElementById('calculateCgpaBtn');
       const saveToWebBtn = document.getElementById('saveToWebBtn');
+      const actionButtonsContainer = document.getElementById('actionButtonsContainer');
       const savedResultsContainer = document.getElementById('savedResultsContainer');
       const savedResultsList = document.getElementById('savedResultsList');
       const courseDetailsModal = new bootstrap.Modal(document.getElementById('courseDetailsModal'));
@@ -1033,12 +1029,12 @@
       let processedData = null;
       let currentSessionId = null;
       
-      // API endpoints
+      // API endpoints - FIXED to match your Python backend
       const API_ENDPOINTS = {
         scrape: `/api/result-scraper`,
         test: `/api/result-scraper`,
-        save: `/api/save-result`,
-        load: `/api/load-result`
+        save: `/api/result-scraper?action=save`,
+        load: `/api/result-scraper?action=load_result`
       };
       
       // Initialize the application
@@ -1614,16 +1610,22 @@
       
       // Display CGPA results
       function displayCGPAResults(processedData, cgpaData) {
+        // Show the separated containers
+        studentInfoContainer.style.display = 'block';
+        semesterResults.style.display = 'block';
+        actionButtonsContainer.style.display = 'block';
+        
         // Update student info
         studentName.textContent = processedData.studentInfo.name;
         studentReg.textContent = processedData.studentInfo.registration;
         
         // Update overall CGPA
-        totalCgpa.textContent = cgpaData.cgpa;
+        totalCgpa.textContent = cgpaData.cgpa.toFixed(2);
         totalPercentage.textContent = `${cgpaData.percentage}%`;
         
         // Clear previous semester results
-        semesterResults.innerHTML = '';
+        const semesterResultsContainer = semesterResults.querySelector('.row');
+        semesterResultsContainer.innerHTML = '';
         
         // Create semester cards in their original order (not chronological)
         Object.keys(processedData.semesters).forEach(semesterName => {
@@ -1642,7 +1644,7 @@
                 </h5>
                 <div class="text-right">
                   <p class="mb-0 text-body-secondary small">GPA:</p>
-                  <p class="mb-0 h4 fw-bold text-blue-600">${semester.gpa || 0}</p>
+                  <p class="mb-0 h4 fw-bold text-blue-600">${semester.gpa ? semester.gpa.toFixed(2) : 0}</p>
                   <p class="mb-0 text-body-secondary small">${semester.percentage || 0}%</p>
                 </div>
               </div>
@@ -1662,11 +1664,13 @@
                     ${semester.courses.map(course => `
                       <tr class="${course.isExtraEnrolled ? 'table-warning' : ''} ${course.isDeleted ? 'table-danger text-decoration-line-through' : ''} ${course.isCustom ? 'table-info' : ''}">
                         <td>
-                          <div class="d-flex align-items-center">
-                            <span class="fw-medium course-code clickable-info" data-course='${JSON.stringify(course).replace(/'/g, "&#39;")}'>${course.code}</span>
-                            ${course.isExtraEnrolled ? '<span class="extra-enrolled">Reptd.</span>' : ''}
+                          <div class="course-code-container">
+                            <div class="d-flex align-items-center">
+                              <span class="fw-medium course-code clickable-info" data-course='${JSON.stringify(course).replace(/'/g, "&#39;")}'>${course.code}</span>
+                              <i class="fa-solid fa-info-circle ms-2 clickable-info small" data-course='${JSON.stringify(course).replace(/'/g, "&#39;")}' title="${course.title}"></i>
+                            </div>
+                            ${course.isExtraEnrolled ? '<span class="extra-enrolled">Repeated</span>' : ''}
                             ${course.isCustom ? '<span class="extra-enrolled">Custom</span>' : ''}
-                            <i class="fa-solid fa-info-circle ms-2 clickable-info small" data-course='${JSON.stringify(course).replace(/'/g, "&#39;")}' title="${course.title}"></i>
                           </div>
                         </td>
                         <td>${course.creditHours}</td>
@@ -1689,7 +1693,7 @@
             </div>
           `;
           
-          semesterResults.appendChild(semesterCard);
+          semesterResultsContainer.appendChild(semesterCard);
         });
         
         // Add event listeners for course details and delete buttons
@@ -1730,11 +1734,6 @@
             restoreCourse(courseData, semesterName);
           });
         });
-        
-        // Show result container and calculate button
-        resultContainer.style.display = 'block';
-        calculateCgpaBtn.style.display = 'block';
-        saveToWebBtn.style.display = 'block';
       }
       
       // Show course details in modal
@@ -2043,7 +2042,7 @@
         const cgpaData = calculateCGPA(processedData);
         
         // Update overall CGPA
-        totalCgpa.textContent = cgpaData.cgpa;
+        totalCgpa.textContent = cgpaData.cgpa.toFixed(2);
         totalPercentage.textContent = `${cgpaData.percentage}%`;
         
         showToast('CGPA recalculated successfully!', 'success');
@@ -2079,30 +2078,19 @@
             })
           });
           
-          // Check if response is JSON
-          const contentType = response.headers.get('content-type');
-          if (contentType && contentType.includes('application/json')) {
-            const result = await response.json();
+          const result = await response.json();
+          
+          if (result.success) {
+            addStatusMessage('Result saved successfully to web storage', 'success');
+            updateProgress(100, 'Save Complete');
+            showToast('Result saved successfully!', 'success');
             
-            if (result.success) {
-              addStatusMessage('Result saved successfully to web storage', 'success');
-              updateProgress(100, 'Save Complete');
-              showToast('Result saved successfully!', 'success');
-              
-              // Refresh saved results list
-              checkSavedResults();
-            } else {
-              addStatusMessage(`Error saving result: ${result.message}`, 'error');
-              updateProgress(100, 'Error');
-              showToast('Error saving result', 'error');
-            }
+            // Refresh saved results list
+            checkSavedResults();
           } else {
-            // Handle non-JSON response
-            const text = await response.text();
-            addStatusMessage(`Error saving result: Server returned non-JSON response`, 'error');
+            addStatusMessage(`Error saving result: ${result.message}`, 'error');
             updateProgress(100, 'Error');
-            showToast('Error saving result: Server issue', 'error');
-            console.error('Non-JSON response:', text);
+            showToast('Error saving result', 'error');
           }
         } catch (error) {
           addStatusMessage(`Error saving result: ${error.message}`, 'error');
@@ -2117,22 +2105,13 @@
         if (!regNum) return;
         
         try {
-          const response = await fetch(`${API_ENDPOINTS.load}?registrationNumber=${encodeURIComponent(regNum)}`);
+          const response = await fetch(`${API_ENDPOINTS.load}&registrationNumber=${encodeURIComponent(regNum)}`);
+          const result = await response.json();
           
-          // Check if response is JSON
-          const contentType = response.headers.get('content-type');
-          if (contentType && contentType.includes('application/json')) {
-            const result = await response.json();
-            
-            if (result.success && result.savedResults && result.savedResults.length > 0) {
-              displaySavedResults(result.savedResults);
-            } else {
-              savedResultsContainer.style.display = 'none';
-            }
+          if (result.success && result.savedResults && result.savedResults.length > 0) {
+            displaySavedResults(result.savedResults);
           } else {
-            // Handle non-JSON response
             savedResultsContainer.style.display = 'none';
-            console.error('Non-JSON response from load endpoint');
           }
         } catch (error) {
           console.error('Error checking saved results:', error);
@@ -2214,25 +2193,17 @@
             })
           });
           
-          // Check if response is JSON
-          const contentType = response.headers.get('content-type');
-          if (contentType && contentType.includes('application/json')) {
-            const result = await response.json();
+          const result = await response.json();
+          
+          if (result.success) {
+            showToast('Saved result deleted successfully!', 'success');
+            addStatusMessage('Deleted saved result from web storage', 'info');
             
-            if (result.success) {
-              showToast('Saved result deleted successfully!', 'success');
-              addStatusMessage('Deleted saved result from web storage', 'info');
-              
-              // Refresh saved results list
-              checkSavedResults();
-            } else {
-              showToast('Error deleting saved result', 'error');
-              addStatusMessage(`Error deleting saved result: ${result.message}`, 'error');
-            }
+            // Refresh saved results list
+            checkSavedResults();
           } else {
-            // Handle non-JSON response
             showToast('Error deleting saved result', 'error');
-            addStatusMessage('Error deleting saved result: Server issue', 'error');
+            addStatusMessage(`Error deleting saved result: ${result.message}`, 'error');
           }
         } catch (error) {
           showToast('Error deleting saved result', 'error');
@@ -2251,19 +2222,14 @@
         
         // Check if we have saved results first
         try {
-          const response = await fetch(`${API_ENDPOINTS.load}?registrationNumber=${encodeURIComponent(regNum)}`);
+          const response = await fetch(`${API_ENDPOINTS.load}&registrationNumber=${encodeURIComponent(regNum)}`);
+          const result = await response.json();
           
-          // Check if response is JSON
-          const contentType = response.headers.get('content-type');
-          if (contentType && contentType.includes('application/json')) {
-            const result = await response.json();
-            
-            if (result.success && result.savedResults && result.savedResults.length > 0) {
-              // Ask user if they want to load saved result
-              if (confirm('Saved results found for this registration number. Would you like to load the latest saved result instead of fetching from UAF LMS?')) {
-                loadSavedResult(result.savedResults[0]);
-                return;
-              }
+          if (result.success && result.savedResults && result.savedResults.length > 0) {
+            // Ask user if they want to load saved result
+            if (confirm('Saved results found for this registration number. Would you like to load the latest saved result instead of fetching from UAF LMS?')) {
+              loadSavedResult(result.savedResults[0]);
+              return;
             }
           }
         } catch (error) {
@@ -2272,9 +2238,10 @@
         
         // Show loading animation
         loading.style.display = 'block';
-        resultContainer.style.display = 'none';
-        calculateCgpaBtn.style.display = 'none';
-        saveToWebBtn.style.display = 'none';
+        studentInfoContainer.style.display = 'none';
+        semesterResults.style.display = 'none';
+        actionButtonsContainer.style.display = 'none';
+        savedResultsContainer.style.display = 'none';
         updateProgress(10, 'Starting Fetch');
         addStatusMessage(`Fetching result for registration number: ${regNum}`, 'info');
         
@@ -2285,49 +2252,38 @@
           
           updateProgress(50, 'Processing Data');
           
-          // Check if response is JSON
-          const contentType = response.headers.get('content-type');
-          if (contentType && contentType.includes('application/json')) {
-            const data = await response.json();
+          const data = await response.json();
+          
+          if (data.success) {
+            scrapedData = data;
+            addStatusMessage('Result fetched successfully', 'success');
+            updateProgress(70, 'Processing Data');
             
-            if (data.success) {
-              scrapedData = data;
-              addStatusMessage('Result fetched successfully', 'success');
-              updateProgress(70, 'Processing Data');
+            // Process the scraped data
+            processedData = processScrapedData(data);
+            
+            if (processedData) {
+              // Calculate CGPA
+              const cgpaData = calculateCGPA(processedData);
               
-              // Process the scraped data
-              processedData = processScrapedData(data);
+              // Display the result
+              displayCGPAResults(processedData, cgpaData);
               
-              if (processedData) {
-                // Calculate CGPA
-                const cgpaData = calculateCGPA(processedData);
-                
-                // Display the result
-                displayCGPAResults(processedData, cgpaData);
-                
-                addStatusMessage('CGPA calculated successfully', 'success');
-                updateProgress(100, 'Fetch Complete');
-                showToast('Result fetched successfully!', 'success');
-                
-                // Check for saved results
-                checkSavedResults();
-              } else {
-                addStatusMessage('Error processing result data', 'error');
-                showToast('Error processing result data', 'error');
-                updateProgress(100, 'Error');
-              }
+              addStatusMessage('CGPA calculated successfully', 'success');
+              updateProgress(100, 'Fetch Complete');
+              showToast('Result fetched successfully!', 'success');
+              
+              // Check for saved results
+              checkSavedResults();
             } else {
-              addStatusMessage(`Error: ${data.message}`, 'error');
-              showToast(data.message, 'error');
+              addStatusMessage('Error processing result data', 'error');
+              showToast('Error processing result data', 'error');
               updateProgress(100, 'Error');
             }
           } else {
-            // Handle non-JSON response
-            const text = await response.text();
-            addStatusMessage(`Error: Server returned non-JSON response`, 'error');
-            showToast('Error fetching result: Server issue', 'error');
+            addStatusMessage(`Error: ${data.message}`, 'error');
+            showToast(data.message, 'error');
             updateProgress(100, 'Error');
-            console.error('Non-JSON response:', text);
           }
         } catch (error) {
           addStatusMessage(`Error fetching result: ${error.message}`, 'error');
