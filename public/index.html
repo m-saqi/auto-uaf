@@ -152,11 +152,6 @@
       margin-top: 10px;
     }
 
-    /* Result container styles */
-    .result-container {
-      display: none;
-    }
-
     /* Toast notifications */
     #toast-container {
       position: fixed;
@@ -356,11 +351,6 @@
       background: linear-gradient(180deg, rgba(122,106,216,.15), rgba(122,106,216,.05));
       border-top-left-radius: var(--radius);
       border-top-right-radius: var(--radius);
-    }
-    
-    .calculate-cgpa-btn {
-      margin-top: 1rem;
-      display: none;
     }
     
     /* Saved Results Section */
@@ -666,6 +656,27 @@
     [data-theme="dark"] .separated-container {
       background: #1a2030;
     }
+    
+    /* Center semester cards on desktop with max width */
+    @media (min-width: 992px) {
+      .semester-results-container {
+        max-width: 1280px;
+        margin: 0 auto;
+      }
+    }
+    
+    /* Semester grid layout */
+    .semester-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
+      gap: 1.5rem;
+    }
+    
+    @media (max-width: 768px) {
+      .semester-grid {
+        grid-template-columns: 1fr;
+      }
+    }
   </style>
 </head>
 <body>
@@ -870,33 +881,30 @@
                 <p class="mb-0 text-body-secondary" id="totalPercentage">0%</p>
               </div>
             </div>
-          </div>
-          
-          <!-- Separated Semester Results Container -->
-          <div id="semesterResults" class="separated-container mt-4" style="display: none;">
-            <h4 class="mb-4"><i class="fa-solid fa-book me-2"></i>Semester Results</h4>
-            <div class="row">
-              <!-- Semester cards will be dynamically inserted here -->
-            </div>
-          </div>
-          
-          <!-- Action Buttons Container -->
-          <div id="actionButtonsContainer" class="separated-container mt-4" style="display: none;">
-            <div class="center-buttons">
-              <button id="calculateCgpaBtn" class="btn btn-success-action rounded-pill">
-                <i class="fa-solid fa-calculator me-2"></i>Calculate CGPA Now
-              </button>
+            
+            <!-- Save to Web Button -->
+            <div class="center-buttons mt-4">
               <button id="saveToWebBtn" class="btn btn-primary-action rounded-pill">
                 <i class="fa-solid fa-cloud-arrow-up me-2"></i>Save to Web
               </button>
             </div>
+            
+            <!-- Saved Results Section -->
+            <div id="savedResultsContainer" class="saved-results-container mt-4" style="display: none;">
+              <h5 class="mb-3"><i class="fa-solid fa-floppy-disk me-2"></i>Saved Results</h5>
+              <div id="savedResultsList">
+                <!-- Saved results will be populated here -->
+              </div>
+            </div>
           </div>
           
-          <!-- Saved Results Section -->
-          <div id="savedResultsContainer" class="separated-container mt-4" style="display: none;">
-            <h5 class="mb-3"><i class="fa-solid fa-floppy-disk me-2"></i>Saved Results</h5>
-            <div id="savedResultsList">
-              <!-- Saved results will be populated here -->
+          <!-- Separated Semester Results Container -->
+          <div id="semesterResults" class="mt-4" style="display: none;">
+            <div class="semester-results-container">
+              <h4 class="mb-4"><i class="fa-solid fa-book me-2"></i>Semester Results</h4>
+              <div class="semester-grid" id="semesterGrid">
+                <!-- Semester cards will be dynamically inserted here -->
+              </div>
             </div>
           </div>
           
@@ -1007,14 +1015,13 @@
       const downloadLogBtn = document.getElementById('downloadLogBtn');
       const clearLogBtn = document.getElementById('clearLogBtn');
       const semesterResults = document.getElementById('semesterResults');
+      const semesterGrid = document.getElementById('semesterGrid');
       const studentInfoContainer = document.getElementById('studentInfoContainer');
       const studentName = document.getElementById('studentName');
       const studentReg = document.getElementById('studentReg');
       const totalCgpa = document.getElementById('totalCgpa');
       const totalPercentage = document.getElementById('totalPercentage');
-      const calculateCgpaBtn = document.getElementById('calculateCgpaBtn');
       const saveToWebBtn = document.getElementById('saveToWebBtn');
-      const actionButtonsContainer = document.getElementById('actionButtonsContainer');
       const savedResultsContainer = document.getElementById('savedResultsContainer');
       const savedResultsList = document.getElementById('savedResultsList');
       const courseDetailsModal = new bootstrap.Modal(document.getElementById('courseDetailsModal'));
@@ -1116,7 +1123,7 @@
         function applyTheme(theme){
           document.documentElement.setAttribute('data-theme', theme);
           localStorage.setItem(THEME_KEY, theme);
-          themeToggle.innerHTML = theme === 'dark' ? '<i class="fa-solid fa-sun"></i>' : '<i class="fa-solid fa-moon"></i>';
+          themeToggle.innerHTML = theme === 'dark' ? '<i class="fa-solid fa-sun"></i>' : '<i class="fa-solid fa-moon'></i>';
         }
         applyTheme(localStorage.getItem(THEME_KEY) || 'light');
         themeToggle.addEventListener('click', () => {
@@ -1613,7 +1620,7 @@
         // Show the separated containers
         studentInfoContainer.style.display = 'block';
         semesterResults.style.display = 'block';
-        actionButtonsContainer.style.display = 'block';
+        saveToWebBtn.style.display = 'block';
         
         // Update student info
         studentName.textContent = processedData.studentInfo.name;
@@ -1624,76 +1631,74 @@
         totalPercentage.textContent = `${cgpaData.percentage}%`;
         
         // Clear previous semester results
-        const semesterResultsContainer = semesterResults.querySelector('.row');
-        semesterResultsContainer.innerHTML = '';
+        semesterGrid.innerHTML = '';
         
         // Create semester cards in their original order (not chronological)
         Object.keys(processedData.semesters).forEach(semesterName => {
           const semester = processedData.semesters[semesterName];
           
           const semesterCard = document.createElement('div');
-          semesterCard.className = 'col-md-6 mb-3';
+          semesterCard.className = 'semester-card';
+          semesterCard.setAttribute('data-semester', semesterName);
           semesterCard.innerHTML = `
-            <div class="semester-card" data-semester="${semesterName}">
-              <i class="fa-solid fa-trash delete-semester" title="Delete this semester"></i>
-              <i class="fa-solid fa-plus add-course-btn" title="Add custom course" data-semester="${semesterName}"></i>
-              <div class="d-flex align-items-center justify-content-between mb-3">
-                <h5 class="mb-0">
-                  <i class="fa-solid fa-book-open me-2 text-blue-600"></i>
-                  ${semesterName}
-                </h5>
-                <div class="text-right">
-                  <p class="mb-0 text-body-secondary small">GPA:</p>
-                  <p class="mb-0 h4 fw-bold text-blue-600">${semester.gpa ? semester.gpa.toFixed(2) : 0}</p>
-                  <p class="mb-0 text-body-secondary small">${semester.percentage || 0}%</p>
-                </div>
+            <i class="fa-solid fa-trash delete-semester" title="Delete this semester"></i>
+            <i class="fa-solid fa-plus add-course-btn" title="Add custom course" data-semester="${semesterName}"></i>
+            <div class="d-flex align-items-center justify-content-between mb-3">
+              <h5 class="mb-0">
+                <i class="fa-solid fa-book-open me-2 text-blue-600"></i>
+                ${semesterName}
+              </h5>
+              <div class="text-right">
+                <p class="mb-0 text-body-secondary small">GPA:</p>
+                <p class="mb-0 h4 fw-bold text-blue-600">${semester.gpa ? semester.gpa.toFixed(2) : 0}</p>
+                <p class="mb-0 text-body-secondary small">${semester.percentage || 0}%</p>
               </div>
-              <div class="table-responsive">
-                <table class="course-table">
-                  <thead>
-                    <tr>
-                      <th>Course</th>
-                      <th>Hrs</th>
-                      <th>Marks</th>
-                      <th>Grade</th>
-                      <th>GP</th>
-                      <th>Action</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    ${semester.courses.map(course => `
-                      <tr class="${course.isExtraEnrolled ? 'table-warning' : ''} ${course.isDeleted ? 'table-danger text-decoration-line-through' : ''} ${course.isCustom ? 'table-info' : ''}">
-                        <td>
-                          <div class="course-code-container">
-                            <div class="d-flex align-items-center">
-                              <span class="fw-medium course-code clickable-info" data-course='${JSON.stringify(course).replace(/'/g, "&#39;")}'>${course.code}</span>
-                              <i class="fa-solid fa-info-circle ms-2 clickable-info small" data-course='${JSON.stringify(course).replace(/'/g, "&#39;")}' title="${course.title}"></i>
-                            </div>
-                            ${course.isExtraEnrolled ? '<span class="extra-enrolled">Repeated</span>' : ''}
-                            ${course.isCustom ? '<span class="extra-enrolled">Custom</span>' : ''}
+            </div>
+            <div class="table-responsive">
+              <table class="course-table">
+                <thead>
+                  <tr>
+                    <th>Course</th>
+                    <th>Hrs</th>
+                    <th>Marks</th>
+                    <th>Grade</th>
+                    <th>GP</th>
+                    <th>Action</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  ${semester.courses.map(course => `
+                    <tr class="${course.isExtraEnrolled ? 'table-warning' : ''} ${course.isDeleted ? 'table-danger text-decoration-line-through' : ''} ${course.isCustom ? 'table-info' : ''}">
+                      <td>
+                        <div class="course-code-container">
+                          <div class="d-flex align-items-center">
+                            <span class="fw-medium course-code clickable-info" data-course='${JSON.stringify(course).replace(/'/g, "&#39;")}'>${course.code}</span>
+                            <i class="fa-solid fa-info-circle ms-2 clickable-info small" data-course='${JSON.stringify(course).replace(/'/g, "&#39;")}' title="${course.title}"></i>
                           </div>
-                        </td>
-                        <td>${course.creditHours}</td>
-                        <td>${course.marks}</td>
-                        <td>
-                          <span class="grade-badge grade-${course.grade}">${course.grade}</span>
-                        </td>
-                        <td class="fw-medium text-blue-600">${course.qualityPoints.toFixed(2)}</td>
-                        <td class="course-actions">
-                          ${course.isDeleted ? 
-                            `<i class="fa-solid fa-rotate-left restore-course" data-course='${JSON.stringify(course).replace(/'/g, "&#39;")}' data-semester="${semesterName}" title="Restore this course"></i>` : 
-                            `<i class="fa-solid fa-trash delete-course" data-course='${JSON.stringify(course).replace(/'/g, "&#39;")}' data-semester="${semesterName}" title="Delete this course"></i>`
-                          }
-                        </td>
-                      </tr>
-                    `).join('')}
-                  </tbody>
-                </table>
-              </div>
+                          ${course.isExtraEnrolled ? '<span class="extra-enrolled">Repeated</span>' : ''}
+                          ${course.isCustom ? '<span class="extra-enrolled">Custom</span>' : ''}
+                        </div>
+                      </td>
+                      <td>${course.creditHours}</td>
+                      <td>${course.marks}</td>
+                      <td>
+                        <span class="grade-badge grade-${course.grade}">${course.grade}</span>
+                      </td>
+                      <td class="fw-medium text-blue-600">${course.qualityPoints.toFixed(2)}</td>
+                      <td class="course-actions">
+                        ${course.isDeleted ? 
+                          `<i class="fa-solid fa-rotate-left restore-course" data-course='${JSON.stringify(course).replace(/'/g, "&#39;")}' data-semester="${semesterName}" title="Restore this course"></i>` : 
+                          `<i class="fa-solid fa-trash delete-course" data-course='${JSON.stringify(course).replace(/'/g, "&#39;")}' data-semester="${semesterName}" title="Delete this course"></i>`
+                        }
+                      </td>
+                    </tr>
+                  `).join('')}
+                </tbody>
+              </table>
             </div>
           `;
           
-          semesterResultsContainer.appendChild(semesterCard);
+          semesterGrid.appendChild(semesterCard);
         });
         
         // Add event listeners for course details and delete buttons
@@ -2035,20 +2040,6 @@
         showToast(`Course ${course.code} restored`, 'success');
       }
       
-      // Recalculate CGPA when button is clicked
-      function recalculateCGPA() {
-        if (!processedData) return;
-        
-        const cgpaData = calculateCGPA(processedData);
-        
-        // Update overall CGPA
-        totalCgpa.textContent = cgpaData.cgpa.toFixed(2);
-        totalPercentage.textContent = `${cgpaData.percentage}%`;
-        
-        showToast('CGPA recalculated successfully!', 'success');
-        addStatusMessage('CGPA recalculated based on current semesters', 'info');
-      }
-      
       // Save result to web storage
       async function saveToWeb() {
         if (!processedData) {
@@ -2240,7 +2231,6 @@
         loading.style.display = 'block';
         studentInfoContainer.style.display = 'none';
         semesterResults.style.display = 'none';
-        actionButtonsContainer.style.display = 'none';
         savedResultsContainer.style.display = 'none';
         updateProgress(10, 'Starting Fetch');
         addStatusMessage(`Fetching result for registration number: ${regNum}`, 'info');
@@ -2310,8 +2300,6 @@
       downloadLogBtn.addEventListener('click', downloadLog);
       
       clearLogBtn.addEventListener('click', clearLog);
-      
-      calculateCgpaBtn.addEventListener('click', recalculateCGPA);
       
       saveToWebBtn.addEventListener('click', saveToWeb);
       
