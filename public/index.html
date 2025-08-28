@@ -505,9 +505,6 @@
     .cursor-dot{position:fixed; width:10px;height:10px;border-radius:50%; background:var(--brand); pointer-events:none; transform:translate(-50%, -50%); opacity:.7; mix-blend-mode:multiply; z-index:9999;}
     
     /* Course action buttons */
-    .course-actions {
-      display: block;
-    }
     
     .course-actions i {
       cursor: pointer;
@@ -578,6 +575,12 @@
         margin-right: 20px;
       }
     }
+
+    @media (min-width: 768px) {
+  .col-md-10 {
+    flex: 0 0 auto;
+  }
+}
     
     @media (min-width: 768px) {
       .col-md-4 {
@@ -2426,3 +2429,4 @@
   </script>
 </body>
 </html>
+
