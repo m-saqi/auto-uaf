@@ -654,17 +654,93 @@
       }
     }
     
-    /* Separated containers styling */
-    .separated-container {
-      background: white;
-      border-radius: var(--radius);
-      padding: 1.5rem;
-      box-shadow: 0 10px 30px rgba(17,24,39,.06);
-      margin-bottom: 1.5rem;
+    /* New layout improvements */
+    .results-section {
+      margin-top: 2rem;
     }
     
-    [data-theme="dark"] .separated-container {
-      background: #1a2030;
+    .student-info-section {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1.5rem;
+      margin-bottom: 2rem;
+    }
+    
+    .student-details {
+      flex: 1;
+      min-width: 300px;
+    }
+    
+    .cgpa-display {
+      flex: 0 0 auto;
+      text-align: right;
+      min-width: 200px;
+    }
+    
+    .action-buttons {
+      display: flex;
+      gap: 1rem;
+      margin-top: 1.5rem;
+      flex-wrap: wrap;
+    }
+    
+    @media (max-width: 768px) {
+      .student-info-section {
+        flex-direction: column;
+      }
+      
+      .cgpa-display {
+        text-align: left;
+        margin-top: 1rem;
+      }
+      
+      .action-buttons {
+        flex-direction: column;
+      }
+      
+      .action-buttons .btn {
+        width: 100%;
+      }
+    }
+    
+    /* Section separators */
+    .section-container {
+      margin-bottom: 2rem;
+    }
+    
+    .section-title {
+      margin-bottom: 1.5rem;
+      padding-bottom: 0.5rem;
+      border-bottom: 2px solid rgba(122,106,216,.2);
+    }
+    
+    /* Student info logo style */
+    .student-info-logo {
+      background: linear-gradient(180deg, rgba(122,106,216,.15), rgba(122,106,216,.05));
+      border-radius: 50%;
+      width: 60px;
+      height: 60px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-right: 1rem;
+    }
+    
+    .student-info-logo i {
+      font-size: 1.5rem;
+      color: var(--brand);
+    }
+    
+    /* Test connection button style */
+    .test-connection-btn {
+      background: #f8f9fa;
+      color: var(--muted);
+      border: 1px solid #e9ecef;
+    }
+    
+    .test-connection-btn:hover {
+      background: #e9ecef;
+      color: var(--text);
     }
   </style>
 </head>
@@ -808,7 +884,9 @@
     <div class="container">
       <div class="row justify-content-center">
         <div class="col-md-10">
-          <div class="card card-modern">
+          
+          <!-- Input Section -->
+          <div class="card card-modern mb-4">
             <div class="card-header p-4">
               <h4 class="mb-0"><i class="fa-solid fa-bolt me-2"></i>UAF CGPA Calculator</h4>
             </div>
@@ -825,7 +903,7 @@
                   <button type="submit" class="btn btn-primary-action rounded-pill">
                     <i class="fa-solid fa-cloud-arrow-down me-2"></i>Fetch Result
                   </button>
-                  <button id="testConnectionBtn" type="button" class="btn btn-secondary-action rounded-pill">
+                  <button id="testConnectionBtn" type="button" class="btn test-connection-btn rounded-pill">
                     <i class="fa-solid fa-vial me-2"></i>Test Connection
                   </button>
                 </div>
@@ -852,71 +930,92 @@
             </div>
           </div>
           
-          <!-- Separated Student Info Container -->
-          <div id="studentInfoContainer" class="separated-container mt-4" style="display: none;">
-            <div class="d-flex align-items-center justify-content-between">
-              <div class="d-flex align-items-center gap-4">
-                <div class="p-3 bg-blue-100 rounded-full">
-                  <i class="fa-solid fa-book-open text-blue-600"></i>
+          <!-- Results Section -->
+          <div id="resultContainer" class="result-container">
+            <!-- Student Info and CGPA Section -->
+            <div class="card card-modern mb-4">
+              <div class="card-header p-4">
+                <h4 class="mb-0"><i class="fa-solid fa-user-graduate me-2"></i>Student Information</h4>
+              </div>
+              <div class="card-body p-4">
+                <div class="student-info-section">
+                  <div class="d-flex align-items-center">
+                    <div class="student-info-logo">
+                      <i class="fa-solid fa-book-open"></i>
+                    </div>
+                    <div class="student-details">
+                      <h2 class="mb-1 fw-bold" id="studentName">Student Name</h2>
+                      <p class="mb-0 text-body-secondary" id="studentReg">Registration Number</p>
+                    </div>
+                  </div>
+                  
+                  <div class="cgpa-display">
+                    <p class="mb-0 text-body-secondary">Total CGPA</p>
+                    <p class="mb-0 display-6 fw-bold" style="color: var(--brand);" id="totalCgpa">0.00</p>
+                    <p class="mb-0 text-body-secondary" id="totalPercentage">0%</p>
+                  </div>
                 </div>
-                <div>
-                  <h2 class="mb-1 fw-bold" id="studentName">Student Name</h2>
-                  <p class="mb-0 text-body-secondary" id="studentReg">Registration Number</p>
+                
+                <!-- Action Buttons -->
+                <div class="action-buttons">
+                  <button id="calculateCgpaBtn" class="btn btn-success-action rounded-pill calculate-cgpa-btn">
+                    <i class="fa-solid fa-calculator me-2"></i>Calculate CGPA Now
+                  </button>
+                  <button id="saveToWebBtn" class="btn btn-primary-action rounded-pill save-to-web-btn">
+                    <i class="fa-solid fa-cloud-arrow-up me-2"></i>Save to Web
+                  </button>
                 </div>
               </div>
-              <div class="text-right">
-                <p class="mb-0 text-body-secondary">Total CGPA</p>
-                <p class="mb-0 display-6 fw-bold text-blue-600" id="totalCgpa">0.00</p>
-                <p class="mb-0 text-body-secondary" id="totalPercentage">0%</p>
+            </div>
+            
+            <!-- Semester Results Container -->
+            <div class="card card-modern mb-4">
+              <div class="card-header p-4">
+                <h4 class="mb-0"><i class="fa-solid fa-book-open me-2"></i>Semester Results</h4>
               </div>
-            </div>
-          </div>
-          
-          <!-- Separated Semester Results Container -->
-          <div id="semesterResults" class="separated-container mt-4" style="display: none;">
-            <h4 class="mb-4"><i class="fa-solid fa-book me-2"></i>Semester Results</h4>
-            <div class="row">
-              <!-- Semester cards will be dynamically inserted here -->
-            </div>
-          </div>
-          
-          <!-- Action Buttons Container -->
-          <div id="actionButtonsContainer" class="separated-container mt-4" style="display: none;">
-            <div class="center-buttons">
-              <button id="calculateCgpaBtn" class="btn btn-success-action rounded-pill">
-                <i class="fa-solid fa-calculator me-2"></i>Calculate CGPA Now
-              </button>
-              <button id="saveToWebBtn" class="btn btn-primary-action rounded-pill">
-                <i class="fa-solid fa-cloud-arrow-up me-2"></i>Save to Web
-              </button>
+              <div class="card-body p-4">
+                <div id="semesterResults" class="row">
+                  <!-- Semester cards will be dynamically inserted here -->
+                </div>
+              </div>
             </div>
           </div>
           
           <!-- Saved Results Section -->
-          <div id="savedResultsContainer" class="separated-container mt-4" style="display: none;">
-            <h5 class="mb-3"><i class="fa-solid fa-floppy-disk me-2"></i>Saved Results</h5>
-            <div id="savedResultsList">
-              <!-- Saved results will be populated here -->
+          <div id="savedResultsContainer" class="saved-results-container card card-modern mb-4">
+            <div class="card-header p-4">
+              <h4 class="mb-0"><i class="fa-solid fa-floppy-disk me-2"></i>Saved Results</h4>
+            </div>
+            <div class="card-body p-4">
+              <div id="savedResultsList">
+                <!-- Saved results will be populated here -->
+              </div>
             </div>
           </div>
           
-          <!-- Status Log Container -->
-          <div class="separated-container mt-4">
-            <h5 class="mb-3"><i class="fa-solid fa-terminal me-2"></i>Status Log</h5>
-            <div class="status-log" id="statusLog">
-              <div class="status-line status-info">Ready to fetch your results. Enter your registration number and click "Fetch Result".</div>
+          <!-- Status Log Section -->
+          <div class="card card-modern">
+            <div class="card-header p-4">
+              <h4 class="mb-0"><i class="fa-solid fa-terminal me-2"></i>Status Log</h4>
             </div>
-            
-            <!-- Log Action Buttons -->
-            <div class="log-section center-buttons mt-3">
-              <button id="downloadLogBtn" class="btn btn-secondary-action rounded-pill">
-                <i class="fa-solid fa-file-lines me-2"></i>Download Log
-              </button>
-              <button id="clearLogBtn" class="btn btn-danger-action rounded-pill">
-                <i class="fa-solid fa-trash me-2"></i>Clear Log
-              </button>
+            <div class="card-body p-4">
+              <!-- Status Log -->
+              <div class="status-log" id="statusLog">
+                <div class="status-line status-info">Ready to fetch your results. Enter your registration number and click "Fetch Result".</div>
+              </div>
+              
+              <!-- Log Action Buttons -->
+              <div class="log-section center-buttons mt-3">
+                <button id="downloadLogBtn" class="btn btn-secondary-action rounded-pill">
+                  <i class="fa-solid fa-file-lines me-2"></i>Download Log
+                </button>
+                <button id="clearLogBtn" class="btn btn-danger-action rounded-pill">
+                  <i class="fa-solid fa-trash me-2"></i>Clear Log
+                </button>
+              </div>
             </div>
           </div>
+          
         </div>
       </div>
     </div>
@@ -995,6 +1094,7 @@
       const resultForm = document.getElementById('resultForm');
       const registrationNumber = document.getElementById('registrationNumber');
       const loading = document.getElementById('loading');
+      const resultContainer = document.getElementById('resultContainer');
       const testConnectionBtn = document.getElementById('testConnectionBtn');
       const statusLog = document.getElementById('statusLog');
       const progressBar = document.getElementById('progressBar');
@@ -1007,14 +1107,12 @@
       const downloadLogBtn = document.getElementById('downloadLogBtn');
       const clearLogBtn = document.getElementById('clearLogBtn');
       const semesterResults = document.getElementById('semesterResults');
-      const studentInfoContainer = document.getElementById('studentInfoContainer');
       const studentName = document.getElementById('studentName');
       const studentReg = document.getElementById('studentReg');
       const totalCgpa = document.getElementById('totalCgpa');
       const totalPercentage = document.getElementById('totalPercentage');
       const calculateCgpaBtn = document.getElementById('calculateCgpaBtn');
       const saveToWebBtn = document.getElementById('saveToWebBtn');
-      const actionButtonsContainer = document.getElementById('actionButtonsContainer');
       const savedResultsContainer = document.getElementById('savedResultsContainer');
       const savedResultsList = document.getElementById('savedResultsList');
       const courseDetailsModal = new bootstrap.Modal(document.getElementById('courseDetailsModal'));
@@ -1610,10 +1708,10 @@
       
       // Display CGPA results
       function displayCGPAResults(processedData, cgpaData) {
-        // Show the separated containers
-        studentInfoContainer.style.display = 'block';
-        semesterResults.style.display = 'block';
-        actionButtonsContainer.style.display = 'block';
+        // Show the result container
+        resultContainer.style.display = 'block';
+        calculateCgpaBtn.style.display = 'block';
+        saveToWebBtn.style.display = 'block';
         
         // Update student info
         studentName.textContent = processedData.studentInfo.name;
@@ -1624,8 +1722,7 @@
         totalPercentage.textContent = `${cgpaData.percentage}%`;
         
         // Clear previous semester results
-        const semesterResultsContainer = semesterResults.querySelector('.row');
-        semesterResultsContainer.innerHTML = '';
+        semesterResults.innerHTML = '';
         
         // Create semester cards in their original order (not chronological)
         Object.keys(processedData.semesters).forEach(semesterName => {
@@ -1639,12 +1736,12 @@
               <i class="fa-solid fa-plus add-course-btn" title="Add custom course" data-semester="${semesterName}"></i>
               <div class="d-flex align-items-center justify-content-between mb-3">
                 <h5 class="mb-0">
-                  <i class="fa-solid fa-book-open me-2 text-blue-600"></i>
+                  <i class="fa-solid fa-book-open me-2" style="color: var(--brand);"></i>
                   ${semesterName}
                 </h5>
                 <div class="text-right">
                   <p class="mb-0 text-body-secondary small">GPA:</p>
-                  <p class="mb-0 h4 fw-bold text-blue-600">${semester.gpa ? semester.gpa.toFixed(2) : 0}</p>
+                  <p class="mb-0 h4 fw-bold" style="color: var(--brand);">${semester.gpa ? semester.gpa.toFixed(2) : 0}</p>
                   <p class="mb-0 text-body-secondary small">${semester.percentage || 0}%</p>
                 </div>
               </div>
@@ -1656,7 +1753,6 @@
                       <th>Hrs</th>
                       <th>Marks</th>
                       <th>Grade</th>
-                      <th>GP</th>
                       <th>Action</th>
                     </tr>
                   </thead>
@@ -1678,7 +1774,6 @@
                         <td>
                           <span class="grade-badge grade-${course.grade}">${course.grade}</span>
                         </td>
-                        <td class="fw-medium text-blue-600">${course.qualityPoints.toFixed(2)}</td>
                         <td class="course-actions">
                           ${course.isDeleted ? 
                             `<i class="fa-solid fa-rotate-left restore-course" data-course='${JSON.stringify(course).replace(/'/g, "&#39;")}' data-semester="${semesterName}" title="Restore this course"></i>` : 
@@ -1693,7 +1788,7 @@
             </div>
           `;
           
-          semesterResultsContainer.appendChild(semesterCard);
+          semesterResults.appendChild(semesterCard);
         });
         
         // Add event listeners for course details and delete buttons
@@ -2238,10 +2333,9 @@
         
         // Show loading animation
         loading.style.display = 'block';
-        studentInfoContainer.style.display = 'none';
-        semesterResults.style.display = 'none';
-        actionButtonsContainer.style.display = 'none';
-        savedResultsContainer.style.display = 'none';
+        resultContainer.style.display = 'none';
+        calculateCgpaBtn.style.display = 'none';
+        saveToWebBtn.style.display = 'none';
         updateProgress(10, 'Starting Fetch');
         addStatusMessage(`Fetching result for registration number: ${regNum}`, 'info');
         
