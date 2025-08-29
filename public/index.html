@@ -101,16 +101,111 @@
     .subject-row{border:1px dashed #e5e7eb; border-radius:1rem; padding:1rem; background:#fff;}
     .result-display{font-size:1.75rem; font-weight:800; color:var(--brand);}
 
-    .progress-container {
-      margin-top: 1.5rem;
+    /* Loading animation styles */
+    .loading-container {
+      display: none;
+      text-align: center;
+      padding: 2rem;
+      border-radius: var(--radius);
+      background: #f8f9ff;
+      margin: 1.5rem 0;
     }
-    .progress {
+    
+    .loading-animation {
+      width: 80px;
+      height: 80px;
+      margin: 0 auto 1.5rem;
+      position: relative;
+    }
+    
+    .loading-book {
+      width: 100%;
+      height: 100%;
+      position: relative;
+      transform-style: preserve-3d;
+      transform: rotateX(-10deg);
+      animation: bookFloat 3s ease-in-out infinite;
+    }
+    
+    .book-cover {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(45deg, var(--brand), var(--brand-700));
+      border-radius: 5px 12px 12px 5px;
+      transform-origin: left;
+      box-shadow: 4px 4px 10px rgba(0,0,0,0.1);
+    }
+    
+    .book-page {
+      position: absolute;
+      width: 95%;
+      height: 90%;
+      background: white;
+      top: 5%;
+      left: 2.5%;
+      border-radius: 3px 10px 10px 3px;
+      box-shadow: inset 0 0 5px rgba(0,0,0,0.05);
+      overflow: hidden;
+    }
+    
+    .book-page::before {
+      content: "";
+      position: absolute;
+      width: 100%;
+      height: 20px;
+      background: linear-gradient(to bottom, rgba(0,0,0,0.03) 0%, transparent 100%);
+      animation: pageTurn 2s ease-in-out infinite;
+    }
+    
+    .loading-dots {
+      display: flex;
+      justify-content: center;
+      gap: 6px;
+      margin-top: 1rem;
+    }
+    
+    .loading-dot {
+      width: 10px;
       height: 10px;
-      border-radius: 5px;
+      border-radius: 50%;
+      background: var(--brand);
+      animation: dotPulse 1.5s ease-in-out infinite;
     }
-    .progress-bar {
-      border-radius: 5px;
-      transition: width 0.3s ease;
+    
+    .loading-dot:nth-child(2) {
+      animation-delay: 0.2s;
+    }
+    
+    .loading-dot:nth-child(3) {
+      animation-delay: 0.4s;
+    }
+    
+    .loading-text {
+      font-weight: 600;
+      margin-top: 1rem;
+      color: var(--brand);
+      font-size: 1.1rem;
+    }
+    
+    .loading-subtext {
+      color: var(--muted);
+      margin-top: 0.5rem;
+    }
+    
+    @keyframes bookFloat {
+      0%, 100% { transform: rotateX(-10deg) translateY(0); }
+      50% { transform: rotateX(-5deg) translateY(-10px); }
+    }
+    
+    @keyframes pageTurn {
+      0%, 100% { transform: translateY(0); opacity: 0.5; }
+      50% { transform: translateY(40px); opacity: 0.8; }
+    }
+    
+    @keyframes dotPulse {
+      0%, 100% { transform: scale(1); opacity: 1; }
+      50% { transform: scale(1.5); opacity: 0.7; }
     }
 
     .status-log {
@@ -141,21 +236,6 @@
     .footer{color:#9ca3af;}
     a{color:var(--brand); text-decoration:none; cursor: pointer;}
     a:hover{color:#9f8df0;}
-
-    /* Loading spinner styles */
-    .loading {
-      display: none;
-      text-align: center;
-      padding: 20px;
-    }
-    .loading p {
-      margin-top: 10px;
-    }
-
-    /* Result container styles */
-    .result-container {
-      display: none;
-    }
 
     /* Toast notifications */
     #toast-container {
@@ -358,8 +438,8 @@
       border-top-right-radius: var(--radius);
     }
     
-    .calculate-cgpa-btn {
-      margin-top: 1rem;
+    .save-to-web-btn {
+      margin: 1rem auto;
       display: none;
     }
     
@@ -433,12 +513,6 @@
       flex: 1;
       min-width: 200px;
     }
-    
-    /* Save to Web Button */
-    .save-to-web-btn {
-      margin-top: 1rem;
-      display: none;
-    }
 
     /* ----------- DARK MODE IMPROVED ----------- */
     [data-theme="dark"] body{background:linear-gradient(180deg,#0b0e13 0%, #0f1320 70%); color:#f1f5f9;}
@@ -465,6 +539,7 @@
     [data-theme="dark"] .course-table td { border-bottom-color: #2d3748; }
     [data-theme="dark"] .saved-result-card { background: #1a2030; }
     [data-theme="dark"] .add-course-form { background: #1a1f2e; }
+    [data-theme="dark"] .loading-container { background: #1a2030; }
     
     /* Dark mode for course details modal */
     [data-theme="dark"] .course-details-modal .modal-content {
@@ -505,8 +580,6 @@
     .cursor-dot{position:fixed; width:10px;height:10px;border-radius:50%; background:var(--brand); pointer-events:none; transform:translate(-50%, -50%); opacity:.7; mix-blend-mode:multiply; z-index:9999;}
     
     /* Course action buttons */
-
-    
     .course-actions i {
       cursor: pointer;
       font-size: 14px;
@@ -600,8 +673,6 @@
         font-size: 11.5px; /* Smaller font for mobile */
       }
       
-
-      
       /* Make repeated course indicator appear below course code on mobile */
       .course-code-container {
         display: flex;
@@ -626,11 +697,6 @@
       /* Make buttons more touch-friendly */
       .btn {
         padding: 0.75rem 1rem;
-      }
-      
-      /* Adjust progress bar for mobile */
-      .progress-container {
-        margin-top: 1rem;
       }
     }
     
@@ -675,7 +741,7 @@
     
     .cgpa-display {
       flex: 0 0 auto;
-      text-align: right;
+      text-align: left;
       min-width: 200px;
     }
     
@@ -758,6 +824,20 @@
       .course-table {
         font-size: 0.9rem;
       }
+    }
+    
+    /* Width constraints for calculator and student info sections */
+    @media (min-width: 992px) {
+      .calculator-container {
+        max-width: 720px;
+        margin-left: auto;
+        margin-right: auto;
+      }
+    }
+    
+    /* Semester results container - full width */
+    .semester-results-container {
+      width: 100%;
     }
   </style>
 </head>
@@ -900,10 +980,10 @@
   <section class="py-5" id="Auto-Calculator">
     <div class="container">
       <div class="row justify-content-center">
-        <div class="col-md-10">
+        <div class="col-md-12">
           
           <!-- Input Section -->
-          <div class="card card-modern mb-4">
+          <div class="card card-modern mb-4 calculator-container">
             <div class="card-header p-4">
               <h4 class="mb-0"><i class="fa-solid fa-bolt me-2"></i>UAF CGPA Calculator</h4>
             </div>
@@ -926,23 +1006,21 @@
                 </div>
               </form>
               
-              <!-- Progress Section -->
-              <div class="progress-container mt-4">
-                <div class="d-flex justify-content-between mb-2">
-                  <span>Status: <strong id="currentStatus">Ready</strong></span>
-                  <span><strong id="progressPercentage">0%</strong></span>
+              <!-- Loading Animation Section -->
+              <div id="loadingContainer" class="loading-container">
+                <div class="loading-animation">
+                  <div class="loading-book">
+                    <div class="book-cover"></div>
+                    <div class="book-page"></div>
+                  </div>
                 </div>
-                <div class="progress">
-                  <div id="progressBar" class="progress-bar" role="progressbar" style="width: 0%; background-color: var(--brand);" 
-                      aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+                <div class="loading-dots">
+                  <div class="loading-dot"></div>
+                  <div class="loading-dot"></div>
+                  <div class="loading-dot"></div>
                 </div>
-              </div>
-              
-              <div id="loading" class="loading mt-4">
-                <div class="spinner-border text-primary" role="status">
-                  <span class="visually-hidden">Loading...</span>
-                </div>
-                <p>Fetching your result from UAF LMS...</p>
+                <div class="loading-text" id="loadingText">Connecting to UAF LMS</div>
+                <div class="loading-subtext" id="loadingSubtext">Please wait while we establish a secure connection</div>
               </div>
             </div>
           </div>
@@ -950,7 +1028,7 @@
           <!-- Results Section -->
           <div id="resultContainer" class="result-container">
             <!-- Student Info and CGPA Section -->
-            <div class="card card-modern mb-4">
+            <div class="card card-modern mb-4 calculator-container">
               <div class="card-header p-4">
                 <h4 class="mb-0"><i class="fa-solid fa-user-graduate me-2"></i>Student Information</h4>
               </div>
@@ -975,9 +1053,6 @@
                 
                 <!-- Action Buttons -->
                 <div class="action-buttons">
-                  <button id="calculateCgpaBtn" class="btn btn-success-action rounded-pill calculate-cgpa-btn">
-                    <i class="fa-solid fa-calculator me-2"></i>Calculate CGPA Now
-                  </button>
                   <button id="saveToWebBtn" class="btn btn-primary-action rounded-pill save-to-web-btn">
                     <i class="fa-solid fa-cloud-arrow-up me-2"></i>Save to Web
                   </button>
@@ -985,21 +1060,16 @@
               </div>
             </div>
             
-            <!-- Semester Results Container -->
-            <div class="card card-modern mb-4">
-              <div class="card-header p-4">
-                <h4 class="mb-0"><i class="fa-solid fa-book-open me-2"></i>Semester Results</h4>
-              </div>
-              <div class="card-body p-4">
-                <div id="semesterResults" class="row">
-                  <!-- Semester cards will be dynamically inserted here -->
-                </div>
+            <!-- Semester Results Container - Full Width -->
+            <div class="semester-results-container">
+              <div id="semesterResults" class="row">
+                <!-- Semester cards will be dynamically inserted here -->
               </div>
             </div>
           </div>
           
           <!-- Saved Results Section -->
-          <div id="savedResultsContainer" class="saved-results-container card card-modern mb-4">
+          <div id="savedResultsContainer" class="saved-results-container card card-modern mb-4 calculator-container">
             <div class="card-header p-4">
               <h4 class="mb-0"><i class="fa-solid fa-floppy-disk me-2"></i>Saved Results</h4>
             </div>
@@ -1011,7 +1081,7 @@
           </div>
           
   <!-- Status Log Section -->
-  <div class="card card-modern">
+  <div class="card card-modern calculator-container">
     <div class="card-header p-4">
       <h4 class="mb-0"><i class="fa-solid fa-terminal me-2"></i>Status Log</h4>
     </div>
@@ -1110,17 +1180,16 @@
       // Elements
       const resultForm = document.getElementById('resultForm');
       const registrationNumber = document.getElementById('registrationNumber');
-      const loading = document.getElementById('loading');
+      const loadingContainer = document.getElementById('loadingContainer');
+      const loadingText = document.getElementById('loadingText');
+      const loadingSubtext = document.getElementById('loadingSubtext');
       const resultContainer = document.getElementById('resultContainer');
       const testConnectionBtn = document.getElementById('testConnectionBtn');
       const statusLog = document.getElementById('statusLog');
-      const progressBar = document.getElementById('progressBar');
-      const progressPercentage = document.getElementById('progressPercentage');
-      const currentStatus = document.getElementById('currentStatus');
       const themeToggle = document.getElementById('themeToggle');
       const cursorDot = document.getElementById('cursorDot');
       const contactForm = document.getElementById('contact-form');
-      const contactFormStatus = document.getElementById('contact-form-status');
+      const contactFormStatus = document.getElementById('contact-formStatus');
       const downloadLogBtn = document.getElementById('downloadLogBtn');
       const clearLogBtn = document.getElementById('clearLogBtn');
       const semesterResults = document.getElementById('semesterResults');
@@ -1128,7 +1197,6 @@
       const studentReg = document.getElementById('studentReg');
       const totalCgpa = document.getElementById('totalCgpa');
       const totalPercentage = document.getElementById('totalPercentage');
-      const calculateCgpaBtn = document.getElementById('calculateCgpaBtn');
       const saveToWebBtn = document.getElementById('saveToWebBtn');
       const savedResultsContainer = document.getElementById('savedResultsContainer');
       const savedResultsList = document.getElementById('savedResultsList');
@@ -1270,6 +1338,12 @@
         });
       }
       
+      // Update loading animation text
+      function updateLoadingText(mainText, subText) {
+        loadingText.textContent = mainText;
+        loadingSubtext.textContent = subText;
+      }
+      
       // Add a status message to the log
       function addStatusMessage(message, type = 'info') {
         const timestamp = new Date().toLocaleTimeString();
@@ -1285,15 +1359,6 @@
         
         // Auto-scroll to top
         statusLog.scrollTop = 0;
-      }
-      
-      // Update progress bar
-      function updateProgress(percent, status) {
-        progressBar.style.width = `${percent}%`;
-        progressPercentage.textContent = `${percent}%`;
-        if (status) {
-          currentStatus.textContent = status;
-        }
       }
       
       // Download log
@@ -1345,7 +1410,8 @@
         testConnectionBtn.disabled = true;
         
         addStatusMessage('Testing connection to UAF LMS server...', 'info');
-        updateProgress(30, 'Testing Connection');
+        updateLoadingText('Testing Connection', 'Checking UAF LMS accessibility');
+        loadingContainer.style.display = 'block';
         
         try {
           const response = await fetch(`${API_ENDPOINTS.test}?action=test`, {
@@ -1370,24 +1436,34 @@
           if (responseData.success) {
             addStatusMessage('Connection test successful - UAF LMS is accessible', 'success');
             showToast('Connection test successful!', 'success');
-            updateProgress(100, 'Connection Successful');
+            updateLoadingText('Connection Successful', 'UAF LMS is accessible');
+            
+            // Hide loading after a delay
+            setTimeout(() => {
+              loadingContainer.style.display = 'none';
+            }, 1500);
           } else {
             addStatusMessage(`Connection test failed: ${responseData.message}`, 'error');
             showToast('Connection test failed!', 'error');
-            updateProgress(100, 'Connection Failed');
+            updateLoadingText('Connection Failed', responseData.message);
+            
+            // Hide loading after a delay
+            setTimeout(() => {
+              loadingContainer.style.display = 'none';
+            }, 3000);
           }
         } catch (error) {
           addStatusMessage(`Connection test failed: ${error.message}`, 'error');
           showToast('Connection test failed!', 'error');
-          updateProgress(100, 'Connection Failed');
+          updateLoadingText('Connection Error', 'Network issue detected');
+          
+          // Hide loading after a delay
+          setTimeout(() => {
+            loadingContainer.style.display = 'none';
+          }, 3000);
         } finally {
           testInProgress = false;
           testConnectionBtn.disabled = false;
-          
-          // Reset progress after a delay
-          setTimeout(() => {
-            updateProgress(0, 'Ready');
-          }, 2000);
         }
       }
       
@@ -1727,7 +1803,6 @@
       function displayCGPAResults(processedData, cgpaData) {
         // Show the result container
         resultContainer.style.display = 'block';
-        calculateCgpaBtn.style.display = 'block';
         saveToWebBtn.style.display = 'block';
         
         // Update student info
@@ -2147,20 +2222,6 @@
         showToast(`Course ${course.code} restored`, 'success');
       }
       
-      // Recalculate CGPA when button is clicked
-      function recalculateCGPA() {
-        if (!processedData) return;
-        
-        const cgpaData = calculateCGPA(processedData);
-        
-        // Update overall CGPA
-        totalCgpa.textContent = cgpaData.cgpa.toFixed(2);
-        totalPercentage.textContent = `${cgpaData.percentage}%`;
-        
-        showToast('CGPA recalculated successfully!', 'success');
-        addStatusMessage('CGPA recalculated based on current semesters', 'info');
-      }
-      
       // Save result to web storage
       async function saveToWeb() {
         if (!processedData) {
@@ -2175,7 +2236,8 @@
         }
         
         addStatusMessage('Saving result to web storage...', 'info');
-        updateProgress(30, 'Saving Data');
+        updateLoadingText('Saving Data', 'Storing your results securely');
+        loadingContainer.style.display = 'block';
         
         try {
           const response = await fetch(API_ENDPOINTS.save, {
@@ -2194,20 +2256,35 @@
           
           if (result.success) {
             addStatusMessage('Result saved successfully to web storage', 'success');
-            updateProgress(100, 'Save Complete');
+            updateLoadingText('Save Complete', 'Your results have been saved successfully');
             showToast('Result saved successfully!', 'success');
+            
+            // Hide loading after a delay
+            setTimeout(() => {
+              loadingContainer.style.display = 'none';
+            }, 1500);
             
             // Refresh saved results list
             checkSavedResults();
           } else {
             addStatusMessage(`Error saving result: ${result.message}`, 'error');
-            updateProgress(100, 'Error');
+            updateLoadingText('Error', 'Failed to save your results');
             showToast('Error saving result', 'error');
+            
+            // Hide loading after a delay
+            setTimeout(() => {
+              loadingContainer.style.display = 'none';
+            }, 3000);
           }
         } catch (error) {
           addStatusMessage(`Error saving result: ${error.message}`, 'error');
-          updateProgress(100, 'Error');
+          updateLoadingText('Error', 'Network error occurred');
           showToast('Error saving result', 'error');
+          
+          // Hide loading after a delay
+          setTimeout(() => {
+            loadingContainer.style.display = 'none';
+          }, 3000);
         }
       }
       
@@ -2236,7 +2313,7 @@
         savedResultsList.innerHTML = '';
         savedResultsContainer.style.display = 'block';
         
-        savedResults.forEach((result, index) => {
+        savedResults.forEach((result, index) {
           const date = new Date(result.timestamp).toLocaleDateString();
           const time = new Date(result.timestamp).toLocaleTimeString();
           
@@ -2349,26 +2426,26 @@
         }
         
         // Show loading animation
-        loading.style.display = 'block';
+        loadingContainer.style.display = 'block';
         resultContainer.style.display = 'none';
-        calculateCgpaBtn.style.display = 'none';
         saveToWebBtn.style.display = 'none';
-        updateProgress(10, 'Starting Fetch');
+        updateLoadingText('Connecting to UAF LMS', 'Establishing secure connection');
         addStatusMessage(`Fetching result for registration number: ${regNum}`, 'info');
         
         try {
+          updateLoadingText('Authenticating', 'Verifying your registration details');
           const response = await fetch(`${API_ENDPOINTS.scrape}?action=scrape_single&registrationNumber=${encodeURIComponent(regNum)}`, {
             method: 'GET'
           });
           
-          updateProgress(50, 'Processing Data');
+          updateLoadingText('Processing Data', 'Organizing your academic records');
           
           const data = await response.json();
           
           if (data.success) {
             scrapedData = data;
             addStatusMessage('Result fetched successfully', 'success');
-            updateProgress(70, 'Processing Data');
+            updateLoadingText('Analyzing Results', 'Calculating CGPA and grades');
             
             // Process the scraped data
             processedData = processScrapedData(data);
@@ -2381,32 +2458,45 @@
               displayCGPAResults(processedData, cgpaData);
               
               addStatusMessage('CGPA calculated successfully', 'success');
-              updateProgress(100, 'Fetch Complete');
+              updateLoadingText('Complete', 'Your results are ready');
               showToast('Result fetched successfully!', 'success');
+              
+              // Hide loading after a delay
+              setTimeout(() => {
+                loadingContainer.style.display = 'none';
+              }, 1500);
               
               // Check for saved results
               checkSavedResults();
             } else {
               addStatusMessage('Error processing result data', 'error');
               showToast('Error processing result data', 'error');
-              updateProgress(100, 'Error');
+              updateLoadingText('Error', 'Failed to process your results');
+              
+              // Hide loading after a delay
+              setTimeout(() => {
+                loadingContainer.style.display = 'none';
+              }, 3000);
             }
           } else {
             addStatusMessage(`Error: ${data.message}`, 'error');
             showToast(data.message, 'error');
-            updateProgress(100, 'Error');
+            updateLoadingText('Error', data.message);
+            
+            // Hide loading after a delay
+            setTimeout(() => {
+              loadingContainer.style.display = 'none';
+            }, 3000);
           }
         } catch (error) {
           addStatusMessage(`Error fetching result: ${error.message}`, 'error');
           showToast('Error fetching result', 'error');
-          updateProgress(100, 'Error');
-        } finally {
-          loading.style.display = 'none';
+          updateLoadingText('Error', 'Network connection failed');
           
-          // Reset progress after a delay
+          // Hide loading after a delay
           setTimeout(() => {
-            updateProgress(0, 'Ready');
-          }, 2000);
+            loadingContainer.style.display = 'none';
+          }, 3000);
         }
       }
       
@@ -2421,8 +2511,6 @@
       downloadLogBtn.addEventListener('click', downloadLog);
       
       clearLogBtn.addEventListener('click', clearLog);
-      
-      calculateCgpaBtn.addEventListener('click', recalculateCGPA);
       
       saveToWebBtn.addEventListener('click', saveToWeb);
       
