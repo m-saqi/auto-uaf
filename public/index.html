@@ -2090,16 +2090,17 @@
                 <tbody>
                   ${semester.courses.map(course => `
                     <tr class="${course.isExtraEnrolled ? 'table-warning' : ''} ${course.isDeleted ? 'table-danger text-decoration-line-through' : ''} ${course.isCustom ? 'table-info' : ''}">
-                      <td style="position: relative;">
-                        <div class="course-code-container">
-                          <div class="d-flex align-items-center">
-                            <span class="fw-medium course-code clickable-info" data-course='${JSON.stringify(course).replace(/'/g, "&#39;")}'>${course.code}</span>
-                            <i class="fa-solid fa-info-circle ms-2 clickable-info small" data-course='${JSON.stringify(course).replace(/'/g, "&#39;")}' title="${course.title}"></i>
-                          </div>
-                          ${course.isExtraEnrolled ? '<span class="repeated-badge">Rep.</span>' : ''}
-                          ${course.isCustom ? '<span class="extra-enrolled">Custom</span>' : ''}
-                        </div>
-                      </td>
+                      <td>
+  <div class="course-code-container">
+    <div class="d-flex align-items-center">
+      <span class="fw-medium course-code clickable-info" data-course='${JSON.stringify(course).replace(/'/g, "&#39;")}'>
+        ${course.code}${course.isExtraEnrolled ? '<span style="font-size: 8px; color: #856404;"> (Rep.)</span>' : ''}
+      </span>
+      <i class="fa-solid fa-info-circle ms-2 clickable-info small" data-course='${JSON.stringify(course).replace(/'/g, "&#39;")}' title="${course.title}"></i>
+    </div>
+    ${course.isCustom ? '<span class="extra-enrolled">Custom</span>' : ''}
+  </div>
+</td>
                       <td>${course.creditHoursDisplay || course.creditHours}</td>
                       <td>${course.marks}</td>
                       <td>
@@ -2799,3 +2800,4 @@
   </script>
 </body>
 </html>
+
