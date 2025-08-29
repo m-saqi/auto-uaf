@@ -454,6 +454,7 @@
       cursor: pointer;
       color: #dc3545;
       font-size: 1.2rem;
+      z-index: 10;
     }
     
     .add-course-btn {
@@ -463,6 +464,7 @@
       cursor: pointer;
       color: var(--brand);
       font-size: 1.2rem;
+      z-index: 10;
     }
     
     .course-table {
@@ -843,7 +845,7 @@
     
     .cgpa-display {
       flex: 0 0 auto;
-      text-align: left;
+      text-align: right;
       min-width: 200px;
     }
     
@@ -945,6 +947,62 @@
       .semester-grid {
         grid-template-columns: 1fr;
       }
+    }
+
+    /* NEW STYLES FOR UPDATES */
+    .repeated-badge {
+      position: absolute;
+      top: 5px;
+      right: 5px;
+      background-color: #ffc107;
+      color: #856404;
+      font-size: 8px;
+      padding: 2px 4px;
+      border-radius: 3px;
+      font-weight: bold;
+    }
+    
+    .custom-course-btn {
+      background-color: #10ac84;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      padding: 8px 12px;
+      font-size: 0.9rem;
+      margin-top: 10px;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      cursor: pointer;
+    }
+    
+    .custom-course-btn:hover {
+      background-color: #0d916b;
+    }
+    
+    .undo-notification {
+      position: fixed;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      background-color: #333;
+      color: white;
+      padding: 10px 20px;
+      border-radius: 5px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      z-index: 1000;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    }
+    
+    .undo-btn {
+      background-color: #10ac84;
+      color: white;
+      border: none;
+      padding: 5px 10px;
+      border-radius: 3px;
+      cursor: pointer;
     }
   </style>
 </head>
@@ -1156,19 +1214,11 @@
           <div id="resultContainer" class="result-container">
             <!-- Student Info and CGPA Section -->
             <div class="gpa-result-card">
-              <div class="card-header p-4">
-                <h4 class="mb-0"><i class="fa-solid fa-user-graduate me-2"></i>Student Information</h4>
-              </div>
               <div class="card-body p-4">
                 <div class="student-info-section">
-                  <div class="d-flex align-items-center">
-                    <div class="student-info-logo">
-                      <i class="fa-solid fa-book-open"></i>
-                    </div>
-                    <div class="student-details">
-                      <h2 class="mb-1 fw-bold" id="studentName">Student Name</h2>
-                      <p class="mb-0 text-body-secondary" id="studentReg">Registration Number</p>
-                    </div>
+                  <div class="student-details">
+                    <h2 class="mb-1 fw-bold" id="studentName"><i class="fa-solid fa-user-graduate me-2"></i>Student Name</h2>
+                    <p class="mb-0 text-body-secondary" id="studentReg">Registration Number</p>
                   </div>
                   
                   <div class="cgpa-display">
@@ -1189,7 +1239,6 @@
             
             <!-- Semester Results Container - Removed outer card -->
             <div class="semester-results-container">
-              <h4 class="mb-4"><i class="fa-solid fa-book-open me-2"></i>Semester Results</h4>
               <div id="semesterResults" class="semester-grid">
                 <!-- Semester cards will be dynamically inserted here -->
               </div>
@@ -1341,6 +1390,7 @@
       let scrapedData = null;
       let processedData = null;
       let currentSessionId = null;
+      let deletedSemesters = {}; // Track deleted semesters for undo functionality
       
       // API endpoints - FIXED to match your Python backend
       const API_ENDPOINTS = {
@@ -1708,6 +1758,7 @@
           const originalSemester = course.Semester || 'Unknown Semester';
           const semesterName = processSemesterName(originalSemester);
           const courseCode = course.CourseCode || '';
+          const creditHoursStr = course.CreditHours || '0';
           
           if (!semesters[semesterName]) {
             semesters[semesterName] = {
@@ -1719,9 +1770,8 @@
             };
           }
           
-          // Parse credit hours
+          // Parse credit hours - preserve the original format like "3(2-1)"
           let creditHours = 0;
-          const creditHoursStr = course.CreditHours || '0';
           const numbers = creditHoursStr.match(/\d+/g);
           if (numbers && numbers.length > 0) {
             creditHours = parseInt(numbers[0]);
@@ -1745,6 +1795,7 @@
             code: courseCode,
             title: course.CourseTitle || '',
             creditHours: creditHours,
+            creditHoursDisplay: creditHoursStr, // Preserve original format
             marks: marks,
             qualityPoints: qualityPoints,
             grade: grade,
@@ -1880,6 +1931,45 @@
         return parseFloat(qualityPoints.toFixed(2));
       }
       
+      // Calculate grade for custom courses based on marks and credit hours
+      function calculateCustomGrade(marks, creditHours) {
+        marks = parseFloat(marks);
+        creditHours = parseInt(creditHours);
+        
+        if (creditHours === 5) {
+          if (marks >= 80) return 'A';
+          else if (marks >= 50) return 'B';
+          else if (marks >= 40) return 'D';
+          else return 'F';
+        } else if (creditHours === 4) {
+          if (marks >= 64) return 'A';
+          else if (marks >= 52) return 'B';
+          else if (marks >= 40) return 'C';
+          else if (marks >= 32) return 'D';
+          else return 'F';
+        } else if (creditHours === 3) {
+          if (marks >= 48) return 'A';
+          else if (marks >= 39) return 'B';
+          else if (marks >= 30) return 'C';
+          else if (marks >= 24) return 'D';
+          else return 'F';
+        } else if (creditHours === 2) {
+          if (marks >= 32) return 'A';
+          else if (marks >= 26) return 'B';
+          else if (marks >= 20) return 'C';
+          else if (marks >= 16) return 'D';
+          else return 'F';
+        } else if (creditHours === 1) {
+          if (marks >= 16) return 'A';
+          else if (marks >= 13) return 'B';
+          else if (marks >= 10) return 'C';
+          else if (marks >= 8) return 'D';
+          else return 'F';
+        }
+        
+        return 'F';
+      }
+      
       // Calculate CGPA from processed data
       function calculateCGPA(processedData) {
         if (!processedData) return null;
@@ -1953,6 +2043,7 @@
         
         // Update student info
         studentName.textContent = processedData.studentInfo.name;
+        studentName.innerHTML = `<i class="fa-solid fa-user-graduate me-2"></i>${processedData.studentInfo.name}`;
         studentReg.textContent = processedData.studentInfo.registration;
         
         // Update overall CGPA
@@ -1968,20 +2059,23 @@
           
           const semesterCard = document.createElement('div');
           semesterCard.className = 'semester-card';
+          semesterCard.dataset.semester = semesterName;
           semesterCard.innerHTML = `
-            <i class="fa-solid fa-trash delete-semester" title="Delete this semester"></i>
-            <i class="fa-solid fa-plus add-course-btn" title="Add custom course" data-semester="${semesterName}"></i>
+            <i class="fa-solid fa-trash delete-semester" title="Delete this semester" data-semester="${semesterName}"></i>
             <div class="d-flex align-items-center justify-content-between mb-3">
               <h5 class="mb-0">
                 <i class="fa-solid fa-book-open me-2" style="color: var(--brand);"></i>
                 ${semesterName}
               </h5>
-              <div class="text-right">
+              <div class="text-right" style="margin-right: 40px;">
                 <p class="mb-0 text-body-secondary small">GPA:</p>
                 <p class="mb-0 h4 fw-bold" style="color: var(--brand);">${semester.gpa ? semester.gpa.toFixed(2) : 0}</p>
                 <p class="mb-0 text-body-secondary small">${semester.percentage || 0}%</p>
               </div>
             </div>
+            <button class="custom-course-btn" data-semester="${semesterName}">
+              <i class="fa-solid fa-plus"></i> Custom Course
+            </button>
             <div class="table-responsive">
               <table class="course-table">
                 <thead>
@@ -1996,17 +2090,17 @@
                 <tbody>
                   ${semester.courses.map(course => `
                     <tr class="${course.isExtraEnrolled ? 'table-warning' : ''} ${course.isDeleted ? 'table-danger text-decoration-line-through' : ''} ${course.isCustom ? 'table-info' : ''}">
-                      <td>
+                      <td style="position: relative;">
                         <div class="course-code-container">
                           <div class="d-flex align-items-center">
                             <span class="fw-medium course-code clickable-info" data-course='${JSON.stringify(course).replace(/'/g, "&#39;")}'>${course.code}</span>
                             <i class="fa-solid fa-info-circle ms-2 clickable-info small" data-course='${JSON.stringify(course).replace(/'/g, "&#39;")}' title="${course.title}"></i>
                           </div>
-                          ${course.isExtraEnrolled ? '<span class="extra-enrolled">Repeated</span>' : ''}
+                          ${course.isExtraEnrolled ? '<span class="repeated-badge">Rep.</span>' : ''}
                           ${course.isCustom ? '<span class="extra-enrolled">Custom</span>' : ''}
                         </div>
                       </td>
-                      <td>${course.creditHours}</td>
+                      <td>${course.creditHoursDisplay || course.creditHours}</td>
                       <td>${course.marks}</td>
                       <td>
                         <span class="grade-badge grade-${course.grade}">${course.grade}</span>
@@ -2037,13 +2131,12 @@
         
         document.querySelectorAll('.delete-semester').forEach(btn => {
           btn.addEventListener('click', function() {
-            const semesterCard = this.closest('.semester-card');
-            const semesterName = semesterCard.dataset.semester;
+            const semesterName = this.dataset.semester;
             deleteSemester(semesterName);
           });
         });
         
-        document.querySelectorAll('.add-course-btn').forEach(btn => {
+        document.querySelectorAll('.custom-course-btn').forEach(btn => {
           btn.addEventListener('click', function() {
             const semesterName = this.dataset.semester;
             openAddCourseModal(semesterName);
@@ -2106,7 +2199,7 @@
           <div class="row">
             <div class="col-md-6">
               <p><strong>Teacher:</strong> ${course.teacher}</p>
-              <p><strong>Credit Hours:</strong> ${course.creditHours}</p>
+              <p><strong>Credit Hours:</strong> ${course.creditHoursDisplay || course.creditHours}</p>
               <p><strong>Semester:</strong> ${course.semesterName}</p>
             </div>
             <div class="col-md-6">
@@ -2180,22 +2273,14 @@
         // Calculate quality points
         const qualityPoints = calculateQualityPoints(marks, creditHours);
         
-        // Determine grade based on marks
-        let grade = 'F';
-        if (marks >= 85) grade = 'A';
-        else if (marks >= 80) grade = 'A-';
-        else if (marks >= 75) grade = 'B+';
-        else if (marks >= 70) grade = 'B';
-        else if (marks >= 65) grade = 'B-';
-        else if (marks >= 61) grade = 'C+';
-        else if (marks >= 58) grade = 'C';
-        else if (marks >= 55) grade = 'C-';
-        else if (marks >= 50) grade = 'D';
+        // Determine grade based on custom grading system
+        const grade = calculateCustomGrade(marks, creditHours);
         
         const courseData = {
           code: courseCode,
           title: courseTitle,
           creditHours: creditHours,
+          creditHoursDisplay: creditHours.toString(), // Simple display for custom courses
           marks: marks,
           qualityPoints: qualityPoints,
           grade: grade,
@@ -2233,6 +2318,9 @@
       function deleteSemester(semesterName) {
         if (!processedData || !processedData.semesters[semesterName]) return;
         
+        // Store the semester data for potential undo
+        deletedSemesters[semesterName] = JSON.parse(JSON.stringify(processedData.semesters[semesterName]));
+        
         // Remove semester from processed data
         delete processedData.semesters[semesterName];
         
@@ -2242,8 +2330,66 @@
         // Update display
         displayCGPAResults(processedData, cgpaData);
         
+        // Show undo notification
+        showUndoNotification(semesterName);
+        
         addStatusMessage(`Deleted semester: ${semesterName}`, 'info');
         showToast(`Semester ${semesterName} deleted`, 'info');
+      }
+      
+      // Show undo notification for deleted semester
+      function showUndoNotification(semesterName) {
+        // Remove any existing undo notification
+        const existingNotification = document.getElementById('undo-notification');
+        if (existingNotification) {
+          existingNotification.remove();
+        }
+        
+        const notification = document.createElement('div');
+        notification.id = 'undo-notification';
+        notification.className = 'undo-notification';
+        notification.innerHTML = `
+          Semester "${semesterName}" deleted
+          <button class="undo-btn" data-semester="${semesterName}">Undo</button>
+        `;
+        
+        document.body.appendChild(notification);
+        
+        // Add event listener for undo button
+        notification.querySelector('.undo-btn').addEventListener('click', function() {
+          const semesterToRestore = this.dataset.semester;
+          undoDeleteSemester(semesterToRestore);
+          notification.remove();
+        });
+        
+        // Auto remove after 5 seconds
+        setTimeout(() => {
+          if (notification.parentNode) {
+            notification.remove();
+            // Permanently remove the semester from undo history
+            delete deletedSemesters[semesterName];
+          }
+        }, 5000);
+      }
+      
+      // Undo semester deletion
+      function undoDeleteSemester(semesterName) {
+        if (!deletedSemesters[semesterName]) return;
+        
+        // Restore the semester
+        processedData.semesters[semesterName] = deletedSemesters[semesterName];
+        
+        // Remove from undo history
+        delete deletedSemesters[semesterName];
+        
+        // Recalculate CGPA
+        const cgpaData = calculateCGPA(processedData);
+        
+        // Update display
+        displayCGPAResults(processedData, cgpaData);
+        
+        addStatusMessage(`Restored semester: ${semesterName}`, 'info');
+        showToast(`Semester ${semesterName} restored`, 'success');
       }
       
       // Delete a course
@@ -2653,4 +2799,3 @@
   </script>
 </body>
 </html>
-
