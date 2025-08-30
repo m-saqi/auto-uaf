@@ -1004,6 +1004,50 @@
       border-radius: 3px;
       cursor: pointer;
     }
+
+    /* Updated CGPA Display Layout */
+    .cgpa-display-container {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+    
+    .cgpa-main-info {
+      flex: 1;
+      min-width: 200px;
+    }
+    
+    .cgpa-metrics {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-width: 180px;
+    }
+    
+    .cgpa-marks {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      min-width: 180px;
+    }
+    
+    @media (max-width: 768px) {
+      .cgpa-display-container {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+      
+      .cgpa-metrics, .cgpa-marks {
+        align-items: flex-start;
+        width: 100%;
+      }
+      
+      .cgpa-marks {
+        margin-top: 1rem;
+      }
+    }
   </style>
 </head>
 <body>
@@ -1060,8 +1104,7 @@
             <div class="mb-3">
               <label for="courseMarks" class="form-label">Marks Obtained</label>
               <input type="number" class="form-control" id="courseMarks" min="0" max="100" required>
-            </div>
-          </form>
+            </form>
         </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-secondary rounded-pill" data-bs-dismiss="modal">Cancel</button>
@@ -1215,16 +1258,22 @@
             <!-- Student Info and CGPA Section -->
             <div class="gpa-result-card">
               <div class="card-body p-4">
-                <div class="student-info-section">
-                  <div class="student-details">
+                <div class="cgpa-display-container">
+                  <div class="cgpa-main-info">
                     <h2 class="mb-1 fw-bold" id="studentName"><i class="fa-solid fa-user-graduate me-2"></i>Student Name</h2>
                     <p class="mb-0 text-body-secondary" id="studentReg">Registration Number</p>
                   </div>
                   
-                  <div class="cgpa-display">
+                  <div class="cgpa-metrics">
                     <p class="mb-0 text-body-secondary">Total CGPA</p>
-                    <p class="mb-0 display-6 fw-bold" style="color: var(--brand);" id="totalCgpa">0.00</p>
-                    <p class="mb-0 text-body-secondary" id="totalPercentage">0%</p>
+                    <p class="mb-0 display-6 fw-bold" style="color: var(--brand);" id="totalCgpa">0.0000</p>
+                    <p class="mb-0 text-body-secondary" id="totalPercentage">0.0000%</p>
+                  </div>
+                  
+                  <div class="cgpa-marks">
+                    <p class="mb-0 text-body-secondary">Marks Obtained</p>
+                    <p class="mb-0 h4 fw-bold" style="color: var(--brand);" id="totalMarksObtained">0</p>
+                    <p class="mb-0 text-body-secondary" id="totalMaxMarks">/ 0</p>
                   </div>
                 </div>
                 
@@ -1363,7 +1412,7 @@
       const themeToggle = document.getElementById('themeToggle');
       const cursorDot = document.getElementById('cursorDot');
       const contactForm = document.getElementById('contact-form');
-      const contactFormStatus = document.getElementById('contact-form-status');
+      const contactFormStatus = document.getElementById('contact-formStatus');
       const downloadLogBtn = document.getElementById('downloadLogBtn');
       const clearLogBtn = document.getElementById('clearLogBtn');
       const semesterResults = document.getElementById('semesterResults');
@@ -1371,6 +1420,8 @@
       const studentReg = document.getElementById('studentReg');
       const totalCgpa = document.getElementById('totalCgpa');
       const totalPercentage = document.getElementById('totalPercentage');
+      const totalMarksObtained = document.getElementById('totalMarksObtained');
+      const totalMaxMarks = document.getElementById('totalMaxMarks');
       const saveToWebBtn = document.getElementById('saveToWebBtn');
       const savedResultsContainer = document.getElementById('savedResultsContainer');
       const savedResultsList = document.getElementById('savedResultsList');
@@ -2014,7 +2065,7 @@
           // Calculate semester GPA
           if (semester.totalCreditHours > 0) {
             semester.gpa = parseFloat((semester.totalQualityPoints / semester.totalCreditHours).toFixed(4));
-            semester.percentage = parseFloat((semester.totalMarksObtained / semester.totalMaxMarks * 100).toFixed(2));
+            semester.percentage = parseFloat((semester.totalMarksObtained / semester.totalMaxMarks * 100).toFixed(4));
           } else {
             semester.gpa = 0;
             semester.percentage = 0;
@@ -2023,7 +2074,7 @@
         
         // Calculate overall CGPA
         const cgpa = totalCreditHours > 0 ? parseFloat((totalQualityPoints / totalCreditHours).toFixed(4)) : 0;
-        const percentage = totalMaxMarks > 0 ? parseFloat((totalMarksObtained / totalMaxMarks * 100).toFixed(2)) : 0;
+        const percentage = totalMaxMarks > 0 ? parseFloat((totalMarksObtained / totalMaxMarks * 100).toFixed(4)) : 0;
         
         return {
           cgpa: cgpa,
@@ -2046,9 +2097,11 @@
         studentName.innerHTML = `<i class="fa-solid fa-user-graduate me-2"></i>${processedData.studentInfo.name}`;
         studentReg.textContent = processedData.studentInfo.registration;
         
-        // Update overall CGPA
-        totalCgpa.textContent = cgpaData.cgpa.toFixed(2);
-        totalPercentage.textContent = `${cgpaData.percentage}%`;
+        // Update overall CGPA and marks
+        totalCgpa.textContent = cgpaData.cgpa.toFixed(4);
+        totalPercentage.textContent = `${cgpaData.percentage.toFixed(4)}%`;
+        totalMarksObtained.textContent = cgpaData.totalMarksObtained.toFixed(0);
+        totalMaxMarks.textContent = `/ ${cgpaData.totalMaxMarks.toFixed(0)}`;
         
         // Clear previous semester results
         semesterResults.innerHTML = '';
@@ -2069,8 +2122,8 @@
               </h5>
               <div class="text-right" style="margin-right: 40px;">
                 <p class="mb-0 text-body-secondary small">GPA:</p>
-                <p class="mb-0 h4 fw-bold" style="color: var(--brand);">${semester.gpa ? semester.gpa.toFixed(2) : 0}</p>
-                <p class="mb-0 text-body-secondary small">${semester.percentage || 0}%</p>
+                <p class="mb-0 h4 fw-bold" style="color: var(--brand);">${semester.gpa ? semester.gpa.toFixed(4) : 0}</p>
+                <p class="mb-0 text-body-secondary small">${semester.percentage ? semester.percentage.toFixed(4) : 0}%</p>
               </div>
             </div>
             <button class="custom-course-btn" data-semester="${semesterName}">
@@ -2800,4 +2853,3 @@
   </script>
 </body>
 </html>
-
