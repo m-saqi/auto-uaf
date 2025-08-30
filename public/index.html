@@ -17,8 +17,8 @@
   <meta name="twitter:title" content="UAF CGPA Calculator" />
   <meta name="twitter:description" content="Fetch your results directly from UAF LMS and calculate CGPA automatically." />
 
-  <!-- Brand -->
-  <link rel="icon" type="image/x-icon" href="assets/images/favicon.ico" />
+  <!-- Favicon -->
+  <link rel="icon" type="image/x-icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🎓</text></svg>">
 
   <!-- Fonts & Icons -->
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
@@ -426,14 +426,14 @@
       to { transform: scaleX(0); }
     }
 
-    /* GPA Result Display */
+    /* GPA Result Display - UPDATED WIDTH */
     .gpa-result-card {
       background: white;
       border-radius: var(--radius);
       padding: 1.5rem;
       box-shadow: 0 10px 30px rgba(17,24,39,.06);
       margin-bottom: 2rem;
-      max-width: 720px;
+      max-width: 900px; /* Changed from 720px to 900px */
       margin-left: auto;
       margin-right: auto;
     }
@@ -525,7 +525,7 @@
     .saved-results-container {
       display: none;
       margin-top: 2rem;
-      max-width: 720px;
+      max-width: 900px; /* Updated to match the new width */
       margin-left: auto;
       margin-right: auto;
     }
@@ -1005,7 +1005,7 @@
       cursor: pointer;
     }
 
-    /* Updated CGPA Display Layout */
+    /* UPDATED CGPA Display Layout */
     .cgpa-display-container {
       display: flex;
       justify-content: space-between;
@@ -1017,6 +1017,7 @@
     .cgpa-main-info {
       flex: 1;
       min-width: 200px;
+      width: 33%; /* Name takes 33% width */
     }
     
     .cgpa-metrics {
@@ -1024,6 +1025,7 @@
       flex-direction: column;
       align-items: center;
       min-width: 180px;
+      width: 33%; /* CGPA takes 33% width */
     }
     
     .cgpa-marks {
@@ -1031,21 +1033,44 @@
       flex-direction: column;
       align-items: flex-end;
       min-width: 180px;
+      width: 33%; /* Marks take 33% width */
     }
     
     @media (max-width: 768px) {
       .cgpa-display-container {
-        flex-direction: column;
+        flex-direction: row;
         align-items: flex-start;
       }
       
-      .cgpa-metrics, .cgpa-marks {
-        align-items: flex-start;
-        width: 100%;
+      .cgpa-main-info {
+        width: 50%; /* Name takes 50% on mobile */
+      }
+      
+      .cgpa-metrics {
+        width: 50%; /* CGPA takes 50% on mobile */
+        align-items: flex-end;
       }
       
       .cgpa-marks {
+        width: 100%; /* Marks take full width on mobile */
+        align-items: center;
         margin-top: 1rem;
+        flex-direction: row;
+        justify-content: center;
+        gap: 0.5rem;
+      }
+    }
+    
+    /* Mobile undo button adjustments */
+    @media (max-width: 576px) {
+      .undo-btn {
+        padding: 3px 8px;
+        font-size: 12px;
+      }
+      
+      .undo-notification {
+        padding: 8px 12px;
+        font-size: 14px;
       }
     }
   </style>
@@ -2087,6 +2112,30 @@
         };
       }
       
+      // Format CGPA with appropriate decimal places
+      function formatCGPA(value) {
+        if (value % 1 === 0) {
+          return value.toFixed(2);
+        } else {
+          // Check if it has non-recurring decimals beyond 2 places
+          const decimalPart = (value - Math.floor(value)).toFixed(4).substring(2);
+          if (decimalPart.length > 2 && decimalPart !== '00') {
+            return value.toFixed(4);
+          } else {
+            return value.toFixed(2);
+          }
+        }
+      }
+      
+      // Format percentage with appropriate decimal places
+      function formatPercentage(value) {
+        if (value % 1 === 0) {
+          return value.toFixed(0);
+        } else {
+          return value.toFixed(2);
+        }
+      }
+      
       // Display CGPA results
       function displayCGPAResults(processedData, cgpaData) {
         // Show the result container
@@ -2098,9 +2147,9 @@
         studentName.innerHTML = `<i class="fa-solid fa-user-graduate me-2"></i>${processedData.studentInfo.name}`;
         studentReg.textContent = processedData.studentInfo.registration;
         
-        // Update overall CGPA and marks
-        totalCgpa.textContent = cgpaData.cgpa.toFixed(4);
-        totalPercentage.textContent = `${cgpaData.percentage.toFixed(4)}%`;
+        // Update overall CGPA and marks with formatted values
+        totalCgpa.textContent = formatCGPA(cgpaData.cgpa);
+        totalPercentage.textContent = `${formatPercentage(cgpaData.percentage)}%`;
         totalMarksObtained.textContent = cgpaData.totalMarksObtained.toFixed(0);
         totalMaxMarks.textContent = `/ ${cgpaData.totalMaxMarks.toFixed(0)}`;
         
@@ -2123,8 +2172,8 @@
               </h5>
               <div class="text-right" style="margin-right: 40px;">
                 <p class="mb-0 text-body-secondary small">GPA:</p>
-                <p class="mb-0 h4 fw-bold" style="color: var(--brand);">${semester.gpa ? semester.gpa.toFixed(4) : 0}</p>
-                <p class="mb-0 text-body-secondary small">${semester.percentage ? semester.percentage.toFixed(4) : 0}%</p>
+                <p class="mb-0 h4 fw-bold" style="color: var(--brand);">${semester.gpa ? formatCGPA(semester.gpa) : 0}</p>
+                <p class="mb-0 text-body-secondary small">${semester.percentage ? formatPercentage(semester.percentage) : 0}%</p>
               </div>
             </div>
             <button class="custom-course-btn" data-semester="${semesterName}">
@@ -2854,5 +2903,3 @@
   </script>
 </body>
 </html>
-
-
