@@ -1004,75 +1004,104 @@
       border-radius: 3px;
       cursor: pointer;
     }
+/* Updated CGPA Display Layout */
+.cgpa-display-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
 
-    /* UPDATED CGPA Display Layout */
-    .cgpa-display-container {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      flex-wrap: wrap;
-      gap: 1rem;
-    }
-    
-    .cgpa-main-info {
-      flex: 1;
-      min-width: 200px;
-      width: 33%; /* Name takes 33% width */
-    }
-    
-    .cgpa-metrics {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      min-width: 180px;
-      width: 33%; /* CGPA takes 33% width */
-    }
-    
-    .cgpa-marks {
-      display: flex;
-      flex-direction: column;
-      align-items: flex-end;
-      min-width: 180px;
-      width: 33%; /* Marks take 33% width */
-    }
-    
-    @media (max-width: 768px) {
-      .cgpa-display-container {
-        flex-direction: row;
-        align-items: flex-start;
-      }
-      
-      .cgpa-main-info {
-        width: 50%; /* Name takes 50% on mobile */
-      }
-      
-      .cgpa-metrics {
-        width: 50%; /* CGPA takes 50% on mobile */
-        align-items: flex-end;
-      }
-      
-      .cgpa-marks {
-        width: 100%; /* Marks take full width on mobile */
-        align-items: center;
-        margin-top: 1rem;
-        flex-direction: row;
-        justify-content: center;
-        gap: 0.5rem;
-      }
-    }
-    
-    /* Mobile undo button adjustments */
-    @media (max-width: 576px) {
-      .undo-btn {
-        padding: 3px 8px;
-        font-size: 12px;
-      }
-      
-      .undo-notification {
-        padding: 8px 12px;
-        font-size: 14px;
-      }
-    }
+.cgpa-main-info {
+  flex: 1;
+  min-width: 200px;
+  width: 33%; /* Name takes 33% width */
+}
+
+.cgpa-metrics {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-width: 180px;
+  width: 33%; /* CGPA takes 33% width */
+}
+
+.cgpa-marks {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  min-width: 180px;
+  width: 33%; /* Marks take 33% width */
+}
+
+@media (max-width: 768px) {
+  .cgpa-display-container {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 1.5rem;
+  }
+  
+  .cgpa-main-info, 
+  .cgpa-metrics, 
+  .cgpa-marks {
+    width: 100%;
+    align-items: center;
+    text-align: center;
+  }
+  
+  .cgpa-main-info {
+    order: 1;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid rgba(122,106,216,.2);
+  }
+  
+  .cgpa-metrics {
+    order: 2;
+  }
+  
+  .cgpa-marks {
+    order: 3;
+    flex-direction: row;
+    justify-content: center;
+    gap: 0.5rem;
+    margin-top: 0;
+  }
+  
+  /* Adjust text sizes for mobile */
+  .cgpa-main-info h2 {
+    font-size: 1.5rem;
+  }
+  
+  .cgpa-metrics .display-6 {
+    font-size: 2rem;
+  }
+  
+  .cgpa-marks .h4 {
+    font-size: 1.5rem;
+  }
+  
+  .text-body-secondary {
+    font-size: 0.9rem;
+  }
+}
+
+/* Mobile undo button adjustments */
+@media (max-width: 576px) {
+  .undo-btn {
+    padding: 4px 8px;
+    font-size: 12px;
+  }
+  
+  .undo-notification {
+    padding: 8px 12px;
+    font-size: 13px;
+    flex-direction: column;
+    gap: 8px;
+    text-align: center;
+  }
+}
   </style>
 </head>
 <body>
@@ -2903,3 +2932,4 @@
   </script>
 </body>
 </html>
+
