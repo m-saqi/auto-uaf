@@ -1320,36 +1320,44 @@
           
           <!-- Results Section -->
           <div id="resultContainer" class="result-container">
-            <!-- Student Info and CGPA Section -->
-            <div class="gpa-result-card">
-              <div class="card-body p-4">
-                <div class="cgpa-display-container">
-                  <div class="cgpa-main-info">
-                    <h2 class="mb-1 fw-bold" id="studentName"><i class="fa-solid fa-user-graduate me-2"></i>Student Name</h2>
-                    <p class="mb-0 text-body-secondary" id="studentReg">Registration Number</p>
-                  </div>
-                  
-                  <div class="cgpa-metrics">
-                    <p class="mb-0 text-body-secondary">Total CGPA</p>
-                    <p class="mb-0 display-6 fw-bold" style="color: var(--brand);" id="totalCgpa">0.0000</p>
-                    <p class="mb-0 text-body-secondary" id="totalPercentage">0.0000%</p>
-                  </div>
-                  
-                  <div class="cgpa-marks">
-                    <p class="mb-0 text-body-secondary">Marks Obtained</p>
-                    <p class="mb-0 h4 fw-bold" style="color: var(--brand);" id="totalMarksObtained">0</p>
-                    <p class="mb-0 text-body-secondary" id="totalMaxMarks">/ 0</p>
-                  </div>
-                </div>
-                
-                <!-- Action Buttons -->
-                <div class="action-buttons">
-                  <button id="saveToWebBtn" class="btn btn-primary-action rounded-pill save-to-web-btn">
-                    <i class="fa-solid fa-cloud-arrow-up me-2"></i>Save to Web
-                  </button>
-                </div>
-              </div>
-            </div>
+            <!-- Replace the existing CGPA display section with this code -->
+<div class="gpa-result-card">
+  <div class="card-body p-4">
+    <div class="cgpa-display-container">
+      <!-- Name and Registration (centered on top) -->
+      <div class="cgpa-main-info">
+        <h2 class="mb-1 fw-bold" id="studentName"><i class="fa-solid fa-user-graduate me-2"></i>Student Name</h2>
+        <p class="mb-0 text-body-secondary" id="studentReg">Registration Number</p>
+      </div>
+      
+      <!-- CGPA (left) -->
+      <div class="cgpa-metrics cgpa-metrics-left">
+        <p class="mb-0 cgpa-metrics-label">CGPA</p>
+        <p class="mb-0 cgpa-metrics-value" id="totalCgpa">0.0000</p>
+      </div>
+      
+      <!-- Percentage (center) -->
+      <div class="cgpa-metrics cgpa-metrics-center">
+        <p class="mb-0 cgpa-metrics-label">Percentage</p>
+        <p class="mb-0 cgpa-metrics-value" id="totalPercentage">0.0000%</p>
+      </div>
+      
+      <!-- Marks (right) -->
+      <div class="cgpa-metrics cgpa-metrics-right">
+        <p class="mb-0 cgpa-metrics-label">Marks</p>
+        <p class="mb-0 cgpa-metrics-value" id="totalMarksObtained">0</p>
+        <p class="mb-0 cgpa-metrics-subvalue" id="totalMaxMarks">/ 0</p>
+      </div>
+    </div>
+    
+    <!-- Action Buttons -->
+    <div class="action-buttons">
+      <button id="saveToWebBtn" class="btn btn-primary-action rounded-pill save-to-web-btn">
+        <i class="fa-solid fa-cloud-arrow-up me-2"></i>Save to Web
+      </button>
+    </div>
+  </div>
+</div>
             
             <!-- Semester Results Container - Removed outer card -->
             <div class="semester-results-container">
@@ -2942,5 +2950,6 @@
   </script>
 </body>
 </html>
+
 
 
