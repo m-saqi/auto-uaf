@@ -57,6 +57,7 @@ body {
   min-height: 100vh;
   margin: 0;
   padding: 0;
+  color: var(--text); /* Added base text color */
 }
 
 /* Improved navbar with glassmorphism effect */
@@ -82,6 +83,7 @@ body {
   position: relative;
   font-weight: 500;
   transition: all 0.3s ease;
+  color: var(--text);
 }
 
 .navbar .nav-link::after {
@@ -238,16 +240,14 @@ body {
   margin-bottom: 2rem;
 }
 
-    .mt-3 {
-    margin-top: 1rem !important;
-    display: flex
-;
-    justify-content: center;
-    flex-wrap: wrap;
-    gap: 0.5rem;
+.mt-3 {
+  margin-top: 1rem !important;
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 0.5rem;
 }
 
-    
 /* Improved cards with glassmorphism effect */
 .card-modern {
   border: 0;
@@ -257,6 +257,7 @@ body {
   background: rgba(255, 255, 255, 0.8);
   transition: all 0.3s ease;
   overflow: hidden;
+  color: var(--text);
 }
 
 .card-modern:hover {
@@ -282,6 +283,8 @@ body {
   border: 1px solid rgba(122, 106, 216, 0.2);
   padding: 0.75rem 1rem;
   transition: all 0.3s ease;
+  color: var(--text);
+  background-color: rgba(255, 255, 255, 0.9);
 }
 
 .form-select:focus, .form-control:focus {
@@ -880,6 +883,12 @@ a:hover {
 }
 
 /* ----------- DARK MODE IMPROVED ----------- */
+[data-theme="dark"] {
+  --text: #e5e7eb;
+  --text-light: #d1d5db;
+  --muted: #9ca3af;
+}
+
 [data-theme="dark"] body {
   background: linear-gradient(180deg, #0b0e13 0%, #0f1320 70%);
   color: #f1f5f9;
@@ -1096,8 +1105,6 @@ a:hover {
   .hero h1 {
     font-size: 2.5rem;
   }
-  
-
   
   .d-flex.gap-2 .btn {
     width: 100%;
@@ -3461,14 +3468,5 @@ a:hover {
   </script>
 </body>
 </html>
-
-
-
-
-
-
-
-
-
 
 
