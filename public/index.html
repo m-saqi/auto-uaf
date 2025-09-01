@@ -3703,11 +3703,11 @@ function generatePDF() {
     
     if (activeCourses.length > 0) {
       pdfContainer.innerHTML += `
-        <div style="margin-bottom: 25px; page-break-inside: avoid;">
+        <div class="semester-section" style="margin-bottom: 25px; page-break-inside: avoid;">
           <h3 style="color: #7a6ad8; border-bottom: 1px solid #7a6ad8; padding-bottom: 5px; margin: 0 0 10px 0; font-size: 15px;">
             ${semesterName} (GPA: ${formatCGPA(semester.gpa)} | ${formatPercentage(semester.percentage)}%)
           </h3>
-          <table style="width: 100%; border-collapse: collapse; font-size: 11px; page-break-inside: avoid;">
+          <table class="course-table" style="width: 100%; border-collapse: collapse; font-size: 11px; page-break-inside: avoid;">
             <thead>
               <tr style="background-color: #7a6ad8; color: white;">
                 <th style="padding: 8px; text-align: left; border: 1px solid #5d52b8;">Course Code</th>
@@ -3751,60 +3751,93 @@ function generatePDF() {
   // Add to document
   document.body.appendChild(pdfContainer);
   
-  // Use html2canvas and jsPDF to generate PDF
-  html2canvas(pdfContainer, {
-    scale: 2,
-    useCORS: true,
-    logging: false
-  }).then(canvas => {
-    const imgData = canvas.toDataURL('image/jpeg', 0.9);
-    const pdf = new jspdf.jsPDF({
-      orientation: 'portrait',
-      unit: 'mm',
-      format: 'a4'
+  // Calculate the height of each semester section to prevent page breaks within tables
+  setTimeout(() => {
+    const semesterSections = pdfContainer.querySelectorAll('.semester-section');
+    const pageHeight = 1000; // Approximate height of A4 page in pixels at this scale
+    
+    let currentPageHeight = 0;
+    let optimizedHTML = pdfContainer.innerHTML;
+    
+    // Create a new optimized HTML structure with page breaks
+    semesterSections.forEach(section => {
+      const sectionHeight = section.offsetHeight;
+      
+      // If adding this section would exceed the page height, add a page break before it
+      if (currentPageHeight + sectionHeight > pageHeight && currentPageHeight > 0) {
+        const pageBreak = '<div style="page-break-before: always;"></div>';
+        optimizedHTML = optimizedHTML.replace(section.outerHTML, pageBreak + section.outerHTML);
+        currentPageHeight = sectionHeight;
+      } else {
+        currentPageHeight += sectionHeight;
+      }
     });
     
-    // Set margins
-    const marginLeft = 10;
-    const marginRight = 10;
-    const marginTop = 15;
-    const marginBottom = 15;
+    // Update the container with optimized HTML
+    pdfContainer.innerHTML = optimizedHTML;
     
-    const pdfWidth = 210 - marginLeft - marginRight; // A4 width in mm minus margins
-    const pdfHeight = 297 - marginTop - marginBottom; // A4 height in mm minus margins
-    
-    const imgWidth = pdfWidth;
-    const imgHeight = canvas.height * imgWidth / canvas.width;
-    
-    let position = 0;
-    
-    // Add first page
-    pdf.addImage(imgData, 'JPEG', marginLeft, marginTop, imgWidth, imgHeight);
-    position = imgHeight;
-    
-    // Add additional pages if needed
-    while (position > pdfHeight) {
-      pdf.addPage();
-      pdf.addImage(imgData, 'JPEG', marginLeft, -position + marginTop, imgWidth, imgHeight);
-      position -= pdfHeight;
-    }
-    
-    // Save the PDF
-    const fileName = `UAF_Transcript_${processedData.studentInfo.registration}_${currentDate.replace(/\//g, '-')}.pdf`;
-    pdf.save(fileName);
-    
-    // Clean up
-    document.body.removeChild(pdfContainer);
-    
-    addStatusMessage('PDF report generated successfully', 'success');
-    showToast('PDF downloaded successfully!', 'success');
-    hideLoading();
-  }).catch(error => {
-    document.body.removeChild(pdfContainer);
-    addStatusMessage(`Error generating PDF: ${error.message}`, 'error');
-    showToast('Error generating PDF', 'error');
-    hideLoading();
-  });
+    // Use html2canvas and jsPDF to generate PDF
+    html2canvas(pdfContainer, {
+      scale: 2,
+      useCORS: true,
+      logging: false,
+      onclone: function(clonedDoc) {
+        // Ensure all tables have the page-break-inside: avoid property
+        const tables = clonedDoc.querySelectorAll('.course-table');
+        tables.forEach(table => {
+          table.style.pageBreakInside = 'avoid';
+        });
+      }
+    }).then(canvas => {
+      const imgData = canvas.toDataURL('image/jpeg', 0.9);
+      const pdf = new jspdf.jsPDF({
+        orientation: 'portrait',
+        unit: 'mm',
+        format: 'a4'
+      });
+      
+      // Set margins
+      const marginLeft = 15;
+      const marginRight = 15;
+      const marginTop = 20;
+      const marginBottom = 20;
+      
+      const pdfWidth = 210 - marginLeft - marginRight; // A4 width in mm minus margins
+      const pdfHeight = 297 - marginTop - marginBottom; // A4 height in mm minus margins
+      
+      const imgWidth = pdfWidth;
+      const imgHeight = canvas.height * imgWidth / canvas.width;
+      
+      let position = 0;
+      
+      // Add first page
+      pdf.addImage(imgData, 'JPEG', marginLeft, marginTop, imgWidth, imgHeight);
+      position = imgHeight;
+      
+      // Add additional pages if needed
+      while (position > pdfHeight) {
+        pdf.addPage();
+        pdf.addImage(imgData, 'JPEG', marginLeft, -position + marginTop, imgWidth, imgHeight);
+        position -= pdfHeight;
+      }
+      
+      // Save the PDF
+      const fileName = `UAF_Transcript_${processedData.studentInfo.registration}_${currentDate.replace(/\//g, '-')}.pdf`;
+      pdf.save(fileName);
+      
+      // Clean up
+      document.body.removeChild(pdfContainer);
+      
+      addStatusMessage('PDF report generated successfully', 'success');
+      showToast('PDF downloaded successfully!', 'success');
+      hideLoading();
+    }).catch(error => {
+      document.body.removeChild(pdfContainer);
+      addStatusMessage(`Error generating PDF: ${error.message}`, 'error');
+      showToast('Error generating PDF', 'error');
+      hideLoading();
+    });
+  }, 100);
 }
       
       // Fetch result from UAF LMS
@@ -3930,5 +3963,6 @@ function generatePDF() {
   </script>
 </body>
 </html>
+
 
 
