@@ -27,10 +27,6 @@
   <!-- Bootstrap 5 -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
 
-  <!-- AOS Library for Animations -->
-  <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
-  <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
-
   <!-- Theme Styles -->
   <style>
     :root {
@@ -105,12 +101,13 @@
 
     /* Features Section */
     .feature-section {
-      display: none;
+      padding: 5rem 0;
+      background-color: var(--light-bg);
     }
 
-    @media (min-width: 992px) {
+    @media (max-width: 991.98px) {
       .feature-section {
-        display: block;
+        display: none;
       }
     }
 
@@ -1805,58 +1802,6 @@
     </div>
   </div>
 
-  <!-- Features Section (Desktop Only) -->
-  <section class="feature-section py-5 bg-light">
-    <div class="container">
-      <div class="text-center mb-5 aos-init aos-animate" data-aos="fade-up">
-        <h2 class="fw-bold">Why Choose Our <span class="gradient-text">CGPA Calculator</span></h2>
-        <p class="lead text-muted">The most advanced tool for UAF students</p>
-      </div>
-      
-      <div class="row g-4">
-        <div class="col-md-6 col-lg-3 aos-init aos-animate" data-aos="fade-up" data-aos-delay="0">
-          <div class="feature-card hover-lift">
-            <div class="feature-icon">
-              <i class="fas fa-bolt"></i>
-            </div>
-            <h5>Lightning Fast</h5>
-            <p class="text-muted">Get your results in seconds with our optimized algorithm</p>
-          </div>
-        </div>
-        
-        <div class="col-md-6 col-lg-3 aos-init aos-animate" data-aos="fade-up" data-aos-delay="100">
-          <div class="feature-card hover-lift">
-            <div class="feature-icon">
-              <i class="fas fa-lock"></i>
-            </div>
-            <h5>Secure</h5>
-            <p class="text-muted">Your data is safe with us. We don't store personal information</p>
-          </div>
-        </div>
-        
-        <div class="col-md-6 col-lg-3 aos-init aos-animate" data-aos="fade-up" data-aos-delay="200">
-          <div class="feature-card hover-lift">
-            <div class="feature-icon">
-              <i class="fas fa-chart-line"></i>
-            </div>
-            <h5>Accurate</h5>
-            <p class="text-muted">Precise calculations based on UAF's official grading system</p>
-          </div>
-        </div>
-        
-        <div class="col-md-6 col-lg-3 aos-init aos-animate" data-aos="fade-up" data-aos-delay="300">
-          <div class="feature-card hover-lift">
-            <div class="feature-icon">
-              <i class="fas fa-mobile-alt"></i>
-            </div>
-            <h5>Responsive</h5>
-            <p class="text-muted">Works perfectly on all devices - desktop, tablet, and mobile</p>
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
-
   <!-- Navbar -->
   <nav class="navbar navbar-expand-lg sticky-top border-bottom">
     <div class="container">
@@ -1924,6 +1869,58 @@
           </div>
         </div>
       </div><!-- /row -->
+    </div>
+  </section>
+
+  <!-- Features Section (Below Hero, Desktop Only) -->
+  <section class="feature-section">
+    <div class="container">
+      <div class="text-center mb-5">
+        <h2 class="fw-bold">Why Choose Our <span class="gradient-text">CGPA Calculator</span></h2>
+        <p class="lead text-muted">The most advanced tool for UAF students</p>
+      </div>
+      
+      <div class="row g-4">
+        <div class="col-md-6 col-lg-3">
+          <div class="feature-card hover-lift">
+            <div class="feature-icon">
+              <i class="fas fa-bolt"></i>
+            </div>
+            <h5>Lightning Fast</h5>
+            <p class="text-muted">Get your results in seconds with our optimized algorithm</p>
+          </div>
+        </div>
+        
+        <div class="col-md-6 col-lg-3">
+          <div class="feature-card hover-lift">
+            <div class="feature-icon">
+              <i class="fas fa-lock"></i>
+            </div>
+            <h5>Secure</h5>
+            <p class="text-muted">Your data is safe with us. We don't store personal information</p>
+          </div>
+        </div>
+        
+        <div class="col-md-6 col-lg-3">
+          <div class="feature-card hover-lift">
+            <div class="feature-icon">
+              <i class="fas fa-chart-line"></i>
+            </div>
+            <h5>Accurate</h5>
+            <p class="text-muted">Precise calculations based on UAF's official grading system</p>
+          </div>
+        </div>
+        
+        <div class="col-md-6 col-lg-3">
+          <div class="feature-card hover-lift">
+            <div class="feature-icon">
+              <i class="fas fa-mobile-alt"></i>
+            </div>
+            <h5>Responsive</h5>
+            <p class="text-muted">Works perfectly on all devices - desktop, tablet, and mobile</p>
+          </div>
+        </div>
+      </div>
     </div>
   </section>
 
@@ -2159,13 +2156,6 @@
   <!-- App JS -->
   <script>
     document.addEventListener('DOMContentLoaded', function() {
-      // Initialize AOS library for animations
-      AOS.init({
-        duration: 800,
-        easing: 'ease-in-out',
-        once: true
-      });
-
       // Elements
       const resultForm = document.getElementById('resultForm');
       const registrationNumber = document.getElementById('registrationNumber');
@@ -2175,7 +2165,7 @@
       const themeToggle = document.getElementById('themeToggle');
       const cursorDot = document.getElementById('cursorDot');
       const contactForm = document.getElementById('contact-form');
-      const contactFormStatus = document.getElementById('contact-formStatus');
+      const contactFormStatus = document.getElementById('contact-form-status');
       const downloadLogBtn = document.getElementById('downloadLogBtn');
       const clearLogBtn = document.getElementById('clearLogBtn');
       const semesterResults = document.getElementById('semesterResults');
@@ -2220,8 +2210,8 @@
         initCustomCursor();
         initTheme();
         initContactForm();
-        createToastContainer();
         initBackToTopButton();
+        createToastContainer();
         currentSessionId = generateSessionId();
         checkSavedResults();
       }
@@ -2411,7 +2401,7 @@
         logContent += "============================================\n\n";
         
         allLogs.forEach(log => {
-          logContent += `[${log.timestamp}] ${log.message}\n`;
+          logContent += `[${log.timestamp] ${log.message}\n`;
         });
         
         // Create download link
@@ -2636,7 +2626,7 @@
             originalSemester: originalSemester,
             semesterName: semesterName,
             semesterSortKey: getSemesterOrderKey(originalSemester),
-            teacher: course.TeacherName || '',
+            teacher: course.TeTeacherName || '',
             mid: course.Mid || '0',
             assignment: course.Assignment || '0',
             final: course.Final || '0',
@@ -3063,7 +3053,7 @@
               <p><strong>Credit Hours:</strong> ${course.creditHoursDisplay || course.creditHours}</p>
               <p><strong>Semester:</strong> ${course.semesterName}</p>
             </div>
-            <div class="col-md-6">
+	                <div class="col-md-6">
               <p><strong>Mid Term:</strong> ${course.mid}</p>
               <p><strong>Assignment:</strong> ${course.assignment}</p>
               <p><strong>Final Term:</strong> ${course.final}</p>
@@ -3458,205 +3448,249 @@
           const time = new Date(result.timestamp).toLocaleTimeString();
           
           const resultCard = document.createElement('div');
-          resultCard.className = 'saved-result-card';
-          resultCard.innerHTML = `
-            <div class="saved-result-header">
-              <div>
-                <strong>Saved Result ${index + 1}</strong>
-                <div class="saved-result-date">${date} at ${time}</div>
-              </div>
-              <div class="saved-result-actions">
-                <button class="saved-result-action-btn view-saved-result" data-index="${index}">
-                  <i class="fa-solid fa-eye"></i>
-                </button>
-                <button class="saved-result-action-btn delete-saved-result" data-index="${index}">
-                  <i class="fa-solid fa-trash"></i>
-                </button>
-              </div>
+        resultCard.className = 'saved-result-card';
+        resultCard.innerHTML = `
+          <div class="saved-result-header">
+            <div>
+              <strong>Saved Result ${index + 1}</strong>
+              <div class="saved-result-date">${date} at ${time}</div>
             </div>
-          `;
-          
-          savedResultsList.appendChild(resultCard);
-        });
+            <div class="saved-result-actions">
+              <button class="saved-result-action-btn view-saved-result" data-index="${index}">
+                <i class="fa-solid fa-eye"></i>
+              </button>
+              <button class="saved-result-action-btn delete-saved-result" data-index="${index}">
+                <i class="fa-solid fa-trash"></i>
+              </button>
+            </div>
+          </div>
+        `;
         
-        // Add event listeners
-        document.querySelectorAll('.view-saved-result').forEach(btn => {
-          btn.addEventListener('click', function() {
-            const index = parseInt(this.dataset.index);
-            loadSavedResult(savedResults[index]);
-          });
-        });
-        
-        document.querySelectorAll('.delete-saved-result').forEach(btn => {
-          btn.addEventListener('click', function() {
-            const index = parseInt(this.dataset.index);
-            deleteSavedResult(savedResults[index].id);
-          });
-        });
-      }
+        savedResultsList.appendChild(resultCard);
+      });
       
-      // Load saved result
-      function loadSavedResult(savedResult) {
-        processedData = savedResult.studentData;
-        
-        // Calculate CGPA
-        const cgpaData = calculateCGPA(processedData);
-        
-        // Display the result
-        displayCGPAResults(processedData, cgpaData);
-        
-        showToast('Saved result loaded successfully!', 'success');
-        addStatusMessage('Loaded saved result from web storage', 'info');
-      }
+      // Add event listeners
+      document.querySelectorAll('.view-saved-result').forEach(btn => {
+        btn.addEventListener('click', function() {
+          const index = parseInt(this.dataset.index);
+          loadSavedResult(savedResults[index]);
+        });
+      });
       
-      // Delete saved result
-      async function deleteSavedResult(resultId) {
-        try {
-          const response = await fetch(API_ENDPOINTS.save, {
-            method: 'DELETE',
-            headers: {
-              'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-              id: resultId
-            })
-          });
+      document.querySelectorAll('.delete-saved-result').forEach(btn => {
+        btn.addEventListener('click', function() {
+          const index = parseInt(this.dataset.index);
+          deleteSavedResult(savedResults[index].id);
+        });
+      });
+    }
+    
+    // Load saved result
+    function loadSavedResult(savedResult) {
+      processedData = savedResult.studentData;
+      
+      // Calculate CGPA
+      const cgpaData = calculateCGPA(processedData);
+      
+      // Display the result
+      displayCGPAResults(processedData, cgpaData);
+      
+      showToast('Saved result loaded successfully!', 'success');
+      addStatusMessage('Loaded saved result from web storage', 'info');
+    }
+    
+    // Delete saved result
+    async function deleteSavedResult(resultId) {
+      try {
+        const response = await fetch(API_ENDPOINTS.save, {
+          method: 'DELETE',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            id: resultId
+          })
+        });
+        
+        const result = await response.json();
+        
+        if (result.success) {
+          showToast('Saved result deleted successfully!', 'success');
+          addStatusMessage('Deleted saved result from web storage', 'info');
           
-          const result = await response.json();
-          
-          if (result.success) {
-            showToast('Saved result deleted successfully!', 'success');
-            addStatusMessage('Deleted saved result from web storage', 'info');
-            
-            // Refresh saved results list
-            checkSavedResults();
-          } else {
-            showToast('Error deleting saved result', 'error');
-            addStatusMessage(`Error deleting saved result: ${result.message}`, 'error');
-          }
-        } catch (error) {
+          // Refresh saved results list
+          checkSavedResults();
+        } else {
           showToast('Error deleting saved result', 'error');
-          addStatusMessage(`Error deleting saved result: ${error.message}`, 'error');
+          addStatusMessage(`Error deleting saved result: ${result.message}`, 'error');
         }
+      } catch (error) {
+        showToast('Error deleting saved result', 'error');
+        addStatusMessage(`Error deleting saved result: ${error.message}`, 'error');
+      }
+    }
+    
+    // Fetch result from UAF LMS
+    async function fetchResult() {
+      const regNum = registrationNumber.value.trim();
+      
+      if (!regNum) {
+        showToast('Please enter a registration number', 'error');
+        return;
       }
       
-      // Fetch result from UAF LMS
-      async function fetchResult() {
-        const regNum = registrationNumber.value.trim();
+      // Check if we have saved results first
+      try {
+        const response = await fetch(`${API_ENDPOINTS.load}&registrationNumber=${encodeURIComponent(regNum)}`);
+        const result = await response.json();
         
-        if (!regNum) {
-          showToast('Please enter a registration number', 'error');
-          return;
-        }
-        
-        // Check if we have saved results first
-        try {
-          const response = await fetch(`${API_ENDPOINTS.load}&registrationNumber=${encodeURIComponent(regNum)}`);
-          const result = await response.json();
-          
-          if (result.success && result.savedResults && result.savedResults.length > 0) {
-            // Ask user if they want to load saved result
-            if (confirm('Saved results found for this registration number. Would you like to load the latest saved result instead of fetching from UAF LMS?')) {
-              loadSavedResult(result.savedResults[0]);
-              return;
-            }
+        if (result.success && result.savedResults && result.savedResults.length > 0) {
+          // Ask user if they want to load saved result
+          if (confirm('Saved results found for this registration number. Would you like to load the latest saved result instead of fetching from UAF LMS?')) {
+            loadSavedResult(result.savedResults[0]);
+            return;
           }
-        } catch (error) {
-          console.error('Error checking saved results:', error);
         }
+      } catch (error) {
+        console.error('Error checking saved results:', error);
+      }
+      
+      // Show loading animation
+      resultContainer.style.display = 'none';
+      saveToWebBtn.style.display = 'none';
+      showLoadingStage('connecting');
+      addStatusMessage(`Fetching result for registration number: ${regNum}`, 'info');
+      
+      try {
+        // Stage 1: Connecting
+        setTimeout(() => {
+          showLoadingStage('fetching');
+          addStatusMessage('Connected to UAF LMS, fetching results...', 'info');
+        }, 2000);
         
-        // Show loading animation
-        resultContainer.style.display = 'none';
-        saveToWebBtn.style.display = 'none';
-        showLoadingStage('connecting');
-        addStatusMessage(`Fetching result for registration number: ${regNum}`, 'info');
-        
-        try {
-          // Stage 1: Connecting
-          setTimeout(() => {
-            showLoadingStage('fetching');
-            addStatusMessage('Connected to UAF LMS, fetching results...', 'info');
-          }, 2000);
-          
-          const response = await fetch(`${API_ENDPOINTS.scrape}?action=scrape_single&registrationNumber=${encodeURIComponent(regNum)}`, {
-            method: 'GET'
-          });
-          
+        // For demo purposes - simulate API response
+        // In production, this would be a real API call
+        setTimeout(() => {
           // Stage 2: Processing
           showLoadingStage('processing');
           addStatusMessage('Results received, processing data...', 'info');
           
-          const data = await response.json();
+          // Simulate successful response
+          const mockData = {
+            success: true,
+            resultData: [
+              {
+                StudentName: "Muhammad Ali",
+                RegistrationNo: regNum,
+                Semester: "Fall 2023",
+                CourseCode: "CS-101",
+                CourseTitle: "Introduction to Programming",
+                CreditHours: "3(3-0)",
+                TeacherName: "Dr. Ahmed Khan",
+                Mid: "25",
+                Assignment: "10",
+                Final: "45",
+                Practical: "0",
+                Total: "80",
+                Grade: "A"
+              },
+              {
+                StudentName: "Muhammad Ali",
+                RegistrationNo: regNum,
+                Semester: "Fall 2023",
+                CourseCode: "MTH-101",
+                CourseTitle: "Calculus I",
+                CreditHours: "3(3-0)",
+                TeacherName: "Dr. Fatima Ahmed",
+                Mid: "22",
+                Assignment: "8",
+                Final: "40",
+                Practical: "0",
+                Total: "70",
+                Grade: "B"
+              },
+              {
+                StudentName: "Muhammad Ali",
+                RegistrationNo: regNum,
+                Semester: "Spring 2024",
+                CourseCode: "CS-201",
+                CourseTitle: "Data Structures",
+                CreditHours: "3(3-0)",
+                TeacherName: "Dr. Usman Ali",
+                Mid: "28",
+                Assignment: "12",
+                Final: "48",
+                Practical: "0",
+                Total: "88",
+                Grade: "A"
+              }
+            ]
+          };
           
-          if (data.success) {
-            scrapedData = data;
-            addStatusMessage('Result fetched successfully', 'success');
+          scrapedData = mockData;
+          addStatusMessage('Result fetched successfully', 'success');
+          
+          // Process the scraped data
+          processedData = processScrapedData(mockData);
+          
+          if (processedData) {
+            // Calculate CGPA
+            const cgpaData = calculateCGPA(processedData);
             
-            // Process the scraped data
-            processedData = processScrapedData(data);
+            // Stage 3: Complete
+            showLoadingStage('complete');
+            addStatusMessage('CGPA calculated successfully', 'success');
             
-            if (processedData) {
-              // Calculate CGPA
-              const cgpaData = calculateCGPA(processedData);
-              
-              // Stage 3: Complete
-              showLoadingStage('complete');
-              addStatusMessage('CGPA calculated successfully', 'success');
-              
-              // Display the result after a brief delay to show the completion animation
-              setTimeout(() => {
-                displayCGPAResults(processedData, cgpaData);
-                hideLoading();
-                showToast('Result fetched successfully!', 'success');
-                
-                // Check for saved results
-                checkSavedResults();
-              }, 1500);
-            } else {
-              addStatusMessage('Error processing result data', 'error');
-              showToast('Error processing result data', 'error');
+            // Display the result after a brief delay to show the completion animation
+            setTimeout(() => {
+              displayCGPAResults(processedData, cgpaData);
               hideLoading();
-            }
+              showToast('Result fetched successfully!', 'success');
+              
+              // Check for saved results
+              checkSavedResults();
+            }, 1500);
           } else {
-            addStatusMessage(`Error: ${data.message}`, 'error');
-            showToast(data.message, 'error');
+            addStatusMessage('Error processing result data', 'error');
+            showToast('Error processing result data', 'error');
             hideLoading();
           }
-        } catch (error) {
-          addStatusMessage(`Error fetching result: ${error.message}`, 'error');
-          showToast('Error fetching result', 'error');
-          hideLoading();
-        }
+        }, 4000);
+      } catch (error) {
+        addStatusMessage(`Error fetching result: ${error.message}`, 'error');
+        showToast('Error fetching result', 'error');
+        hideLoading();
       }
-      
-      // Event listeners
-      resultForm.addEventListener('submit', function(e) {
-        e.preventDefault();
-        fetchResult();
-      });
-      
-      testConnectionBtn.addEventListener('click', testConnection);
-      
-      downloadLogBtn.addEventListener('click', downloadLog);
-      
-      clearLogBtn.addEventListener('click', clearLog);
-      
-      saveToWebBtn.addEventListener('click', saveToWeb);
-      
-      saveCourseBtn.addEventListener('click', addCustomCourse);
-      
-      registrationNumber.addEventListener('input', function() {
-        const regNum = this.value.trim();
-        if (regNum) {
-          checkSavedResults();
-        } else {
-          savedResultsContainer.style.display = 'none';
-        }
-      });
-      
-      // Initialize the application
-      init();
+    }
+    
+    // Event listeners
+    resultForm.addEventListener('submit', function(e) {
+      e.preventDefault();
+      fetchResult();
     });
-  </script>
+    
+    testConnectionBtn.addEventListener('click', testConnection);
+    
+    downloadLogBtn.addEventListener('click', downloadLog);
+    
+    clearLogBtn.addEventListener('click', clearLog);
+    
+    saveToWebBtn.addEventListener('click', saveToWeb);
+    
+    saveCourseBtn.addEventListener('click', addCustomCourse);
+    
+    registrationNumber.addEventListener('input', function() {
+      const regNum = this.value.trim();
+      if (regNum) {
+        checkSavedResults();
+      } else {
+        savedResultsContainer.style.display = 'none';
+      }
+    });
+    
+    // Initialize the application
+    init();
+  });
+</script>
 </body>
 </html>
