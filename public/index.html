@@ -1,289 +1,132 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="light">
+<html lang="en">
 <head>
   <!-- Meta -->
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>UAF CGPA Calculator 2025 | Ultimate Edition</title>
-  <meta name="description" content="The most advanced UAF CGPA Calculator that fetches your results directly from UAF LMS. Built for University of Agriculture Faisalabad students." />
+  <title>UAF CGPA Calculator</title>
+  <meta name="description" content="UAF CGPA Calculator that fetches your results directly from UAF LMS. Built for University of Agriculture Faisalabad students." />
   <link rel="canonical" href="https://uaftools.vercel.app/auto.html" />
-  <meta property="og:title" content="UAF CGPA Calculator 2025 | Ultimate Edition" />
-  <meta property="og:description" content="Fetch your results directly from UAF LMS and calculate CGPA automatically with the most advanced interface." />
+  <meta property="og:title" content="UAF CGPA Calculator" />
+  <meta property="og:description" content="Fetch your results directly from UAF LMS and calculate CGPA automatically." />
   <meta property="og:type" content="website" />
-  <meta property="og:site_name" content="UAF Tools Pro" />
+  <meta property="og:site_name" content="UAF Tools" />
   <meta property="og:url" content="https://uaftools.vercel.app/auto.html" />
-  <meta property="og:image" content="https://uaftools.vercel.app/uaftools-pro.png" />
-  <meta name="twitter:card" content="summary_large_image" />
-  <meta name="twitter:title" content="UAF CGPA Calculator 2025" />
-  <meta name="twitter:description" content="The ultimate CGPA calculator for UAF students with futuristic design." />
+  <meta property="og:image" content="https://uaftools.vercel.app/uaftools.png" />
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:title" content="UAF CGPA Calculator" />
+  <meta name="twitter:description" content="Fetch your results directly from UAF LMS and calculate CGPA automatically." />
 
   <!-- Favicon -->
   <link rel="icon" type="image/x-icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🎓</text></svg>">
 
   <!-- Fonts & Icons -->
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" rel="stylesheet" crossorigin="anonymous" referrerpolicy="no-referrer" />
 
   <!-- Bootstrap 5 -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
 
-  <!-- AOS Animation Library -->
+  <!-- AOS Library for Animations -->
   <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+  <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
 
   <!-- Theme Styles -->
   <style>
     :root {
+      --brand: #7a6ad8;
+      --brand-600: #6b5fca;
+      --brand-700: #5d52b8;
       --brand-primary: #7a6ad8;
-      --brand-secondary: #6c5ce7;
-      --brand-accent: #a29bfe;
-      --brand-gradient: linear-gradient(135deg, #7a6ad8 0%, #6c5ce7 50%, #5d52b8 100%);
-      --brand-gradient-hover: linear-gradient(135deg, #8a7ce8 0%, #7d6eff 50%, #6d62c8 100%);
+      --brand-secondary: #6b5fca;
       --accent: #ff6b6b;
+      --brand-gradient: linear-gradient(135deg, #7a6ad8 0%, #6b5fca 50%, #5d52b8 100%);
+      --brand-gradient-hover: linear-gradient(135deg, #8a7ce8 0%, #7b6fda 50%, #6d62c8 100%);
       --accent-gradient: linear-gradient(135deg, #ff6b6b 0%, #ff8e8e 100%);
-      --success: #10ac84;
-      --warning: #ff9f43;
-      --info: #48dbfb;
-      
-      --text-primary: #1b1f24;
-      --text-secondary: #4b5563;
-      --text-muted: #6b7280;
-      
-      --bg-primary: #ffffff;
-      --bg-secondary: #f8f9ff;
-      --bg-tertiary: #f1f2f6;
-      
+      --text: #1b1f24;
+      --text-light: #4b5563;
+      --muted: #6b7280;
+      --light-bg: #f8f9ff;
       --card-bg: #ffffff;
-      --card-border: rgba(122, 106, 216, 0.1);
-      
-      --radius-sm: 0.5rem;
-      --radius-md: 1rem;
-      --radius-lg: 1.5rem;
-      --radius-xl: 2rem;
-      
-      --shadow-sm: 0 4px 12px rgba(17, 24, 39, 0.05);
-      --shadow-md: 0 10px 30px rgba(17, 24, 39, 0.1);
-      --shadow-lg: 0 15px 40px rgba(17, 24, 39, 0.15);
-      --shadow-xl: 0 20px 50px rgba(17, 24, 39, 0.2);
-      
-      --transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
-      --transition-slow: all 0.5s cubic-bezier(0.25, 0.8, 0.25, 1);
+      --radius: 1.25rem;
+      --shadow: 0 10px 30px rgba(17, 24, 39, 0.1);
+      --shadow-hover: 0 15px 40px rgba(17, 24, 39, 0.15);
     }
 
-    [data-theme="dark"] {
-      --text-primary: #e5e7eb;
-      --text-secondary: #d1d5db;
-      --text-muted: #9ca3af;
-      
-      --bg-primary: #0f1320;
-      --bg-secondary: #0b0e13;
-      --bg-tertiary: #141824;
-      
-      --card-bg: rgba(15, 20, 34, 0.8);
-      --card-border: rgba(122, 106, 216, 0.15);
-    }
-
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
-
-    html, body {
-      font-family: "Inter", "Poppins", system-ui, -apple-system, sans-serif;
-      scroll-behavior: smooth;
-      background-color: var(--bg-primary);
-      color: var(--text-primary);
-      transition: var(--transition-slow);
-      overflow-x: hidden;
-    }
-
-    body {
-      background: linear-gradient(180deg, var(--bg-secondary) 0%, var(--bg-primary) 70%);
-      min-height: 100vh;
-      position: relative;
-    }
-
-    /* Futuristic background elements */
-    .bg-blobs {
+    /* Back to Top Button */
+    #backToTop {
       position: fixed;
-      width: 100%;
-      height: 100%;
-      top: 0;
-      left: 0;
-      z-index: -1;
-      overflow: hidden;
-      pointer-events: none;
-    }
-
-    .blob {
-      position: absolute;
+      bottom: 30px;
+      right: 30px;
+      width: 50px;
+      height: 50px;
       border-radius: 50%;
-      filter: blur(60px);
-      opacity: 0.2;
-      animation: float 15s infinite ease-in-out;
-    }
-
-    .blob-1 {
-      width: 500px;
-      height: 500px;
-      background: var(--brand-primary);
-      top: -100px;
-      left: -100px;
-      animation-delay: 0s;
-    }
-
-    .blob-2 {
-      width: 400px;
-      height: 400px;
-      background: var(--accent);
-      bottom: -100px;
-      right: -100px;
-      animation-delay: -5s;
-    }
-
-    .blob-3 {
-      width: 300px;
-      height: 300px;
-      background: var(--info);
-      top: 50%;
-      left: 70%;
-      animation-delay: -10s;
-    }
-
-    /* Improved navbar with glassmorphism effect */
-    .navbar {
-      backdrop-filter: saturate(180%) blur(12px);
-      background-color: rgba(255, 255, 255, 0.8);
-      box-shadow: var(--shadow-sm);
-      transition: var(--transition);
-      padding: 0.8rem 0;
-      border-bottom: 1px solid rgba(122, 106, 216, 0.1);
-    }
-
-    [data-theme="dark"] .navbar {
-      background-color: rgba(15, 20, 34, 0.8);
-      border-bottom: 1px solid rgba(122, 106, 216, 0.2);
-    }
-
-    .navbar .navbar-brand {
-      font-weight: 800;
-      letter-spacing: .3px;
-      color: var(--brand-primary);
-      transition: var(--transition);
-      font-size: 1.4rem;
-    }
-
-    .navbar .navbar-brand:hover {
-      transform: translateY(-1px);
-    }
-
-    .navbar .nav-link {
-      position: relative;
-      font-weight: 500;
-      transition: var(--transition);
-      color: var(--text-primary);
-      padding: 0.5rem 1rem !important;
-      border-radius: var(--radius-sm);
-    }
-
-    .navbar .nav-link:hover {
-      background: rgba(122, 106, 216, 0.1);
-      color: var(--brand-primary);
-    }
-
-    .navbar .nav-link.active {
       background: var(--brand-gradient);
       color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      box-shadow: var(--shadow);
+      transition: all 0.3s ease;
+      z-index: 1000;
+      opacity: 0;
+      visibility: hidden;
+      transform: translateY(20px);
     }
 
-    /* Improved buttons */
-    .btn-brand {
-      background: var(--brand-gradient);
-      border: none;
-      color: white;
-      transition: var(--transition);
-      box-shadow: var(--shadow-md);
-      border-radius: var(--radius-md);
-      font-weight: 600;
-      padding: 0.8rem 1.5rem;
+    #backToTop.visible {
+      opacity: 1;
+      visibility: visible;
+      transform: translateY(0);
     }
 
-    .btn-brand:hover {
+    #backToTop:hover {
       background: var(--brand-gradient-hover);
-      transform: translateY(-3px);
-      box-shadow: var(--shadow-lg);
-      color: white;
+      transform: translateY(-5px);
+      box-shadow: var(--shadow-hover);
     }
 
-    .btn-soft {
-      background: rgba(122, 106, 216, 0.1);
-      color: var(--brand-primary);
-      transition: var(--transition);
-      border-radius: var(--radius-md);
-      font-weight: 500;
-    }
-
-    .btn-soft:hover {
-      background: rgba(122, 106, 216, 0.2);
-      transform: translateY(-2px);
-    }
-
-    .badge-brand {
-      background: var(--brand-gradient);
-      color: white;
-      font-weight: 600;
-      padding: 0.5rem 1rem;
-      border-radius: var(--radius-md);
-    }
-
-    /* Improved hero section */
-    .hero {
-      padding: 6rem 0 5rem;
-      position: relative;
-      overflow: hidden;
-    }
-
-    .hero-content {
-      position: relative;
-      z-index: 2;
-    }
-
-    .hero h1 {
-      font-weight: 900;
-      line-height: 1.1;
-      font-size: 3.8rem;
-      margin-bottom: 1.5rem;
-      background: linear-gradient(135deg, var(--brand-primary) 0%, var(--brand-secondary) 100%);
+    /* Gradient Text Animation */
+    .gradient-text {
+      background: linear-gradient(90deg, var(--brand-primary), var(--brand-secondary), var(--accent), var(--brand-primary));
+      background-size: 300% 300%;
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
       background-clip: text;
-      letter-spacing: -0.5px;
+      animation: gradient-text 3s ease infinite;
     }
 
-    .hero .lead {
-      color: var(--text-secondary);
-      font-size: 1.3rem;
-      margin-bottom: 2.5rem;
-      font-weight: 400;
-      max-width: 90%;
+    @keyframes gradient-text {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
     }
 
-    /* Feature cards */
+    /* Features Section */
+    .feature-section {
+      display: none;
+    }
+
+    @media (min-width: 992px) {
+      .feature-section {
+        display: block;
+      }
+    }
+
     .feature-card {
-      background: var(--card-bg);
-      border-radius: var(--radius-lg);
+      background: white;
+      border-radius: var(--radius);
       padding: 2rem;
-      box-shadow: var(--shadow-md);
-      transition: var(--transition);
+      text-align: center;
       height: 100%;
-      border: 1px solid var(--card-border);
-      backdrop-filter: blur(10px);
+      transition: all 0.3s ease;
+      box-shadow: var(--shadow);
     }
 
     .feature-card:hover {
-      transform: translateY(-8px);
-      box-shadow: var(--shadow-xl);
+      transform: translateY(-10px);
+      box-shadow: var(--shadow-hover);
     }
 
     .feature-icon {
@@ -293,191 +136,534 @@
       display: flex;
       align-items: center;
       justify-content: center;
+      margin: 0 auto 1.5rem;
       background: var(--brand-gradient);
       color: white;
-      font-size: 1.8rem;
+      font-size: 1.5rem;
+    }
+
+    .feature-card h5 {
+      margin-bottom: 1rem;
+      font-weight: 600;
+    }
+
+    /* Apply gradient animation to specific elements */
+    .navbar-brand .gradient-text {
+      font-weight: 800;
+    }
+
+    .hero h1 .gradient-text {
+      font-weight: 800;
+    }
+
+    .hero .display-6.gradient-text {
+      animation: gradient-text 3s ease infinite;
+    }
+
+    /* Rest of your existing CSS styles */
+    html, body {
+      font-family: "Poppins", system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, "Helvetica Neue", Arial, "Noto Sans", sans-serif;
+      scroll-behavior: smooth;
+    }
+
+    body {
+      background: linear-gradient(180deg, #f8f9ff 0%, #ffffff 70%);
+      min-height: 100vh;
+      margin: 0;
+      padding: 0;
+      color: var(--text);
+    }
+
+    /* Improved navbar with glassmorphism effect */
+    .navbar {
+      backdrop-filter: saturate(180%) blur(12px);
+      background-color: rgba(255, 255, 255, 0.8);
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+      transition: all 0.3s ease;
+    }
+
+    .navbar .navbar-brand {
+      font-weight: 800;
+      letter-spacing: .3px;
+      color: var(--brand);
+      transition: all 0.3s ease;
+    }
+
+    .navbar .navbar-brand:hover {
+      transform: translateY(-1px);
+    }
+
+    .navbar .nav-link {
+      position: relative;
+      font-weight: 500;
+      transition: all 0.3s ease;
+      color: var(--text);
+    }
+
+    .navbar .nav-link::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 0;
+      height: 2px;
+      background: var(--brand-gradient);
+      transition: width 0.3s ease;
+    }
+
+    .navbar .nav-link:hover::after {
+      width: 100%;
+    }
+
+    /* Improved buttons */
+    .btn-brand {
+      background: var(--brand-gradient);
+      border: none;
+      color: white;
+      transition: all 0.3s ease;
+      box-shadow: var(--shadow);
+    }
+
+    .btn-brand:hover {
+      background: var(--brand-gradient-hover);
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-hover);
+      color: white;
+    }
+
+    .btn-soft {
+      background: rgba(122, 106, 216, 0.1);
+      color: var(--brand);
+      transition: all 0.3s ease;
+    }
+
+    .btn-soft:hover {
+      background: rgba(122, 106, 216, 0.2);
+      transform: translateY(-1px);
+    }
+
+    .badge-brand {
+      background: var(--brand-gradient);
+      color: white;
+    }
+
+    .btn-primary-action {
+      background: var(--brand-gradient);
+      color: #fff;
+      border: 0;
+      box-shadow: 0 6px 18px rgba(122, 106, 216, 0.2);
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .btn-primary-action:hover {
+      background: var(--brand-gradient-hover);
+      color: #fff;
+      transform: translateY(-2px);
+      box-shadow: 0 10px 25px rgba(122, 106, 216, 0.3);
+    }
+
+    .btn-secondary-action {
+      background: #fff;
+      color: var(--brand);
+      border: 1px solid rgba(122, 106, 216, 0.15);
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .btn-secondary-action:hover {
+      background: #f8f9ff;
+      color: var(--brand);
+      transform: translateY(-1px);
+      box-shadow: 0 5px 15px rgba(122, 106, 216, 0.1);
+    }
+
+    .btn-danger-action {
+      background: var(--accent-gradient);
+      color: white;
+      border: 0;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .btn-danger-action:hover {
+      background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+      color: white;
+      transform: translateY(-2px);
+    }
+
+    .btn-success-action {
+      background: linear-gradient(135deg, #10ac84 0%, #0d916b 100%);
+      color: white;
+      border: 0;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .btn-success-action:hover {
+      background: linear-gradient(135deg, #12c29a 0%, #0fa57c 100%);
+      color: white;
+      transform: translateY(-2px);
+    }
+
+    /* Improved hero section */
+    .hero {
+      padding: 5rem 0 4rem;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero::before {
+      content: '';
+      position: absolute;
+      top: -100px;
+      right: -100px;
+      width: 300px;
+      height: 300px;
+      border-radius: 50%;
+      background: rgba(122, 106, 216, 0.1);
+      z-index: -1;
+    }
+
+    .hero::after {
+      content: '';
+      position: absolute;
+      bottom: -50px;
+      left: -50px;
+      width: 200px;
+      height: 200px;
+      border-radius: 50%;
+      background: rgba(255, 107, 107, 0.1);
+      z-index: -1;
+    }
+
+    .hero h1 {
+      font-weight: 800;
+      line-height: 1.05;
+      font-size: 3.5rem;
       margin-bottom: 1.5rem;
+    }
+
+    .hero .lead {
+      color: var(--text-light);
+      font-size: 1.25rem;
+      margin-bottom: 2rem;
+    }
+
+    .mt-3 {
+      margin-top: 1rem !important;
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 0.5rem;
     }
 
     /* Improved cards with glassmorphism effect */
     .card-modern {
-      border: 1px solid var(--card-border);
-      border-radius: var(--radius-lg);
-      box-shadow: var(--shadow-md);
+      border: 0;
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
       backdrop-filter: blur(10px);
-      background: var(--card-bg);
-      transition: var(--transition);
+      background: rgba(255, 255, 255, 0.8);
+      transition: all 0.3s ease;
       overflow: hidden;
-      color: var(--text-primary);
+      color: var(--text);
     }
 
     .card-modern:hover {
       transform: translateY(-5px);
-      box-shadow: var(--shadow-lg);
+      box-shadow: var(--shadow-hover);
     }
 
     .card-modern .card-header {
       border: 0;
-      border-top-left-radius: var(--radius-lg);
-      border-top-right-radius: var(--radius-lg);
+      border-top-left-radius: var(--radius);
+      border-top-right-radius: var(--radius);
       background: linear-gradient(135deg, rgba(122, 106, 216, 0.2), rgba(122, 106, 216, 0.1));
       padding: 1.5rem 2rem;
-      border-bottom: 1px solid var(--card-border);
     }
 
     .card-modern .card-header h4 {
       font-weight: 700;
-      color: var(--text-primary);
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
+      color: var(--text);
     }
 
     .form-select, .form-control {
-      border-radius: var(--radius-md);
+      border-radius: .85rem;
       border: 1px solid rgba(122, 106, 216, 0.2);
-      padding: 0.85rem 1.2rem;
-      transition: var(--transition);
-      color: var(--text-primary);
-      background-color: var(--bg-tertiary);
-      font-size: 1rem;
+      padding: 0.75rem 1rem;
+      transition: all 0.3s ease;
+      color: var(--text);
+      background-color: rgba(255, 255, 255, 0.9);
     }
 
     .form-select:focus, .form-control:focus {
-      border-color: var(--brand-primary);
+      border-color: var(--brand);
       box-shadow: 0 0 0 0.25rem rgba(122, 106, 216, 0.25);
-      transform: translateY(-2px);
     }
 
     label {
       font-weight: 600;
-      color: var(--text-primary);
-      margin-bottom: 0.75rem;
-      font-size: 0.95rem;
+      color: var(--text);
+      margin-bottom: 0.5rem;
     }
 
-    /* Result display */
+    .subject-row {
+      border: 1px dashed rgba(122, 106, 216, 0.3);
+      border-radius: 1rem;
+      padding: 1.5rem;
+      background: rgba(255, 255, 255, 0.5);
+      transition: all 0.3s ease;
+    }
+
+    .subject-row:hover {
+      border-color: var(--brand);
+      background: rgba(255, 255, 255, 0.8);
+    }
+
     .result-display {
-      font-size: 2rem;
+      font-size: 1.75rem;
       font-weight: 800;
-      color: var(--brand-primary);
-      background: var(--brand-gradient);
+      color: var(--brand);
+      background: linear-gradient(135deg, var(--brand) 0%, var(--text) 100%);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
       background-clip: text;
     }
 
-    /* Loading animations */
+    /* Improved loading animations */
     .loading-container {
       margin-top: 1.5rem;
       text-align: center;
       padding: 3rem 2rem;
-      border-radius: var(--radius-lg);
+      border-radius: var(--radius);
       background: linear-gradient(135deg, rgba(122, 106, 216, 0.1), rgba(122, 106, 216, 0.05));
       display: none;
       backdrop-filter: blur(10px);
-      border: 1px solid var(--card-border);
     }
 
-    /* CGPA Display Layout */
-    .cgpa-display-container {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 2rem;
-      padding: 2rem;
+    .loading-stage {
+      display: none;
     }
 
-    .cgpa-main-info {
-      text-align: center;
-      width: 100%;
-      padding-bottom: 1.5rem;
-      border-bottom: 1px solid rgba(122, 106, 216, 0.3);
-    }
-
-    .cgpa-metrics-row {
-      display: flex;
-      justify-content: space-between;
-      width: 100%;
-      gap: 1.5rem;
-    }
-
-    .cgpa-metric {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      flex: 1;
-      padding: 1.5rem;
-      background: var(--bg-tertiary);
-      border-radius: var(--radius-lg);
-      transition: var(--transition);
-    }
-
-    .cgpa-metric:hover {
-      transform: translateY(-5px);
-      box-shadow: var(--shadow-md);
-    }
-
-    .cgpa-metric-label {
-      font-size: 1rem;
-      font-weight: 600;
-      color: var(--text-muted);
-      margin-bottom: 0.75rem;
-    }
-
-    .cgpa-metric-value {
-      font-size: 2.2rem;
-      font-weight: 800;
-      color: var(--brand-primary);
-      line-height: 1.2;
-      background: var(--brand-gradient);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-    }
-
-    /* Semester cards */
-    .semester-card {
-      background: var(--card-bg);
-      border-radius: var(--radius-lg);
-      padding: 2rem;
-      box-shadow: var(--shadow-md);
-      margin-bottom: 2rem;
+    .loading-animation {
+      width: 80px;
+      height: 80px;
+      margin: 0 auto 1.5rem;
       position: relative;
+    }
+
+    .loading-connecting {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .loading-connecting .dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background: var(--brand);
+      margin: 0 5px;
+      animation: bounce 1.5s infinite ease-in-out;
+    }
+
+    .loading-connecting .dot:nth-child(2) {
+      animation-delay: 0.2s;
+    }
+
+    .loading-connecting .dot:nth-child(3) {
+      animation-delay: 0.4s;
+    }
+
+    .loading-fetching {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .loading-fetching .book {
+      width: 40px;
+      height: 30px;
+      background: var(--brand);
+      border-radius: 5px;
+      position: relative;
+      animation: bookFlip 2s infinite ease-in-out;
+      transform-style: preserve-3d;
+    }
+
+    .loading-fetching .book:before {
+      content: '';
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      background: var(--brand-600);
+      border-radius: 5px;
+      transform: rotateY(180deg);
+    }
+
+    .loading-processing {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .loading-processing .calculator {
+      width: 40px;
+      height: 50px;
+      background: var(--brand);
+      border-radius: 5px;
+      position: relative;
+    }
+
+    .loading-processing .calculator:before {
+      content: '';
+      position: absolute;
+      top: 10px;
+      left: 5px;
+      width: 30px;
+      height: 5px;
+      background: rgba(255, 255, 255, 0.7);
+      border-radius: 2px;
+      box-shadow: 0 10px 0 rgba(255, 255, 255, 0.7), 0 20px 0 rgba(255, 255, 255, 0.7);
+    }
+
+    .loading-processing .calculator:after {
+      content: '';
+      position: absolute;
+      bottom: 5px;
+      right: 5px;
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      border: 2px solid rgba(255, 255, 255, 0.7);
+      border-top-color: transparent;
+      animation: spin 1s infinite linear;
+    }
+
+    .loading-complete .checkmark {
+      width: 80px;
+      height: 80px;
+      margin: 0 auto;
+      position: relative;
+    }
+
+    .loading-complete .checkmark:before {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 40px;
+      height: 20px;
+      border: 6px solid var(--brand);
+      border-top: none;
+      border-right: none;
+      transform: translate(-50%, -60%) rotate(-45deg);
+      animation: checkmark 0.6s ease-in-out;
+    }
+
+    @keyframes bounce {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-15px); }
+    }
+
+    @keyframes bookFlip {
+      0%, 100% { transform: rotateY(0deg); }
+      50% { transform: rotateY(180deg); }
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    @keyframes checkmark {
+      0% { opacity: 0; transform: translate(-50%, -60%) rotate(-45deg) scale(0); }
+      50% { opacity: 1; transform: translate(-50%, -60%) rotate(-45deg) scale(1.2); }
+      100% { opacity: 1; transform: translate(-50%, -60%) rotate(-45deg) scale(1); }
+    }
+
+    .loading-text {
+      font-weight: 600;
+      color: var(--brand);
+      margin-bottom: 0.5rem;
+      font-size: 1.1rem;
+    }
+
+    .loading-subtext {
+      color: var(--muted);
+      font-size: 0.9rem;
+      max-width: 400px;
+      margin: 0 auto;
+    }
+
+    .status-log {
+      max-height: 300px;
+      overflow-y: auto;
+      background: rgba(248, 249, 250, 0.7);
+      border-radius: 0.5rem;
+      padding: 1rem;
+      font-family: monospace;
+      font-size: 0.875rem;
+      margin-bottom: 1rem;
       backdrop-filter: blur(10px);
-      transition: var(--transition);
-      border: 1px solid var(--card-border);
     }
 
-    .semester-card:hover {
-      transform: translateY(-5px);
-      box-shadow: var(--shadow-lg);
+    .status-line {
+      margin-bottom: 0.5rem;
+      padding-bottom: 0.5rem;
+      border-bottom: 1px solid rgba(233, 236, 239, 0.5);
+      cursor: pointer;
+      transition: all 0.3s ease;
     }
 
-    /* Footer */
+    .status-line:hover {
+      background: rgba(255, 255, 255, 0.5);
+      border-radius: 0.25rem;
+      padding-left: 0.5rem;
+    }
+
+    .status-line:last-child {
+      margin-bottom: 0;
+      border-bottom: none;
+    }
+
+    .status-success { color: #28a745; }
+    .status-error { color: #dc3545; }
+    .status-warning { color: #fd7e14; }
+    .status-info { color: var(--brand); }
+
     .footer {
-      color: var(--text-muted);
-      background: var(--card-bg);
+      color: #9ca3af;
+      background: rgba(255, 255, 255, 0.8);
       backdrop-filter: blur(10px);
-      border-top: 1px solid var(--card-border);
-      padding: 2rem 0;
     }
 
-    /* Animations */
-    @keyframes float {
-      0% { transform: translate(0, 0) rotate(0deg); }
-      50% { transform: translate(10px, -10px) rotate(5deg); }
-      100% { transform: translate(0, 0) rotate(0deg); }
+    a {
+      color: var(--brand);
+      text-decoration: none;
+      cursor: pointer;
+      transition: all 0.3s ease;
     }
 
-    @keyframes pulse {
-      0% { transform: scale(1); }
-      50% { transform: scale(1.05); }
-      100% { transform: scale(1); }
+    a:hover {
+      color: var(--brand-600);
     }
 
-    .pulse {
-      animation: pulse 2s infinite;
+    /* Loading spinner styles */
+    .loading {
+      display: none;
+      text-align: center;
+      padding: 20px;
+    }
+
+    .loading p {
+      margin-top: 10px;
+    }
+
+    /* Result container styles */
+    .result-container {
+      display: none;
     }
 
     /* Toast notifications */
@@ -492,10 +678,10 @@
     }
 
     .toast {
-      background: var(--card-bg);
-      border-radius: var(--radius-md);
+      background: white;
+      border-radius: 12px;
       padding: 16px 20px;
-      box-shadow: var(--shadow-lg);
+      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
       display: flex;
       align-items: center;
       min-width: 300px;
@@ -505,296 +691,1063 @@
       transition: transform 0.3s ease, opacity 0.3s ease;
       position: relative;
       overflow: hidden;
-      border-left: 4px solid var(--brand-primary);
+      border-left: 4px solid var(--brand);
       backdrop-filter: blur(10px);
-      border: 1px solid var(--card-border);
+      background: rgba(255, 255, 255, 0.95);
     }
 
-    /* Custom cursor */
+    .toast.show {
+      transform: translateX(0);
+      opacity: 1;
+    }
+
+    .toast-success {
+      border-left-color: #10ac84;
+    }
+
+    .toast-error {
+      border-left-color: #e74c3c;
+    }
+
+    .toast-warning {
+      border-left-color: #f39c12;
+    }
+
+    .toast-info {
+      border-left-color: #3498db;
+    }
+
+    .toast-content {
+      display: flex;
+      align-items: center;
+      width: 100%;
+    }
+
+    .toast-icon {
+      margin-right: 12px;
+      font-size: 20px;
+    }
+
+    .toast-success .toast-icon {
+      color: #10ac84;
+    }
+
+    .toast-error .toast-icon {
+      color: #e74c3c;
+    }
+
+    .toast-warning .toast-icon {
+      color: #f39c12;
+    }
+
+    .toast-info .toast-icon {
+      color: #3498db;
+    }
+
+    .toast-message {
+      flex: 1;
+      font-weight: 500;
+      font-size: 14px;
+      color: #2d3748;
+    }
+
+    .toast-progress {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      height: 3px;
+      width: 100%;
+      background: rgba(0, 0, 0, 0.1);
+      transform: scaleX(1);
+      transform-origin: left;
+      animation: toastProgress 3s linear forwards;
+    }
+
+    .toast-success .toast-progress {
+      background: linear-gradient(to right, #10ac84, #0d916b);
+    }
+
+    .toast-error .toast-progress {
+      background: linear-gradient(to right, #e74c3c, #c0392b);
+    }
+
+    .toast-warning .toast-progress {
+      background: linear-gradient(to right, #f39c12, #e67e22);
+    }
+
+    .toast-info .toast-progress {
+      background: linear-gradient(to right, #3498db, #2980b9);
+    }
+
+    @keyframes toastProgress {
+      from { transform: scaleX(1); }
+      to { transform: scaleX(0); }
+    }
+
+    /* GPA Result Display - UPDATED WIDTH */
+    .gpa-result-card {
+      background: rgba(255, 255, 255, 0.8);
+      border-radius: var(--radius);
+      padding: 2rem;
+      box-shadow: var(--shadow);
+      margin-bottom: 2rem;
+      max-width: 900px;
+      margin-left: auto;
+      margin-right: auto;
+      backdrop-filter: blur(10px);
+      transition: all 0.3s ease;
+    }
+
+    .gpa-result-card:hover {
+      transform: translateY(-5px);
+      box-shadow: var(--shadow-hover);
+    }
+
+    .semester-card {
+      background: rgba(255, 255, 255, 0.8);
+      border-radius: var(--radius);
+      padding: 2rem;
+      box-shadow: var(--shadow);
+      margin-bottom: 1.5rem;
+      position: relative;
+      backdrop-filter: blur(10px);
+      transition: all 0.3s ease;
+    }
+
+    .semester-card:hover {
+      transform: translateY(-3px);
+      box-shadow: var(--shadow-hover);
+    }
+
+    .delete-semester {
+      position: absolute;
+      top: 1rem;
+      right: 1rem;
+      cursor: pointer;
+      color: #dc3545;
+      font-size: 1.2rem;
+      z-index: 10;
+      transition: all 0.3s ease;
+    }
+
+    .delete-semester:hover {
+      transform: scale(1.2);
+    }
+
+    .add-course-btn {
+      position: absolute;
+      top: 1rem;
+      right: 3rem;
+      cursor: pointer;
+      color: var(--brand);
+      font-size: 1.2rem;
+      z-index: 10;
+      transition: all 0.3s ease;
+    }
+
+    .add-course-btn:hover {
+      transform: scale(1.2);
+    }
+
+    .course-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 1rem;
+    }
+
+    .course-table th, .course-table td {
+      padding: 0.75rem;
+      text-align: left;
+      border-bottom: 1px solid rgba(229, 231, 235, 0.5);
+    }
+
+    .course-table th {
+      font-weight: 600;
+      color: var(--muted);
+      background: rgba(122, 106, 216, 0.05);
+    }
+
+    .grade-badge {
+      padding: 0.25rem 0.5rem;
+      border-radius: 0.375rem;
+      font-weight: 600;
+      font-size: 0.75rem;
+    }
+
+    .grade-A { background-color: rgba(220, 252, 231, 0.7); color: #166534; }
+    .grade-B { background-color: rgba(219, 234, 254, 0.7); color: #1e40af; }
+    .grade-C { background-color: rgba(254, 243, 199, 0.7); color: #92400e; }
+    .grade-D { background-color: rgba(254, 226, 226, 0.7); color: #991b1b; }
+    .grade-F { background-color: rgba(243, 244, 246, 0.7); color: #374151; }
+
+    .extra-enrolled {
+      background-color: rgba(255, 193, 7, 0.2);
+      color: #856404;
+      padding: 0.15rem 0.35rem;
+      border-radius: 0.25rem;
+      font-size: 0.7rem;
+      margin-left: 0.5rem;
+    }
+
+    .course-details-modal .modal-content {
+      border-radius: var(--radius);
+      backdrop-filter: blur(10px);
+      background: rgba(255, 255, 255, 0.95);
+    }
+
+    .course-details-modal .modal-header {
+      background: linear-gradient(135deg, rgba(122, 106, 216, 0.2), rgba(122, 106, 216, 0.1));
+      border-top-left-radius: var(--radius);
+      border-top-right-radius: var(--radius);
+    }
+
+    .calculate-cgpa-btn {
+      margin-top: 1rem;
+      display: none;
+    }
+
+    /* Saved Results Section */
+    .saved-results-container {
+      display: none;
+      margin-top: 2rem;
+      max-width: 900px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    .saved-result-card {
+      background: rgba(255, 255, 255, 0.8);
+      border-radius: var(--radius);
+      padding: 1.5rem;
+      box-shadow: 0 5px 15px rgba(17, 24, 39, 0.1);
+      margin-bottom: 1rem;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      backdrop-filter: blur(10px);
+    }
+
+    .saved-result-card:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 8px 25px rgba(17, 24, 39, 0.15);
+      background: rgba(255, 255, 255, 0.95);
+    }
+
+    .saved-result-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 0.5rem;
+    }
+
+    .saved-result-date {
+      font-size: 0.8rem;
+      color: var(--muted);
+    }
+
+    .saved-result-actions {
+      display: flex;
+      gap: 0.5rem;
+    }
+
+    .saved-result-action-btn {
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: var(--muted);
+      font-size: 0.9rem;
+      transition: all 0.3s ease;
+    }
+
+    .saved-result-action-btn:hover {
+      color: var(--brand);
+      transform: scale(1.1);
+    }
+
+    /* Add Course Form */
+    .add-course-form {
+      background: rgba(248, 249, 250, 0.7);
+      border-radius: 0.5rem;
+      padding: 1.5rem;
+      margin-top: 1rem;
+      display: none;
+      backdrop-filter: blur(10px);
+    }
+
+    .form-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+      margin-bottom: 1rem;
+    }
+
+    .form-group {
+      flex: 1;
+      min-width: 200px;
+    }
+
+    /* Save to Web Button */
+    .save-to-web-btn {
+      margin-top: 1rem;
+      display: none;
+      text-align: center;
+    }
+
+    /* ----------- DARK MODE IMPROVED ----------- */
+    [data-theme="dark"] {
+      --text: #e5e7eb;
+      --text-light: #d1d5db;
+      --muted: #9ca3af;
+    }
+
+    [data-theme="dark"] body {
+      background: linear-gradient(180deg, #0b0e13 0%, #0f1320 70%);
+      color: #f1f5f9;
+    }
+
+    [data-theme="dark"] .navbar {
+      background-color: rgba(17, 24, 39, 0.8);
+    }
+
+    [data-theme="dark"] .navbar .nav-link {
+      color: #d1d5db;
+    }
+
+    [data-theme="dark"] .navbar .nav-link:hover {
+      color: #fff;
+    }
+
+    [data-theme="dark"] .card-modern {
+      background: rgba(15, 20, 34, 0.8);
+      color: #e5e7eb;
+    }
+
+    [data-theme="dark"] .card-modern .card-header {
+      background: linear-gradient(135deg, rgba(122, 106, 216, 0.3), rgba(122, 106, 216, 0.15));
+    }
+
+    [data-theme="dark"] h1, [data-theme="dark"] h2, [data-theme="dark"] h3, [data-theme="dark"] h4, [data-theme="dark"] h5 {
+      color: #ffffff;
+    }
+
+    [data-theme="dark"] .lead {
+      color: #9ca3af;
+    }
+
+    [data-theme="dark"] .subject-row {
+      background: rgba(26, 31, 46, 0.8);
+      border-color: rgba(122, 106, 216, 0.3);
+    }
+
+    [data-theme="dark"] label {
+      color: #e5e7eb;
+    }
+
+    [data-theme="dark"] .form-control, [data-theme="dark"] .form-select {
+      background: rgba(11, 16, 32, 0.8);
+      color: #f1f5f9;
+      border-color: rgba(122, 106, 216, 0.3);
+    }
+
+    [data-theme="dark"] .form-control::placeholder {
+      color: #9ca3af;
+    }
+
+    [data-theme="dark"] .input-group-text {
+      background: rgba(31, 41, 55, 0.8);
+      color: #e5e7eb;
+    }
+
+    [data-theme="dark"] .footer {
+      color: #9ca3af;
+      background: rgba(17, 24, 39, 0.8);
+    }
+
+    [data-theme="dark"] a {
+      color: rgb(158, 141, 240);
+    }
+
+    [data-theme="dark"] a:hover {
+      color: #9f8df0;
+    }
+
+    [data-theme="dark"] .status-log {
+      background: rgba(26, 32, 48, 0.8);
+    }
+
+    [data-theme="dark"] .status-line {
+      border-bottom-color: rgba(45, 55, 72, 0.5);
+    }
+
+    [data-theme="dark"] .gpa-result-card {
+      background: rgba(26, 32, 48, 0.8);
+    }
+
+    [data-theme="dark"] .semester-card {
+      background: rgba(26, 32, 48, 0.8);
+    }
+
+    [data-theme="dark"] .course-table th, 
+    [data-theme="dark"] .course-table td {
+      border-bottom-color: rgba(45, 55, 72, 0.5);
+    }
+
+    [data-theme="dark"] .course-table th {
+      background: rgba(122, 106, 216, 0.1);
+    }
+
+    [data-theme="dark"] .saved-result-card {
+      background: rgba(26, 32, 48, 0.8);
+    }
+
+    [data-theme="dark"] .add-course-form {
+      background: rgba(26, 31, 46, 0.8);
+    }
+
+    [data-theme="dark"] .loading-container {
+      background: linear-gradient(135deg, rgba(122, 106, 216, 0.15), rgba(122, 106, 216, 0.08));
+    }
+
+    [data-theme="dark"] .grade-A { background-color: rgba(21, 128, 61, 0.3); color: #86efac; }
+    [data-theme="dark"] .grade-B { background-color: rgba(30, 64, 175, 0.3); color: #93c5fd; }
+    [data-theme="dark"] .grade-C { background-color: rgba(146, 64, 14, 0.3); color: #fed7aa; }
+    [data-theme="dark"] .grade-D { background-color: rgba(153, 27, 27, 0.3); color: #fecaca; }
+    [data-theme="dark"] .grade-F { background-color: rgba(55, 65, 81, 0.3); color: #d1d5db; }
+
+    /* Dark mode for course details modal */
+    [data-theme="dark"] .course-details-modal .modal-content {
+      background: rgba(26, 32, 48, 0.95);
+      color: #e5e7eb;
+    }
+
+    [data-theme="dark"] .course-details-modal .modal-header {
+      background: linear-gradient(135deg, rgba(122, 106, 216, 0.3), rgba(122, 106, 216, 0.15));
+      border-bottom-color: rgba(45, 55, 72, 0.5);
+    }
+
+    [data-theme="dark"] .course-details-modal .modal-header .btn-close {
+      filter: invert(1);
+    }
+
+    [data-theme="dark"] .course-details-modal .alert-info {
+      background-color: rgba(23, 162, 184, 0.2);
+      border-color: rgba(23, 162, 184, 0.3);
+      color: #71d4f0;
+    }
+
+    [data-theme="dark"] .course-details-modal .alert-warning {
+      background-color: rgba(255, 193, 7, 0.2);
+      border-color: rgba(255, 193, 7, 0.3);
+      color: #ffd351;
+    }
+
+    /* Dark mode contrast improvements */
+    [data-theme="dark"] .text-body-secondary {
+      color: #d1d5db !important;
+    }
+
+    [data-theme="dark"] .btn-primary-action {
+      color: #ffffff !important;
+    }
+
     .cursor-dot {
-      width: 8px;
-      height: 8px;
-      background-color: var(--brand-primary);
-      border-radius: 50%;
       position: fixed;
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: var(--brand);
       pointer-events: none;
+      transform: translate(-50%, -50%);
+      opacity: .7;
+      mix-blend-mode: multiply;
       z-index: 9999;
-      transition: transform 0.1s;
+      transition: all 0.1s ease;
     }
 
-    .cursor-outline {
-      width: 40px;
-      height: 40px;
-      border: 2px solid var(--brand-primary);
-      border-radius: 50%;
-      position: fixed;
-      pointer-events: none;
-      z-index: 9998;
-      transition: all 0.2s ease-out;
+    [data-theme="dark"] .cursor-dot {
+      mix-blend-mode: screen;
     }
 
-    /* Responsive adjustments */
-    @media (max-width: 768px) {
+    /* Course action buttons */
+    .course-actions i {
+      cursor: pointer;
+      font-size: 14px;
+      padding: 4px;
+      border-radius: 4px;
+      transition: all 0.3s ease;
+    }
+
+    .delete-course {
+      color: #dc3545;
+    }
+
+    .delete-course:hover {
+      background-color: rgba(220, 53, 69, 0.1);
+      transform: scale(1.2);
+    }
+
+    .restore-course {
+      color: #10ac84;
+    }
+
+    .restore-course:hover {
+      background-color: rgba(16, 172, 132, 0.1);
+      transform: scale(1.2);
+    }
+
+    /* Clickable info icon */
+    .clickable-info {
+      cursor: pointer;
+      color: var(--brand);
+      transition: all 0.3s ease;
+    }
+
+    .clickable-info:hover {
+      opacity: 0.8;
+      transform: scale(1.1);
+    }
+
+    /* Mobile responsive adjustments */
+    @media (max-width: 575.98px) {
+      .hero {
+        padding: 2rem 0 2rem;
+      }
+      
       .hero h1 {
-        font-size: 2.8rem;
+        font-size: 2.5rem;
       }
       
-      .hero .lead {
-        font-size: 1.1rem;
+      .d-flex.gap-2 .btn {
+        width: 100%;
+        max-width: 300px;
+        margin-bottom: 0.5rem;
       }
       
-      .cgpa-metrics-row {
+      /* Mobile notification text size */
+      .toast {
+        min-width: 250px;
+        max-width: 300px;
+        padding: 12px 16px;
+      }
+      
+      .toast-message {
+        font-size: 12px;
+      }
+      
+      .card-modern .card-header {
+        padding: 1rem;
+      }
+      
+      .gpa-result-card, .semester-card {
+        padding: 1.5rem;
+      }
+    }
+
+    /* Ensure subject columns are 2-up on very small screens: change from col-12 col-md-6 -> col-6 col-md-6 */
+    @media (max-width: 420px) {
+      .subject-row .col-6 {
+        padding-right: .4rem;
+        padding-left: .4rem;
+      }
+    }
+
+    @media (min-width: 992px) {
+      .navbar-expand-lg .navbar-nav .nav-link {
+        padding-right: var(--bs-navbar-nav-link-padding-x);
+        margin-right: 20px;
+      }
+    }
+
+    @media (min-width: 768px) {
+      .col-md-10 {
+        flex: 0 0 auto;
+        width: 100%;
+      }
+    }
+
+    @media (min-width: 768px) {
+      .col-md-4 {
+        flex: 0 0 auto;
+        width: 48.3%;
+      }
+    }
+
+    /* Mobile responsive table */
+    @media (max-width: 768px) {
+      .course-table {
+        white-space: nowrap;
+        font-size: 11px;
+      }
+      
+      /* Make repeated course indicator appear below course code on mobile */
+      .course-code-container {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+      }
+      
+      .extra-enrolled {
+        margin-left: 0;
+        margin-top: 0.25rem;
+      }
+      
+      /* Adjust spacing for mobile */
+      .semester-card {
+        padding: 1.5rem;
+      }
+      
+      .gpa-result-card {
+        padding: 1.5rem;
+      }
+      
+      /* Make buttons more touch-friendly */
+      .btn {
+        padding: 0.75rem 1rem;
+      }
+      
+      /* Adjust loading animations for mobile */
+      .loading-animation {
+        width: 60px;
+        height: 60px;
+      }
+      
+      .loading-text {
+        font-size: 1rem;
+      }
+      
+      .loading-subtext {
+        font-size: 0.8rem;
+      }
+    }
+
+    /* Center buttons only in specific sections */
+    .scraping-section .center-buttons,
+    .log-section .center-buttons {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+
+    @media (max-width: 576px) {
+      .scraping-section .center-buttons,
+      .log-section .center-buttons {
+        flex-direction: column;
+        align-items: center;
+      }
+      
+      .scraping-section .center-buttons .btn,
+      .log-section .center-buttons .btn {
+        width: 100%;
+        max-width: 300px;
+      }
+    }
+
+    /* New layout improvements */
+    .results-section {
+      margin-top: 2rem;
+    }
+
+    .student-info-section {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1.5rem;
+      margin-bottom: 2rem;
+    }
+
+    .student-details {
+      flex: 1;
+      min-width: 300px;
+    }
+
+    .cgpa-display {
+      flex: 0 0 auto;
+      text-align: right;
+      min-width: 200px;
+    }
+
+    .action-buttons {
+      display: flex;
+      gap: 1rem;
+      margin-top: 1.5rem;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    @media (max-width: 768px) {
+      .student-info-section {
         flex-direction: column;
       }
       
-      .cgpa-metric {
-        margin-bottom: 1rem;
+      .cgpa-display {
+        text-align: left;
+        margin-top: 1rem;
       }
       
-      .navbar .nav-link {
-        padding: 0.5rem;
+      .action-buttons {
+        flex-direction: column;
+      }
+      
+      .action-buttons .btn {
+        width: 100%;
       }
     }
 
-    /* Advanced hover effects */
-    .hover-lift {
-      transition: var(--transition);
+    /* Section separators */
+    .section-container {
+      margin-bottom: 2rem;
     }
-    
-    .hover-lift:hover {
-      transform: translateY(-5px);
-    }
-    
-    .hover-shine {
+
+    .section-title {
+      margin-bottom: 1.5rem;
+      padding-bottom: 0.5rem;
+      border-bottom: 2px solid rgba(122, 106, 216, 0.3);
       position: relative;
-      overflow: hidden;
     }
-    
-    .hover-shine::before {
+
+    .section-title::after {
       content: '';
       position: absolute;
-      top: 0;
-      left: -100%;
-      width: 100%;
-      height: 100%;
-      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
-      transition: 0.5s;
-    }
-    
-    .hover-shine:hover::before {
-      left: 100%;
-    }
-
-    /* Particle background effect */
-    .particles-container {
-      position: fixed;
-      width: 100%;
-      height: 100%;
-      top: 0;
+      bottom: -2px;
       left: 0;
-      z-index: -1;
-      pointer-events: none;
-    }
-    
-    .particle {
-      position: absolute;
-      border-radius: 50%;
-      background: var(--brand-primary);
-      opacity: 0.3;
-      animation: float-particle 15s infinite linear;
-    }
-    
-    @keyframes float-particle {
-      0% {
-        transform: translateY(0) rotate(0deg);
-        opacity: 0.3;
-      }
-      100% {
-        transform: translateY(-100vh) rotate(360deg);
-        opacity: 0;
-      }
-    }
-
-    /* Neon glow effect for important elements */
-    .neon-glow {
-      box-shadow: 0 0 5px var(--brand-primary),
-                  0 0 10px var(--brand-primary),
-                  0 0 15px var(--brand-primary),
-                  0 0 20px var(--brand-primary);
-      animation: pulsate 2s infinite alternate;
-    }
-    
-    @keyframes pulsate {
-      100% {
-        box-shadow: 0 0 5px var(--brand-primary),
-                    0 0 10px var(--brand-primary),
-                    0 0 15px var(--brand-primary),
-                    0 0 20px var(--brand-primary),
-                    0 0 35px var(--brand-primary);
-      }
-      0% {
-        box-shadow: 0 0 5px var(--brand-primary),
-                    0 0 10px var(--brand-primary),
-                    0 0 15px var(--brand-primary),
-                    0 0 20px var(--brand-primary);
-      }
-    }
-
-    /* 3D transform effect for cards */
-    .card-3d {
-      transform-style: preserve-3d;
-      perspective: 1000px;
-    }
-    
-    .card-3d-inner {
-      transition: transform 0.5s;
-      transform-style: preserve-3d;
-    }
-    
-    .card-3d:hover .card-3d-inner {
-      transform: rotateY(10deg) rotateX(5deg);
-    }
-
-    /* Gradient text animation */
-    .gradient-text {
-      background: linear-gradient(90deg, var(--brand-primary), var(--brand-secondary), var(--accent), var(--brand-primary));
-      background-size: 300% 300%;
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      animation: gradient-text 3s ease infinite;
-    }
-    
-    @keyframes gradient-text {
-      0% { background-position: 0% 50%; }
-      50% { background-position: 100% 50%; }
-      100% { background-position: 0% 50%; }
-    }
-
-    /* Advanced toggle switch */
-    .theme-toggle {
-      position: relative;
-      display: inline-block;
       width: 60px;
-      height: 30px;
-    }
-    
-    .theme-toggle input {
-      opacity: 0;
-      width: 0;
-      height: 0;
-    }
-    
-    .theme-slider {
-      position: absolute;
-      cursor: pointer;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      background-color: var(--bg-tertiary);
-      transition: .4s;
-      border-radius: 34px;
-    }
-    
-    .theme-slider:before {
-      position: absolute;
-      content: "";
-      height: 22px;
-      width: 22px;
-      left: 4px;
-      bottom: 4px;
+      height: 2px;
       background: var(--brand-gradient);
-      transition: .4s;
+    }
+
+    /* Student info logo style */
+    .student-info-logo {
+      background: linear-gradient(135deg, rgba(122, 106, 216, 0.2), rgba(122, 106, 216, 0.1));
       border-radius: 50%;
-    }
-    
-    input:checked + .theme-slider {
-      background-color: var(--bg-tertiary);
-    }
-    
-    input:checked + .theme-slider:before {
-      transform: translateX(30px);
-    }
-
-    /* Advanced scrollbar */
-    ::-webkit-scrollbar {
-      width: 10px;
-    }
-    
-    ::-webkit-scrollbar-track {
-      background: var(--bg-tertiary);
-      border-radius: 10px;
-    }
-    
-    ::-webkit-scrollbar-thumb {
-      background: var(--brand-gradient);
-      border-radius: 10px;
-    }
-    
-    ::-webkit-scrollbar-thumb:hover {
-      background: var(--brand-primary);
-    }
-
-    /* Advanced focus states */
-    .advanced-focus:focus {
-      outline: none;
-      box-shadow: 0 0 0 3px rgba(122, 106, 216, 0.3), 0 0 20px rgba(122, 106, 216, 0.2);
-    }
-
-    /* Back to top button */
-    .back-to-top {
-      position: fixed;
-      bottom: 30px;
-      right: 30px;
-      width: 50px;
-      height: 50px;
-      border-radius: 50%;
-      background: var(--brand-gradient);
-      color: white;
+      width: 60px;
+      height: 60px;
       display: flex;
       align-items: center;
       justify-content: center;
-      box-shadow: var(--shadow-lg);
-      transition: var(--transition);
-      opacity: 0;
-      visibility: hidden;
+      margin-right: 1rem;
+      transition: all 0.3s ease;
+    }
+
+    .student-info-logo:hover {
+      transform: rotate(15deg);
+    }
+
+    .student-info-logo i {
+      font-size: 1.5rem;
+      color: var(--brand);
+    }
+
+    /* Test connection button style */
+    .test-connection-btn {
+      background: rgba(248, 249, 250, 0.8);
+      color: var(--muted);
+      border: 1px solid rgba(233, 236, 239, 0.5);
+      transition: all 0.3s ease;
+      backdrop-filter: blur(10px);
+    }
+
+    .test-connection-btn:hover {
+      background: rgba(233, 236, 239, 0.8);
+      color: var(--text);
+      transform: translateY(-1px);
+    }
+
+    /* Desktop-specific smaller text for semester sections */
+    @media (min-width: 992px) {
+      .semester-card {
+        font-size: 0.95rem;
+      }
+      
+      .semester-card h5 {
+        font-size: 1.15rem;
+      }
+      
+      .course-table {
+        font-size: 0.9rem;
+      }
+    }
+
+    /* Semester section layout improvements */
+    .semester-results-container {
+      width: 100%;
+    }
+
+    .semester-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
+      gap: 1.5rem;
+      width: 100%;
+    }
+
+    @media (max-width: 992px) {
+      .semester-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* NEW STYLES FOR UPDATES */
+    .repeated-badge {
+      position: absolute;
+      top: 5px;
+      right: 5px;
+      background-color: #ffc107;
+      color: #856404;
+      font-size: 8px;
+      padding: 2px 4px;
+      border-radius: 3px;
+      font-weight: bold;
+    }
+
+    .custom-course-btn {
+      background: var(--brand-gradient);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      padding: 8px 12px;
+      font-size: 0.9rem;
+      margin-top: 10px;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .custom-course-btn:hover {
+      background: var(--brand-gradient-hover);
+      transform: translateY(-2px);
+    }
+
+    .undo-notification {
+      position: fixed;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      background-color: rgba(51, 51, 51, 0.9);
+      color: white;
+      padding: 12px 20px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
       z-index: 1000;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+      backdrop-filter: blur(10px);
     }
-    
-    .back-to-top.visible {
-      opacity: 1;
-      visibility: visible;
+
+    .undo-btn {
+      background: var(--brand-gradient);
+      color: white;
+      border: none;
+      padding: 5px 10px;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: all 0.3s ease;
     }
-    
-    .back-to-top:hover {
-      transform: translateY(-5px);
-      box-shadow: var(--shadow-xl);
+
+    .undo-btn:hover {
+      background: var(--brand-gradient-hover);
+      transform: translateY(-1px);
+    }
+
+    /* Updated CGPA Display Layout */
+    .cgpa-display-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 1.5rem;
+    }
+
+    .cgpa-main-info {
+      text-align: center;
+      width: 100%;
+      padding-bottom: 1rem;
+      border-bottom: 1px solid rgba(122, 106, 216, 0.3);
+    }
+
+    .cgpa-metrics-row {
+      display: flex;
+      justify-content: space-between;
+      width: 100%;
+      gap: 1rem;
+    }
+
+    .cgpa-metric {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      flex: 1;
+    }
+
+    .cgpa-metric-left {
+      align-items: flex-start;
+    }
+
+    .cgpa-metric-center {
+      align-items: center;
+    }
+
+    .cgpa-metric-right {
+      align-items: flex-end;
+    }
+
+    .cgpa-metric-label {
+      font-size: 1rem;
+      font-weight: 600;
+      color: var(--muted);
+      margin-bottom: 0.5rem;
+    }
+
+    .cgpa-metric-value {
+      font-size: 1.75rem;
+      font-weight: 800;
+      color: var(--brand);
+      line-height: 1.2;
+      background: var(--brand-gradient);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .cgpa-metric-subvalue {
+      font-size: 0.9rem;
+      color: var(--muted);
+    }
+
+    /* Mobile responsive adjustments */
+    @media (max-width: 768px) {
+      .cgpa-metrics-row {
+        flex-direction: column;
+        gap: 1.5rem;
+      }
+      
+      .cgpa-metric {
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: center;
+        width: 100%;
+        padding: 0.5rem 0;
+        border-bottom: 1px solid rgba(122, 106, 216, 0.1);
+      }
+      
+      .cgpa-metric:last-child {
+        border-bottom: none;
+      }
+      
+      .cgpa-metric-left,
+      .cgpa-metric-center,
+      .cgpa-metric-right {
+        align-items: center;
+      }
+      
+      .cgpa-metric-label {
+        margin-bottom: 0;
+        min-width: 100px;
+        text-align: left;
+      }
+      
+      .cgpa-metric-value-container {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-end;
+      }
+      
+      .cgpa-metric-value {
+        font-size: 1.5rem;
+      }
+      
+      .cgpa-main-info h2 {
+        font-size: 1.5rem;
+      }
+    }
+
+    /* Contact form improvements */
+    #contact-form {
+      background: rgba(255, 255, 255, 0.5);
+      padding: 2rem;
+      border-radius: var(--radius);
+      backdrop-filter: blur(10px);
+    }
+
+    [data-theme="dark"] #contact-form {
+      background: rgba(26, 32, 48, 0.5);
+    }
+
+    /* Animation for form elements */
+    .form-control, .form-select {
+      transition: all 0.3s ease;
+    }
+
+    .form-control:focus, .form-select:focus {
+      transform: translateY(-2px);
+    }
+
+    /* Pulse animation for important elements */
+    @keyframes pulse {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.05); }
+      100% { transform: scale(1); }
+    }
+
+    .pulse {
+      animation: pulse 2s infinite;
+    }
+
+    /* Floating animation */
+    @keyframes float {
+      0% { transform: translateY(0px); }
+      50% { transform: translateY(-10px); }
+      100% { transform: translateY(0px); }
+    }
+
+    .float {
+      animation: float 3s ease-in-out infinite;
+    }
+
+    /* Improved scrollbar */
+    ::-webkit-scrollbar {
+      width: 8px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: rgba(122, 106, 216, 0.1);
+      border-radius: 10px;
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: var(--brand);
+      border-radius: 10px;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+      background: var(--brand-600);
+    }
+
+    [data-theme="dark"] ::-webkit-scrollbar-track {
+      background: rgba(122, 106, 216, 0.2);
+    }
+
+    [data-theme="dark"] ::-webkit-scrollbar-thumb {
+      background: var(--brand-600);
+    }
+
+    [data-theme="dark"] ::-webkit-scrollbar-thumb:hover {
+      background: var(--brand);
     }
   </style>
 </head>
 <body>
-  <!-- Background elements -->
-  <div class="bg-blobs">
-    <div class="blob blob-1"></div>
-    <div class="blob blob-2"></div>
-    <div class="blob blob-3"></div>
-  </div>
-  
-  <div class="particles-container" id="particles"></div>
-
-  <!-- Custom cursor -->
-  <div class="cursor-dot" id="cursorDot"></div>
-  <div class="cursor-outline" id="cursorOutline"></div>
-
-  <!-- Back to top button -->
+  <!-- Back to Top Button -->
   <div class="back-to-top" id="backToTop">
     <i class="fas fa-arrow-up"></i>
   </div>
 
+  <!-- Custom cursor -->
+  <div class="cursor-dot" id="cursorDot"></div>
+
   <!-- Course Details Modal -->
   <div class="modal fade course-details-modal" id="courseDetailsModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
-      <div class="modal-content card-modern">
+      <div class="modal-content">
         <div class="modal-header">
           <h5 class="modal-title" id="courseDetailsModalTitle">Course Details</h5>
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
@@ -812,7 +1765,7 @@
   <!-- Add Course Modal -->
   <div class="modal fade" id="addCourseModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
-      <div class="modal-content card-modern">
+      <div class="modal-content">
         <div class="modal-header">
           <h5 class="modal-title">Add Custom Course</h5>
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
@@ -852,91 +1805,16 @@
     </div>
   </div>
 
-  <!-- Navbar -->
-  <nav class="navbar navbar-expand-lg sticky-top">
+  <!-- Features Section (Desktop Only) -->
+  <section class="feature-section py-5 bg-light">
     <div class="container">
-      <a class="navbar-brand d-flex align-items-center gap-2" href="/">
-        <span class="badge rounded-pill badge-brand">UAF</span>
-        <span>CGPA <span class="gradient-text">Calculator 2025</span></span>
-      </a>
-
-      <div class="d-flex align-items-center gap-3 order-lg-2">
-        <label class="theme-toggle">
-          <input type="checkbox" id="themeToggleInput">
-          <span class="theme-slider"></span>
-        </label>
-        
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNav">
-          <span class="navbar-toggler-icon"></span>
-        </button>
-      </div>
-
-      <div class="collapse navbar-collapse" id="mainNav">
-        <ul class="navbar-nav ms-auto align-items-lg-center">
-          <li class="nav-item"><a class="nav-link active" href="index.html#Home">Home</a></li>
-          <li class="nav-item"><a class="nav-link" href="index.html#CGPA-Calculator">Manual Calculator</a></li>
-          <li class="nav-item"><a class="nav-link" href="uaf-results.html">UAF Results</a></li>
-          <li class="nav-item"><a class="nav-link" href="#contact-us">Contact</a></li>
-        </ul>
-      </div>
-    </div>
-  </nav>
-
-  <!-- Hero -->
-  <section class="hero" id="Home">
-    <div class="container">
-      <div class="row align-items-center g-4">
-        <div class="col-lg-7 hero-content" data-aos="fade-right" data-aos-duration="1000">
-          <span class="badge rounded-pill badge-brand mb-3 pulse">University of Agriculture Faisalabad</span>
-          <h1 class="mb-3">Calculate Your <span class="gradient-text">CGPA Automatically</span> from UAF LMS</h1>
-          <p class="lead mb-4">Enter your <strong>registration number</strong> to fetch your results directly from UAF LMS. The most advanced calculator will automatically compute your CGPA and Percentage based on UAF grading system.</p>
-          <div class="d-flex gap-2 flex-wrap">
-            <a href="#Auto-Calculator" 
-               class="btn btn-brand btn-lg rounded-pill hover-lift" 
-               style="font-size: 1.05rem; padding: 0.9rem;">
-              <i class="fa-solid fa-bolt me-2"></i>Try It Now
-            </a>
-            <a href="index.html#CGPA-Calculator" class="btn btn-soft btn-lg rounded-pill hover-lift" style="padding:14px">
-              <i class="fa-solid fa-calculator me-2"></i>Manual Calculator
-            </a>
-          </div>
-        </div>
-        <div class="col-lg-5" data-aos="fade-left" data-aos-duration="1000" data-aos-delay="200">
-          <div class="card card-modern card-3d">
-            <div class="card-3d-inner">
-              <div class="card-body p-4">
-                <div class="d-flex align-items-center gap-3">
-                  <div class="display-6 gradient-text"><i class="fa-solid fa-robot"></i></div>
-                  <div>
-                    <h5 class="mb-1 fw-bold">Automatic CGPA Calculation</h5>
-                    <p class="mb-0 text-body-secondary">No manual inputs needed. Just enter your registration number.</p>
-                  </div>
-                </div>
-                <hr class="my-4" />
-                <ul class="list-unstyled m-0">
-                  <li class="d-flex align-items-center gap-2 mb-2"><i class="fa-solid fa-check text-success"></i> Fetches results directly from UAF LMS</li>
-                  <li class="d-flex align-items-center gap-2 mb-2"><i class="fa-solid fa-check text-success"></i> Automatic CGPA calculation</li>
-                  <li class="d-flex align-items-center gap-2 mb-2"><i class="fa-solid fa-check text-success"></i> Same accurate UAF grading system</li>
-                  <li class="d-flex align-items-center gap-2"><i class="fa-solid fa-check text-success"></i> 2025 Ultimate Edition Features</li>
-                </ul>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div><!-- /row -->
-    </div>
-  </section>
-
-  <!-- Features Section -->
-  <section class="py-5 bg-light">
-    <div class="container">
-      <div class="text-center mb-5" data-aos="fade-up">
+      <div class="text-center mb-5 aos-init aos-animate" data-aos="fade-up">
         <h2 class="fw-bold">Why Choose Our <span class="gradient-text">CGPA Calculator</span></h2>
         <p class="lead text-muted">The most advanced tool for UAF students</p>
       </div>
       
       <div class="row g-4">
-        <div class="col-md-6 col-lg-3" data-aos="fade-up" data-aos-delay="0">
+        <div class="col-md-6 col-lg-3 aos-init aos-animate" data-aos="fade-up" data-aos-delay="0">
           <div class="feature-card hover-lift">
             <div class="feature-icon">
               <i class="fas fa-bolt"></i>
@@ -946,7 +1824,7 @@
           </div>
         </div>
         
-        <div class="col-md-6 col-lg-3" data-aos="fade-up" data-aos-delay="100">
+        <div class="col-md-6 col-lg-3 aos-init aos-animate" data-aos="fade-up" data-aos-delay="100">
           <div class="feature-card hover-lift">
             <div class="feature-icon">
               <i class="fas fa-lock"></i>
@@ -956,7 +1834,7 @@
           </div>
         </div>
         
-        <div class="col-md-6 col-lg-3" data-aos="fade-up" data-aos-delay="200">
+        <div class="col-md-6 col-lg-3 aos-init aos-animate" data-aos="fade-up" data-aos-delay="200">
           <div class="feature-card hover-lift">
             <div class="feature-icon">
               <i class="fas fa-chart-line"></i>
@@ -966,7 +1844,7 @@
           </div>
         </div>
         
-        <div class="col-md-6 col-lg-3" data-aos="fade-up" data-aos-delay="300">
+        <div class="col-md-6 col-lg-3 aos-init aos-animate" data-aos="fade-up" data-aos-delay="300">
           <div class="feature-card hover-lift">
             <div class="feature-icon">
               <i class="fas fa-mobile-alt"></i>
@@ -979,6 +1857,76 @@
     </div>
   </section>
 
+  <!-- Navbar -->
+  <nav class="navbar navbar-expand-lg sticky-top border-bottom">
+    <div class="container">
+      <a class="navbar-brand d-flex align-items-center gap-2" href="/">
+        <span class="badge rounded-pill badge-brand">UAF</span>
+        <span class="gradient-text">CGPA <span class="text-body-secondary">Calculator</span></span>
+      </a>
+
+      <div class="d-flex align-items-center gap-2 order-lg-2">
+        <button id="themeToggle" class="btn btn-sm btn-soft rounded-pill" type="button" style="margin-bottom: 0rem;" aria-label="Toggle dark mode">
+          <i class="fa-solid fa-moon"></i>
+        </button>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNav">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+      </div>
+
+      <div class="collapse navbar-collapse" id="mainNav">
+        <ul class="navbar-nav ms-auto align-items-lg-center">
+          <li class="nav-item"><a class="nav-link" href="index.html#Home">Home</a></li>
+          <li class="nav-item"><a class="nav-link" href="index.html#CGPA-Calculator">Manual Calculator</a></li>
+          <li class="nav-item"><a class="nav-link" href="uaf-results.html">UAF Results</a></li>
+          <li class="nav-item"><a class="nav-link" href="#contact-us">Contact</a></li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Hero -->
+  <section class="hero" id="Home">
+    <div class="container">
+      <div class="row align-items-center g-4">
+        <div class="col-lg-7">
+          <span class="badge rounded-pill badge-brand mb-3">University of Agriculture Faisalabad</span>
+          <h1 class="display-5 mb-3">Calculate Your <span class="gradient-text">CGPA Automatically</span><br/>from <span class="gradient-text">UAF LMS</span></h1>
+          <p class="lead mb-4">Enter your <strong>registration number</strong> to fetch your results directly from UAF LMS. The calculator will automatically compute your CGPA and Percentage based on UAF grading system.</p>
+          <div class="d-flex gap-2">
+            <a href="#Auto-Calculator" 
+               class="btn btn-primary-action btn-lg rounded-pill" 
+               style="font-size: 1.05rem; padding: 0.9rem;">
+              <i class="fa-solid fa-bolt me-2"></i>Try It Now
+            </a>
+            <a href="index.html#CGPA-Calculator" class="btn btn-secondary-action rounded-pill" style="display:block; padding:14px">
+              <i class="fa-solid fa-calculator me-2"></i>Manual Calculator
+            </a>
+          </div>
+        </div>
+        <div class="col-lg-5">
+          <div class="card card-modern">
+            <div class="card-body p-4">
+              <div class="d-flex align-items-center gap-3">
+                <div class="display-6 gradient-text"><i class="fa-solid fa-robot"></i></div>
+                <div>
+                  <h5 class="mb-1 fw-bold">Automatic CGPA Calculation</h5>
+                  <p class="mb-0 text-body-secondary">No manual inputs needed. Just enter your registration number.</p>
+                </div>
+              </div>
+              <hr class="my-4" />
+              <ul class="list-unstyled m-0">
+                <li class="d-flex align-items-center gap-2 mb-2"><i class="fa-solid fa-check text-success"></i> Fetches results directly from UAF LMS</li>
+                <li class="d-flex align-items-center gap-2 mb-2"><i class="fa-solid fa-check text-success"></i> Automatic CGPA calculation</li>
+                <li class="d-flex align-items-center gap-2"><i class="fa-solid fa-check text-success"></i> Same accurate UAF grading system</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div><!-- /row -->
+    </div>
+  </section>
+
   <!-- Automatic Calculator Section -->
   <section class="py-5" id="Auto-Calculator">
     <div class="container">
@@ -986,24 +1934,24 @@
         <div class="col-md-10">
           
           <!-- Input Section -->
-          <div class="card card-modern mb-4" data-aos="fade-up">
+          <div class="card card-modern mb-4">
             <div class="card-header p-4">
-              <h4 class="mb-0"><i class="fa-solid fa-bolt me-2"></i>UAF CGPA Calculator 2025</h4>
+              <h4 class="mb-0"><i class="fa-solid fa-bolt me-2"></i>UAF CGPA Calculator</h4>
             </div>
             <div class="card-body p-4 scraping-section">
               <form id="resultForm">
-                <div class="mb-4">
+                <div class="mb-3">
                   <label for="registrationNumber" class="form-label">Registration Number</label>
-                  <input type="text" class="form-control advanced-focus" id="registrationNumber" 
+                  <input type="text" class="form-control" id="registrationNumber" 
                          placeholder="e.g., 2020-ag-1234" required>
                   <div class="form-text">Enter your UAF registration number</div>
                 </div>
                 
                 <div class="center-buttons">
-                  <button type="submit" class="btn btn-brand rounded-pill hover-lift">
+                  <button type="submit" class="btn btn-primary-action rounded-pill">
                     <i class="fa-solid fa-cloud-arrow-down me-2"></i>Fetch Result
                   </button>
-                  <button id="testConnectionBtn" type="button" class="btn btn-soft rounded-pill hover-lift">
+                  <button id="testConnectionBtn" type="button" class="btn test-connection-btn rounded-pill">
                     <i class="fa-solid fa-vial me-2"></i>Test Connection
                   </button>
                 </div>
@@ -1050,51 +1998,51 @@
           
           <!-- Results Section -->
           <div id="resultContainer" class="result-container">
-            <!-- CGPA Display Section -->
-            <div class="gpa-result-card card-modern" data-aos="fade-up">
-              <div class="card-body p-4">
-                <div class="cgpa-display-container">
-                  <!-- Name and Registration (centered on top) -->
-                  <div class="cgpa-main-info">
-                    <h2 class="mb-1 fw-bold" id="studentName"><i class="fa-solid fa-user-graduate me-2"></i>Student Name</h2>
-                    <p class="mb-0 text-body-secondary" id="studentReg">Registration Number</p>
-                  </div>
-                  
-                  <!-- Metrics Row -->
-                  <div class="cgpa-metrics-row">
-                    <!-- CGPA (left) -->
-                    <div class="cgpa-metric">
-                      <p class="mb-0 cgpa-metric-label">CGPA</p>
-                      <p class="mb-0 cgpa-metric-value" id="totalCgpa">0.0000</p>
-                    </div>
-                    
-                    <!-- Percentage (center) -->
-                    <div class="cgpa-metric">
-                      <p class="mb-0 cgpa-metric-label">Percentage</p>
-                      <p class="mb-0 cgpa-metric-value" id="totalPercentage">0.0000%</p>
-                    </div>
-                    
-                    <!-- Marks (right) -->
-                    <div class="cgpa-metric">
-                      <p class="mb-0 cgpa-metric-label">Marks</p>
-                      <div class="cgpa-metric-value-container">
-                        <p class="mb-0 cgpa-metric-value" id="totalMarksObtained">0</p>
-                        <p class="mb-0 cgpa-metric-subvalue" id="totalMaxMarks">/ 0</p>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                
-                <!-- Action Buttons -->
-                <div class="action-buttons">
-                  <button id="saveToWebBtn" class="btn btn-brand rounded-pill save-to-web-btn hover-lift">
-                    <i class="fa-solid fa-cloud-arrow-up me-2"></i>Save to Web
-                  </button>
-                </div>
-              </div>
-            </div>
+            <!-- Replace the CGPA display section with this code -->
+<div class="gpa-result-card">
+  <div class="card-body p-4">
+    <div class="cgpa-display-container">
+      <!-- Name and Registration (centered on top) -->
+      <div class="cgpa-main-info">
+        <h2 class="mb-1 fw-bold" id="studentName"><i class="fa-solid fa-user-graduate me-2"></i>Student Name</h2>
+        <p class="mb-0 text-body-secondary" id="studentReg">Registration Number</p>
+      </div>
+      
+      <!-- Metrics Row -->
+      <div class="cgpa-metrics-row">
+        <!-- CGPA (left) -->
+        <div class="cgpa-metric cgpa-metric-left">
+          <p class="mb-0 cgpa-metric-label">CGPA</p>
+          <p class="mb-0 cgpa-metric-value" id="totalCgpa">0.0000</p>
+        </div>
+        
+        <!-- Percentage (center) -->
+        <div class="cgpa-metric cgpa-metric-center">
+          <p class="mb-0 cgpa-metric-label">Percentage</p>
+          <p class="mb-0 cgpa-metric-value" id="totalPercentage">0.0000%</p>
+        </div>
+        
+        <!-- Marks (right) -->
+        <div class="cgpa-metric cgpa-metric-right">
+          <p class="mb-0 cgpa-metric-label">Marks</p>
+          <div class="cgpa-metric-value-container">
+            <p class="mb-0 cgpa-metric-value" id="totalMarksObtained">0</p>
+            <p class="mb-0 cgpa-metric-subvalue" id="totalMaxMarks">/ 0</p>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Action Buttons -->
+    <div class="action-buttons">
+      <button id="saveToWebBtn" class="btn btn-primary-action rounded-pill save-to-web-btn">
+        <i class="fa-solid fa-cloud-arrow-up me-2"></i>Save to Web
+      </button>
+    </div>
+  </div>
+</div>
             
-            <!-- Semester Results Container -->
+            <!-- Semester Results Container - Removed outer card -->
             <div class="semester-results-container">
               <div id="semesterResults" class="semester-grid">
                 <!-- Semester cards will be dynamically inserted here -->
@@ -1103,7 +2051,7 @@
           </div>
           
           <!-- Saved Results Section -->
-          <div id="savedResultsContainer" class="saved-results-container card card-modern mb-4" data-aos="fade-up">
+          <div id="savedResultsContainer" class="saved-results-container card card-modern mb-4">
             <div class="card-header p-4">
               <h4 class="mb-0"><i class="fa-solid fa-floppy-disk me-2"></i>Saved Results</h4>
             </div>
@@ -1114,66 +2062,67 @@
             </div>
           </div>
           
-          <!-- Status Log Section -->
-          <div class="card card-modern" data-aos="fade-up">
-            <div class="card-header p-4">
-              <h4 class="mb-0"><i class="fa-solid fa-terminal me-2"></i>Status Log</h4>
-            </div>
-            <div class="card-body p-4">
-              <!-- Status Log -->
-              <div class="status-log" id="statusLog">
-                <div class="status-line status-info">Ready to fetch your results. Enter your registration number and click "Fetch Result".</div>
-              </div>
-              
-              <!-- Log Action Buttons -->
-              <div class="log-section center-buttons mt-3">
-                <button id="downloadLogBtn" class="btn btn-soft rounded-pill hover-lift">
-                  <i class="fa-solid fa-file-lines me-2"></i>Download Log
-                </button>
-                <button id="clearLogBtn" class="btn btn-danger rounded-pill hover-lift">
-                  <i class="fa-solid fa-trash me-2"></i>Clear Log
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
+  <!-- Status Log Section -->
+  <div class="card card-modern">
+    <div class="card-header p-4">
+      <h4 class="mb-0"><i class="fa-solid fa-terminal me-2"></i>Status Log</h4>
+    </div>
+    <div class="card-body p-4">
+      <!-- Status Log -->
+      <div class="status-log" id="statusLog">
+        <div class="status-line status-info">Ready to fetch your results. Enter your registration number and click "Fetch Result".</div>
+      </div>
+      
+      <!-- Log Action Buttons -->
+      <div class="log-section center-buttons mt-3">
+        <button id="downloadLogBtn" class="btn btn-secondary-action rounded-pill">
+          <i class="fa-solid fa-file-lines me-2"></i>Download Log
+        </button>
+        <button id="clearLogBtn" class="btn btn-danger-action rounded-pill">
+          <i class="fa-solid fa-trash me-2"></i>Clear Log
+        </button>
       </div>
     </div>
-  </section>
+  </div>
+  
+</div>
+</div>
+</div>
+</section>
 
   <!-- Contact Section -->
   <section class="py-5" id="contact-us">
     <div class="container">
       <div class="row g-4">
-        <div class="col-lg-6" data-aos="fade-right">
+        <div class="col-lg-6">
           <h3 class="fw-bold mb-2">Contact</h3>
           <p class="text-body-secondary">Questions or suggestions? Send a message.</p>
           <form id="contact-form" action="https://formspree.io/f/xblrolwp" method="post" class="needs-validation" novalidate>
             <div class="row g-3">
               <div class="col-md-6">
                 <label class="form-label" for="name">Your Name</label>
-                <input class="form-control advanced-focus" id="name" name="name" placeholder="e.g., Ali Raza" required />
+                <input class="form-control" id="name" name="name" placeholder="e.g., Ali Raza" required />
                 <div class="invalid-feedback">Please enter your name.</div>
               </div>
               <div class="col-md-6">
                 <label class="form-label" for="email">Email</label>
-                <input type="email" class="form-control advanced-focus" id="email" name="email" placeholder="you@example.com" required />
+                <input type="email" class="form-control" id="email" name="email" placeholder="you@example.com" required />
                 <div class="invalid-feedback">Enter a valid email.</div>
               </div>
               <div class="col-12">
                 <label class="form-label" for="message">Message</label>
-                <textarea class="form-control advanced-focus" id="message" name="message" rows="4" placeholder="Write your message..." required></textarea>
+                <textarea class="form-control" id="message" name="message" rows="4" placeholder="Write your message..." required></textarea>
                 <div class="invalid-feedback">Please write a message.</div>
               </div>
               <div class="col-12">
-                <button class="btn btn-brand rounded-pill hover-lift" type="submit"><i class="fa-solid fa-paper-plane me-2"></i>Send</button>
+                <button class="btn btn-primary-action rounded-pill" type="submit"><i class="fa-solid fa-paper-plane me-2"></i>Send</button>
               </div>
               <div id="contact-form-status" class="mt-2 small"></div>
             </div>
           </form>
         </div>
-        <div class="col-lg-6" data-aos="fade-left" data-aos-delay="200">
-          <div class="h-100 p-4 p-lg-5 rounded-4 feature-card">
+        <div class="col-lg-6">
+          <div class="h-100 p-4 p-lg-5 rounded-4" style="background:linear-gradient(180deg, rgba(122,106,216,.15), rgba(122,106,216,.05));">
             <h5 class="fw-bold">Developer</h5>
             <div class="d-flex align-items-center gap-3 mt-2">
               <img src="assets/images/member-01.png" alt="Muhammad Saqlain" class="rounded-circle" width="56" height="56" />
@@ -1196,37 +2145,35 @@
   </section>
 
   <!-- Footer -->
-  <footer class="footer">
-    <div class="container text-center">
-      <div>© 2025 UAF Tools Pro. All rights reserved.</div>
+  <footer class="border-top py-4">
+    <div class="container text-center footer">
+      <div>© 2025 Saqlain. All rights reserved.</div>
     </div>
   </footer>
 
   <!-- Vendor JS -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <!-- Add this new script reference -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js"></script>
-  <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
   
   <!-- App JS -->
   <script>
     document.addEventListener('DOMContentLoaded', function() {
-      // Initialize AOS animation library
+      // Initialize AOS library for animations
       AOS.init({
         duration: 800,
         easing: 'ease-in-out',
-        once: true,
-        mirror: false
+        once: true
       });
-      
+
       // Elements
       const resultForm = document.getElementById('resultForm');
       const registrationNumber = document.getElementById('registrationNumber');
       const resultContainer = document.getElementById('resultContainer');
       const testConnectionBtn = document.getElementById('testConnectionBtn');
       const statusLog = document.getElementById('statusLog');
-      const themeToggleInput = document.getElementById('themeToggleInput');
+      const themeToggle = document.getElementById('themeToggle');
       const cursorDot = document.getElementById('cursorDot');
-      const cursorOutline = document.getElementById('cursorOutline');
       const contactForm = document.getElementById('contact-form');
       const contactFormStatus = document.getElementById('contact-formStatus');
       const downloadLogBtn = document.getElementById('downloadLogBtn');
@@ -1250,8 +2197,7 @@
       const fetchingStage = document.getElementById('fetchingStage');
       const processingStage = document.getElementById('processingStage');
       const completeStage = document.getElementById('completeStage');
-      const backToTop = document.getElementById('backToTop');
-      const particlesContainer = document.getElementById('particles');
+      const backToTopButton = document.getElementById('backToTop');
       
       // State variables
       let allLogs = [];
@@ -1259,9 +2205,9 @@
       let scrapedData = null;
       let processedData = null;
       let currentSessionId = null;
-      let deletedSemesters = {};
+      let deletedSemesters = {}; // Track deleted semesters for undo functionality
       
-      // API endpoints
+      // API endpoints - FIXED to match your Python backend
       const API_ENDPOINTS = {
         scrape: `/api/result-scraper`,
         test: `/api/result-scraper`,
@@ -1275,47 +2221,22 @@
         initTheme();
         initContactForm();
         createToastContainer();
-        createParticles();
-        initBackToTop();
+        initBackToTopButton();
         currentSessionId = generateSessionId();
         checkSavedResults();
       }
       
-      // Create particles for background
-      function createParticles() {
-        const colors = ['#7a6ad8', '#6c5ce7', '#a29bfe', '#ff6b6b', '#48dbfb'];
-        
-        for (let i = 0; i < 50; i++) {
-          const particle = document.createElement('div');
-          particle.classList.add('particle');
-          
-          // Random properties
-          const size = Math.random() * 5 + 2;
-          const color = colors[Math.floor(Math.random() * colors.length)];
-          
-          particle.style.width = `${size}px`;
-          particle.style.height = `${size}px`;
-          particle.style.background = color;
-          particle.style.left = `${Math.random() * 100}%`;
-          particle.style.top = `${Math.random() * 100}%`;
-          particle.style.animationDuration = `${Math.random() * 15 + 10}s`;
-          particle.style.animationDelay = `${Math.random() * 5}s`;
-          
-          particlesContainer.appendChild(particle);
-        }
-      }
-      
-      // Initialize back to top button
-      function initBackToTop() {
+      // Initialize Back to Top Button
+      function initBackToTopButton() {
         window.addEventListener('scroll', function() {
           if (window.pageYOffset > 300) {
-            backToTop.classList.add('visible');
+            backToTopButton.classList.add('visible');
           } else {
-            backToTop.classList.remove('visible');
+            backToTopButton.classList.remove('visible');
           }
         });
         
-        backToTop.addEventListener('click', function() {
+        backToTopButton.addEventListener('click', function() {
           window.scrollTo({
             top: 0,
             behavior: 'smooth'
@@ -1380,54 +2301,24 @@
       // Initialize custom cursor
       function initCustomCursor() {
         document.addEventListener('mousemove', (e) => {
-          if (window.innerWidth > 768) {
-            cursorDot.style.display = 'block';
-            cursorOutline.style.display = 'block';
-            
-            cursorDot.style.left = e.clientX + 'px';
-            cursorDot.style.top = e.clientY + 'px';
-            
-            cursorOutline.style.left = e.clientX - 20 + 'px';
-            cursorOutline.style.top = e.clientY - 20 + 'px';
-          } else {
-            cursorDot.style.display = 'none';
-            cursorOutline.style.display = 'none';
-          }
-        });
-        
-        // Add hover effects
-        const hoverElements = document.querySelectorAll('a, button, .clickable-info, .course-actions i');
-        hoverElements.forEach(el => {
-          el.addEventListener('mouseenter', () => {
-            cursorDot.style.transform = 'scale(1.5)';
-            cursorOutline.style.transform = 'scale(1.2)';
-            cursorOutline.style.borderWidth = '1px';
-          });
-          
-          el.addEventListener('mouseleave', () => {
-            cursorDot.style.transform = 'scale(1)';
-            cursorOutline.style.transform = 'scale(1)';
-            cursorOutline.style.borderWidth = '2px';
-          });
+          cursorDot.style.display = window.innerWidth > 768 ? 'block' : 'none';
+          cursorDot.style.left = e.clientX + 'px';
+          cursorDot.style.top = e.clientY + 'px';
         });
       }
       
       // Theme toggle functionality
       function initTheme() {
         const THEME_KEY = 'uaf-theme';
-        
         function applyTheme(theme){
           document.documentElement.setAttribute('data-theme', theme);
           localStorage.setItem(THEME_KEY, theme);
-          themeToggleInput.checked = theme === 'dark';
+          themeToggle.innerHTML = theme === 'dark' ? '<i class="fa-solid fa-sun"></i>' : '<i class="fa-solid fa-moon"></i>';
         }
-        
         applyTheme(localStorage.getItem(THEME_KEY) || 'light');
-        
-        themeToggleInput.addEventListener('change', () => {
-          const next = themeToggleInput.checked ? 'dark' : 'light';
+        themeToggle.addEventListener('click', () => {
+          const next = (localStorage.getItem(THEME_KEY) || 'light') === 'light' ? 'dark' : 'light';
           applyTheme(next);
-          showToast(`${next.charAt(0).toUpperCase() + next.slice(1)} mode enabled`, 'info');
         });
       }
       
@@ -1606,7 +2497,7 @@
         }
       }
       
-      // Process semester name for display
+      // Process semester name for display (convert Winter 2024-2025 to Winter 2024, Spring 2024-2025 to Spring 2025)
       function processSemesterName(semester) {
         if (!semester) return 'Unknown Semester';
         
@@ -1624,10 +2515,12 @@
             return `Spring 20${yearMatch[2]}`;
           }
         } else if (semester.includes('Summer')) {
+          // Handle "Summer Semester 2025" -> "Summer 2025"
           const yearMatch = semester.match(/(\d{4})-(\d{2,4})/);
           if (yearMatch) {
             return `Summer ${yearMatch[1]}`;
           }
+          // Also handle "Summer Semester 2025" format
           const summerMatch = semester.match(/Summer Semester (\d{4})/);
           if (summerMatch) {
             return `Summer ${summerMatch[1]}`;
@@ -2031,12 +2924,12 @@
             <i class="fa-solid fa-trash delete-semester" title="Delete this semester" data-semester="${semesterName}"></i>
             <div class="d-flex align-items-center justify-content-between mb-3">
               <h5 class="mb-0">
-                <i class="fa-solid fa-book-open me-2" style="color: var(--brand-primary);"></i>
+                <i class="fa-solid fa-book-open me-2" style="color: var(--brand);"></i>
                 ${semesterName}
               </h5>
               <div class="text-right" style="margin-right: 40px;">
                 <p class="mb-0 text-body-secondary small">GPA:</p>
-                <p class="mb-0 h4 fw-bold" style="color: var(--brand-primary);">${semester.gpa ? formatCGPA(semester.gpa) : 0}</p>
+                <p class="mb-0 h4 fw-bold" style="color: var(--brand);">${semester.gpa ? formatCGPA(semester.gpa) : 0}</p>
                 <p class="mb-0 text-body-secondary small">${semester.percentage ? formatPercentage(semester.percentage) : 0}%</p>
               </div>
             </div>
@@ -2126,9 +3019,6 @@
             restoreCourse(courseData, semesterName);
           });
         });
-        
-        // Reinitialize AOS for dynamically added content
-        AOS.refresh();
       }
       
       // Show course details in modal
@@ -2563,7 +3453,7 @@
         savedResultsList.innerHTML = '';
         savedResultsContainer.style.display = 'block';
         
-        savedResults.forEach((result, index) => {
+        savedResults.forEach((result, index) {
           const date = new Date(result.timestamp).toLocaleDateString();
           const time = new Date(result.timestamp).toLocaleTimeString();
           
