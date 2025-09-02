@@ -3627,14 +3627,14 @@ a:hover {
         }
       }
       
-      // Generate beautiful PDF report
+      // Generate PDF report with proper text and page breaks
 function generatePDF() {
   if (!processedData) {
     showToast('No data to download', 'error');
     return;
   }
   
-  addStatusMessage('Generating beautiful PDF report...', 'info');
+  addStatusMessage('Generating PDF report...', 'info');
   showLoadingStage('processing');
   
   try {
@@ -3645,85 +3645,82 @@ function generatePDF() {
       format: 'a4'
     });
     
-    // Set margins and dimensions
+    // Set margins
     const marginLeft = 15;
     const marginRight = 15;
-    const marginTop = 15;
+    const marginTop = 20;
     const marginBottom = 20;
     const pageWidth = 210 - marginLeft - marginRight;
     let currentY = marginTop;
     
-    // Add university logo/header
-    pdf.setFillColor(122, 106, 216);
-    pdf.rect(0, 0, 210, 25, 'F');
+    // Add header
+    pdf.setFontSize(22);
+    pdf.setTextColor(122, 106, 216); // Brand color
+    pdf.text("University of Agriculture Faisalabad", marginLeft + pageWidth/2, currentY, { align: 'center' });
     
-    pdf.setFontSize(20);
-    pdf.setTextColor(255, 255, 255);
-    pdf.setFont(undefined, 'bold');
-    pdf.text("UNIVERSITY OF AGRICULTURE FAISALABAD", 105, 15, { align: 'center' });
-    
-    pdf.setFontSize(16);
-    pdf.text("ACADEMIC TRANSCRIPT", 105, 22, { align: 'center' });
-    
-    currentY = 30;
-    
-    // Add student information section with nice background
-    pdf.setFillColor(245, 247, 250);
-    pdf.roundedRect(marginLeft, currentY, pageWidth, 25, 3, 3, 'F');
-    
-    pdf.setFontSize(14);
-    pdf.setTextColor(122, 106, 216);
-    pdf.setFont(undefined, 'bold');
-    pdf.text("STUDENT INFORMATION", marginLeft + 10, currentY + 8);
-    
-    pdf.setDrawColor(122, 106, 216);
-    pdf.line(marginLeft + 10, currentY + 10, marginLeft + 70, currentY + 10);
+    pdf.setFontSize(18);
+    pdf.setTextColor(51, 51, 51); // Dark gray
+    currentY += 10;
+    pdf.text("Academic Transcript", marginLeft + pageWidth/2, currentY, { align: 'center' });
     
     pdf.setFontSize(11);
-    pdf.setTextColor(60, 60, 60);
-    pdf.setFont(undefined, 'normal');
-    pdf.text(`Name: ${processedData.studentInfo.name}`, marginLeft + 10, currentY + 16);
-    pdf.text(`Registration No: ${processedData.studentInfo.registration}`, marginLeft + 10, currentY + 22);
-    
+    pdf.setTextColor(102, 102, 102); // Light gray
+    currentY += 8;
     const currentDate = new Date().toLocaleDateString();
-    pdf.text(`Generated on: ${currentDate}`, marginLeft + pageWidth - 10, currentY + 22, { align: 'right' });
+    pdf.text(`Generated on: ${currentDate}`, marginLeft + pageWidth/2, currentY, { align: 'center' });
     
-    currentY += 32;
+    currentY += 15;
     
-    // Add academic summary in a beautiful box
-    const cgpaData = calculateCGPA(processedData);
+    // Add student information section
+    pdf.setDrawColor(122, 106, 216);
+    pdf.setFillColor(248, 249, 255); // Light brand color
+    pdf.rect(marginLeft, currentY, pageWidth, 35, 'F');
     
-    pdf.setFillColor(122, 106, 216, 20); // Transparent brand color
-    pdf.roundedRect(marginLeft, currentY, pageWidth, 20, 3, 3, 'F');
+    pdf.setFontSize(16);
+    pdf.setTextColor(122, 106, 216);
+    currentY += 8;
+    pdf.text("Student Information", marginLeft + 10, currentY);
     
     pdf.setFontSize(12);
-    pdf.setTextColor(122, 106, 216);
-    pdf.setFont(undefined, 'bold');
-    pdf.text("ACADEMIC SUMMARY", marginLeft + 10, currentY + 8);
+    pdf.setTextColor(51, 51, 51);
+    currentY += 12;
+    pdf.text(`Name: ${processedData.studentInfo.name}`, marginLeft + 10, currentY);
+    currentY += 8;
+    pdf.text(`Registration No: ${processedData.studentInfo.registration}`, marginLeft + 10, currentY);
     
-    pdf.setDrawColor(122, 106, 216);
-    pdf.line(marginLeft + 10, currentY + 10, marginLeft + 60, currentY + 10);
+    currentY += 20;
+    
+    // Add academic summary
+    const cgpaData = calculateCGPA(processedData);
+    pdf.rect(marginLeft, currentY, pageWidth, 35, 'F');
+    
+    pdf.setFontSize(16);
+    pdf.setTextColor(122, 106, 216);
+    currentY += 8;
+    pdf.text("Academic Summary", marginLeft + 10, currentY);
+    
+    pdf.setFontSize(12);
+    pdf.setTextColor(51, 51, 51);
     
     // Calculate positions for summary items
-    const summaryY = currentY + 16;
-    const col1 = marginLeft + 25;
+    const summaryY = currentY + 12;
+    const col1 = marginLeft + 20;
     const col2 = marginLeft + pageWidth/2;
-    const col3 = marginLeft + pageWidth - 25;
+    const col3 = marginLeft + pageWidth - 20;
     
-    pdf.setFontSize(10);
-    pdf.setTextColor(100, 100, 100);
+    pdf.setFontSize(12);
+    pdf.setTextColor(102, 102, 102);
     pdf.text("CGPA", col1, summaryY, { align: 'center' });
-    pdf.text("PERCENTAGE", col2, summaryY, { align: 'center' });
-    pdf.text("TOTAL CREDITS", col3, summaryY, { align: 'center' });
+    pdf.text("Percentage", col2, summaryY, { align: 'center' });
+    pdf.text("Total Credits", col3, summaryY, { align: 'center' });
     
-    pdf.setFontSize(14);
+    pdf.setFontSize(18);
     pdf.setTextColor(122, 106, 216);
-    pdf.setFont(undefined, 'bold');
-    pdf.text(formatCGPA(cgpaData.cgpa), col1, summaryY + 7, { align: 'center' });
-    pdf.text(`${formatPercentage(cgpaData.percentage)}%`, col2, summaryY + 7, { align: 'center' });
-    pdf.text(cgpaData.totalCreditHours.toString(), col3, summaryY + 7, { align: 'center' });
+    pdf.text(formatCGPA(cgpaData.cgpa), col1, summaryY + 10, { align: 'center' });
+    pdf.text(`${formatPercentage(cgpaData.percentage)}%`, col2, summaryY + 10, { align: 'center' });
+    pdf.text(cgpaData.totalCreditHours.toString(), col3, summaryY + 10, { align: 'center' });
     
-    currentY += 27;
+    currentY += 40;
     
     // Add semester details
     const semesterKeys = Object.keys(processedData.semesters);
@@ -3738,111 +3735,109 @@ function generatePDF() {
       if (activeCourses.length === 0) continue;
       
       // Check if we need a new page for this semester
-      // Estimate height: header (15mm) + table header (8mm) + rows (6mm each) + footer (8mm)
-      const estimatedHeight = 15 + 8 + (activeCourses.length * 6) + 8;
+      // Estimate height: header (15mm) + table header (10mm) + rows (5mm each) + footer (10mm)
+      const estimatedHeight = 15 + 10 + (activeCourses.length * 5) + 10;
       
       if (currentY + estimatedHeight > 297 - marginBottom) {
         pdf.addPage();
         currentY = marginTop;
       }
       
-      // Add semester header with beautiful styling
-      pdf.setFillColor(245, 247, 250);
-      pdf.roundedRect(marginLeft, currentY, pageWidth, 10, 2, 2, 'F');
-      
-      pdf.setFontSize(12);
+      // Add semester header
+      pdf.setFontSize(15);
       pdf.setTextColor(122, 106, 216);
-      pdf.setFont(undefined, 'bold');
-      pdf.text(`${semesterName.toUpperCase()}`, marginLeft + 5, currentY + 7);
-      
-      pdf.setFontSize(10);
-      pdf.setTextColor(100, 100, 100);
-      pdf.text(`GPA: ${formatCGPA(semester.gpa)} | Percentage: ${formatPercentage(semester.percentage)}%`, 
-               marginLeft + pageWidth - 5, currentY + 7, { align: 'right' });
-      
-      currentY += 12;
-      
-      // Draw table header
-      pdf.setFillColor(122, 106, 216);
-      pdf.roundedRect(marginLeft, currentY, pageWidth, 7, 2, 2, 'F');
-      
-      pdf.setFontSize(10);
-      pdf.setTextColor(255, 255, 255);
-      pdf.text("COURSE CODE", marginLeft + 5, currentY + 5);
-      pdf.text("COURSE TITLE", marginLeft + 35, currentY + 5);
-      pdf.text("CREDITS", marginLeft + pageWidth - 30, currentY + 5, { align: 'center' });
-      pdf.text("MARKS", marginLeft + pageWidth - 15, currentY + 5, { align: 'center' });
+      pdf.text(`${semesterName} (GPA: ${formatCGPA(semester.gpa)} | ${formatPercentage(semester.percentage)}%)`, 
+               marginLeft, currentY);
       
       currentY += 8;
       
+      // Draw table header
+      pdf.setDrawColor(122, 106, 216);
+      pdf.setFillColor(122, 106, 216);
+      pdf.rect(marginLeft, currentY, pageWidth, 10, 'F');
+      
+      pdf.setFontSize(11);
+      pdf.setTextColor(255, 255, 255);
+      pdf.text("Course Code", marginLeft + 5, currentY + 7);
+      pdf.text("Course Title", marginLeft + 50, currentY + 7);
+      pdf.text("CH", marginLeft + pageWidth - 45, currentY + 7, { align: 'center' });
+      pdf.text("Marks", marginLeft + pageWidth - 30, currentY + 7, { align: 'center' });
+      pdf.text("Grade", marginLeft + pageWidth - 10, currentY + 7, { align: 'center' });
+      
+      currentY += 10;
+      
       // Add courses
-      pdf.setFontSize(9);
-      pdf.setTextColor(60, 60, 60);
+      pdf.setFontSize(11);
+      pdf.setTextColor(51, 51, 51);
       
       for (let j = 0; j < activeCourses.length; j++) {
         const course = activeCourses[j];
         
         // Check if we need a new page for the next row
-        if (currentY + 6 > 297 - marginBottom) {
+        if (currentY + 5 > 297 - marginBottom) {
           pdf.addPage();
           currentY = marginTop;
           
           // Redraw table header on new page
           pdf.setFillColor(122, 106, 216);
-          pdf.roundedRect(marginLeft, currentY, pageWidth, 7, 2, 2, 'F');
-          
-          pdf.setFontSize(10);
+          pdf.rect(marginLeft, currentY, pageWidth, 10, 'F');
           pdf.setTextColor(255, 255, 255);
-          pdf.text("COURSE CODE", marginLeft + 5, currentY + 5);
-          pdf.text("COURSE TITLE", marginLeft + 35, currentY + 5);
-          pdf.text("CREDITS", marginLeft + pageWidth - 30, currentY + 5, { align: 'center' });
-          pdf.text("MARKS", marginLeft + pageWidth - 15, currentY + 5, { align: 'center' });
+          pdf.text("Course Code", marginLeft + 5, currentY + 7);
+          pdf.text("Course Title", marginLeft + 50, currentY + 7);
+          pdf.text("CH", marginLeft + pageWidth - 45, currentY + 7, { align: 'center' });
+          pdf.text("Marks", marginLeft + pageWidth - 30, currentY + 7, { align: 'center' });
+          pdf.text("Grade", marginLeft + pageWidth - 10, currentY + 7, { align: 'center' });
           
-          currentY += 8;
+          currentY += 10;
         }
         
         // Draw light background for even rows
         if (j % 2 === 0) {
           pdf.setFillColor(248, 249, 255);
-          pdf.rect(marginLeft, currentY, pageWidth, 6, 'F');
+          pdf.rect(marginLeft, currentY, pageWidth, 5, 'F');
         }
         
         // Draw course information
-        pdf.setTextColor(60, 60, 60);
+        pdf.setTextColor(51, 51, 51);
         
         // Truncate long course titles
         let courseTitle = course.title;
-        if (courseTitle.length > 45) {
-          courseTitle = courseTitle.substring(0, 42) + '...';
+        if (courseTitle.length > 40) {
+          courseTitle = courseTitle.substring(0, 37) + '...';
         }
         
         pdf.text(course.code, marginLeft + 5, currentY + 4);
-        pdf.text(courseTitle, marginLeft + 35, currentY + 4);
-        pdf.text(course.creditHours.toString(), marginLeft + pageWidth - 30, currentY + 4, { align: 'center' });
-        pdf.text(course.marks.toString(), marginLeft + pageWidth - 15, currentY + 4, { align: 'center' });
+        pdf.text(courseTitle, marginLeft + 50, currentY + 4);
+        pdf.text(course.creditHours.toString(), marginLeft + pageWidth - 45, currentY + 4, { align: 'center' });
+        pdf.text(course.marks.toString(), marginLeft + pageWidth - 30, currentY + 4, { align: 'center' });
         
-        currentY += 6;
+        pdf.setFont(undefined, 'bold');
+        pdf.text(course.grade, marginLeft + pageWidth - 10, currentY + 4, { align: 'center' });
+        pdf.setFont(undefined, 'normal');
+        
+        currentY += 5;
       }
       
       // Add semester summary row
       pdf.setFillColor(240, 240, 240);
-      pdf.roundedRect(marginLeft, currentY, pageWidth, 7, 2, 2, 'F');
+      pdf.rect(marginLeft, currentY, pageWidth, 7, 'F');
       
       pdf.setFont(undefined, 'bold');
       pdf.text("Semester Total:", marginLeft + 5, currentY + 5);
-      pdf.text(semester.totalCreditHours.toString(), marginLeft + pageWidth - 30, currentY + 5, { align: 'center' });
-      pdf.text(semester.totalMarksObtained.toFixed(0), marginLeft + pageWidth - 15, currentY + 5, { align: 'center' });
+      pdf.text(semester.totalCreditHours.toString(), marginLeft + pageWidth - 45, currentY + 5, { align: 'center' });
+      pdf.text(semester.totalMarksObtained.toFixed(0), marginLeft + pageWidth - 30, currentY + 5, { align: 'center' });
+      pdf.text("-", marginLeft + pageWidth - 10, currentY + 5, { align: 'center' });
       pdf.setFont(undefined, 'normal');
       
       currentY += 10;
     }
     
     // Add footer on the last page
-    pdf.setFontSize(8);
-    pdf.setTextColor(150, 150, 150);
+    pdf.setFontSize(10);
+    pdf.setTextColor(102, 102, 102);
     
     // Make sure we're on a new page if there's not enough space
-    if (currentY + 15 > 297 - marginBottom) {
+    if (currentY + 20 > 297 - marginBottom) {
       pdf.addPage();
       currentY = marginTop;
     }
@@ -3850,24 +3845,15 @@ function generatePDF() {
     pdf.text("Generated by UAF CGPA Calculator - https://uaftools.vercel.app", 
              marginLeft + pageWidth/2, currentY, { align: 'center' });
     
-    currentY += 4;
+    currentY += 5;
     pdf.text("This is an unofficial transcript. For official documents, please contact University of Agriculture Faisalabad.", 
              marginLeft + pageWidth/2, currentY, { align: 'center' });
-    
-    // Add page numbers
-    const pageCount = pdf.internal.getNumberOfPages();
-    for (let i = 1; i <= pageCount; i++) {
-      pdf.setPage(i);
-      pdf.setFontSize(8);
-      pdf.setTextColor(150, 150, 150);
-      pdf.text(`Page ${i} of ${pageCount}`, marginLeft + pageWidth/2, 290, { align: 'center' });
-    }
     
     // Save the PDF
     const fileName = `UAF_Transcript_${processedData.studentInfo.registration}_${currentDate.replace(/\//g, '-')}.pdf`;
     pdf.save(fileName);
     
-    addStatusMessage('Beautiful PDF report generated successfully', 'success');
+    addStatusMessage('PDF report generated successfully', 'success');
     showToast('PDF downloaded successfully!', 'success');
     hideLoading();
     
@@ -3976,6 +3962,7 @@ function generatePDF() {
   </script>
 </body>
 </html>
+
 
 
 
