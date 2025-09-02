@@ -2250,1659 +2250,1711 @@ a:hover {
   <!-- App JS -->
   <script>
     document.addEventListener('DOMContentLoaded', function() {
-      // Elements
-      const resultForm = document.getElementById('resultForm');
-      const registrationNumber = document.getElementById('registrationNumber');
-      const resultContainer = document.getElementById('resultContainer');
-      const testConnectionBtn = document.getElementById('testConnectionBtn');
-      const statusLog = document.getElementById('statusLog');
-      const themeToggle = document.getElementById('themeToggle');
-      const cursorDot = document.getElementById('cursorDot');
-      const contactForm = document.getElementById('contact-form');
-      const contactFormStatus = document.getElementById('contact-formStatus');
-      const downloadLogBtn = document.getElementById('downloadLogBtn');
-      const clearLogBtn = document.getElementById('clearLogBtn');
-      const semesterResults = document.getElementById('semesterResults');
-      const studentName = document.getElementById('studentName');
-      const studentReg = document.getElementById('studentReg');
-      const totalCgpa = document.getElementById('totalCgpa');
-      const totalPercentage = document.getElementById('totalPercentage');
-      const totalMarksObtained = document.getElementById('totalMarksObtained');
-      const totalMaxMarks = document.getElementById('totalMaxMarks');
-      const saveToWebBtn = document.getElementById('saveToWebBtn');
-      const downloadPdfBtn = document.getElementById('downloadPdfBtn');
-      const savedResultsContainer = document.getElementById('savedResultsContainer');
-      const savedResultsList = document.getElementById('savedResultsList');
-      const courseDetailsModal = new bootstrap.Modal(document.getElementById('courseDetailsModal'));
-      const addCourseModal = new bootstrap.Modal(document.getElementById('addCourseModal'));
-      const saveCourseBtn = document.getElementById('saveCourseBtn');
-      const addCourseForm = document.getElementById('addCourseForm');
-      const loadingContainer = document.getElementById('loadingContainer');
-      const connectingStage = document.getElementById('connectingStage');
-      const fetchingStage = document.getElementById('fetchingStage');
-      const processingStage = document.getElementById('processingStage');
-      const completeStage = document.getElementById('completeStage');
-      const backToTopButton = document.getElementById('backToTop');
-      
-      // State variables
-      let allLogs = [];
-      let testInProgress = false;
-      let scrapedData = null;
-      let processedData = null;
-      let currentSessionId = null;
-      let deletedSemesters = {}; // Track deleted semesters for undo functionality
-      
-      // API endpoints - FIXED to match your Python backend
-      const API_ENDPOINTS = {
-        scrape: `/api/result-scraper`,
-        test: `/api/result-scraper`,
-        save: `/api/result-scraper?action=save`,
-        load: `/api/result-scraper?action=load_result`
-      };
-      
-      // Initialize the application
-      function init() {
-        initCustomCursor();
-        initTheme();
-        initContactForm();
-        createToastContainer();
-        currentSessionId = generateSessionId();
-        checkSavedResults();
-        initBackToTop();
+  // Elements
+  const resultForm = document.getElementById('resultForm');
+  const registrationNumber = document.getElementById('registrationNumber');
+  const resultContainer = document.getElementById('resultContainer');
+  const testConnectionBtn = document.getElementById('testConnectionBtn');
+  const statusLog = document.getElementById('statusLog');
+  const themeToggle = document.getElementById('themeToggle');
+  const cursorDot = document.getElementById('cursorDot');
+  const contactForm = document.getElementById('contact-form');
+  const contactFormStatus = document.getElementById('contact-formStatus');
+  const downloadLogBtn = document.getElementById('downloadLogBtn');
+  const clearLogBtn = document.getElementById('clearLogBtn');
+  const semesterResults = document.getElementById('semesterResults');
+  const studentName = document.getElementById('studentName');
+  const studentReg = document.getElementById('studentReg');
+  const totalCgpa = document.getElementById('totalCgpa');
+  const totalPercentage = document.getElementById('totalPercentage');
+  const totalMarksObtained = document.getElementById('totalMarksObtained');
+  const totalMaxMarks = document.getElementById('totalMaxMarks');
+  const saveToWebBtn = document.getElementById('saveToWebBtn');
+  const downloadPdfBtn = document.getElementById('downloadPdfBtn');
+  const savedResultsContainer = document.getElementById('savedResultsContainer');
+  const savedResultsList = document.getElementById('savedResultsList');
+  const courseDetailsModal = new bootstrap.Modal(document.getElementById('courseDetailsModal'));
+  const addCourseModal = new bootstrap.Modal(document.getElementById('addCourseModal'));
+  const saveCourseBtn = document.getElementById('saveCourseBtn');
+  const addCourseForm = document.getElementById('addCourseForm');
+  const loadingContainer = document.getElementById('loadingContainer');
+  const connectingStage = document.getElementById('connectingStage');
+  const fetchingStage = document.getElementById('fetchingStage');
+  const processingStage = document.getElementById('processingStage');
+  const completeStage = document.getElementById('completeStage');
+  const backToTopButton = document.getElementById('backToTop');
+  
+  // State variables
+  let allLogs = [];
+  let testInProgress = false;
+  let scrapedData = null;
+  let processedData = null;
+  let currentSessionId = null;
+  let deletedSemesters = {}; // Track deleted semesters for undo functionality
+  
+  // API endpoints - FIXED to match your Python backend
+  const API_ENDPOINTS = {
+    scrape: `/api/result-scraper`,
+    test: `/api/result-scraper`,
+    save: `/api/result-scraper?action=save`,
+    load: `/api/result-scraper?action=load_result`
+  };
+  
+  // Initialize the application
+  function init() {
+    initCustomCursor();
+    initTheme();
+    initContactForm();
+    createToastContainer();
+    currentSessionId = generateSessionId();
+    checkSavedResults();
+    initBackToTop();
+  }
+  
+  // Initialize Back to Top button
+  function initBackToTop() {
+    window.addEventListener('scroll', function() {
+      if (window.pageYOffset > 300) {
+        backToTopButton.classList.add('visible');
+      } else {
+        backToTopButton.classList.remove('visible');
       }
+    });
+    
+    backToTopButton.addEventListener('click', function() {
+      window.scrollTo({
+        top: 0,
+        behavior: 'smooth'
+      });
+    });
+  }
+  
+  // Generate a unique session ID
+  function generateSessionId() {
+    return 'session_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+  }
+  
+  // Create a custom toast container
+  function createToastContainer() {
+    const toastContainer = document.createElement('div');
+    toastContainer.id = 'toast-container';
+    document.body.appendChild(toastContainer);
+  }
+  
+  // Show toast notification
+  function showToast(message, type = 'success') {
+    const toastContainer = document.getElementById('toast-container');
+    const toast = document.createElement('div');
+    toast.className = `toast toast-${type}`;
+    toast.innerHTML = `
+      <div class="toast-content">
+        <i class="toast-icon ${getToastIcon(type)}"></i>
+        <span class="toast-message">${message}</span>
+      </div>
+      <div class="toast-progress"></div>
+    `;
+    
+    toastContainer.appendChild(toast);
+    
+    // Animate in
+    setTimeout(() => {
+      toast.classList.add('show');
+    }, 10);
+    
+    // Remove after delay
+    setTimeout(() => {
+      toast.classList.remove('show');
+      setTimeout(() => {
+        if (toast.parentNode) {
+          toast.parentNode.removeChild(toast);
+        }
+      }, 300);
+    }, 3000);
+  }
+  
+  // Get icon for toast type
+  function getToastIcon(type) {
+    switch(type) {
+      case 'success': return 'fa-solid fa-circle-check';
+      case 'error': return 'fa-solid fa-circle-exclamation';
+      case 'warning': return 'fa-solid fa-triangle-exclamation';
+      case 'info': return 'fa-solid fa-circle-info';
+      default: return 'fa-solid fa-circle-info';
+    }
+  }
+  
+  // Initialize custom cursor
+  function initCustomCursor() {
+    document.addEventListener('mousemove', (e) => {
+      cursorDot.style.display = window.innerWidth > 768 ? 'block' : 'none';
+      cursorDot.style.left = e.clientX + 'px';
+      cursorDot.style.top = e.clientY + 'px';
+    });
+  }
+  
+  // Theme toggle functionality
+  function initTheme() {
+    const THEME_KEY = 'uaf-theme';
+    function applyTheme(theme){
+      document.documentElement.setAttribute('data-theme', theme);
+      localStorage.setItem(THEME_KEY, theme);
+      themeToggle.innerHTML = theme === 'dark' ? '<i class="fa-solid fa-sun"></i>' : '<i class="fa-solid fa-moon"></i>';
+    }
+    applyTheme(localStorage.getItem(THEME_KEY) || 'light');
+    themeToggle.addEventListener('click', () => {
+      const next = (localStorage.getItem(THEME_KEY) || 'light') === 'light' ? 'dark' : 'light';
+      applyTheme(next);
+    });
+  }
+  
+  // Contact form
+  function initContactForm() {
+    contactForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      if(!contactForm.checkValidity()){
+        e.stopPropagation();
+        contactForm.classList.add('was-validated');
+        return;
+      }
+      const data = new FormData(contactForm);
+      try{
+        const res = await fetch(contactForm.action, { method: 'POST', body: data, headers: {'Accept':'application/json'}});
+        if(res.ok){
+          contactFormStatus.textContent = "Thanks! We'll get back to you soon.";
+          contactFormStatus.className = "text-success";
+          contactForm.reset(); contactForm.classList.remove('was-validated');
+          showToast('Message sent successfully!', 'success');
+        }else{
+          contactFormStatus.textContent = "Oops! There was a problem submitting your form.";
+          contactFormStatus.className = "text-danger";
+          showToast('Failed to send message. Please try again.', 'error');
+        }
+      }catch{
+        contactFormStatus.textContent = "Network error. Try again.";
+        contactFormStatus.className = "text-danger";
+        showToast('Network error. Please try again.', 'error');
+      }
+    });
+  }
+  
+  // Add a status message to the log
+  function addStatusMessage(message, type = 'info') {
+    const timestamp = new Date().toLocaleTimeString();
+    const fullMessage = `[${timestamp}] ${message}`;
+    
+    // Add to all logs array
+    allLogs.push({timestamp, message, type});
+    
+    const messageEl = document.createElement('div');
+    messageEl.className = `status-line status-${type}`;
+    messageEl.textContent = fullMessage;
+    statusLog.prepend(messageEl);
+    
+    // Auto-scroll to top
+    statusLog.scrollTop = 0;
+  }
+  
+  // Show loading animation stage
+  function showLoadingStage(stage) {
+    // Hide all stages first
+    connectingStage.style.display = 'none';
+    fetchingStage.style.display = 'none';
+    processingStage.style.display = 'none';
+    completeStage.style.display = 'none';
+    
+    // Show the requested stage
+    switch(stage) {
+      case 'connecting':
+        connectingStage.style.display = 'block';
+        break;
+      case 'fetching':
+        fetchingStage.style.display = 'block';
+        break;
+      case 'processing':
+        processingStage.style.display = 'block';
+        break;
+      case 'complete':
+        completeStage.style.display = 'block';
+        break;
+    }
+    
+    // Show the container if hidden
+    loadingContainer.style.display = 'block';
+  }
+  
+  // Hide loading animation
+  function hideLoading() {
+    loadingContainer.style.display = 'none';
+  }
+  
+  // Download log
+  function downloadLog() {
+    addStatusMessage('Preparing log file for download...', 'info');
+    
+    // Create log content
+    let logContent = "UAF CGPA Calculator - Activity Log\n";
+    logContent += "============================================\n\n";
+    
+    allLogs.forEach(log => {
+      logContent += `[${log.timestamp}] ${log.message}\n`;
+    });
+    
+    // Create download link
+    const blob = new Blob([logContent], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `cgpa_calculator_log_${new Date().toISOString().replace(/[:.]/g, '-')}.txt`;
+    document.body.appendChild(a);
+    a.click();
+    
+    // Clean up
+    window.URL.revokeObjectURL(url);
+    document.body.removeChild(a);
+    
+    addStatusMessage('Log file downloaded successfully', 'success');
+    showToast('Log file downloaded!', 'success');
+  }
+  
+  // Clear log
+  function clearLog() {
+    statusLog.innerHTML = '';
+    allLogs = [];
+    addStatusMessage('Log cleared', 'info');
+    showToast('Log cleared', 'info');
+  }
+  
+  // Test connection
+  async function testConnection() {
+    // Prevent multiple simultaneous test requests
+    if (testInProgress) {
+      addStatusMessage('Test connection already in progress', 'info');
+      return;
+    }
+    
+    testInProgress = true;
+    testConnectionBtn.disabled = true;
+    
+    addStatusMessage('Testing connection to UAF LMS server...', 'info');
+    showLoadingStage('connecting');
+    
+    try {
+      const response = await fetch(`${API_ENDPOINTS.test}?action=test`, {
+        method: 'GET'
+      });
       
-      // Initialize Back to Top button
-      function initBackToTop() {
-        window.addEventListener('scroll', function() {
-          if (window.pageYOffset > 300) {
-            backToTopButton.classList.add('visible');
-          } else {
-            backToTopButton.classList.remove('visible');
-          }
-        });
+      if (response.ok) {
+        addStatusMessage('Connection test successful - UAF LMS is accessible', 'success');
+        showToast('Connection test successful!', 'success');
+        showLoadingStage('complete');
         
-        backToTopButton.addEventListener('click', function() {
-          window.scrollTo({
-            top: 0,
-            behavior: 'smooth'
-          });
-        });
-      }
-      
-      // Generate a unique session ID
-      function generateSessionId() {
-        return 'session_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
-      }
-      
-      // Create a custom toast container
-      function createToastContainer() {
-        const toastContainer = document.createElement('div');
-        toastContainer.id = 'toast-container';
-        document.body.appendChild(toastContainer);
-      }
-      
-      // Show toast notification
-      function showToast(message, type = 'success') {
-        const toastContainer = document.getElementById('toast-container');
-        const toast = document.createElement('div');
-        toast.className = `toast toast-${type}`;
-        toast.innerHTML = `
-          <div class="toast-content">
-            <i class="toast-icon ${getToastIcon(type)}"></i>
-            <span class="toast-message">${message}</span>
-          </div>
-          <div class="toast-progress"></div>
-        `;
-        
-        toastContainer.appendChild(toast);
-        
-        // Animate in
+        // Hide loading after delay
         setTimeout(() => {
-          toast.classList.add('show');
-        }, 10);
-        
-        // Remove after delay
-        setTimeout(() => {
-          toast.classList.remove('show');
-          setTimeout(() => {
-            if (toast.parentNode) {
-              toast.parentNode.removeChild(toast);
-            }
-          }, 300);
-        }, 3000);
-      }
-      
-      // Get icon for toast type
-      function getToastIcon(type) {
-        switch(type) {
-          case 'success': return 'fa-solid fa-circle-check';
-          case 'error': return 'fa-solid fa-circle-exclamation';
-          case 'warning': return 'fa-solid fa-triangle-exclamation';
-          case 'info': return 'fa-solid fa-circle-info';
-          default: return 'fa-solid fa-circle-info';
-        }
-      }
-      
-      // Initialize custom cursor
-      function initCustomCursor() {
-        document.addEventListener('mousemove', (e) => {
-          cursorDot.style.display = window.innerWidth > 768 ? 'block' : 'none';
-          cursorDot.style.left = e.clientX + 'px';
-          cursorDot.style.top = e.clientY + 'px';
-        });
-      }
-      
-      // Theme toggle functionality
-      function initTheme() {
-        const THEME_KEY = 'uaf-theme';
-        function applyTheme(theme){
-          document.documentElement.setAttribute('data-theme', theme);
-          localStorage.setItem(THEME_KEY, theme);
-          themeToggle.innerHTML = theme === 'dark' ? '<i class="fa-solid fa-sun"></i>' : '<i class="fa-solid fa-moon"></i>';
-        }
-        applyTheme(localStorage.getItem(THEME_KEY) || 'light');
-        themeToggle.addEventListener('click', () => {
-          const next = (localStorage.getItem(THEME_KEY) || 'light') === 'light' ? 'dark' : 'light';
-          applyTheme(next);
-        });
-      }
-      
-      // Contact form
-      function initContactForm() {
-        contactForm.addEventListener('submit', async (e) => {
-          e.preventDefault();
-          if(!contactForm.checkValidity()){
-            e.stopPropagation();
-            contactForm.classList.add('was-validated');
-            return;
-          }
-          const data = new FormData(contactForm);
-          try{
-            const res = await fetch(contactForm.action, { method: 'POST', body: data, headers: {'Accept':'application/json'}});
-            if(res.ok){
-              contactFormStatus.textContent = "Thanks! We'll get back to you soon.";
-              contactFormStatus.className = "text-success";
-              contactForm.reset(); contactForm.classList.remove('was-validated');
-              showToast('Message sent successfully!', 'success');
-            }else{
-              contactFormStatus.textContent = "Oops! There was a problem submitting your form.";
-              contactFormStatus.className = "text-danger";
-              showToast('Failed to send message. Please try again.', 'error');
-            }
-          }catch{
-            contactFormStatus.textContent = "Network error. Try again.";
-            contactFormStatus.className = "text-danger";
-            showToast('Network error. Please try again.', 'error');
-          }
-        });
-      }
-      
-      // Add a status message to the log
-      function addStatusMessage(message, type = 'info') {
-        const timestamp = new Date().toLocaleTimeString();
-        const fullMessage = `[${timestamp}] ${message}`;
-        
-        // Add to all logs array
-        allLogs.push({timestamp, message, type});
-        
-        const messageEl = document.createElement('div');
-        messageEl.className = `status-line status-${type}`;
-        messageEl.textContent = fullMessage;
-        statusLog.prepend(messageEl);
-        
-        // Auto-scroll to top
-        statusLog.scrollTop = 0;
-      }
-      
-      // Show loading animation stage
-      function showLoadingStage(stage) {
-        // Hide all stages first
-        connectingStage.style.display = 'none';
-        fetchingStage.style.display = 'none';
-        processingStage.style.display = 'none';
-        completeStage.style.display = 'none';
-        
-        // Show the requested stage
-        switch(stage) {
-          case 'connecting':
-            connectingStage.style.display = 'block';
-            break;
-          case 'fetching':
-            fetchingStage.style.display = 'block';
-            break;
-          case 'processing':
-            processingStage.style.display = 'block';
-            break;
-          case 'complete':
-            completeStage.style.display = 'block';
-            break;
-        }
-        
-        // Show the container if hidden
-        loadingContainer.style.display = 'block';
-      }
-      
-      // Hide loading animation
-      function hideLoading() {
-        loadingContainer.style.display = 'none';
-      }
-      
-      // Download log
-      function downloadLog() {
-        addStatusMessage('Preparing log file for download...', 'info');
-        
-        // Create log content
-        let logContent = "UAF CGPA Calculator - Activity Log\n";
-        logContent += "============================================\n\n";
-        
-        allLogs.forEach(log => {
-          logContent += `[${log.timestamp}] ${log.message}\n`;
-        });
-        
-        // Create download link
-        const blob = new Blob([logContent], { type: 'text/plain' });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = `cgpa_calculator_log_${new Date().toISOString().replace(/[:.]/g, '-')}.txt`;
-        document.body.appendChild(a);
-        a.click();
-        
-        // Clean up
-        window.URL.revokeObjectURL(url);
-        document.body.removeChild(a);
-        
-        addStatusMessage('Log file downloaded successfully', 'success');
-        showToast('Log file downloaded!', 'success');
-      }
-      
-      // Clear log
-      function clearLog() {
-        statusLog.innerHTML = '';
-        allLogs = [];
-        addStatusMessage('Log cleared', 'info');
-        showToast('Log cleared', 'info');
-      }
-      
-      // Test connection
-      async function testConnection() {
-        // Prevent multiple simultaneous test requests
-        if (testInProgress) {
-          addStatusMessage('Test connection already in progress', 'info');
-          return;
-        }
-        
-        testInProgress = true;
-        testConnectionBtn.disabled = true;
-        
-        addStatusMessage('Testing connection to UAF LMS server...', 'info');
-        showLoadingStage('connecting');
-        
-        try {
-          const response = await fetch(`${API_ENDPOINTS.test}?action=test`, {
-            method: 'GET'
-          });
-          
-          // Handle both JSON and HTML responses
-          let responseData;
-          const contentType = response.headers.get('content-type');
-          
-          if (contentType && contentType.includes('application/json')) {
-            responseData = await response.json();
-          } else {
-            // If it's HTML, check if the response status is 200
-            if (response.status === 200) {
-              responseData = {success: true, message: 'Connection to UAF LMS successful'};
-            } else {
-              responseData = {success: false, message: `UAF LMS returned status code: ${response.status}`};
-            }
-          }
-          
-          if (responseData.success) {
-            addStatusMessage('Connection test successful - UAF LMS is accessible', 'success');
-            showToast('Connection test successful!', 'success');
-            showLoadingStage('complete');
-            
-            // Hide loading after delay
-            setTimeout(() => {
-              hideLoading();
-            }, 2000);
-          } else {
-            addStatusMessage(`Connection test failed: ${responseData.message}`, 'error');
-            showToast('Connection test failed!', 'error');
-            hideLoading();
-          }
-        } catch (error) {
-          addStatusMessage(`Connection test failed: ${error.message}`, 'error');
-          showToast('Connection test failed!', 'error');
           hideLoading();
-        } finally {
-          testInProgress = false;
-          testConnectionBtn.disabled = false;
-        }
+        }, 2000);
+      } else {
+        addStatusMessage(`Connection test failed: Server returned ${response.status}`, 'error');
+        showToast('Connection test failed!', 'error');
+        hideLoading();
       }
+    } catch (error) {
+      addStatusMessage(`Connection test failed: ${error.message}`, 'error');
+      showToast('Connection test failed!', 'error');
+      hideLoading();
+    } finally {
+      testInProgress = false;
+      testConnectionBtn.disabled = false;
+    }
+  }
+  
+  // Fetch result from UAF LMS
+  async function fetchResult() {
+    const regNum = registrationNumber.value.trim();
+    
+    if (!regNum) {
+      showToast('Please enter a registration number', 'error');
+      addStatusMessage('No registration number entered', 'error');
+      return;
+    }
+    
+    // Show loading animation
+    resultContainer.style.display = 'none';
+    saveToWebBtn.style.display = 'none';
+    downloadPdfBtn.style.display = 'none';
+    showLoadingStage('connecting');
+    addStatusMessage(`Fetching result for registration number: ${regNum}`, 'info');
+    
+    try {
+      // Stage 1: Connecting
+      setTimeout(() => {
+        showLoadingStage('fetching');
+        addStatusMessage('Connected to UAF LMS, fetching results...', 'info');
+      }, 2000);
       
-      // Process semester name for display (convert Winter 2024-2025 to Winter 2024, Spring 2024-2025 to Spring 2025)
-      function processSemesterName(semester) {
-        if (!semester) return 'Unknown Semester';
-        
-        // Handle different semester formats
-        if (semester.includes('Winter')) {
-          const yearMatch = semester.match(/(\d{4})-(\d{2,4})/);
-          if (yearMatch) {
-            return `Winter ${yearMatch[1]}`;
-          }
-        } else if (semester.includes('Spring')) {
-          const yearMatch = semester.match(/(\d{4})-(\d{2,4})/);
-          if (yearMatch && yearMatch[2].length === 4) {
-            return `Spring ${yearMatch[2]}`;
-          } else if (yearMatch && yearMatch[2].length === 2) {
-            return `Spring 20${yearMatch[2]}`;
-          }
-        } else if (semester.includes('Summer')) {
-          // Handle "Summer Semester 2025" -> "Summer 2025"
-          const yearMatch = semester.match(/(\d{4})-(\d{2,4})/);
-          if (yearMatch) {
-            return `Summer ${yearMatch[1]}`;
-          }
-          // Also handle "Summer Semester 2025" format
-          const summerMatch = semester.match(/Summer Semester (\d{4})/);
-          if (summerMatch) {
-            return `Summer ${summerMatch[1]}`;
-          }
-        } else if (semester.includes('Fall')) {
-          const yearMatch = semester.match(/(\d{4})-(\d{2,4})/);
-          if (yearMatch) {
-            return `Fall ${yearMatch[1]}`;
-          }
-        }
-        
-        // Return original if no pattern matched
-        return semester;
-      }
+      const response = await fetch(`${API_ENDPOINTS.scrape}?registrationNumber=${encodeURIComponent(regNum)}`, {
+        method: 'GET'
+      });
       
-      // Extract semester order key for internal chronological sorting
-      function getSemesterOrderKey(semesterName) {
-        if (!semesterName) return '9999-9';
-        
-        // Extract year and season for chronological ordering
-        let year = '';
-        let seasonOrder = 9; // Default to last position
-        
-        // Try to extract year from different patterns
-        const yearMatch = semesterName.match(/\b(20\d{2})\b/);
-        if (yearMatch) {
-          year = yearMatch[1];
-        } else {
-          // Try 2-digit year format
-          const shortYearMatch = semesterName.match(/\b(\d{2})\b/);
-          if (shortYearMatch) {
-            year = '20' + shortYearMatch[1];
-          }
-        }
-        
-        // Determine season order (Winter=1, Spring=2, Summer=3, Fall=4)
-        if (semesterName.toLowerCase().includes('winter')) {
-          seasonOrder = 1;
-        } else if (semesterName.toLowerCase().includes('spring')) {
-          seasonOrder = 2;
-        } else if (semesterName.toLowerCase().includes('summer')) {
-          seasonOrder = 3;
-        } else if (semesterName.toLowerCase().includes('fall')) {
-          seasonOrder = 4;
-        }
-        
-        // If we couldn't extract year, use a high number to push to end
-        if (!year) year = '9999';
-        
-        return `${year}-${seasonOrder}`;
-      }
+      // Stage 2: Processing
+      showLoadingStage('processing');
+      addStatusMessage('Results received, processing data...', 'info');
       
-      // Process scraped data to handle re-enrolled courses
-      function processScrapedData(data) {
-        if (!data || !data.resultData) return null;
-        
-        const resultData = data.resultData;
-        const studentInfo = {
-          name: resultData[0]?.StudentName || '',
-          registration: resultData[0]?.RegistrationNo || ''
-        };
-        
-        // Group by semester (processed name)
-        const semesters = {};
-        const courseHistory = {}; // Track course history for re-enrollment detection
-        
-        // First pass: organize by semester and track course history
-        resultData.forEach(course => {
-          const originalSemester = course.Semester || 'Unknown Semester';
-          const semesterName = processSemesterName(originalSemester);
-          const courseCode = course.CourseCode || '';
-          const creditHoursStr = course.CreditHours || '0';
-          
-          if (!semesters[semesterName]) {
-            semesters[semesterName] = {
-              originalName: originalSemester,
-              sortKey: getSemesterOrderKey(originalSemester),
-              courses: [],
-              totalQualityPoints: 0,
-              totalCreditHours: 0
-            };
-          }
-          
-          // Parse credit hours - preserve the original format like "3(2-1)"
-          let creditHours = 0;
-          const numbers = creditHoursStr.match(/\d+/g);
-          if (numbers && numbers.length > 0) {
-            creditHours = parseInt(numbers[0]);
-          }
-          
-          // Parse marks
-          let marks = 0;
-          try {
-            marks = parseFloat(course.Total || '0');
-          } catch (e) {
-            marks = 0;
-          }
-          
-          // Get grade from scraped data
-          const grade = course.Grade || '';
-          
-          // Calculate quality points based on UAF system
-          const qualityPoints = calculateQualityPoints(marks, creditHours);
-          
-          const courseData = {
-            code: courseCode,
-            title: course.CourseTitle || '',
-            creditHours: creditHours,
-            creditHoursDisplay: creditHoursStr, // Preserve original format
-            marks: marks,
-            qualityPoints: qualityPoints,
-            grade: grade,
-            originalSemester: originalSemester,
-            semesterName: semesterName,
-            semesterSortKey: getSemesterOrderKey(originalSemester),
-            teacher: course.TeacherName || '',
-            mid: course.Mid || '0',
-            assignment: course.Assignment || '0',
-            final: course.Final || '0',
-            practical: course.Practical || '0',
-            total: course.Total || '0',
-            isExtraEnrolled: false,
-            isRepeated: false,
-            isDeleted: false,
-            originalSemesterForRepeated: null,
-            isCustom: false
-          };
-          
-          // Track course history
-          if (!courseHistory[courseCode]) {
-            courseHistory[courseCode] = [];
-          }
-          courseHistory[courseCode].push({
-            semester: semesterName,
-            semesterSortKey: getSemesterOrderKey(originalSemester),
-            marks: marks,
-            qualityPoints: qualityPoints,
-            data: courseData
-          });
-          
-          semesters[semesterName].courses.push(courseData);
-        });
-        
-        // Second pass: identify re-enrolled courses and mark them
-        Object.keys(courseHistory).forEach(courseCode => {
-          const history = courseHistory[courseCode];
-          if (history.length > 1) {
-            // Sort by semester order (chronological)
-            history.sort((a, b) => a.semesterSortKey.localeCompare(b.semesterSortKey));
-            
-            // Find the highest marks/quality points
-            let highest = history[0];
-            for (let i = 1; i < history.length; i++) {
-              if (history[i].marks > highest.marks) {
-                highest = history[i];
-              }
-            }
-            
-            // Mark all other instances as extra enrolled and repeated
-            // Also set the original semester for repeated courses
-            history.forEach(item => {
-              if (item !== highest) {
-                item.data.isExtraEnrolled = true;
-                item.data.isRepeated = true;
-                item.data.originalSemesterForRepeated = highest.semester;
-              }
-            });
-          }
-        });
-        
-        return {
-          studentInfo: studentInfo,
-          semesters: semesters,
-          courseHistory: courseHistory
-        };
-      }
+      const data = await response.json();
       
-      // Calculate quality points based on UAF grading system
-      function calculateQualityPoints(marks, creditHours) {
-        marks = parseFloat(marks);
-        creditHours = parseInt(creditHours);
-
-        let qualityPoints = 0;
-
-        if (creditHours === 5) {
-          if (marks >= 80) {
-            qualityPoints = 20;
-          } else if (marks >= 50) {
-            qualityPoints = 20 - ((80 - marks) * 0.33333);
-          } else if (marks < 50) {
-            qualityPoints = 10 - ((50 - marks) * 0.5);
-          }
-          if (marks < 40) {
-            qualityPoints = 0;
-          }
-        } else if (creditHours === 4) {
-          if (marks >= 64) {
-            qualityPoints = 16;
-          } else if (marks >= 40) {
-            qualityPoints = 16 - ((64 - marks) * 0.33333);
-          } else if (marks < 40) {
-            qualityPoints = 8 - ((40 - marks) * 0.5);
-          }
-          if (marks < 32) {
-            qualityPoints = 0;
-          }
-        } else if (creditHours === 3) {
-          if (marks >= 48) {
-            qualityPoints = 12;
-          } else if (marks >= 30) {
-            qualityPoints = 12 - ((48 - marks) * 0.33333);
-          } else if (marks < 30) {
-            qualityPoints = 6 - ((30 - marks) * 0.5);
-          }
-          if (marks < 24) {
-            qualityPoints = 0;
-          }
-        } else if (creditHours === 2) {
-          if (marks >= 32) {
-            qualityPoints = 8;
-          } else if (marks >= 20) {
-            qualityPoints = 8 - ((32 - marks) * 0.33333);
-          } else if (marks < 20) {
-            qualityPoints = 4 - ((20 - marks) * 0.5);
-          }
-          if (marks < 16) {
-            qualityPoints = 0;
-          }
-        } else if (creditHours === 1) {
-          if (marks >= 16) {
-            qualityPoints = 4;
-          } else if (marks >= 10) {
-            qualityPoints = 4 - ((16 - marks) * 0.33333);
-          } else if (marks < 10) {
-            qualityPoints = 2 - ((10 - marks) * 0.5);
-          }
-          if (marks < 8) {
-            qualityPoints = 0;
-          }
-        }
-
-        return parseFloat(qualityPoints.toFixed(2));
-      }
-      
-      // Calculate grade for custom courses based on marks and credit hours
-      function calculateCustomGrade(marks, creditHours) {
-        marks = parseFloat(marks);
-        creditHours = parseInt(creditHours);
-        
-        if (creditHours === 5) {
-          if (marks >= 80) return 'A';
-          else if (marks >= 50) return 'B';
-          else if (marks >= 40) return 'D';
-          else return 'F';
-        } else if (creditHours === 4) {
-          if (marks >= 64) return 'A';
-          else if (marks >= 52) return 'B';
-          else if (marks >= 40) return 'C';
-          else if (marks >= 32) return 'D';
-          else return 'F';
-        } else if (creditHours === 3) {
-          if (marks >= 48) return 'A';
-          else if (marks >= 39) return 'B';
-          else if (marks >= 30) return 'C';
-          else if (marks >= 24) return 'D';
-          else return 'F';
-        } else if (creditHours === 2) {
-          if (marks >= 32) return 'A';
-          else if (marks >= 26) return 'B';
-          else if (marks >= 20) return 'C';
-          else if (marks >= 16) return 'D';
-          else return 'F';
-        } else if (creditHours === 1) {
-          if (marks >= 16) return 'A';
-          else if (marks >= 13) return 'B';
-          else if (marks >= 10) return 'C';
-          else if (marks >= 8) return 'D';
-          else return 'F';
-        }
-        
-        return 'F';
-      }
-      
-      // Calculate CGPA from processed data
-      function calculateCGPA(processedData) {
-        if (!processedData) return null;
-        
-        let totalQualityPoints = 0;
-        let totalCreditHours = 0;
-        let totalMarksObtained = 0;
-        let totalMaxMarks = 0;
-        
-        // Calculate for each semester (in display order, not chronological)
-        Object.keys(processedData.semesters).forEach(semesterName => {
-          const semester = processedData.semesters[semesterName];
-          semester.totalQualityPoints = 0;
-          semester.totalCreditHours = 0;
-          semester.totalMarksObtained = 0;
-          semester.totalMaxMarks = 0;
-          
-          semester.courses.forEach(course => {
-            // Only count non-extra enrolled and non-deleted courses for CGPA
-            if (!course.isExtraEnrolled && !course.isDeleted) {
-              semester.totalQualityPoints += course.qualityPoints;
-              semester.totalCreditHours += course.creditHours;
-              semester.totalMarksObtained += course.marks;
-              
-              // Calculate max marks based on credit hours
-              let maxMarks = 0;
-              if (course.creditHours === 5) maxMarks = 100;
-              else if (course.creditHours === 4) maxMarks = 80;
-              else if (course.creditHours === 3) maxMarks = 60;
-              else if (course.creditHours === 2) maxMarks = 40;
-              else if (course.creditHours === 1) maxMarks = 20;
-              
-              semester.totalMaxMarks += maxMarks;
-              totalMaxMarks += maxMarks;
-              
-              totalQualityPoints += course.qualityPoints;
-              totalCreditHours += course.creditHours;
-              totalMarksObtained += course.marks;
-            }
-          });
-          
-          // Calculate semester GPA
-          if (semester.totalCreditHours > 0) {
-            semester.gpa = parseFloat((semester.totalQualityPoints / semester.totalCreditHours).toFixed(4));
-            semester.percentage = parseFloat((semester.totalMarksObtained / semester.totalMaxMarks * 100).toFixed(4));
-          } else {
-            semester.gpa = 0;
-            semester.percentage = 0;
-          }
-        });
-        
-        // Calculate overall CGPA
-        const cgpa = totalCreditHours > 0 ? parseFloat((totalQualityPoints / totalCreditHours).toFixed(4)) : 0;
-        const percentage = totalMaxMarks > 0 ? parseFloat((totalMarksObtained / totalMaxMarks * 100).toFixed(4)) : 0;
-        
-        return {
-          cgpa: cgpa,
-          percentage: percentage,
-          totalQualityPoints: totalQualityPoints,
-          totalCreditHours: totalCreditHours,
-          totalMarksObtained: totalMarksObtained,
-          totalMaxMarks: totalMaxMarks
-        };
-      }
-      
-      // Format CGPA with appropriate decimal places
-      function formatCGPA(value) {
-        if (value % 1 === 0) {
-          return value.toFixed(2);
-        } else {
-          // Check if it has non-recurring decimals beyond 2 places
-          const decimalPart = (value - Math.floor(value)).toFixed(4).substring(2);
-          if (decimalPart.length > 2 && decimalPart !== '00') {
-            return value.toFixed(4);
-          } else {
-            return value.toFixed(2);
-          }
-        }
-      }
-      
-      // Format percentage with appropriate decimal places
-      function formatPercentage(value) {
-        if (value % 1 === 0) {
-          return value.toFixed(0);
-        } else {
-          return value.toFixed(2);
-        }
-      }
-      
-      // Display CGPA results
-      function displayCGPAResults(processedData, cgpaData) {
-        // Show the result container
-        resultContainer.style.display = 'block';
-        saveToWebBtn.style.display = 'block';
-        downloadPdfBtn.style.display = 'block';
-        
-        // Update student info
-        studentName.textContent = processedData.studentInfo.name;
-        studentName.innerHTML = `<i class="fa-solid fa-user-graduate me-2"></i>${processedData.studentInfo.name}`;
-        studentReg.textContent = processedData.studentInfo.registration;
-        
-        // Update overall CGPA and marks with formatted values
-        totalCgpa.textContent = formatCGPA(cgpaData.cgpa);
-        totalPercentage.textContent = `${formatPercentage(cgpaData.percentage)}%`;
-        totalMarksObtained.textContent = cgpaData.totalMarksObtained.toFixed(0);
-        totalMaxMarks.textContent = `/ ${cgpaData.totalMaxMarks.toFixed(0)}`;
-        
-        // Clear previous semester results
-        semesterResults.innerHTML = '';
-        
-        // Create semester cards in their original order (not chronological)
-        Object.keys(processedData.semesters).forEach(semesterName => {
-          const semester = processedData.semesters[semesterName];
-          
-          const semesterCard = document.createElement('div');
-          semesterCard.className = 'semester-card';
-          semesterCard.dataset.semester = semesterName;
-          semesterCard.innerHTML = `
-            <i class="fa-solid fa-trash delete-semester" title="Delete this semester" data-semester="${semesterName}"></i>
-            <div class="d-flex align-items-center justify-content-between mb-3">
-              <h5 class="mb-0">
-                <i class="fa-solid fa-book-open me-2" style="color: var(--brand);"></i>
-                ${semesterName}
-              </h5>
-              <div class="text-right" style="margin-right: 40px;">
-                <p class="mb-0 text-body-secondary small">GPA:</p>
-                <p class="mb-0 h4 fw-bold" style="color: var(--brand);">${semester.gpa ? formatCGPA(semester.gpa) : 0}</p>
-                <p class="mb-0 text-body-secondary small">${semester.percentage ? formatPercentage(semester.percentage) : 0}%</p>
-              </div>
-            </div>
-            <button class="custom-course-btn" data-semester="${semesterName}">
-              <i class="fa-solid fa-plus"></i> Custom Course
-            </button>
-            <div class="table-responsive">
-              <table class="course-table">
-                <thead>
-                  <tr>
-                    <th>Course</th>
-                    <th>Hrs</th>
-                    <th>Marks</th>
-                    <th>Grade</th>
-                    <th>Action</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  ${semester.courses.map(course => `
-                    <tr class="${course.isExtraEnrolled ? 'table-warning' : ''} ${course.isDeleted ? 'table-danger text-decoration-line-through' : ''} ${course.isCustom ? 'table-info' : ''}">
-                      <td>
-  <div class="course-code-container">
-    <div class="d-flex align-items-center">
-      <span class="fw-medium course-code clickable-info" data-course='${JSON.stringify(course).replace(/'/g, "&#39;")}'>
-        ${course.code}${course.isExtraEnrolled ? '<span style="font-size: 8px; color: #856404;"> (Rep.)</span>' : ''}
-      </span>
-      <i class="fa-solid fa-info-circle ms-2 clickable-info small" data-course='${JSON.stringify(course).replace(/'/g, "&#39;")}' title="${course.title}"></i>
-    </div>
-    ${course.isCustom ? '<span class="extra-enrolled">Custom</span>' : ''}
-  </div>
-</td>
-                      <td>${course.creditHoursDisplay || course.creditHours}</td>
-                      <td>${course.marks}</td>
-                      <td>
-                        <span class="grade-badge grade-${course.grade}">${course.grade}</span>
-                      </td>
-                      <td class="course-actions">
-                        ${course.isDeleted ? 
-                          `<i class="fa-solid fa-rotate-left restore-course" data-course='${JSON.stringify(course).replace(/'/g, "&#39;")}' data-semester="${semesterName}" title="Restore this course"></i>` : 
-                          `<i class="fa-solid fa-trash delete-course" data-course='${JSON.stringify(course).replace(/'/g, "&#39;")}' data-semester="${semesterName}" title="Delete this course"></i>`
-                        }
-                      </td>
-                    </tr>
-                  `).join('')}
-                </tbody>
-              </table>
-            </div>
-          `;
-          
-          semesterResults.appendChild(semesterCard);
-        });
-        
-        // Add event listeners for course details and delete buttons
-        document.querySelectorAll('.clickable-info').forEach(el => {
-          el.addEventListener('click', function() {
-            const courseData = JSON.parse(this.dataset.course.replace(/&#39;/g, "'"));
-            showCourseDetails(courseData);
-          });
-        });
-        
-        document.querySelectorAll('.delete-semester').forEach(btn => {
-          btn.addEventListener('click', function() {
-            const semesterName = this.dataset.semester;
-            deleteSemester(semesterName);
-          });
-        });
-        
-        document.querySelectorAll('.custom-course-btn').forEach(btn => {
-          btn.addEventListener('click', function() {
-            const semesterName = this.dataset.semester;
-            openAddCourseModal(semesterName);
-          });
-        });
-        
-        document.querySelectorAll('.delete-course').forEach(btn => {
-          btn.addEventListener('click', function() {
-            const courseData = JSON.parse(this.dataset.course.replace(/&#39;/g, "'"));
-            const semesterName = this.dataset.semester;
-            deleteCourse(courseData, semesterName);
-          });
-        });
-        
-        document.querySelectorAll('.restore-course').forEach(btn => {
-          btn.addEventListener('click', function() {
-            const courseData = JSON.parse(this.dataset.course.replace(/&#39;/g, "'"));
-            const semesterName = this.dataset.semester;
-            restoreCourse(courseData, semesterName);
-          });
-        });
-      }
-      
-      // Show course details in modal
-      function showCourseDetails(course) {
-        document.getElementById('courseDetailsModalTitle').textContent = `${course.code} - ${course.title}`;
-        
-        const modalBody = document.getElementById('courseDetailsModalBody');
-        
-        let repeatedInfoHtml = '';
-        if (course.isExtraEnrolled && course.originalSemesterForRepeated) {
-          repeatedInfoHtml = `
-            <div class="row mt-3">
-              <div class="col-12">
-                <div class="alert alert-warning">
-                  <i class="fa-solid fa-exclamation-triangle me-2"></i>
-                  <p class="mb-1">The Marks and Quality points of this Repeated subject will be considered in its <strong class="clickable-semester" data-semester="${course.originalSemesterForRepeated}" style="cursor: pointer; text-decoration: underline;">Original Semester (${course.originalSemesterForRepeated})</strong></p>
-                  <p class="mb-0 small">Click on the semester name to view it</p>
-                </div>
-              </div>
-            </div>
-          `;
-        }
-        
-        let customInfoHtml = '';
-        if (course.isCustom) {
-          customInfoHtml = `
-            <div class="row mt-3">
-              <div class="col-12">
-                <div class="alert alert-info">
-                  <i class="fa-solid fa-info-circle me-2"></i>
-                  <p class="mb-0">This is a custom course added manually.</p>
-                </div>
-              </div>
-            </div>
-          `;
-        }
-        
-        modalBody.innerHTML = `
-          <div class="row">
-            <div class="col-md-6">
-              <p><strong>Teacher:</strong> ${course.teacher}</p>
-              <p><strong>Credit Hours:</strong> ${course.creditHoursDisplay || course.creditHours}</p>
-              <p><strong>Semester:</strong> ${course.semesterName}</p>
-            </div>
-            <div class="col-md-6">
-              <p><strong>Mid Term:</strong> ${course.mid}</p>
-              <p><strong>Assignment:</strong> ${course.assignment}</p>
-              <p><strong>Final Term:</strong> ${course.final}</p>
-              ${course.practical ? `<p><strong>Practical:</strong> ${course.practical}</p>` : ''}
-            </div>
-          </div>
-          <div class="row mt-3">
-            <div class="col-12">
-              <div class="alert alert-info">
-                <p class="mb-1"><strong>Total Marks:</strong> ${course.total}</p>
-                <p class="mb-1"><strong>Grade:</strong> <span class="grade-badge grade-${course.grade}">${course.grade}</span></p>
-                <p class="mb-0"><strong>Quality Points:</strong> ${course.qualityPoints.toFixed(2)}</p>
-              </div>
-            </div>
-          </div>
-          ${repeatedInfoHtml}
-          ${customInfoHtml}
-        `;
-        
-        // Add event listener for semester link if it exists
-        const semesterLink = modalBody.querySelector('.clickable-semester');
-        if (semesterLink) {
-          semesterLink.addEventListener('click', function() {
-            const semesterName = this.dataset.semester;
-            courseDetailsModal.hide();
-            
-            // Scroll to the semester
-            const semesterElement = document.querySelector(`.semester-card[data-semester="${semesterName}"]`);
-            if (semesterElement) {
-              semesterElement.scrollIntoView({ behavior: 'smooth' });
-              // Add highlight effect
-              semesterElement.style.transition = 'all 0.5s ease';
-              semesterElement.style.boxShadow = '0 0 20px rgba(122, 106, 216, 0.5)';
-              setTimeout(() => {
-                semesterElement.style.boxShadow = '';
-              }, 2000);
-            }
-          });
-        }
-        
-        courseDetailsModal.show();
-      }
-      
-      // Open add course modal
-      function openAddCourseModal(semesterName) {
-        document.getElementById('addCourseSemester').value = semesterName;
-        addCourseForm.reset();
-        addCourseModal.show();
-      }
-      
-      // Add custom course
-      function addCustomCourse() {
-        const semesterName = document.getElementById('addCourseSemester').value;
-        const courseCode = document.getElementById('courseCode').value;
-        const courseTitle = document.getElementById('courseTitle').value;
-        const creditHours = parseInt(document.getElementById('creditHours').value);
-        const marks = parseInt(document.getElementById('courseMarks').value);
-        
-        if (!courseCode || !courseTitle || !creditHours || isNaN(marks)) {
-          showToast('Please fill all fields correctly', 'error');
-          return;
-        }
-        
-        if (!processedData || !processedData.semesters[semesterName]) return;
-        
-        const semester = processedData.semesters[semesterName];
-        
-        // Calculate quality points
-        const qualityPoints = calculateQualityPoints(marks, creditHours);
-        
-        // Determine grade based on custom grading system
-        const grade = calculateCustomGrade(marks, creditHours);
-        
-        const courseData = {
-          code: courseCode,
-          title: courseTitle,
-          creditHours: creditHours,
-          creditHoursDisplay: creditHours.toString(), // Simple display for custom courses
-          marks: marks,
-          qualityPoints: qualityPoints,
-          grade: grade,
-          originalSemester: semesterName,
-          semesterName: semesterName,
-          semesterSortKey: getSemesterOrderKey(semesterName),
-          teacher: 'Custom Course',
-          mid: '0',
-          assignment: '0',
-          final: marks.toString(),
-          practical: '0',
-          total: marks.toString(),
-          isExtraEnrolled: false,
-          isRepeated: false,
-          isDeleted: false,
-          originalSemesterForRepeated: null,
-          isCustom: true
-        };
-        
-        // Add course to semester
-        semester.courses.push(courseData);
-        
-        // Recalculate CGPA
-        const cgpaData = calculateCGPA(processedData);
-        
-        // Update display
-        displayCGPAResults(processedData, cgpaData);
-        
-        addCourseModal.hide();
-        showToast(`Course ${courseCode} added to ${semesterName}`, 'success');
-        addStatusMessage(`Added custom course: ${courseCode} to ${semesterName}`, 'info');
-      }
-      
-      // Delete a semester
-      function deleteSemester(semesterName) {
-        if (!processedData || !processedData.semesters[semesterName]) return;
-        
-        // Store the semester data for potential undo
-        deletedSemesters[semesterName] = JSON.parse(JSON.stringify(processedData.semesters[semesterName]));
-        
-        // Remove semester from processed data
-        delete processedData.semesters[semesterName];
-        
-        // Recalculate CGPA
-        const cgpaData = calculateCGPA(processedData);
-        
-        // Update display
-        displayCGPAResults(processedData, cgpaData);
-        
-        // Show undo notification
-        showUndoNotification(semesterName);
-        
-        addStatusMessage(`Deleted semester: ${semesterName}`, 'info');
-        showToast(`Semester ${semesterName} deleted`, 'info');
-      }
-      
-      // Show undo notification for deleted semester
-      function showUndoNotification(semesterName) {
-        // Remove any existing undo notification
-        const existingNotification = document.getElementById('undo-notification');
-        if (existingNotification) {
-          existingNotification.remove();
-        }
-        
-        const notification = document.createElement('div');
-        notification.id = 'undo-notification';
-        notification.className = 'undo-notification';
-        notification.innerHTML = `
-          Semester "${semesterName}" deleted
-          <button class="undo-btn" data-semester="${semesterName}">Undo</button>
-        `;
-        
-        document.body.appendChild(notification);
-        
-        // Add event listener for undo button
-        notification.querySelector('.undo-btn').addEventListener('click', function() {
-          const semesterToRestore = this.dataset.semester;
-          undoDeleteSemester(semesterToRestore);
-          notification.remove();
-        });
-        
-        // Auto remove after 5 seconds
-        setTimeout(() => {
-          if (notification.parentNode) {
-            notification.remove();
-            // Permanently remove the semester from undo history
-            delete deletedSemesters[semesterName];
-            addStatusMessage(`Semester ${semesterName} permanently removed`, 'info');
-          }
-        }, 5000);
-      }
-      
-      // Undo semester deletion
-      function undoDeleteSemester(semesterName) {
-        if (!deletedSemesters[semesterName]) return;
-        
-        // Restore the semester
-        processedData.semesters[semesterName] = deletedSemesters[semesterName];
-        
-        // Remove from undo history
-        delete deletedSemesters[semesterName];
-        
-        // Recalculate CGPA
-        const cgpaData = calculateCGPA(processedData);
-        
-        // Update display
-        displayCGPAResults(processedData, cgpaData);
-        
-        addStatusMessage(`Restored semester: ${semesterName}`, 'info');
-        showToast(`Semester ${semesterName} restored`, 'success');
-      }
-      
-      // Delete a course
-      function deleteCourse(course, semesterName) {
-        if (!processedData || !processedData.semesters[semesterName]) return;
-        
-        // Find the course index
-        const semester = processedData.semesters[semesterName];
-        const courseIndex = semester.courses.findIndex(c => c.code === course.code && c.marks === course.marks);
-        
-        if (courseIndex === -1) return;
-        
-        // Mark course as deleted
-        semester.courses[courseIndex].isDeleted = true;
-        
-        // If this was the best instance of a repeated course, find the next best one
-        if (!course.isExtraEnrolled && course.isRepeated) {
-          // Find all instances of this course
-          const courseCode = course.code;
-          const allInstances = [];
-          
-          // Collect all instances of this course
-          Object.keys(processedData.semesters).forEach(sem => {
-            processedData.semesters[sem].courses.forEach(c => {
-              if (c.code === courseCode && !c.isDeleted) {
-                allInstances.push({
-                  semester: sem,
-                  marks: c.marks,
-                  qualityPoints: c.qualityPoints,
-                  data: c
-                });
-              }
-            });
-          });
-          
-          // If there are other instances, find the best one and update its status
-          if (allInstances.length > 0) {
-            // Sort by marks (highest first)
-            allInstances.sort((a, b) => b.marks - a.marks);
-            const bestInstance = allInstances[0];
-            
-            // Update all other instances to point to this best instance
-            allInstances.forEach((instance, index) => {
-              if (index > 0) {
-                instance.data.originalSemesterForRepeated = bestInstance.semester;
-              }
-            });
-          }
-        }
-        
-        // Recalculate CGPA
-        const cgpaData = calculateCGPA(processedData);
-        
-        // Update display
-        displayCGPAResults(processedData, cgpaData);
-        
-        addStatusMessage(`Deleted course: ${course.code} from ${semesterName}`, 'info');
-        showToast(`Course ${course.code} deleted`, 'info');
-      }
-      
-      // Restore a course
-      function restoreCourse(course, semesterName) {
-        if (!processedData || !processedData.semesters[semesterName]) return;
-        
-        // Find the course index
-        const semester = processedData.semesters[semesterName];
-        const courseIndex = semester.courses.findIndex(c => c.code === course.code && c.marks === course.marks);
-        
-        if (courseIndex === -1) return;
-        
-        // Mark course as not deleted
-        semester.courses[courseIndex].isDeleted = false;
-        
-        // If this is a repeated course, we need to determine which instance should be used for CGPA
-        if (course.isRepeated) {
-          // Find all instances of this course
-          const courseCode = course.code;
-          const allInstances = [];
-          
-          // Collect all instances of this course
-          Object.keys(processedData.semesters).forEach(sem => {
-            processedData.semesters[sem].courses.forEach(c => {
-              if (c.code === courseCode && !c.isDeleted) {
-                allInstances.push({
-                  semester: sem,
-                  marks: c.marks,
-                  qualityPoints: c.qualityPoints,
-                  data: c
-                });
-              }
-            });
-          });
-          
-          // If there are multiple instances, find the best one
-          if (allInstances.length > 1) {
-            // Sort by marks (highest first)
-            allInstances.sort((a, b) => b.marks - a.marks);
-            const bestInstance = allInstances[0];
-            
-            // Update all other instances to point to this best instance
-            allInstances.forEach((instance, index) => {
-              if (index > 0) {
-                instance.data.isExtraEnrolled = true;
-                instance.data.originalSemesterForRepeated = bestInstance.semester;
-              } else {
-                instance.data.isExtraEnrolled = false;
-                instance.data.originalSemesterForRepeated = null;
-              }
-            });
-          }
-        }
-        
-        // Recalculate CGPA
-        const cgpaData = calculateCGPA(processedData);
-        
-        // Update display
-        displayCGPAResults(processedData, cgpaData);
-        
-        addStatusMessage(`Restored course: ${course.code} in ${semesterName}`, 'info');
-        showToast(`Course ${course.code} restored`, 'success');
-      }
-      
-      // Save result to web storage
-      async function saveToWeb() {
-        if (!processedData) {
-          showToast('No data to save', 'error');
-          return;
-        }
-        
-        const regNum = registrationNumber.value.trim();
-        if (!regNum) {
-          showToast('Please enter a registration number', 'error');
-          return;
-        }
-        
-        addStatusMessage('Saving result to web storage...', 'info');
-        showLoadingStage('processing');
-        
-        try {
-          const response = await fetch(API_ENDPOINTS.save, {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-              registrationNumber: regNum,
-              studentData: processedData,
-              timestamp: new Date().toISOString()
-            })
-          });
-          
-          const result = await response.json();
-          
-          if (result.success) {
-            addStatusMessage('Result saved successfully to web storage', 'success');
-            showLoadingStage('complete');
-            showToast('Result saved successfully!', 'success');
-            
-            // Refresh saved results list
-            checkSavedResults();
-            
-            // Hide loading after delay
-            setTimeout(() => {
-              hideLoading();
-            }, 2000);
-          } else {
-            addStatusMessage(`Error saving result: ${result.message}`, 'error');
-            hideLoading();
-            showToast('Error saving result', 'error');
-          }
-        } catch (error) {
-          addStatusMessage(`Error saving result: ${error.message}`, 'error');
-          hideLoading();
-          showToast('Error saving result', 'error');
-        }
-      }
-      
-      // Check for saved results
-      async function checkSavedResults() {
-        const regNum = registrationNumber.value.trim();
-        if (!regNum) return;
-        
-        try {
-          const response = await fetch(`${API_ENDPOINTS.load}&registrationNumber=${encodeURIComponent(regNum)}`);
-          const result = await response.json();
-          
-          if (result.success && result.savedResults && result.savedResults.length > 0) {
-            displaySavedResults(result.savedResults);
-          } else {
-            savedResultsContainer.style.display = 'none';
-          }
-        } catch (error) {
-          console.error('Error checking saved results:', error);
-          savedResultsContainer.style.display = 'none';
-        }
-      }
-      
-      // Display saved results
-      function displaySavedResults(savedResults) {
-        savedResultsList.innerHTML = '';
-        savedResultsContainer.style.display = 'block';
-        
-        savedResults.forEach((result, index) => {
-          const date = new Date(result.timestamp).toLocaleDateString();
-          const time = new Date(result.timestamp).toLocaleTimeString();
-          
-          const resultCard = document.createElement('div');
-          resultCard.className = 'saved-result-card';
-          resultCard.innerHTML = `
-            <div class="saved-result-header">
-              <div>
-                <strong>Saved Result ${index + 1}</strong>
-                <div class="saved-result-date">${date} at ${time}</div>
-              </div>
-              <div class="saved-result-actions">
-                <button class="saved-result-action-btn view-saved-result" data-index="${index}">
-                  <i class="fa-solid fa-eye"></i>
-                </button>
-                <button class="saved-result-action-btn delete-saved-result" data-index="${index}">
-                  <i class="fa-solid fa-trash"></i>
-                </button>
-              </div>
-            </div>
-          `;
-          
-          savedResultsList.appendChild(resultCard);
-        });
-        
-        // Add event listeners
-        document.querySelectorAll('.view-saved-result').forEach(btn => {
-          btn.addEventListener('click', function() {
-            const index = parseInt(this.dataset.index);
-            loadSavedResult(savedResults[index]);
-          });
-        });
-        
-        document.querySelectorAll('.delete-saved-result').forEach(btn => {
-          btn.addEventListener('click', function() {
-            const index = parseInt(this.dataset.index);
-            deleteSavedResult(savedResults[index].id);
-          });
-        });
-      }
-      
-      // Load saved result
-      function loadSavedResult(savedResult) {
-        processedData = savedResult.studentData;
-        
-        // Calculate CGPA
-        const cgpaData = calculateCGPA(processedData);
-        
-        // Display the result
-        displayCGPAResults(processedData, cgpaData);
-        
-        showToast('Saved result loaded successfully!', 'success');
-        addStatusMessage('Loaded saved result from web storage', 'info');
-      }
-      
-      // Delete saved result
-      async function deleteSavedResult(resultId) {
-        try {
-          const response = await fetch(API_ENDPOINTS.save, {
-            method: 'DELETE',
-            headers: {
-              'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-              id: resultId
-            })
-          });
-          
-          const result = await response.json();
-          
-          if (result.success) {
-            showToast('Saved result deleted successfully!', 'success');
-            addStatusMessage('Deleted saved result from web storage', 'info');
-            
-            // Refresh saved results list
-            checkSavedResults();
-          } else {
-            showToast('Error deleting saved result', 'error');
-            addStatusMessage(`Error deleting saved result: ${result.message}`, 'error');
-          }
-        } catch (error) {
-          showToast('Error deleting saved result', 'error');
-          addStatusMessage(`Error deleting saved result: ${error.message}`, 'error');
-        }
-      }
-      
-      // Generate PDF report
-      function generatePDF() {
-        if (!processedData) {
-          showToast('No data to download', 'error');
-          return;
-        }
-        
-        addStatusMessage('Generating PDF report...', 'info');
-        showLoadingStage('processing');
-        
-        // Create a temporary container for PDF content
-        const pdfContainer = document.createElement('div');
-        pdfContainer.style.position = 'absolute';
-        pdfContainer.style.left = '-9999px';
-        pdfContainer.style.width = '800px';
-        pdfContainer.style.padding = '20px';
-        pdfContainer.style.backgroundColor = 'white';
-        pdfContainer.style.color = 'black';
-        pdfContainer.style.fontFamily = 'Poppins, Arial, sans-serif';
-        
-        // Get current date for the report
-        const currentDate = new Date().toLocaleDateString();
-        
-        // Create PDF content
-        pdfContainer.innerHTML = `
-          <div style="text-align: center; margin-bottom: 20px;">
-            <h1 style="color: #7a6ad8; margin-bottom: 5px;">UAF CGPA Calculator</h1>
-            <h2 style="color: #333; margin-top: 0;">Academic Transcript</h2>
-            <p style="color: #666;">Generated on: ${currentDate}</p>
-          </div>
-          
-          <div style="margin-bottom: 30px; padding: 15px; background: #f8f9ff; border-radius: 10px;">
-            <h3 style="color: #7a6ad8; margin-bottom: 10px;">Student Information</h3>
-            <p style="margin: 5px 0;"><strong>Name:</strong> ${processedData.studentInfo.name}</p>
-            <p style="margin: 5px 0;"><strong>Registration No:</strong> ${processedData.studentInfo.registration}</p>
-          </div>
-          
-          <div style="margin-bottom: 30px; padding: 15px; background: #f8f9ff; border-radius: 10px;">
-            <h3 style="color: #7a6ad8; margin-bottom: 15px;">Academic Summary</h3>
-            <div style="display: flex; justify-content: space-around; text-align: center;">
-              <div>
-                <p style="font-size: 14px; margin-bottom: 5px;">CGPA</p>
-                <p style="font-size: 24px; font-weight: bold; color: #7a6ad8; margin: 0;">${formatCGPA(calculateCGPA(processedData).cgpa)}</p>
-              </div>
-              <div>
-                <p style="font-size: 14px; margin-bottom: 5px;">Percentage</p>
-                <p style="font-size: 24px; font-weight: bold; color: #7a6ad8; margin: 0;">${formatPercentage(calculateCGPA(processedData).percentage)}%</p>
-              </div>
-              <div>
-                <p style="font-size: 14px; margin-bottom: 5px;">Total Credits</p>
-                <p style="font-size: 24px; font-weight: bold; color: #7a6ad8; margin: 0;">${calculateCGPA(processedData).totalCreditHours}</p>
-              </div>
-            </div>
-          </div>
-        `;
-        
-        // Add semester details
-        Object.keys(processedData.semesters).forEach(semesterName => {
-          const semester = processedData.semesters[semesterName];
+      if (data.success) {
+        scrapedData = data;
+        addStatusMessage('Result fetched successfully', 'success');
+        
+        // Process the scraped data
+        processedData = processScrapedData(data);
+        
+        if (processedData) {
+          // Calculate CGPA
           const cgpaData = calculateCGPA(processedData);
           
-          // Filter out deleted courses for the PDF
-          const activeCourses = semester.courses.filter(course => !course.isDeleted);
+          // Stage 3: Complete
+          showLoadingStage('complete');
+          addStatusMessage('CGPA calculated successfully', 'success');
           
-          if (activeCourses.length > 0) {
-            pdfContainer.innerHTML += `
-              <div style="margin-bottom: 25px; page-break-inside: avoid;">
-                <h3 style="color: #7a6ad8; border-bottom: 2px solid #7a6ad8; padding-bottom: 5px; margin-bottom: 15px;">
-                  ${semesterName} (GPA: ${formatCGPA(semester.gpa)} | ${formatPercentage(semester.percentage)}%)
-                </h3>
-                <table style="width: 100%; border-collapse: collapse;">
-                  <thead>
-                    <tr style="background-color: #7a6ad8; color: white;">
-                      <th style="padding: 10px; text-align: left; border: 1px solid #ddd;">Course Code</th>
-                      <th style="padding: 10px; text-align: left; border: 1px solid #ddd;">Course Title</th>
-                      <th style="padding: 10px; text-align: center; border: 1px solid #ddd;">Credit Hrs</th>
-                      <th style="padding: 10px; text-align: center; border: 1px solid #ddd;">Marks</th>
-                      <th style="padding: 10px; text-align: center; border: 1px solid #ddd;">Grade</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    ${activeCourses.map(course => `
-                      <tr>
-                        <td style="padding: 8px; border: 1px solid #ddd;">${course.code}</td>
-                        <td style="padding: 8px; border: 1px solid #ddd;">${course.title}</td>
-                        <td style="padding: 8px; text-align: center; border: 1px solid #ddd;">${course.creditHours}</td>
-                        <td style="padding: 8px; text-align: center; border: 1px solid #ddd;">${course.marks}</td>
-                        <td style="padding: 8px; text-align: center; border: 1px solid #ddd; font-weight: bold;">${course.grade}</td>
-                      </tr>
-                    `).join('')}
-                  </tbody>
-                </table>
-              </div>
-            `;
-          }
-        });
-        
-        // Add footer
-        pdfContainer.innerHTML += `
-          <div style="margin-top: 40px; padding-top: 20px; border-top: 1px solid #ddd; text-align: center; color: #666; font-size: 12px;">
-            <p>Generated by UAF CGPA Calculator - https://uaftools.vercel.app</p>
-            <p>This is an unofficial transcript. For official documents, please contact University of Agriculture Faisalabad.</p>
-          </div>
-        `;
-        
-        // Add to document
-        document.body.appendChild(pdfContainer);
-        
-        // Use html2canvas and jsPDF to generate PDF
-        html2canvas(pdfContainer, {
-          scale: 2,
-          useCORS: true,
-          logging: false
-        }).then(canvas => {
-          const imgData = canvas.toDataURL('image/jpeg', 0.9);
-          const pdf = new jspdf.jsPDF({
-            orientation: 'portrait',
-            unit: 'mm',
-            format: 'a4'
-          });
-          
-          const imgWidth = 210; // A4 width in mm
-          const pageHeight = 297; // A4 height in mm
-          const imgHeight = canvas.height * imgWidth / canvas.width;
-          let heightLeft = imgHeight;
-          let position = 0;
-          
-          pdf.addImage(imgData, 'JPEG', 0, position, imgWidth, imgHeight);
-          heightLeft -= pageHeight;
-          
-          // Add additional pages if needed
-          while (heightLeft >= 0) {
-            position = heightLeft - imgHeight;
-            pdf.addPage();
-            pdf.addImage(imgData, 'JPEG', 0, position, imgWidth, imgHeight);
-            heightLeft -= pageHeight;
-          }
-          
-          // Save the PDF
-          const fileName = `UAF_Transcript_${processedData.studentInfo.registration}_${currentDate.replace(/\//g, '-')}.pdf`;
-          pdf.save(fileName);
-          
-          // Clean up
-          document.body.removeChild(pdfContainer);
-          
-          addStatusMessage('PDF report generated successfully', 'success');
-          showToast('PDF downloaded successfully!', 'success');
-          hideLoading();
-        }).catch(error => {
-          document.body.removeChild(pdfContainer);
-          addStatusMessage(`Error generating PDF: ${error.message}`, 'error');
-          showToast('Error generating PDF', 'error');
-          hideLoading();
-        });
-      }
-      
-      // Fetch result from UAF LMS
-      async function fetchResult() {
-        const regNum = registrationNumber.value.trim();
-        
-        if (!regNum) {
-          showToast('Please enter a registration number', 'error');
-          return;
-        }
-        
-        // Check if we have saved results first
-        try {
-          const response = await fetch(`${API_ENDPOINTS.load}&registrationNumber=${encodeURIComponent(regNum)}`);
-          const result = await response.json();
-          
-          if (result.success && result.savedResults && result.savedResults.length > 0) {
-            // Ask user if they want to load saved result
-            if (confirm('Saved results found for this registration number. Would you like to load the latest saved result instead of fetching from UAF LMS?')) {
-              loadSavedResult(result.savedResults[0]);
-              return;
-            }
-          }
-        } catch (error) {
-          console.error('Error checking saved results:', error);
-        }
-        
-        // Show loading animation
-        resultContainer.style.display = 'none';
-        saveToWebBtn.style.display = 'none';
-        downloadPdfBtn.style.display = 'none';
-        showLoadingStage('connecting');
-        addStatusMessage(`Fetching result for registration number: ${regNum}`, 'info');
-        
-        try {
-          // Stage 1: Connecting
+          // Display the result after a brief delay to show the completion animation
           setTimeout(() => {
-            showLoadingStage('fetching');
-            addStatusMessage('Connected to UAF LMS, fetching results...', 'info');
-          }, 2000);
-          
-          const response = await fetch(`${API_ENDPOINTS.scrape}?action=scrape_single&registrationNumber=${encodeURIComponent(regNum)}`, {
-            method: 'GET'
-          });
-          
-          // Stage 2: Processing
-          showLoadingStage('processing');
-          addStatusMessage('Results received, processing data...', 'info');
-          
-          const data = await response.json();
-          
-          if (data.success) {
-            scrapedData = data;
-            addStatusMessage('Result fetched successfully', 'success');
-            
-            // Process the scraped data
-            processedData = processScrapedData(data);
-            
-            if (processedData) {
-              // Calculate CGPA
-              const cgpaData = calculateCGPA(processedData);
-              
-              // Stage 3: Complete
-              showLoadingStage('complete');
-              addStatusMessage('CGPA calculated successfully', 'success');
-              
-              // Display the result after a brief delay to show the completion animation
-              setTimeout(() => {
-                displayCGPAResults(processedData, cgpaData);
-                hideLoading();
-                showToast('Result fetched successfully!', 'success');
-                
-                // Check for saved results
-                checkSavedResults();
-              }, 1500);
-            } else {
-              addStatusMessage('Error processing result data', 'error');
-              showToast('Error processing result data', 'error');
-              hideLoading();
-            }
-          } else {
-            addStatusMessage(`Error: ${data.message}`, 'error');
-            showToast(data.message, 'error');
+            displayCGPAResults(processedData, cgpaData);
             hideLoading();
-          }
-        } catch (error) {
-          addStatusMessage(`Error fetching result: ${error.message}`, 'error');
-          showToast('Error fetching result', 'error');
+            showToast('Result fetched successfully!', 'success');
+            
+            // Check for saved results
+            checkSavedResults();
+          }, 1500);
+        } else {
+          addStatusMessage('Error processing result data', 'error');
+          showToast('Error processing result data', 'error');
           hideLoading();
         }
+      } else {
+        addStatusMessage(`Error: ${data.message}`, 'error');
+        showToast(data.message, 'error');
+        hideLoading();
+      }
+    } catch (error) {
+      addStatusMessage(`Error fetching result: ${error.message}`, 'error');
+      showToast('Error fetching result', 'error');
+      hideLoading();
+    }
+  }
+  
+  // Process semester name for display (convert Winter 2024-2025 to Winter 2024, Spring 2024-2025 to Spring 2025)
+  function processSemesterName(semester) {
+    if (!semester) return 'Unknown Semester';
+    
+    // Handle different semester formats
+    if (semester.includes('Winter')) {
+      const yearMatch = semester.match(/(\d{4})-(\d{2,4})/);
+      if (yearMatch) {
+        return `Winter ${yearMatch[1]}`;
+      }
+    } else if (semester.includes('Spring')) {
+      const yearMatch = semester.match(/(\d{4})-(\d{2,4})/);
+      if (yearMatch && yearMatch[2].length === 4) {
+        return `Spring ${yearMatch[2]}`;
+      } else if (yearMatch && yearMatch[2].length === 2) {
+        return `Spring 20${yearMatch[2]}`;
+      }
+    } else if (semester.includes('Summer')) {
+      // Handle "Summer Semester 2025" -> "Summer 2025"
+      const yearMatch = semester.match(/(\d{4})-(\d{2,4})/);
+      if (yearMatch) {
+        return `Summer ${yearMatch[1]}`;
+      }
+      // Also handle "Summer Semester 2025" format
+      const summerMatch = semester.match(/Summer Semester (\d{4})/);
+      if (summerMatch) {
+        return `Summer ${summerMatch[1]}`;
+      }
+    } else if (semester.includes('Fall')) {
+      const yearMatch = semester.match(/(\d{4})-(\d{2,4})/);
+      if (yearMatch) {
+        return `Fall ${yearMatch[1]}`;
+      }
+    }
+    
+    // Return original if no pattern matched
+    return semester;
+  }
+  
+  // Extract semester order key for internal chronological sorting
+  function getSemesterOrderKey(semesterName) {
+    if (!semesterName) return '9999-9';
+    
+    // Extract year and season for chronological ordering
+    let year = '';
+    let seasonOrder = 9; // Default to last position
+    
+    // Try to extract year from different patterns
+    const yearMatch = semesterName.match(/\b(20\d{2})\b/);
+    if (yearMatch) {
+      year = yearMatch[1];
+    } else {
+      // Try 2-digit year format
+      const shortYearMatch = semesterName.match(/\b(\d{2})\b/);
+      if (shortYearMatch) {
+        year = '20' + shortYearMatch[1];
+      }
+    }
+    
+    // Determine season order (Winter=1, Spring=2, Summer=3, Fall=4)
+    if (semesterName.toLowerCase().includes('winter')) {
+      seasonOrder = 1;
+    } else if (semesterName.toLowerCase().includes('spring')) {
+      seasonOrder = 2;
+    } else if (semesterName.toLowerCase().includes('summer')) {
+      seasonOrder = 3;
+    } else if (semesterName.toLowerCase().includes('fall')) {
+      seasonOrder = 4;
+    }
+    
+    // If we couldn't extract year, use a high number to push to end
+    if (!year) year = '9999';
+    
+    return `${year}-${seasonOrder}`;
+  }
+  
+  // Process scraped data to handle re-enrolled courses
+  function processScrapedData(data) {
+    if (!data || !data.resultData) return null;
+    
+    const resultData = data.resultData;
+    const studentInfo = {
+      name: resultData[0]?.StudentName || '',
+      registration: resultData[0]?.RegistrationNo || ''
+    };
+    
+    // Group by semester (processed name)
+    const semesters = {};
+    const courseHistory = {}; // Track course history for re-enrollment detection
+    
+    // First pass: organize by semester and track course history
+    resultData.forEach(course => {
+      const originalSemester = course.Semester || 'Unknown Semester';
+      const semesterName = processSemesterName(originalSemester);
+      const courseCode = course.CourseCode || '';
+      const creditHoursStr = course.CreditHours || '0';
+      
+      if (!semesters[semesterName]) {
+        semesters[semesterName] = {
+          originalName: originalSemester,
+          sortKey: getSemesterOrderKey(originalSemester),
+          courses: [],
+          totalQualityPoints: 0,
+          totalCreditHours: 0
+        };
       }
       
-      // Event listeners
-      resultForm.addEventListener('submit', function(e) {
-        e.preventDefault();
-        fetchResult();
+      // Parse credit hours - preserve the original format like "3(2-1)"
+      let creditHours = 0;
+      const numbers = creditHoursStr.match(/\d+/g);
+      if (numbers && numbers.length > 0) {
+        creditHours = parseInt(numbers[0]);
+      }
+      
+      // Parse marks
+      let marks = 0;
+      try {
+        marks = parseFloat(course.Total || '0');
+      } catch (e) {
+        marks = 0;
+      }
+      
+      // Get grade from scraped data
+      const grade = course.Grade || '';
+      
+      // Calculate quality points based on UAF system
+      const qualityPoints = calculateQualityPoints(marks, creditHours);
+      
+      const courseData = {
+        code: courseCode,
+        title: course.CourseTitle || '',
+        creditHours: creditHours,
+        creditHoursDisplay: creditHoursStr, // Preserve original format
+        marks: marks,
+        qualityPoints: qualityPoints,
+        grade: grade,
+        originalSemester: originalSemester,
+        semesterName: semesterName,
+        semesterSortKey: getSemesterOrderKey(originalSemester),
+        teacher: course.TeacherName || '',
+        mid: course.Mid || '0',
+        assignment: course.Assignment || '0',
+        final: course.Final || '0',
+        practical: course.Practical || '0',
+        total: course.Total || '0',
+        isExtraEnrolled: false,
+        isRepeated: false,
+        isDeleted: false,
+        originalSemesterForRepeated: null,
+        isCustom: false
+      };
+      
+      // Track course history
+      if (!courseHistory[courseCode]) {
+        courseHistory[courseCode] = [];
+      }
+      courseHistory[courseCode].push({
+        semester: semesterName,
+        semesterSortKey: getSemesterOrderKey(originalSemester),
+        marks: marks,
+        qualityPoints: qualityPoints,
+        data: courseData
       });
       
-      testConnectionBtn.addEventListener('click', testConnection);
+      semesters[semesterName].courses.push(courseData);
+    });
+    
+    // Second pass: identify re-enrolled courses and mark them
+    Object.keys(courseHistory).forEach(courseCode => {
+      const history = courseHistory[courseCode];
+      if (history.length > 1) {
+        // Sort by semester order (chronological)
+        history.sort((a, b) => a.semesterSortKey.localeCompare(b.semesterSortKey));
+        
+        // Find the highest marks/quality points
+        let highest = history[0];
+        for (let i = 1; i < history.length; i++) {
+          if (history[i].marks > highest.marks) {
+            highest = history[i];
+          }
+        }
+        
+        // Mark all other instances as extra enrolled and repeated
+        // Also set the original semester for repeated courses
+        history.forEach(item => {
+          if (item !== highest) {
+            item.data.isExtraEnrolled = true;
+            item.data.isRepeated = true;
+            item.data.originalSemesterForRepeated = highest.semester;
+          }
+        });
+      }
+    });
+    
+    return {
+      studentInfo: studentInfo,
+      semesters: semesters,
+      courseHistory: courseHistory
+    };
+  }
+  
+  // Calculate quality points based on UAF grading system
+  function calculateQualityPoints(marks, creditHours) {
+    marks = parseFloat(marks);
+    creditHours = parseInt(creditHours);
+
+    let qualityPoints = 0;
+
+    if (creditHours === 5) {
+      if (marks >= 80) {
+        qualityPoints = 20;
+      } else if (marks >= 50) {
+        qualityPoints = 20 - ((80 - marks) * 0.33333);
+      } else if (marks < 50) {
+        qualityPoints = 10 - ((50 - marks) * 0.5);
+      }
+      if (marks < 40) {
+        qualityPoints = 0;
+      }
+    } else if (creditHours === 4) {
+      if (marks >= 64) {
+        qualityPoints = 16;
+      } else if (marks >= 40) {
+        qualityPoints = 16 - ((64 - marks) * 0.33333);
+      } else if (marks < 40) {
+        qualityPoints = 8 - ((40 - marks) * 0.5);
+      }
+      if (marks < 32) {
+        qualityPoints = 0;
+      }
+    } else if (creditHours === 3) {
+      if (marks >= 48) {
+        qualityPoints = 12;
+      } else if (marks >= 30) {
+        qualityPoints = 12 - ((48 - marks) * 0.33333);
+      } else if (marks < 30) {
+        qualityPoints = 6 - ((30 - marks) * 0.5);
+      }
+      if (marks < 24) {
+        qualityPoints = 0;
+      }
+    } else if (creditHours === 2) {
+      if (marks >= 32) {
+        qualityPoints = 8;
+      } else if (marks >= 20) {
+        qualityPoints = 8 - ((32 - marks) * 0.33333);
+      } else if (marks < 20) {
+        qualityPoints = 4 - ((20 - marks) * 0.5);
+      }
+      if (marks < 16) {
+        qualityPoints = 0;
+      }
+    } else if (creditHours === 1) {
+      if (marks >= 16) {
+        qualityPoints = 4;
+      } else if (marks >= 10) {
+        qualityPoints = 4 - ((16 - marks) * 0.33333);
+      } else if (marks < 10) {
+        qualityPoints = 2 - ((10 - marks) * 0.5);
+      }
+      if (marks < 8) {
+        qualityPoints = 0;
+      }
+    }
+
+    return parseFloat(qualityPoints.toFixed(2));
+  }
+  
+  // Calculate grade for custom courses based on marks and credit hours
+  function calculateCustomGrade(marks, creditHours) {
+    marks = parseFloat(marks);
+    creditHours = parseInt(creditHours);
+    
+    if (creditHours === 5) {
+      if (marks >= 80) return 'A';
+      else if (marks >= 50) return 'B';
+      else if (marks >= 40) return 'D';
+      else return 'F';
+    } else if (creditHours === 4) {
+      if (marks >= 64) return 'A';
+      else if (marks >= 52) return 'B';
+      else if (marks >= 40) return 'C';
+      else if (marks >= 32) return 'D';
+      else return 'F';
+    } else if (creditHours === 3) {
+      if (marks >= 48) return 'A';
+      else if (marks >= 39) return 'B';
+      else if (marks >= 30) return 'C';
+      else if (marks >= 24) return 'D';
+      else return 'F';
+    } else if (creditHours === 2) {
+      if (marks >= 32) return 'A';
+      else if (marks >= 26) return 'B';
+      else if (marks >= 20) return 'C';
+      else if (marks >= 16) return 'D';
+      else return 'F';
+    } else if (creditHours === 1) {
+      if (marks >= 16) return 'A';
+      else if (marks >= 13) return 'B';
+      else if (marks >= 10) return 'C';
+      else if (marks >= 8) return 'D';
+      else return 'F';
+    }
+    
+    return 'F';
+  }
+  
+  // Calculate CGPA from processed data
+  function calculateCGPA(processedData) {
+    if (!processedData) return null;
+    
+    let totalQualityPoints = 0;
+    let totalCreditHours = 0;
+    let totalMarksObtained = 0;
+    let totalMaxMarks = 0;
+    
+    // Calculate for each semester (in display order, not chronological)
+    Object.keys(processedData.semesters).forEach(semesterName => {
+      const semester = processedData.semesters[semesterName];
+      semester.totalQualityPoints = 0;
+      semester.totalCreditHours = 0;
+      semester.totalMarksObtained = 0;
+      semester.totalMaxMarks = 0;
       
-      downloadLogBtn.addEventListener('click', downloadLog);
-      
-      clearLogBtn.addEventListener('click', clearLog);
-      
-      saveToWebBtn.addEventListener('click', saveToWeb);
-      
-      downloadPdfBtn.addEventListener('click', generatePDF);
-      
-      saveCourseBtn.addEventListener('click', addCustomCourse);
-      
-      registrationNumber.addEventListener('input', function() {
-        const regNum = this.value.trim();
-        if (regNum) {
-          checkSavedResults();
-        } else {
-          savedResultsContainer.style.display = 'none';
+      semester.courses.forEach(course => {
+        // Only count non-extra enrolled and non-deleted courses for CGPA
+        if (!course.isExtraEnrolled && !course.isDeleted) {
+          semester.totalQualityPoints += course.qualityPoints;
+          semester.totalCreditHours += course.creditHours;
+          semester.totalMarksObtained += course.marks;
+          
+          // Calculate max marks based on credit hours
+          let maxMarks = 0;
+          if (course.creditHours === 5) maxMarks = 100;
+          else if (course.creditHours === 4) maxMarks = 80;
+          else if (course.creditHours === 3) maxMarks = 60;
+          else if (course.creditHours === 2) maxMarks = 40;
+          else if (course.creditHours === 1) maxMarks = 20;
+          
+          semester.totalMaxMarks += maxMarks;
+          totalMaxMarks += maxMarks;
+          
+          totalQualityPoints += course.qualityPoints;
+          totalCreditHours += course.creditHours;
+          totalMarksObtained += course.marks;
         }
       });
       
-      // Initialize the application
-      init();
+      // Calculate semester GPA
+      if (semester.totalCreditHours > 0) {
+        semester.gpa = parseFloat((semester.totalQualityPoints / semester.totalCreditHours).toFixed(4));
+        semester.percentage = parseFloat((semester.totalMarksObtained / semester.totalMaxMarks * 100).toFixed(4));
+      } else {
+        semester.gpa = 0;
+        semester.percentage = 0;
+      }
     });
+    
+    // Calculate overall CGPA
+    const cgpa = totalCreditHours > 0 ? parseFloat((totalQualityPoints / totalCreditHours).toFixed(4)) : 0;
+    const percentage = totalMaxMarks > 0 ? parseFloat((totalMarksObtained / totalMaxMarks * 100).toFixed(4)) : 0;
+    
+    return {
+      cgpa: cgpa,
+      percentage: percentage,
+      totalQualityPoints: totalQualityPoints,
+      totalCreditHours: totalCreditHours,
+      totalMarksObtained: totalMarksObtained,
+      totalMaxMarks: totalMaxMarks
+    };
+  }
+  
+  // Format CGPA with appropriate decimal places
+  function formatCGPA(value) {
+    if (value % 1 === 0) {
+      return value.toFixed(2);
+    } else {
+      // Check if it has non-recurring decimals beyond 2 places
+      const decimalPart = (value - Math.floor(value)).toFixed(4).substring(2);
+      if (decimalPart.length > 2 && decimalPart !== '00') {
+        return value.toFixed(4);
+      } else {
+        return value.toFixed(2);
+      }
+    }
+  }
+  
+  // Format percentage with appropriate decimal places
+  function formatPercentage(value) {
+    if (value % 1 === 0) {
+      return value.toFixed(0);
+    } else {
+      return value.toFixed(2);
+    }
+  }
+  
+  // Display CGPA results
+  function displayCGPAResults(processedData, cgpaData) {
+    // Show the result container
+    resultContainer.style.display = 'block';
+    saveToWebBtn.style.display = 'block';
+    downloadPdfBtn.style.display = 'block';
+    
+    // Update student info
+    studentName.textContent = processedData.studentInfo.name;
+    studentName.innerHTML = `<i class="fa-solid fa-user-graduate me-2"></i>${processedData.studentInfo.name}`;
+    studentReg.textContent = processedData.studentInfo.registration;
+    
+    // Update overall CGPA and marks with formatted values
+    totalCgpa.textContent = formatCGPA(cgpaData.cgpa);
+    totalPercentage.textContent = `${formatPercentage(cgpaData.percentage)}%`;
+    totalMarksObtained.textContent = cgpaData.totalMarksObtained.toFixed(0);
+    totalMaxMarks.textContent = `/ ${cgpaData.totalMaxMarks.toFixed(0)}`;
+    
+    // Clear previous semester results
+    semesterResults.innerHTML = '';
+    
+    // Create semester cards in their original order (not chronological)
+    Object.keys(processedData.semesters).forEach(semesterName => {
+      const semester = processedData.semesters[semesterName];
+      
+      const semesterCard = document.createElement('div');
+      semesterCard.className = 'semester-card';
+      semesterCard.dataset.semester = semesterName;
+      semesterCard.innerHTML = `
+        <i class="fa-solid fa-trash delete-semester" title="Delete this semester" data-semester="${semesterName}"></i>
+        <div class="d-flex align-items-center justify-content-between mb-3">
+          <h5 class="mb-0">
+            <i class="fa-solid fa-book-open me-2" style="color: var(--brand);"></i>
+            ${semesterName}
+          </h5>
+          <div class="text-right" style="margin-right: 40px;">
+            <p class="mb-0 text-body-secondary small">GPA:</p>
+            <p class="mb-0 h4 fw-bold" style="color: var(--brand);">${semester.gpa ? formatCGPA(semester.gpa) : 0}</p>
+            <p class="mb-0 text-body-secondary small">${semester.percentage ? formatPercentage(semester.percentage) : 0}%</p>
+          </div>
+        </div>
+        <button class="custom-course-btn" data-semester="${semesterName}">
+          <i class="fa-solid fa-plus"></i> Custom Course
+        </button>
+        <div class="table-responsive">
+          <table class="course-table">
+            <thead>
+              <tr>
+                <th>Course</th>
+                <th>Hrs</th>
+                <th>Marks</th>
+                <th>Grade</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${semester.courses.map(course => `
+                <tr class="${course.isExtraEnrolled ? 'table-warning' : ''} ${course.isDeleted ? 'table-danger text-decoration-line-through' : ''} ${course.isCustom ? 'table-info' : ''}">
+                  <td>
+                    <div class="course-code-container">
+                      <div class="d-flex align-items-center">
+                        <span class="fw-medium course-code clickable-info" data-course='${JSON.stringify(course).replace(/'/g, "&#39;")}'>
+                          ${course.code}${course.isExtraEnrolled ? '<span style="font-size: 8px; color: #856404;"> (Rep.)</span>' : ''}
+                        </span>
+                        <i class="fa-solid fa-info-circle ms-2 clickable-info small" data-course='${JSON.stringify(course).replace(/'/g, "&#39;")}' title="${course.title}"></i>
+                      </div>
+                      ${course.isCustom ? '<span class="extra-enrolled">Custom</span>' : ''}
+                    </div>
+                  </td>
+                  <td>${course.creditHoursDisplay || course.creditHours}</td>
+                  <td>${course.marks}</td>
+                  <td>
+                    <span class="grade-badge grade-${course.grade}">${course.grade}</span>
+                  </td>
+                  <td class="course-actions">
+                    ${course.isDeleted ? 
+                      `<i class="fa-solid fa-rotate-left restore-course" data-course='${JSON.stringify(course).replace(/'/g, "&#39;")}' data-semester="${semesterName}" title="Restore this course"></i>` : 
+                      `<i class="fa-solid fa-trash delete-course" data-course='${JSON.stringify(course).replace(/'/g, "&#39;")}' data-semester="${semesterName}" title="Delete this course"></i>`
+                    }
+                  </td>
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
+        </div>
+      `;
+      
+      semesterResults.appendChild(semesterCard);
+    });
+    
+    // Add event listeners for course details and delete buttons
+    document.querySelectorAll('.clickable-info').forEach(el => {
+      el.addEventListener('click', function() {
+        const courseData = JSON.parse(this.dataset.course.replace(/&#39;/g, "'"));
+        showCourseDetails(courseData);
+      });
+    });
+    
+    document.querySelectorAll('.delete-semester').forEach(btn => {
+      btn.addEventListener('click', function() {
+        const semesterName = this.dataset.semester;
+        deleteSemester(semesterName);
+      });
+    });
+    
+    document.querySelectorAll('.custom-course-btn').forEach(btn => {
+      btn.addEventListener('click', function() {
+        const semesterName = this.dataset.semester;
+        openAddCourseModal(semesterName);
+      });
+    });
+    
+    document.querySelectorAll('.delete-course').forEach(btn => {
+      btn.addEventListener('click', function() {
+        const courseData = JSON.parse(this.dataset.course.replace(/&#39;/g, "'"));
+        const semesterName = this.dataset.semester;
+        deleteCourse(courseData, semesterName);
+      });
+    });
+    
+    document.querySelectorAll('.restore-course').forEach(btn => {
+      btn.addEventListener('click', function() {
+        const courseData = JSON.parse(this.dataset.course.replace(/&#39;/g, "'"));
+        const semesterName = this.dataset.semester;
+        restoreCourse(courseData, semesterName);
+      });
+    });
+  }
+  
+  // Show course details in modal
+  function showCourseDetails(course) {
+    document.getElementById('courseDetailsModalTitle').textContent = `${course.code} - ${course.title}`;
+    
+    const modalBody = document.getElementById('courseDetailsModalBody');
+    
+    let repeatedInfoHtml = '';
+    if (course.isExtraEnrolled && course.originalSemesterForRepeated) {
+      repeatedInfoHtml = `
+        <div class="row mt-3">
+          <div class="col-12">
+            <div class="alert alert-warning">
+              <i class="fa-solid fa-exclamation-triangle me-2"></i>
+              <p class="mb-1">The Marks and Quality points of this Repeated subject will be considered in its <strong class="clickable-semester" data-semester="${course.originalSemesterForRepeated}" style="cursor: pointer; text-decoration: underline;">Original Semester (${course.originalSemesterForRepeated})</strong></p>
+              <p class="mb-0 small">Click on the semester name to view it</p>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+    
+    let customInfoHtml = '';
+    if (course.isCustom) {
+      customInfoHtml = `
+        <div class="row mt-3">
+          <div class="col-12">
+            <div class="alert alert-info">
+              <i class="fa-solid fa-info-circle me-2"></i>
+              <p class="mb-0">This is a custom course added manually.</p>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+    
+    modalBody.innerHTML = `
+      <div class="row">
+        <div class="col-md-6">
+          <p><strong>Teacher:</strong> ${course.teacher}</p>
+          <p><strong>Credit Hours:</strong> ${course.creditHoursDisplay || course.creditHours}</p>
+          <p><strong>Semester:</strong> ${course.semesterName}</p>
+        </div>
+        <div class="col-md-6">
+          <p><strong>Mid Term:</strong> ${course.mid}</p>
+          <p><strong>Assignment:</strong> ${course.assignment}</p>
+          <p><strong>Final Term:</strong> ${course.final}</p>
+          ${course.practical ? `<p><strong>Practical:</strong> ${course.practical}</p>` : ''}
+        </div>
+      </div>
+      <div class="row mt-3">
+        <div class="col-12">
+          <div class="alert alert-info">
+            <p class="mb-1"><strong>Total Marks:</strong> ${course.total}</p>
+            <p class="mb-1"><strong>Grade:</strong> <span class="grade-badge grade-${course.grade}">${course.grade}</span></p>
+            <p class="mb-0"><strong>Quality Points:</strong> ${course.qualityPoints.toFixed(2)}</p>
+          </div>
+        </div>
+      </div>
+      ${repeatedInfoHtml}
+      ${customInfoHtml}
+    `;
+    
+    // Add event listener for semester link if it exists
+    const semesterLink = modalBody.querySelector('.clickable-semester');
+    if (semesterLink) {
+      semesterLink.addEventListener('click', function() {
+        const semesterName = this.dataset.semester;
+        courseDetailsModal.hide();
+        
+        // Scroll to the semester
+        const semesterElement = document.querySelector(`.semester-card[data-semester="${semesterName}"]`);
+        if (semesterElement) {
+          semesterElement.scrollIntoView({ behavior: 'smooth' });
+          // Add highlight effect
+          semesterElement.style.transition = 'all 0.5s ease';
+          semesterElement.style.boxShadow = '0 0 20px rgba(122, 106, 216, 0.5)';
+          setTimeout(() => {
+            semesterElement.style.boxShadow = '';
+          }, 2000);
+        }
+      });
+    }
+    
+    courseDetailsModal.show();
+  }
+  
+  // Open add course modal
+  function openAddCourseModal(semesterName) {
+    document.getElementById('addCourseSemester').value = semesterName;
+    addCourseForm.reset();
+    addCourseModal.show();
+  }
+  
+  // Add custom course
+  function addCustomCourse() {
+    const semesterName = document.getElementById('addCourseSemester').value;
+    const courseCode = document.getElementById('courseCode').value;
+    const courseTitle = document.getElementById('courseTitle').value;
+    const creditHours = parseInt(document.getElementById('creditHours').value);
+    const marks = parseInt(document.getElementById('courseMarks').value);
+    
+    if (!courseCode || !courseTitle || !creditHours || isNaN(marks)) {
+      showToast('Please fill all fields correctly', 'error');
+      return;
+    }
+    
+    if (!processedData || !processedData.semesters[semesterName]) return;
+    
+    const semester = processedData.semesters[semesterName];
+    
+    // Calculate quality points
+    const qualityPoints = calculateQualityPoints(marks, creditHours);
+    
+    // Determine grade based on custom grading system
+    const grade = calculateCustomGrade(marks, creditHours);
+    
+    const courseData = {
+      code: courseCode,
+      title: courseTitle,
+      creditHours: creditHours,
+      creditHoursDisplay: creditHours.toString(), // Simple display for custom courses
+      marks: marks,
+      qualityPoints: qualityPoints,
+      grade: grade,
+      originalSemester: semesterName,
+      semesterName: semesterName,
+      semesterSortKey: getSemesterOrderKey(semesterName),
+      teacher: 'Custom Course',
+      mid: '0',
+      assignment: '0',
+      final: marks.toString(),
+      practical: '0',
+      total: marks.toString(),
+      isExtraEnrolled: false,
+      isRepeated: false,
+      isDeleted: false,
+      originalSemesterForRepeated: null,
+      isCustom: true
+    };
+    
+    // Add course to semester
+    semester.courses.push(courseData);
+    
+    // Recalculate CGPA
+    const cgpaData = calculateCGPA(processedData);
+    
+    // Update display
+    displayCGPAResults(processedData, cgpaData);
+    
+    addCourseModal.hide();
+    showToast(`Course ${courseCode} added to ${semesterName}`, 'success');
+    addStatusMessage(`Added custom course: ${courseCode} to ${semesterName}`, 'info');
+  }
+  
+  // Delete a semester
+  function deleteSemester(semesterName) {
+    if (!processedData || !processedData.semesters[semesterName]) return;
+    
+    // Store the semester data for potential undo
+    deletedSemesters[semesterName] = JSON.parse(JSON.stringify(processedData.semesters[semesterName]));
+    
+    // Remove semester from processed data
+    delete processedData.semesters[semesterName];
+    
+    // Recalculate CGPA
+    const cgpaData = calculateCGPA(processedData);
+    
+    // Update display
+    displayCGPAResults(processedData, cgpaData);
+    
+    // Show undo notification
+    showUndoNotification(semesterName);
+    
+    addStatusMessage(`Deleted semester: ${semesterName}`, 'info');
+    showToast(`Semester ${semesterName} deleted`, 'info');
+  }
+  
+  // Show undo notification for deleted semester
+  function showUndoNotification(semesterName) {
+    // Remove any existing undo notification
+    const existingNotification = document.getElementById('undo-notification');
+    if (existingNotification) {
+      existingNotification.remove();
+    }
+    
+    const notification = document.createElement('div');
+    notification.id = 'undo-notification';
+    notification.className = 'undo-notification';
+    notification.innerHTML = `
+      Semester "${semesterName}" deleted
+      <button class="undo-btn" data-semester="${semesterName}">Undo</button>
+    `;
+    
+    document.body.appendChild(notification);
+    
+    // Add event listener for undo button
+    notification.querySelector('.undo-btn').addEventListener('click', function() {
+      const semesterToRestore = this.dataset.semester;
+      undoDeleteSemester(semesterToRestore);
+      notification.remove();
+    });
+    
+    // Auto remove after 5 seconds
+    setTimeout(() => {
+      if (notification.parentNode) {
+        notification.remove();
+        // Permanently remove the semester from undo history
+        delete deletedSemesters[semesterName];
+        addStatusMessage(`Semester ${semesterName} permanently removed`, 'info');
+      }
+    }, 5000);
+  }
+  
+  // Undo semester deletion
+  function undoDeleteSemester(semesterName) {
+    if (!deletedSemesters[semesterName]) return;
+    
+    // Restore the semester
+    processedData.semesters[semesterName] = deletedSemesters[semesterName];
+    
+    // Remove from undo history
+    delete deletedSemesters[semesterName];
+    
+    // Recalculate CGPA
+    const cgpaData = calculateCGPA(processedData);
+    
+    // Update display
+    displayCGPAResults(processedData, cgpaData);
+    
+    addStatusMessage(`Restored semester: ${semesterName}`, 'info');
+    showToast(`Semester ${semesterName} restored`, 'success');
+  }
+  
+  // Delete a course
+  function deleteCourse(course, semesterName) {
+    if (!processedData || !processedData.semesters[semesterName]) return;
+    
+    // Find the course index
+    const semester = processedData.semesters[semesterName];
+    const courseIndex = semester.courses.findIndex(c => c.code === course.code && c.marks === course.marks);
+    
+    if (courseIndex === -1) return;
+    
+    // Mark course as deleted
+    semester.courses[courseIndex].isDeleted = true;
+    
+    // If this was the best instance of a repeated course, find the next best one
+    if (!course.isExtraEnrolled && course.isRepeated) {
+      // Find all instances of this course
+      const courseCode = course.code;
+      const allInstances = [];
+      
+      // Collect all instances of this course
+      Object.keys(processedData.semesters).forEach(sem => {
+        processedData.semesters[sem].courses.forEach(c => {
+          if (c.code === courseCode && !c.isDeleted) {
+            allInstances.push({
+              semester: sem,
+              marks: c.marks,
+              qualityPoints: c.qualityPoints,
+              data: c
+            });
+          }
+        });
+      });
+      
+      // If there are other instances, find the best one and update its status
+      if (allInstances.length > 0) {
+        // Sort by marks (highest first)
+        allInstances.sort((a, b) => b.marks - a.marks);
+        const bestInstance = allInstances[0];
+        
+        // Update all other instances to point to this best instance
+        allInstances.forEach((instance, index) => {
+          if (index > 0) {
+            instance.data.originalSemesterForRepeated = bestInstance.semester;
+          }
+        });
+      }
+    }
+    
+    // Recalculate CGPA
+    const cgpaData = calculateCGPA(processedData);
+    
+    // Update display
+    displayCGPAResults(processedData, cgpaData);
+    
+    addStatusMessage(`Deleted course: ${course.code} from ${semesterName}`, 'info');
+    showToast(`Course ${course.code} deleted`, 'info');
+  }
+  
+  // Restore a course
+  function restoreCourse(course, semesterName) {
+    if (!processedData || !processedData.semesters[semesterName]) return;
+    
+    // Find the course index
+    const semester = processedData.semesters[semesterName];
+    const courseIndex = semester.courses.findIndex(c => c.code === course.code && c.marks === course.marks);
+    
+    if (courseIndex === -1) return;
+    
+    // Mark course as not deleted
+    semester.courses[courseIndex].isDeleted = false;
+    
+    // If this is a repeated course, we need to determine which instance should be used for CGPA
+    if (course.isRepeated) {
+      // Find all instances of this course
+      const courseCode = course.code;
+      const allInstances = [];
+      
+      // Collect all instances of this course
+      Object.keys(processedData.semesters).forEach(sem => {
+        processedData.semesters[sem].courses.forEach(c => {
+          if (c.code === courseCode && !c.isDeleted) {
+            allInstances.push({
+              semester: sem,
+              marks: c.marks,
+              qualityPoints: c.qualityPoints,
+              data: c
+            });
+          }
+        });
+      });
+      
+      // If there are multiple instances, find the best one
+      if (allInstances.length > 1) {
+        // Sort by marks (highest first)
+        allInstances.sort((a, b) => b.marks - a.marks);
+        const bestInstance = allInstances[0];
+        
+        // Update all other instances to point to this best instance
+        allInstances.forEach((instance, index) => {
+          if (index > 0) {
+            instance.data.isExtraEnrolled = true;
+            instance.data.originalSemesterForRepeated = bestInstance.semester;
+          } else {
+            instance.data.isExtraEnrolled = false;
+            instance.data.originalSemesterForRepeated = null;
+          }
+        });
+      }
+    }
+    
+    // Recalculate CGPA
+    const cgpaData = calculateCGPA(processedData);
+    
+    // Update display
+    displayCGPAResults(processedData, cgpaData);
+    
+    addStatusMessage(`Restored course: ${course.code} in ${semesterName}`, 'info');
+    showToast(`Course ${course.code} restored`, 'success');
+  }
+  
+  // Save result to web storage
+  async function saveToWeb() {
+    if (!processedData) {
+      showToast('No data to save', 'error');
+      return;
+    }
+    
+    const regNum = registrationNumber.value.trim();
+    if (!regNum) {
+      showToast('Please enter a registration number', 'error');
+      return;
+    }
+    
+    addStatusMessage('Saving result to web storage...', 'info');
+    showLoadingStage('processing');
+    
+    try {
+      const response = await fetch(API_ENDPOINTS.save, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          registrationNumber: regNum,
+          studentData: processedData,
+          timestamp: new Date().toISOString()
+        })
+      });
+      
+      const result = await response.json();
+      
+      if (result.success) {
+        addStatusMessage('Result saved successfully to web storage', 'success');
+        showLoadingStage('complete');
+        showToast('Result saved successfully!', 'success');
+        
+        // Refresh saved results list
+        checkSavedResults();
+        
+        // Hide loading after delay
+        setTimeout(() => {
+          hideLoading();
+        }, 2000);
+      } else {
+        addStatusMessage(`Error saving result: ${result.message}`, 'error');
+        hideLoading();
+        showToast('Error saving result', 'error');
+      }
+    } catch (error) {
+      addStatusMessage(`Error saving result: ${error.message}`, 'error');
+      hideLoading();
+      showToast('Error saving result', 'error');
+    }
+  }
+  
+  // Check for saved results
+  async function checkSavedResults() {
+    const regNum = registrationNumber.value.trim();
+    if (!regNum) return;
+    
+    try {
+      const response = await fetch(`${API_ENDPOINTS.load}&registrationNumber=${encodeURIComponent(regNum)}`);
+      const result = await response.json();
+      
+      if (result.success && result.savedResults && result.savedResults.length > 0) {
+        displaySavedResults(result.savedResults);
+      } else {
+        savedResultsContainer.style.display = 'none';
+      }
+    } catch (error) {
+      console.error('Error checking saved results:', error);
+      savedResultsContainer.style.display = 'none';
+    }
+  }
+  
+  // Display saved results
+  function displaySavedResults(savedResults) {
+    savedResultsList.innerHTML = '';
+    savedResultsContainer.style.display = 'block';
+    
+    savedResults.forEach((result, index) => {
+      const date = new Date(result.timestamp).toLocaleDateString();
+      const time = new Date(result.timestamp).toLocaleTimeString();
+      
+      const resultCard = document.createElement('div');
+      resultCard.className = 'saved-result-card';
+      resultCard.innerHTML = `
+        <div class="saved-result-header">
+          <div>
+            <strong>Saved Result ${index + 1}</strong>
+            <div class="saved-result-date">${date} at ${time}</div>
+          </div>
+          <div class="saved-result-actions">
+            <button class="saved-result-action-btn view-saved-result" data-index="${index}">
+              <i class="fa-solid fa-eye"></i>
+            </button>
+            <button class="saved-result-action-btn delete-saved-result" data-index="${index}">
+              <i class="fa-solid fa-trash"></i>
+            </button>
+          </div>
+        </div>
+      `;
+      
+      savedResultsList.appendChild(resultCard);
+    });
+    
+    // Add event listeners
+    document.querySelectorAll('.view-saved-result').forEach(btn => {
+      btn.addEventListener('click', function() {
+        const index = parseInt(this.dataset.index);
+        loadSavedResult(savedResults[index]);
+      });
+    });
+    
+    document.querySelectorAll('.delete-saved-result').forEach(btn => {
+      btn.addEventListener('click', function() {
+        const index = parseInt(this.dataset.index);
+        deleteSavedResult(savedResults[index].id);
+      });
+    });
+  }
+  
+  // Load saved result
+  function loadSavedResult(savedResult) {
+    processedData = savedResult.studentData;
+    
+    // Calculate CGPA
+    const cgpaData = calculateCGPA(processedData);
+    
+    // Display the result
+    displayCGPAResults(processedData, cgpaData);
+    
+    showToast('Saved result loaded successfully!', 'success');
+    addStatusMessage('Loaded saved result from web storage', 'info');
+  }
+  
+  // Delete saved result
+  async function deleteSavedResult(resultId) {
+    try {
+      const response = await fetch(API_ENDPOINTS.save, {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          id: resultId
+        })
+      });
+      
+      const result = await response.json();
+      
+      if (result.success) {
+        showToast('Saved result deleted successfully!', 'success');
+        addStatusMessage('Deleted saved result from web storage', 'info');
+        
+        // Refresh saved results list
+        checkSavedResults();
+      } else {
+        showToast('Error deleting saved result', 'error');
+        addStatusMessage(`Error deleting saved result: ${result.message}`, 'error');
+      }
+    } catch (error) {
+      showToast('Error deleting saved result', 'error');
+      addStatusMessage(`Error deleting saved result: ${error.message}`, 'error');
+    }
+  }
+  
+  // Generate PDF report with proper text and page breaks
+  function generatePDF() {
+    if (!processedData) {
+      showToast('No data to download', 'error');
+      return;
+    }
+    
+    addStatusMessage('Generating PDF report...', 'info');
+    showLoadingStage('processing');
+    
+    try {
+      // Create PDF with proper A4 dimensions
+      const pdf = new jspdf.jsPDF({
+        orientation: 'portrait',
+        unit: 'mm',
+        format: 'a4'
+      });
+      
+      // Set margins
+      const marginLeft = 15;
+      const marginRight = 15;
+      const marginTop = 20;
+      const marginBottom = 20;
+      const pageWidth = 210 - marginLeft - marginRight;
+      let currentY = marginTop;
+      
+      // Add header
+      pdf.setFontSize(22);
+      pdf.setTextColor(122, 106, 216); // Brand color
+      pdf.text("University of Agriculture Faisalabad", marginLeft + pageWidth/2, currentY, { align: 'center' });
+      
+      pdf.setFontSize(18);
+      pdf.setTextColor(51, 51, 51); // Dark gray
+      currentY += 10;
+      pdf.text("Academic Transcript", marginLeft + pageWidth/2, currentY, { align: 'center' });
+      
+      pdf.setFontSize(11);
+      pdf.setTextColor(102, 102, 102); // Light gray
+      currentY += 8;
+      const currentDate = new Date().toLocaleDateString();
+      pdf.text(`Generated on: ${currentDate}`, marginLeft + pageWidth/2, currentY, { align: 'center' });
+      
+      currentY += 15;
+      
+      // Add student information section
+      pdf.setDrawColor(122, 106, 216);
+      pdf.setFillColor(248, 249, 255); // Light brand color
+      pdf.rect(marginLeft, currentY, pageWidth, 35, 'F');
+      
+      pdf.setFontSize(16);
+      pdf.setTextColor(122, 106, 216);
+      currentY += 8;
+      pdf.text("Student Information", marginLeft + 10, currentY);
+      
+      pdf.setFontSize(12);
+      pdf.setTextColor(51, 51, 51);
+      currentY += 12;
+      pdf.text(`Name: ${processedData.studentInfo.name}`, marginLeft + 10, currentY);
+      currentY += 8;
+      pdf.text(`Registration No: ${processedData.studentInfo.registration}`, marginLeft + 10, currentY);
+      
+      currentY += 20;
+      
+      // Add academic summary
+      const cgpaData = calculateCGPA(processedData);
+      pdf.rect(marginLeft, currentY, pageWidth, 35, 'F');
+      
+      pdf.setFontSize(16);
+      pdf.setTextColor(122, 106, 216);
+      currentY += 8;
+      pdf.text("Academic Summary", marginLeft + 10, currentY);
+      
+      pdf.setFontSize(12);
+      pdf.setTextColor(51, 51, 51);
+      
+      // Calculate positions for summary items
+      const summaryY = currentY + 12;
+      const col1 = marginLeft + 20;
+      const col2 = marginLeft + pageWidth/2;
+      const col3 = marginLeft + pageWidth - 20;
+      
+      pdf.setFontSize(12);
+      pdf.setTextColor(102, 102, 102);
+      pdf.text("CGPA", col1, summaryY, { align: 'center' });
+      pdf.text("Percentage", col2, summaryY, { align: 'center' });
+      pdf.text("Total Credits", col3, summaryY, { align: 'center' });
+      
+      pdf.setFontSize(18);
+      pdf.setTextColor(122, 106, 216);
+      pdf.text(formatCGPA(cgpaData.cgpa), col1, summaryY + 10, { align: 'center' });
+      pdf.text(`${formatPercentage(cgpaData.percentage)}%`, col2, summaryY + 10, { align: 'center' });
+      pdf.text(cgpaData.totalCreditHours.toString(), col3, summaryY + 10, { align: 'center' });
+      
+      currentY += 40;
+      
+      // Add semester details
+      const semesterKeys = Object.keys(processedData.semesters);
+      
+      for (let i = 0; i < semesterKeys.length; i++) {
+        const semesterName = semesterKeys[i];
+        const semester = processedData.semesters[semesterName];
+        
+        // Filter out deleted courses
+        const activeCourses = semester.courses.filter(course => !course.isDeleted);
+        
+        if (activeCourses.length === 0) continue;
+        
+        // Check if we need a new page for this semester
+        // Estimate height: header (15mm) + table header (10mm) + rows (5mm each) + footer (10mm)
+        const estimatedHeight = 15 + 10 + (activeCourses.length * 5) + 10;
+        
+        if (currentY + estimatedHeight > 297 - marginBottom) {
+          pdf.addPage();
+          currentY = marginTop;
+        }
+        
+        // Add semester header
+        pdf.setFontSize(15);
+        pdf.setTextColor(122, 106, 216);
+        pdf.text(`${semesterName} (GPA: ${formatCGPA(semester.gpa)} | ${formatPercentage(semester.percentage)}%)`, 
+                 marginLeft, currentY);
+        
+        currentY += 8;
+        
+        // Draw table header
+        pdf.setDrawColor(122, 106, 216);
+        pdf.setFillColor(122, 106, 216);
+        pdf.rect(marginLeft, currentY, pageWidth, 10, 'F');
+        
+        pdf.setFontSize(11);
+        pdf.setTextColor(255, 255, 255);
+        pdf.text("Course Code", marginLeft + 5, currentY + 7);
+        pdf.text("Course Title", marginLeft + 50, currentY + 7);
+        pdf.text("CH", marginLeft + pageWidth - 45, currentY + 7, { align: 'center' });
+        pdf.text("Marks", marginLeft + pageWidth - 30, currentY + 7, { align: 'center' });
+        pdf.text("Grade", marginLeft + pageWidth - 10, currentY + 7, { align: 'center' });
+        
+        currentY += 10;
+        
+        // Add courses
+        pdf.setFontSize(11);
+        pdf.setTextColor(51, 51, 51);
+        
+        for (let j = 0; j < activeCourses.length; j++) {
+          const course = activeCourses[j];
+          
+          // Check if we need a new page for the next row
+          if (currentY + 5 > 297 - marginBottom) {
+            pdf.addPage();
+            currentY = marginTop;
+            
+            // Redraw table header on new page
+            pdf.setFillColor(122, 106, 216);
+            pdf.rect(marginLeft, currentY, pageWidth, 10, 'F');
+            pdf.setTextColor(255, 255, 255);
+            pdf.text("Course Code", marginLeft + 5, currentY + 7);
+            pdf.text("Course Title", marginLeft + 50, currentY + 7);
+            pdf.text("CH", marginLeft + pageWidth - 45, currentY + 7, { align: 'center' });
+            pdf.text("Marks", marginLeft + pageWidth - 30, currentY + 7, { align: 'center' });
+            pdf.text("Grade", marginLeft + pageWidth - 10, currentY + 7, { align: 'center' });
+            
+            currentY += 10;
+          }
+          
+          // Draw light background for even rows
+          if (j % 2 === 0) {
+            pdf.setFillColor(248, 249, 255);
+            pdf.rect(marginLeft, currentY, pageWidth, 5, 'F');
+          }
+          
+          // Draw course information
+          pdf.setTextColor(51, 51, 51);
+          
+          // Truncate long course titles
+          let courseTitle = course.title;
+          if (courseTitle.length > 40) {
+            courseTitle = courseTitle.substring(0, 37) + '...';
+          }
+          
+          pdf.text(course.code, marginLeft + 5, currentY + 4);
+          pdf.text(courseTitle, marginLeft + 50, currentY + 4);
+          pdf.text(course.creditHours.toString(), marginLeft + pageWidth - 45, currentY + 4, { align: 'center' });
+          pdf.text(course.marks.toString(), marginLeft + pageWidth - 30, currentY + 4, { align: 'center' });
+          
+          pdf.setFont(undefined, 'bold');
+          pdf.text(course.grade, marginLeft + pageWidth - 10, currentY + 4, { align: 'center' });
+          pdf.setFont(undefined, 'normal');
+          
+          currentY += 5;
+        }
+        
+        // Add semester summary row
+        pdf.setFillColor(240, 240, 240);
+        pdf.rect(marginLeft, currentY, pageWidth, 7, 'F');
+        
+        pdf.setFont(undefined, 'bold');
+        pdf.text("Semester Total:", marginLeft + 5, currentY + 5);
+        pdf.text(semester.totalCreditHours.toString(), marginLeft + pageWidth - 45, currentY + 5, { align: 'center' });
+        pdf.text(semester.totalMarksObtained.toFixed(0), marginLeft + pageWidth - 30, currentY + 5, { align: 'center' });
+        pdf.text("-", marginLeft + pageWidth - 10, currentY + 5, { align: 'center' });
+        pdf.setFont(undefined, 'normal');
+        
+        currentY += 10;
+      }
+      
+      // Add footer on the last page
+      pdf.setFontSize(10);
+      pdf.setTextColor(102, 102, 102);
+      
+      // Make sure we're on a new page if there's not enough space
+      if (currentY + 20 > 297 - marginBottom) {
+        pdf.addPage();
+        currentY = marginTop;
+      }
+      
+      pdf.text("Generated by UAF CGPA Calculator - https://uaftools.vercel.app", 
+               marginLeft + pageWidth/2, currentY, { align: 'center' });
+      
+      currentY += 5;
+      pdf.text("This is an unofficial transcript. For official documents, please contact University of Agriculture Faisalabad.", 
+               marginLeft + pageWidth/2, currentY, { align: 'center' });
+      
+      // Save the PDF
+      const fileName = `UAF_Transcript_${processedData.studentInfo.registration}_${currentDate.replace(/\//g, '-')}.pdf`;
+      pdf.save(fileName);
+      
+      addStatusMessage('PDF report generated successfully', 'success');
+      showToast('PDF downloaded successfully!', 'success');
+      hideLoading();
+      
+    } catch (error) {
+      addStatusMessage(`Error generating PDF: ${error.message}`, 'error');
+      showToast('Error generating PDF', 'error');
+      hideLoading();
+    }
+  }
+  
+  // Event listeners
+  resultForm.addEventListener('submit', function(e) {
+    e.preventDefault();
+    fetchResult();
+  });
+  
+  testConnectionBtn.addEventListener('click', testConnection);
+  
+  downloadLogBtn.addEventListener('click', downloadLog);
+  
+  clearLogBtn.addEventListener('click', clearLog);
+  
+  saveToWebBtn.addEventListener('click', saveToWeb);
+  
+  downloadPdfBtn.addEventListener('click', generatePDF);
+  
+  saveCourseBtn.addEventListener('click', addCustomCourse);
+  
+  registrationNumber.addEventListener('input', function() {
+    const regNum = this.value.trim();
+    if (regNum) {
+      checkSavedResults();
+    } else {
+      savedResultsContainer.style.display = 'none';
+    }
+  });
+  
+  // Initialize the application
+  init();
+});
   </script>
 </body>
 </html>
+
