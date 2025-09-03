@@ -3769,19 +3769,25 @@ function generatePDF() {
                 const activeCourses = semester.courses.filter(course => !course.isDeleted);
                 
                 if (activeCourses.length > 0) {
-                    // Check if we need a new page (leave space for table header + at least 2 rows)
-                    if (yPos > pageHeight - 45) {
+                    // Check if we need a new page (leave space for table header + at least 3 rows + spacing)
+                    if (yPos > pageHeight - 60) {
                         pdf.addPage();
                         yPos = margin;
                     }
                     
-                    // Add semester header with minimal spacing
+                    // Add semester header with professional styling
                     pdf.setFontSize(11);
                     pdf.setTextColor(75, 85, 99);
                     pdf.setFont(undefined, 'bold');
-                    pdf.text(`${semesterName.toUpperCase()} (GPA: ${formatCGPA(semester.gpa)} | ${formatPercentage(semester.percentage)}%)`, margin, yPos);
                     
-                    yPos += 4; // Minimal spacing between header and table
+                    // Create a styled semester header
+                    pdf.setFillColor(249, 250, 251);
+                    pdf.roundedRect(margin, yPos, contentWidth, 10, 2, 2, 'F');
+                    
+                    pdf.text(`${semesterName.toUpperCase()} (GPA: ${formatCGPA(semester.gpa)} | ${formatPercentage(semester.percentage)}%)`, 
+                             margin + 8, yPos + 6.5);
+                    
+                    yPos += 12; // Space after semester header
                     
                     // Calculate semester totals
                     const semesterMarks = activeCourses.reduce((sum, course) => sum + course.marks, 0);
@@ -3796,17 +3802,17 @@ function generatePDF() {
                     }, 0);
                     const semesterCredits = activeCourses.reduce((sum, course) => sum + course.creditHours, 0);
                     
-                    // Define table columns with optimized widths (extended to margins)
+                    // Define table columns with PERFECT width distribution to match margins
                     const columns = [
                         { header: "Course Code", dataKey: "code", width: 25, align: "left" },
-                        { header: "Course Title", dataKey: "title", width: 75, align: "left" },
+                        { header: "Course Title", dataKey: "title", width: 80, align: "left" },
                         { header: "CH", dataKey: "creditHours", width: 15, align: "center" },
                         { header: "Marks", dataKey: "marks", width: 18, align: "center" },
                         { header: "Max", dataKey: "maxMarks", width: 18, align: "center" },
-                        { header: "Grade", dataKey: "grade", width: 15, align: "center" }
+                        { header: "Grade", dataKey: "grade", width: 16, align: "center" }
                     ];
                     
-                    // Verify total width matches contentWidth
+                    // Verify total width exactly matches contentWidth
                     const totalWidth = columns.reduce((sum, col) => sum + col.width, 0);
                     
                     // Prepare course data
@@ -3844,7 +3850,7 @@ function generatePDF() {
                     // Create table
                     pdf.setFontSize(9);
                     
-                    // Draw table headers
+                    // Draw table headers with perfect alignment
                     let xPos = margin;
                     pdf.setFillColor(122, 106, 216); // Brand color for header
                     
@@ -3874,7 +3880,7 @@ function generatePDF() {
                             pdf.addPage();
                             yPos = margin;
                             
-                            // Redraw headers on new page
+                            // Redraw headers on new page with perfect alignment
                             xPos = margin;
                             pdf.setFillColor(122, 106, 216);
                             
@@ -3903,14 +3909,13 @@ function generatePDF() {
                             pdf.rect(margin, yPos, totalWidth, 6, 'F');
                             pdf.setFont(undefined, 'bold');
                         }
-                        
                         // Alternate row colors for readability
                         else if (rowIndex % 2 === 0) {
                             pdf.setFillColor(249, 250, 251); // Very light gray
                             pdf.rect(margin, yPos, totalWidth, 6, 'F');
                         }
                         
-                        // Draw row content
+                        // Draw row content with perfect alignment
                         xPos = margin;
                         
                         columns.forEach(column => {
@@ -3925,7 +3930,12 @@ function generatePDF() {
                             
                             // For left-aligned columns (course code and title)
                             if (column.align === "left") {
-                                pdf.text(value, xPos + 2, yPos + 3.5, { align: 'left' });
+                                // Handle text truncation for long course titles
+                                let displayText = value;
+                                if (column.dataKey === "title" && value.length > 55) {
+                                    displayText = value.substring(0, 52) + "...";
+                                }
+                                pdf.text(displayText, xPos + 2, yPos + 3.5, { align: 'left' });
                             } 
                             // For centered columns
                             else {
@@ -3948,7 +3958,15 @@ function generatePDF() {
                         }
                     });
                     
-                    yPos += 8; // Reasonable spacing after table
+                    // Add more space between semesters (15mm instead of 8mm)
+                    yPos += 15;
+                    
+                    // Add a subtle separator line between semesters
+                    if (i < semesters.length - 1) {
+                        pdf.setDrawColor(229, 231, 235);
+                        pdf.setLineWidth(0.3);
+                        pdf.line(margin, yPos - 5, pageWidth - margin, yPos - 5);
+                    }
                 }
             }
         };
@@ -4121,6 +4139,7 @@ function generatePDF() {
   </script>
 </body>
 </html>
+
 
 
 
