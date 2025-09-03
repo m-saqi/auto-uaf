@@ -3669,7 +3669,7 @@ function generatePDF() {
             pdf.setFillColor(255, 255, 255);
             pdf.rect(0, 0, pageWidth, 50, 'F');
             
-            // Add UAF logo (we'll use text as we can't directly embed external images)
+            // Add UAF text logo
             pdf.setFontSize(16);
             pdf.setTextColor(122, 106, 216);
             pdf.setFont(undefined, 'bold');
@@ -3679,7 +3679,7 @@ function generatePDF() {
             pdf.setFontSize(12);
             pdf.setTextColor(75, 85, 99);
             pdf.setFont(undefined, 'normal');
-            pdf.text("ACADEMIC TRANSCRIPT", pageWidth / 2, 35, { align: 'center' });
+            pdf.text("UNOFFICIAL ACADEMIC TRANSCRIPT", pageWidth / 2, 35, { align: 'center' });
             
             pdf.setDrawColor(122, 106, 216);
             pdf.setLineWidth(0.5);
@@ -3739,7 +3739,7 @@ function generatePDF() {
                 { label: "CGPA", value: formatCGPA(cgpaData.cgpa) },
                 { label: "Percentage", value: `${formatPercentage(cgpaData.percentage)}%` },
                 { label: "Total Credits", value: cgpaData.totalCreditHours },
-                { label: "Marks (Obt./Total)", value: `${cgpaData.totalMarksObtained.toFixed(0)}/${cgpaData.totalMaxMarks.toFixed(0)}` }
+                { label: "Marks", value: `${cgpaData.totalMarksObtained.toFixed(0)}/${cgpaData.totalMaxMarks.toFixed(0)}` }
             ];
             
             summaries.forEach((summary, index) => {
@@ -3800,14 +3800,14 @@ function generatePDF() {
                     }, 0);
                     const semesterCredits = activeCourses.reduce((sum, course) => sum + course.creditHours, 0);
                     
-                    // Define table columns
+                    // Define table columns with optimized widths
                     const columns = [
-                        { header: "Course Code", dataKey: "code", width: 25 },
-                        { header: "Course Title", dataKey: "title", width: 65 },
-                        { header: "CH", dataKey: "creditHours", width: 12 },
-                        { header: "Marks", dataKey: "marks", width: 15 },
-                        { header: "Max", dataKey: "maxMarks", width: 15 },
-                        { header: "Grade", dataKey: "grade", width: 15 }
+                        { header: "Course Code", dataKey: "code", width: 22, align: "left" },
+                        { header: "Course Title", dataKey: "title", width: 70, align: "left" },
+                        { header: "CH", dataKey: "creditHours", width: 15, align: "center" },
+                        { header: "Marks", dataKey: "marks", width: 15, align: "center" },
+                        { header: "Max", dataKey: "maxMarks", width: 15, align: "center" },
+                        { header: "Grade", dataKey: "grade", width: 15, align: "center" }
                     ];
                     
                     // Prepare course data
@@ -3819,10 +3819,13 @@ function generatePDF() {
                         else if (course.creditHours === 2) maxMarks = 40;
                         else if (course.creditHours === 1) maxMarks = 20;
                         
+                        // Use the original credit hours format if available
+                        const creditHoursDisplay = course.creditHoursDisplay || course.creditHours.toString();
+                        
                         return {
                             code: course.code,
                             title: course.title,
-                            creditHours: course.creditHours.toString(),
+                            creditHours: creditHoursDisplay,
                             marks: course.marks.toString(),
                             maxMarks: maxMarks.toString(),
                             grade: course.grade
@@ -3900,7 +3903,7 @@ function generatePDF() {
                         
                         // Highlight summary row
                         if (rowIndex === courseData.length - 1) {
-                            pdf.setFillColor(240, 240, 240);
+                            pdf.setFillColor(243, 244, 246);
                             pdf.rect(margin, yPos, contentWidth, 6, 'F');
                             pdf.setFont(undefined, 'bold');
                         }
@@ -3910,9 +3913,20 @@ function generatePDF() {
                         
                         columns.forEach(column => {
                             const value = row[column.dataKey] || "";
-                            const align = column.dataKey === "title" ? "left" : "center";
+                            const align = column.align;
                             
-                            pdf.text(value, xPos + (column.width / 2), yPos + 3.5, { align: align });
+                            // For course title, use left alignment and handle long text
+                            if (column.dataKey === "title") {
+                                // Truncate long course titles
+                                const maxLength = 40;
+                                const displayText = value.length > maxLength ? 
+                                    value.substring(0, maxLength - 3) + "..." : value;
+                                
+                                pdf.text(displayText, xPos + 2, yPos + 3.5, { align: 'left' });
+                            } else {
+                                pdf.text(value, xPos + (column.width / 2), yPos + 3.5, { align: align });
+                            }
+                            
                             xPos += column.width;
                         });
                         
@@ -3974,7 +3988,7 @@ function generatePDF() {
     }
 }
 
-// Helper function to get grade color (for future use if needed)
+// Helper function to get grade color
 function getGradeColor(grade) {
     const gradeColors = {
         'A': '#166534', // Dark green
@@ -4110,6 +4124,7 @@ function getGradeColor(grade) {
   </script>
 </body>
 </html>
+
 
 
 
