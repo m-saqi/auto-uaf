@@ -3661,7 +3661,7 @@ function generatePDF() {
     // Create PDF content with professional styling
     pdfContainer.innerHTML = `
         <div style="text-align: center; margin-bottom: 30px; padding-bottom: 20px; border-bottom: 2px solid #7a6ad8;">
-            <img src="https://uaftools.vercel.app/uaftools.png" alt="UAF Logo" style="height: 80px; margin-bottom: 15px;">
+            <img src="https://uaf.edu.pk/downloads/Official_logo_with_white_background.jpg" alt="UAF Logo" style="height: 70px; margin-bottom: 15px;">
             <h1 style="color: #7a6ad8; margin-bottom: 5px; font-size: 28px; font-weight: 700;">University of Agriculture, Faisalabad</h1>
             <h2 style="color: #4b5563; margin-top: 0; font-size: 20px; font-weight: 500;">Academic Transcript</h2>
             <p style="color: #6b7280; font-size: 14px;">Generated on: ${currentDate}</p>
@@ -3683,7 +3683,7 @@ function generatePDF() {
         
         <div style="margin-bottom: 30px; padding: 20px; background: #f8f9ff; border-radius: 8px; border-left: 4px solid #7a6ad8;">
             <h3 style="color: #7a6ad8; margin-bottom: 15px; font-size: 18px; font-weight: 600;">Academic Summary</h3>
-            <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; text-align: center;">
+            <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; text-align: center;">
                 <div style="padding: 15px; background: white; border-radius: 6px; box-shadow: 0 2px 5px rgba(0,0,0,0.05);">
                     <p style="font-size: 14px; margin-bottom: 8px; color: #6b7280;">CGPA</p>
                     <p style="font-size: 24px; font-weight: 700; color: #7a6ad8; margin: 0;">${formatCGPA(cgpaData.cgpa)}</p>
@@ -3695,6 +3695,10 @@ function generatePDF() {
                 <div style="padding: 15px; background: white; border-radius: 6px; box-shadow: 0 2px 5px rgba(0,0,0,0.05);">
                     <p style="font-size: 14px; margin-bottom: 8px; color: #6b7280;">Total Credits</p>
                     <p style="font-size: 24px; font-weight: 700; color: #7a6ad8; margin: 0;">${cgpaData.totalCreditHours}</p>
+                </div>
+                <div style="padding: 15px; background: white; border-radius: 6px; box-shadow: 0 2px 5px rgba(0,0,0,0.05);">
+                    <p style="font-size: 14px; margin-bottom: 8px; color: #6b7280;">Marks (Obtained/Total)</p>
+                    <p style="font-size: 20px; font-weight: 700; color: #7a6ad8; margin: 0;">${cgpaData.totalMarksObtained.toFixed(0)}/${cgpaData.totalMaxMarks.toFixed(0)}</p>
                 </div>
             </div>
         </div>
@@ -3712,8 +3716,21 @@ function generatePDF() {
         
         if (activeCourses.length > 0) {
             const semesterSection = document.createElement('div');
-            semesterSection.style.marginBottom = '25px';
+            semesterSection.style.marginBottom = '30px';
             semesterSection.style.pageBreakInside = 'avoid';
+            
+            // Calculate semester totals
+            const semesterMarks = activeCourses.reduce((sum, course) => sum + course.marks, 0);
+            const semesterMaxMarks = activeCourses.reduce((sum, course) => {
+                let maxMarks = 0;
+                if (course.creditHours === 5) maxMarks = 100;
+                else if (course.creditHours === 4) maxMarks = 80;
+                else if (course.creditHours === 3) maxMarks = 60;
+                else if (course.creditHours === 2) maxMarks = 40;
+                else if (course.creditHours === 1) maxMarks = 20;
+                return sum + maxMarks;
+            }, 0);
+            const semesterCredits = activeCourses.reduce((sum, course) => sum + course.creditHours, 0);
             
             semesterSection.innerHTML = `
                 <div style="margin-bottom: 15px; padding-bottom: 10px; border-bottom: 1px solid #e5e7eb;">
@@ -3724,33 +3741,87 @@ function generatePDF() {
                         </span>
                     </h3>
                 </div>
-                <table style="width: 100%; border-collapse: collapse; font-size: 12px;">
+                <table style="width: 100%; border-collapse: collapse; font-size: 12px; margin-bottom: 15px;">
                     <thead>
                         <tr style="background-color: #7a6ad8; color: white;">
                             <th style="padding: 10px; text-align: left; border: 1px solid #d1d5db; font-weight: 600;">Course Code</th>
                             <th style="padding: 10px; text-align: left; border: 1px solid #d1d5db; font-weight: 600;">Course Title</th>
                             <th style="padding: 10px; text-align: center; border: 1px solid #d1d5db; font-weight: 600; width: 60px;">CH</th>
-                            <th style="padding: 10px; text-align: center; border: 1px solid #d1d5db; font-weight: 600; width: 60px;">Marks</th>
+                            <th style="padding: 10px; text-align: center; border: 1px solid #d1d5db; font-weight: 600; width: 70px;">Marks</th>
+                            <th style="padding: 10px; text-align: center; border: 1px solid #d1d5db; font-weight: 600; width: 70px;">Max Marks</th>
                             <th style="padding: 10px; text-align: center; border: 1px solid #d1d5db; font-weight: 600; width: 60px;">Grade</th>
                         </tr>
                     </thead>
                     <tbody>
-                        ${activeCourses.map((course, index) => `
-                            <tr style="${index % 2 === 0 ? 'background-color: #f9fafb;' : 'background-color: white;'}">
-                                <td style="padding: 8px; border: 1px solid #e5e7eb; font-family: monospace; font-weight: 500;">${course.code}</td>
-                                <td style="padding: 8px; border: 1px solid #e5e7eb; max-width: 250px;">${course.title}</td>
-                                <td style="padding: 8px; text-align: center; border: 1px solid #e5e7eb;">${course.creditHours}</td>
-                                <td style="padding: 8px; text-align: center; border: 1px solid #e5e7eb; font-weight: 500;">${course.marks}</td>
-                                <td style="padding: 8px; text-align: center; border: 1px solid #e5e7eb; font-weight: 600; color: ${getGradeColor(course.grade)};">${course.grade}</td>
-                            </tr>
-                        `).join('')}
+                        ${activeCourses.map((course, index) => {
+                            // Calculate max marks for this course
+                            let maxMarks = 0;
+                            if (course.creditHours === 5) maxMarks = 100;
+                            else if (course.creditHours === 4) maxMarks = 80;
+                            else if (course.creditHours === 3) maxMarks = 60;
+                            else if (course.creditHours === 2) maxMarks = 40;
+                            else if (course.creditHours === 1) maxMarks = 20;
+                            
+                            return `
+                                <tr style="${index % 2 === 0 ? 'background-color: #f9fafb;' : 'background-color: white;'}">
+                                    <td style="padding: 8px; border: 1px solid #e5e7eb; font-family: monospace; font-weight: 500;">${course.code}</td>
+                                    <td style="padding: 8px; border: 1px solid #e5e7eb; max-width: 250px;">${course.title}</td>
+                                    <td style="padding: 8px; text-align: center; border: 1px solid #e5e7eb;">${course.creditHours}</td>
+                                    <td style="padding: 8px; text-align: center; border: 1px solid #e5e7eb; font-weight: 500;">${course.marks}</td>
+                                    <td style="padding: 8px; text-align: center; border: 1px solid #e5e7eb;">${maxMarks}</td>
+                                    <td style="padding: 8px; text-align: center; border: 1px solid #e5e7eb; font-weight: 600; color: ${getGradeColor(course.grade)};">${course.grade}</td>
+                                </tr>
+                            `;
+                        }).join('')}
                     </tbody>
+                    <tfoot>
+                        <tr style="background-color: #f3f4f6; font-weight: 600;">
+                            <td colspan="2" style="padding: 10px; text-align: right; border: 1px solid #d1d5db;">Semester Total:</td>
+                            <td style="padding: 10px; text-align: center; border: 1px solid #d1d5db;">${semesterCredits}</td>
+                            <td style="padding: 10px; text-align: center; border: 1px solid #d1d5db;">${semesterMarks.toFixed(0)}</td>
+                            <td style="padding: 10px; text-align: center; border: 1px solid #d1d5db;">${semesterMaxMarks}</td>
+                            <td style="padding: 10px; text-align: center; border: 1px solid #d1d5db;">-</td>
+                        </tr>
+                    </tfoot>
                 </table>
             `;
             
             pdfContainer.appendChild(semesterSection);
         }
     }
+    
+    // Add overall summary
+    const summarySection = document.createElement('div');
+    summarySection.style.marginTop = '20px';
+    summaryStyle.marginBottom = '30px';
+    summaryStyle.padding = '20px';
+    summaryStyle.backgroundColor = '#f8f9ff';
+    summaryStyle.borderRadius = '8px';
+    summaryStyle.borderLeft = '4px solid #7a6ad8';
+    
+    summarySection.innerHTML = `
+        <h3 style="color: #7a6ad8; margin-bottom: 15px; font-size: 18px; font-weight: 600;">Overall Academic Summary</h3>
+        <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px;">
+            <div style="padding: 15px; background: white; border-radius: 6px; box-shadow: 0 2px 5px rgba(0,0,0,0.05);">
+                <p style="font-size: 14px; margin-bottom: 8px; color: #6b7280;">Cumulative Grade Point Average (CGPA)</p>
+                <p style="font-size: 24px; font-weight: 700; color: #7a6ad8; margin: 0;">${formatCGPA(cgpaData.cgpa)}</p>
+            </div>
+            <div style="padding: 15px; background: white; border-radius: 6px; box-shadow: 0 2px 5px rgba(0,0,0,0.05);">
+                <p style="font-size: 14px; margin-bottom: 8px; color: #6b7280;">Total Percentage</p>
+                <p style="font-size: 24px; font-weight: 700; color: #7a6ad8; margin: 0;">${formatPercentage(cgpaData.percentage)}%</p>
+            </div>
+            <div style="padding: 15px; background: white; border-radius: 6px; box-shadow: 0 2px 5px rgba(0,0,0,0.05);">
+                <p style="font-size: 14px; margin-bottom: 8px; color: #6b7280;">Total Credit Hours Completed</p>
+                <p style="font-size: 24px; font-weight: 700; color: #7a6ad8; margin: 0;">${cgpaData.totalCreditHours}</p>
+            </div>
+            <div style="padding: 15px; background: white; border-radius: 6px; box-shadow: 0 2px 5px rgba(0,0,0,0.05);">
+                <p style="font-size: 14px; margin-bottom: 8px; color: #6b7280;">Total Marks (Obtained/Total)</p>
+                <p style="font-size: 20px; font-weight: 700; color: #7a6ad8; margin: 0;">${cgpaData.totalMarksObtained.toFixed(0)}/${cgpaData.totalMaxMarks.toFixed(0)}</p>
+            </div>
+        </div>
+    `;
+    
+    pdfContainer.appendChild(summarySection);
     
     // Add footer with professional disclaimer
     const footer = document.createElement('div');
@@ -3787,6 +3858,23 @@ function generatePDF() {
     const pdfWidth = pdf.internal.pageSize.getWidth();
     const pdfHeight = pdf.internal.pageSize.getHeight();
     
+    // Calculate element height for pagination
+    const calculateElementHeight = (element) => {
+        const clone = element.cloneNode(true);
+        clone.style.position = 'absolute';
+        clone.style.visibility = 'hidden';
+        clone.style.width = '800px';
+        document.body.appendChild(clone);
+        const height = clone.offsetHeight;
+        document.body.removeChild(clone);
+        return height;
+    };
+    
+    // Convert pixels to mm for PDF
+    const pxToMm = (px) => {
+        return px * 0.2645833333; // 1px = 0.2645833333mm at 96dpi
+    };
+    
     html2canvas(pdfContainer, {
         scale: 2, // Higher resolution for better text quality
         useCORS: true,
@@ -3797,45 +3885,24 @@ function generatePDF() {
         const imgWidth = pdfWidth - 20; // Margin of 10mm on each side
         const imgHeight = (canvas.height * imgWidth) / canvas.width;
         
-        let heightLeft = imgHeight;
-        let position = 10; // Start 10mm from top
-        let page = 1;
+        // Add content with proper pagination
+        let position = 0;
+        let currentPage = 1;
+        const pageHeight = pdfHeight - 20; // Account for margins
         
         // Add first page
-        pdf.addImage(imgData, 'JPEG', 10, position, imgWidth, imgHeight);
-        heightLeft -= (pdfHeight - 30); // Account for margins
+        pdf.addImage(imgData, 'JPEG', 10, 10, imgWidth, imgHeight);
         
-        // Add additional pages if needed
-        while (heightLeft >= 0) {
-            position = heightLeft - imgHeight;
-            pdf.addPage();
-            pdf.addImage(imgData, 'JPEG', 10, position, imgWidth, imgHeight);
-            heightLeft -= (pdfHeight - 20);
-            page++;
-            
-            // Update page numbers on subsequent pages
+        // Add page numbers
+        const totalPages = Math.ceil(imgHeight / pageHeight);
+        for (let i = 1; i <= totalPages; i++) {
+            if (i > 1) {
+                pdf.addPage();
+            }
+            pdf.setPage(i);
             pdf.setFontSize(10);
             pdf.setTextColor(100, 100, 100);
-            pdf.text(`Page ${page} of ${page}`, pdfWidth - 20, pdfHeight - 10, { align: 'right' });
-        }
-        
-        // Add page numbers to first page
-        pdf.setPage(1);
-        pdf.setFontSize(10);
-        pdf.setTextColor(100, 100, 100);
-        pdf.text(`Page 1 of ${page}`, pdfWidth - 20, pdfHeight - 10, { align: 'right' });
-        
-        // Add watermark to all pages
-        const totalPages = pdf.internal.getNumberOfPages();
-        for (let i = 1; i <= totalPages; i++) {
-            pdf.setPage(i);
-            pdf.setFontSize(40);
-            pdf.setTextColor(240, 240, 240);
-            pdf.setFont(undefined, 'italic');
-            pdf.text('UAF', pdfWidth / 2, pdfHeight / 2, {
-                align: 'center',
-                angle: 45
-            });
+            pdf.text(`Page ${i} of ${totalPages}`, pdfWidth - 20, pdfHeight - 10, { align: 'right' });
         }
         
         // Save the PDF
@@ -3992,5 +4059,6 @@ function getGradeColor(grade) {
   </script>
 </body>
 </html>
+
 
 
