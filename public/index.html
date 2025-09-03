@@ -1054,7 +1054,7 @@ a:hover {
   border-radius: 50%;
   background: var(--brand);
   pointer-events: none;
-  transform: translate(-50%, -50%);
+  transform: translate(-50%, -50);
   opacity: .7;
   mix-blend-mode: multiply;
   z-index: 9999;
@@ -1382,256 +1382,6 @@ a:hover {
   }
 }
 
-/* NEW STYLES FOR UPDATES */
-.repeated-badge {
-  position: absolute;
-  top: 5px;
-  right: 5px;
-  background-color: #ffc107;
-  color: #856404;
-  font-size: 8px;
-  padding: 2px 4px;
-  border-radius: 3px;
-  font-weight: bold;
-}
-
-.custom-course-btn {
-  background: var(--brand-gradient);
-  color: white;
-  border: none;
-  border-radius: 8px;
-  padding: 8px 12px;
-  font-size: 0.9rem;
-  margin-top: 10px;
-  display: flex;
-  align-items: center;
-  gap: 5px;
-  cursor: pointer;
-  transition: all 0.3s ease;
-}
-
-.custom-course-btn:hover {
-  background: var(--brand-gradient-hover);
-  transform: translateY(-2px);
-}
-
-.undo-notification {
-  position: fixed;
-  bottom: 20px;
-  left: 50%;
-  transform: translateX(-50%);
-  background-color: rgba(51, 51, 51, 0.9);
-  color: white;
-  padding: 12px 20px;
-  border-radius: 8px;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  z-index: 1000;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
-  backdrop-filter: blur(10px);
-}
-
-.undo-btn {
-  background: var(--brand-gradient);
-  color: white;
-  border: none;
-  padding: 5px 10px;
-  border-radius: 4px;
-  cursor: pointer;
-  transition: all 0.3s ease;
-}
-
-.undo-btn:hover {
-  background: var(--brand-gradient-hover);
-  transform: translateY(-1px);
-}
-
-/* Updated CGPA Display Layout */
-.cgpa-display-container {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 1.5rem;
-}
-
-.cgpa-main-info {
-  text-align: center;
-  width: 100%;
-  padding-bottom: 1rem;
-  border-bottom: 1px solid rgba(122, 106, 216, 0.3);
-}
-
-.cgpa-metrics-row {
-  display: flex;
-  justify-content: space-between;
-  width: 100%;
-  gap: 1rem;
-}
-
-.cgpa-metric {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  flex: 1;
-}
-
-.cgpa-metric-left {
-  align-items: flex-start;
-}
-
-.cgpa-metric-center {
-  align-items: center;
-}
-
-.cgpa-metric-right {
-  align-items: flex-end;
-}
-
-.cgpa-metric-label {
-  font-size: 1rem;
-  font-weight: 600;
-  color: var(--muted);
-  margin-bottom: 0.5rem;
-}
-
-.cgpa-metric-value {
-  font-size: 1.75rem;
-  font-weight: 800;
-  color: var(--brand);
-  line-height: 1.2;
-  background: var(--brand-gradient);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-}
-
-.cgpa-metric-subvalue {
-  font-size: 0.9rem;
-  color: var(--muted);
-}
-
-/* Mobile responsive adjustments */
-@media (max-width: 768px) {
-  .cgpa-metrics-row {
-    flex-direction: column;
-    gap: 1.5rem;
-  }
-  
-  .cgpa-metric {
-    flex-direction: row;
-    justify-content: space-between;
-    align-items: center;
-    width: 100%;
-    padding: 0.5rem 0;
-    border-bottom: 1px solid rgba(122, 106, 216, 0.1);
-  }
-  
-  .cgpa-metric:last-child {
-    border-bottom: none;
-  }
-  
-  .cgpa-metric-left,
-  .cgpa-metric-center,
-  .cgpa-metric-right {
-    align-items: center;
-  }
-  
-  .cgpa-metric-label {
-    margin-bottom: 0;
-    min-width: 100px;
-    text-align: left;
-  }
-  
-  .cgpa-metric-value-container {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-end;
-  }
-  
-  .cgpa-metric-value {
-    font-size: 1.5rem;
-  }
-  
-  .cgpa-main-info h2 {
-    font-size: 1.5rem;
-  }
-}
-
-/* Contact form improvements */
-#contact-form {
-  background: rgba(255, 255, 255, 0.5);
-  padding: 2rem;
-  border-radius: var(--radius);
-  backdrop-filter: blur(10px);
-}
-
-[data-theme="dark"] #contact-form {
-  background: rgba(26, 32, 48, 0.5);
-}
-
-/* Animation for form elements */
-.form-control, .form-select {
-  transition: all 0.3s ease;
-}
-
-.form-control:focus, .form-select:focus {
-  transform: translateY(-2px);
-}
-
-/* Pulse animation for important elements */
-@keyframes pulse {
-  0% { transform: scale(1); }
-  50% { transform: scale(1.05); }
-  100% { transform: scale(1); }
-}
-
-.pulse {
-  animation: pulse 2s infinite;
-}
-
-/* Floating animation */
-@keyframes float {
-  0% { transform: translateY(0px); }
-  50% { transform: translateY(-10px); }
-  100% { transform: translateY(0px); }
-}
-
-.float {
-  animation: float 3s ease-in-out infinite;
-}
-
-/* Improved scrollbar */
-::-webkit-scrollbar {
-  width: 8px;
-}
-
-::-webkit-scrollbar-track {
-  background: rgba(122, 106, 216, 0.1);
-  border-radius: 10px;
-}
-
-::-webkit-scrollbar-thumb {
-  background: var(--brand);
-  border-radius: 10px;
-}
-
-::-webkit-scrollbar-thumb:hover {
-  background: var(--brand-600);
-}
-
-[data-theme="dark"] ::-webkit-scrollbar-track {
-  background: rgba(122, 106, 216, 0.2);
-}
-
-[data-theme="dark"] ::-webkit-scrollbar-thumb {
-  background: var(--brand-600);
-}
-
-[data-theme="dark"] ::-webkit-scrollbar-thumb:hover {
-  background: var(--brand);
-}
-
 /* NEW STYLES FOR ADDED FEATURES */
 
 /* Back to Top Button */
@@ -1676,9 +1426,9 @@ a:hover {
 }
 
 @keyframes gradient-text {
-  0% { background-position: 0% 50%; }
-  50% { background-position: 100% 50%; }
-  100% { background-position: 0% 50%; }
+ 0% { background-position: 0% 50%; }
+ 50% { background-position: 100% 50%; }
+ 100% { background-position: 0% 50%; }
 }
 
 /* Why Choose Section */
@@ -1758,6 +1508,10 @@ a:hover {
   color: #ffffff;
 }
 
+[data-theme="dark"] .feature-card p {
+  color: #d1d5db;
+}
+
 /* Hide Why Choose section on mobile */
 @media (max-width: 991.98px) {
   .why-choose-section {
@@ -1821,6 +1575,134 @@ a:hover {
   }
 }
 
+/* NEW: Simplified loading animation */
+.simple-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+}
+
+.simple-spinner {
+  width: 50px;
+  height: 50px;
+  border: 3px solid rgba(122, 106, 216, 0.3);
+  border-radius: 50%;
+  border-top-color: var(--brand);
+  animation: spin 1s linear infinite;
+  margin-bottom: 1rem;
+}
+
+.simple-loading-text {
+  font-weight: 600;
+  color: var(--brand);
+  margin-bottom: 0.5rem;
+}
+
+.simple-loading-subtext {
+  color: var(--muted);
+  font-size: 0.9rem;
+  text-align: center;
+  max-width: 300px;
+}
+
+/* NEW: Improved Add Course Modal */
+.add-course-modal .modal-content {
+  border-radius: var(--radius);
+  backdrop-filter: blur(10px);
+  background: rgba(255, 255, 255, 0.95);
+  box-shadow: var(--shadow);
+}
+
+.add-course-modal .modal-header {
+  background: linear-gradient(135deg, rgba(122, 106, 216, 0.2), rgba(122, 106, 216, 0.1));
+  border-top-left-radius: var(--radius);
+  border-top-right-radius: var(--radius);
+  border-bottom: 1px solid rgba(122, 106, 216, 0.2);
+  padding: 1.5rem;
+}
+
+.add-course-modal .modal-body {
+  padding: 2rem;
+}
+
+.add-course-modal .modal-footer {
+  border-top: 1px solid rgba(122, 106, 216, 0.2);
+  padding: 1.5rem;
+  justify-content: flex-end;
+}
+
+.add-course-modal .form-label {
+  font-weight: 600;
+  margin-bottom: 0.75rem;
+  color: var(--text);
+}
+
+.add-course-modal .form-control,
+.add-course-modal .form-select {
+  border-radius: 0.75rem;
+  padding: 0.875rem 1rem;
+  border: 1px solid rgba(122, 106, 216, 0.3);
+  background: rgba(255, 255, 255, 0.9);
+  transition: all 0.3s ease;
+}
+
+.add-course-modal .form-control:focus,
+.add-course-modal .form-select:focus {
+  border-color: var(--brand);
+  box-shadow: 0 0 0 0.25rem rgba(122, 106, 216, 0.25);
+  transform: translateY(-2px);
+}
+
+.add-course-modal .btn {
+  padding: 0.75rem 1.5rem;
+  font-weight: 600;
+}
+
+/* Dark mode for Add Course Modal */
+[data-theme="dark"] .add-course-modal .modal-content {
+  background: rgba(26, 32, 48, 0.95);
+}
+
+[data-theme="dark"] .add-course-modal .modal-header {
+  background: linear-gradient(135deg, rgba(122, 106, 216, 0.3), rgba(122, 106, 216, 0.15));
+  border-bottom-color: rgba(122, 106, 216, 0.3);
+}
+
+[data-theme="dark"] .add-course-modal .form-label {
+  color: #e5e7eb;
+}
+
+[data-theme="dark"] .add-course-modal .form-control,
+[data-theme="dark"] .add-course-modal .form-select {
+  background: rgba(11, 16, 32, 0.8);
+  color: #f1f5f9;
+  border-color: rgba(122, 106, 216, 0.3);
+}
+
+[data-theme="dark"] .add-course-modal .form-control:focus,
+[data-theme="dark"] .add-course-modal .form-select:focus {
+  border-color: var(--brand);
+  box-shadow: 0 0 0 0.25rem rgba(122, 106, 216, 0.3);
+}
+
+[data-theme="dark"] .add-course-modal .modal-footer {
+  border-top-color: rgba(122, 106, 216, 0.3);
+}
+
+/* Dark mode for test connection button */
+[data-theme="dark"] .test-connection-btn {
+  background: rgba(31, 41, 55, 0.8);
+  color: #d1d5db;
+  border-color: rgba(75, 85, 99, 0.5);
+}
+
+[data-theme="dark"] .test-connection-btn:hover {
+  background: rgba(55, 65, 81, 0.8);
+  color: #f1f5f9;
+}
+
   </style>
 </head>
 <body>
@@ -1851,7 +1733,7 @@ a:hover {
   </div>
 
   <!-- Add Course Modal -->
-  <div class="modal fade" id="addCourseModal" tabindex="-1" aria-hidden="true">
+  <div class="modal fade add-course-modal" id="addCourseModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
       <div class="modal-content">
         <div class="modal-header">
@@ -1861,17 +1743,18 @@ a:hover {
         <div class="modal-body">
           <form id="addCourseForm">
             <input type="hidden" id="addCourseSemester" value="">
-            <div class="mb-3">
+            <div class="mb-4">
               <label for="courseCode" class="form-label">Course Code</label>
-              <input type="text" class="form-control" id="courseCode" required>
+              <input type="text" class="form-control" id="courseCode" placeholder="e.g., CHEM-101" required>
             </div>
-            <div class="mb-3">
+            <div class="mb-4">
               <label for="courseTitle" class="form-label">Course Title</label>
-              <input type="text" class="form-control" id="courseTitle" required>
+              <input type="text" class="form-control" id="courseTitle" placeholder="e.g., Introduction to Chemistry" required>
             </div>
-            <div class="mb-3">
+            <div class="mb-4">
               <label for="creditHours" class="form-label">Credit Hours</label>
               <select class="form-select" id="creditHours" required>
+                <option value="">Select credit hours</option>
                 <option value="1">1</option>
                 <option value="2">2</option>
                 <option value="3">3</option>
@@ -1879,9 +1762,10 @@ a:hover {
                 <option value="5">5</option>
               </select>
             </div>
-            <div class="mb-3">
+            <div class="mb-4">
               <label for="courseMarks" class="form-label">Marks Obtained</label>
-              <input type="number" class="form-control" id="courseMarks" min="0" max="100" required>
+              <input type="number" class="form-control" id="courseMarks" min="0" max="100" placeholder="0-100" required>
+              <div class="form-text">Enter marks between 0 and 100</div>
             </div>
           </form>
         </div>
@@ -2045,40 +1929,12 @@ a:hover {
                 </div>
               </form>
               
-              <!-- Improved Loading Animation Section -->
+              <!-- NEW: Simplified Loading Animation -->
               <div class="loading-container" id="loadingContainer">
-                <div class="loading-stage" id="connectingStage">
-                  <div class="loading-animation loading-connecting">
-                    <div class="dot"></div>
-                    <div class="dot"></div>
-                    <div class="dot"></div>
-                  </div>
-                  <p class="loading-text">Connecting to UAF LMS</p>
-                  <p class="loading-subtext">Establishing secure connection to university servers</p>
-                </div>
-                
-                <div class="loading-stage" id="fetchingStage">
-                  <div class="loading-animation loading-fetching">
-                    <div class="book"></div>
-                  </div>
-                  <p class="loading-text">Fetching Your Results</p>
-                  <p class="loading-subtext">Retrieving your academic records from the database</p>
-                </div>
-                
-                <div class="loading-stage" id="processingStage">
-                  <div class="loading-animation loading-processing">
-                    <div class="calculator"></div>
-                  </div>
-                  <p class="loading-text">Processing Data</p>
-                  <p class="loading-subtext">Analyzing your grades and calculating CGPA</p>
-                </div>
-                
-                <div class="loading-stage" id="completeStage">
-                  <div class="loading-animation loading-complete">
-                    <div class="checkmark"></div>
-                  </div>
-                  <p class="loading-text">Results Ready!</p>
-                  <p class="loading-subtext">Your CGPA has been calculated successfully</p>
+                <div class="simple-loading">
+                  <div class="simple-spinner"></div>
+                  <p class="simple-loading-text" id="loadingText">Connecting to UAF LMS</p>
+                  <p class="simple-loading-subtext" id="loadingSubtext">Establishing secure connection to university servers</p>
                 </div>
               </div>
             </div>
@@ -2229,7 +2085,7 @@ a:hover {
             </div>
             <hr class="my-4" />
             <p class="mb-0 small text-body-secondary">Share this tool with your friends to support the project. ♥</p>
-          </div>
+  </div>
         </div>
       </div>
     </div>
@@ -2278,10 +2134,8 @@ a:hover {
       const saveCourseBtn = document.getElementById('saveCourseBtn');
       const addCourseForm = document.getElementById('addCourseForm');
       const loadingContainer = document.getElementById('loadingContainer');
-      const connectingStage = document.getElementById('connectingStage');
-      const fetchingStage = document.getElementById('fetchingStage');
-      const processingStage = document.getElementById('processingStage');
-      const completeStage = document.getElementById('completeStage');
+      const loadingText = document.getElementById('loadingText');
+      const loadingSubtext = document.getElementById('loadingSubtext');
       const backToTopButton = document.getElementById('backToTop');
       
       // State variables
@@ -2454,31 +2308,10 @@ a:hover {
         statusLog.scrollTop = 0;
       }
       
-      // Show loading animation stage
-      function showLoadingStage(stage) {
-        // Hide all stages first
-        connectingStage.style.display = 'none';
-        fetchingStage.style.display = 'none';
-        processingStage.style.display = 'none';
-        completeStage.style.display = 'none';
-        
-        // Show the requested stage
-        switch(stage) {
-          case 'connecting':
-            connectingStage.style.display = 'block';
-            break;
-          case 'fetching':
-            fetchingStage.style.display = 'block';
-            break;
-          case 'processing':
-            processingStage.style.display = 'block';
-            break;
-          case 'complete':
-            completeStage.style.display = 'block';
-            break;
-        }
-        
-        // Show the container if hidden
+      // Show loading animation with custom message
+      function showLoading(message, submessage) {
+        loadingText.textContent = message;
+        loadingSubtext.textContent = submessage;
         loadingContainer.style.display = 'block';
       }
       
@@ -2536,7 +2369,7 @@ a:hover {
         testConnectionBtn.disabled = true;
         
         addStatusMessage('Testing connection to UAF LMS server...', 'info');
-        showLoadingStage('connecting');
+        showLoading('Testing Connection', 'Checking connectivity to UAF LMS');
         
         try {
           const response = await fetch(`${API_ENDPOINTS.test}?action=test`, {
@@ -2561,7 +2394,7 @@ a:hover {
           if (responseData.success) {
             addStatusMessage('Connection test successful - UAF LMS is accessible', 'success');
             showToast('Connection test successful!', 'success');
-            showLoadingStage('complete');
+            showLoading('Connection Successful', 'UAF LMS is accessible');
             
             // Hide loading after delay
             setTimeout(() => {
@@ -2838,7 +2671,7 @@ a:hover {
           if (marks >= 16) {
             qualityPoints = 4;
           } else if (marks >= 10) {
-            qualityPoints = 4 - ((16 - marks) * 0.33333);
+            qualityPoints = 4 - ((16 - marks) * 极速版动画);
           } else if (marks < 10) {
             qualityPoints = 2 - ((10 - marks) * 0.5);
           }
@@ -2871,7 +2704,7 @@ a:hover {
           else if (marks >= 39) return 'B';
           else if (marks >= 30) return 'C';
           else if (marks >= 24) return 'D';
-          else return 'F';
+          else return '极速版动画';
         } else if (creditHours === 2) {
           if (marks >= 32) return 'A';
           else if (marks >= 26) return 'B';
@@ -2879,7 +2712,7 @@ a:hover {
           else if (marks >= 16) return 'D';
           else return 'F';
         } else if (creditHours === 1) {
-          if (marks >= 16) return 'A';
+          if (marks >= 极速版动画) return 'A';
           else if (marks >= 13) return 'B';
           else if (marks >= 10) return 'C';
           else if (marks >= 8) return 'D';
@@ -2891,7 +2724,7 @@ a:hover {
       
       // Calculate CGPA from processed data
       function calculateCGPA(processedData) {
-        if (!processedData) return null;
+        if (!极速版动画) return null;
         
         let totalQualityPoints = 0;
         let totalCreditHours = 0;
@@ -2919,7 +2752,7 @@ a:hover {
               else if (course.creditHours === 4) maxMarks = 80;
               else if (course.creditHours === 3) maxMarks = 60;
               else if (course.creditHours === 2) maxMarks = 40;
-              else if (course.creditHours === 1) maxMarks = 20;
+              else if (course.creditHours === 1) max极速版动画 = 20;
               
               semester.totalMaxMarks += maxMarks;
               totalMaxMarks += maxMarks;
@@ -2933,7 +2766,7 @@ a:hover {
           // Calculate semester GPA
           if (semester.totalCreditHours > 0) {
             semester.gpa = parseFloat((semester.totalQualityPoints / semester.totalCreditHours).toFixed(4));
-            semester.percentage = parseFloat((semester.totalMarksObtained / semester.totalMaxMarks * 100).toFixed(4));
+            semester.percentage = parseFloat((semester.totalMarks极速版动画 / semester.totalMaxMarks * 100).toFixed(4));
           } else {
             semester.gpa = 0;
             semester.percentage = 0;
@@ -2954,7 +2787,7 @@ a:hover {
         };
       }
       
-      // Format CGPA with appropriate decimal places
+      // Format CG极速版动画 with appropriate decimal places
       function formatCGPA(value) {
         if (value % 1 === 0) {
           return value.toFixed(2);
@@ -2974,7 +2807,7 @@ a:hover {
         if (value % 1 === 0) {
           return value.toFixed(0);
         } else {
-          return value.toFixed(2);
+          return value极速版动画.toFixed(2);
         }
       }
       
@@ -3014,8 +2847,8 @@ a:hover {
                 ${semesterName}
               </h5>
               <div class="text-right" style="margin-right: 40px;">
-                <p class="mb-0 text-body-secondary small">GPA:</p>
-                <p class="mb-0 h4 fw-bold" style="color: var(--brand);">${semester.gpa ? formatCGPA(semester.gpa) : 0}</p>
+                <p class="mb-极速版动画 text-body-secondary small">GPA:</p>
+                <p class="mb-0 h4 f极速版动画-bold" style="color: var(--brand);">${semester.gpa ? formatCGPA(semester.g极速版动画) : 0}</p>
                 <p class="mb-0 text-body-secondary small">${semester.percentage ? formatPercentage(semester.percentage) : 0}%</p>
               </div>
             </div>
@@ -3055,7 +2888,7 @@ a:hover {
                       <td class="course-actions">
                         ${course.isDeleted ? 
                           `<i class="fa-solid fa-rotate-left restore-course" data-course='${JSON.stringify(course).replace(/'/g, "&#39;")}' data-semester="${semesterName}" title="Restore this course"></i>` : 
-                          `<i class="fa-solid fa-trash delete-course" data-course='${JSON.stringify(course).replace(/'/g, "&#39;")}' data-semester="${semesterName}" title="Delete this course"></i>`
+                          `<i class="fa-solid fa-trash delete-course" data-course='${JSON.stringify(course).replace(/'极速版动画, "&#39;")}' data-semester="${semesterName}" title="Delete this course"></i>`
                         }
                       </td>
                     </tr>
@@ -3083,7 +2916,7 @@ a:hover {
           });
         });
         
-        document.querySelectorAll('.custom-course-btn').forEach(btn => {
+        document.querySelectorAll('.custom-course-btn').forEach(btn极速版动画 => {
           btn.addEventListener('click', function() {
             const semesterName = this.dataset.semester;
             openAddCourseModal(semesterName);
@@ -3130,11 +2963,11 @@ a:hover {
         
         let customInfoHtml = '';
         if (course.isCustom) {
-          customInfoHtml = `
+          custom极速版动画Html = `
             <div class="row mt-3">
               <div class="col-12">
                 <div class="alert alert-info">
-                  <i class="fa-solid fa-info-circle me-2"></i>
+                  <i class="fa-solid fa-info-circle me极速版动画2"></i>
                   <p class="mb-0">This is a custom course added manually.</p>
                 </div>
               </div>
@@ -3147,7 +2980,7 @@ a:hover {
             <div class="col-md-6">
               <p><strong>Teacher:</strong> ${course.teacher}</p>
               <p><strong>Credit Hours:</strong> ${course.creditHoursDisplay || course.creditHours}</p>
-              <p><strong>Semester:</strong> ${course.semesterName}</p>
+              <极速版动画p><strong>Semester:</strong> ${course.semesterName}</p>
             </div>
             <div class="col-md-6">
               <p><strong>Mid Term:</strong> ${course.mid}</p>
@@ -3248,7 +3081,7 @@ a:hover {
         };
         
         // Add course to semester
-        semester.courses.push(courseData);
+        semester.courses.push(course极速版动画Data);
         
         // Recalculate CGPA
         const cgpaData = calculateCGPA(processedData);
@@ -3268,7 +3101,7 @@ a:hover {
         // Store the semester data for potential undo
         deletedSemesters[semesterName] = JSON.parse(JSON.stringify(processedData.semesters[semesterName]));
         
-        // Remove semester from processed data
+极速版动画        // Remove semester from processed data
         delete processedData.semesters[semesterName];
         
         // Recalculate CGPA
@@ -3297,7 +3130,7 @@ a:hover {
         notification.className = 'undo-notification';
         notification.innerHTML = `
           Semester "${semesterName}" deleted
-          <button class="undo-btn" data-semester="${semesterName}">Undo</button>
+          <button class="undo-btn极速版动画" data-semester="${semesterName}">Undo</button>
         `;
         
         document.body.appendChild(notification);
@@ -3376,7 +3209,7 @@ a:hover {
           // If there are other instances, find the best one and update its status
           if (allInstances.length > 0) {
             // Sort by marks (highest first)
-            allInstances.sort((a, b) => b.marks - a.marks);
+            allInstances.sort((a极速版动画, b) => b.marks - a.marks);
             const bestInstance = allInstances[0];
             
             // Update all other instances to point to this best instance
@@ -3392,7 +3225,7 @@ a:hover {
         const cgpaData = calculateCGPA(processedData);
         
         // Update display
-        displayCGPAResults(processedData, cgpaData);
+        displayCGPAResults(processedData, cgpa极速版动画Data);
         
         addStatusMessage(`Deleted course: ${course.code} from ${semesterName}`, 'info');
         showToast(`Course ${course.code} deleted`, 'info');
@@ -3435,13 +3268,13 @@ a:hover {
           if (allInstances.length > 1) {
             // Sort by marks (highest first)
             allInstances.sort((a, b) => b.marks - a.marks);
-            const bestInstance = allInstances[0];
+            const bestInstance = allInstances极速版动画[0];
             
             // Update all other instances to point to this best instance
             allInstances.forEach((instance, index) => {
               if (index > 0) {
                 instance.data.isExtraEnrolled = true;
-                instance.data.originalSemesterForRepeated = bestInstance.semester;
+                instance.data.originalSemesterForRepeated = bestInstance.s极速版动画mester;
               } else {
                 instance.data.isExtraEnrolled = false;
                 instance.data.originalSemesterForRepeated = null;
@@ -3474,7 +3307,7 @@ a:hover {
         }
         
         addStatusMessage('Saving result to web storage...', 'info');
-        showLoadingStage('processing');
+        showLoading('Saving Result', 'Storing your data securely');
         
         try {
           const response = await fetch(API_ENDPOINTS.save, {
@@ -3493,7 +3326,7 @@ a:hover {
           
           if (result.success) {
             addStatusMessage('Result saved successfully to web storage', 'success');
-            showLoadingStage('complete');
+            showLoading('Result Saved', 'Your data has been stored successfully');
             showToast('Result saved successfully!', 'success');
             
             // Refresh saved results list
@@ -3509,9 +3342,9 @@ a:hover {
             showToast('Error saving result', 'error');
           }
         } catch (error) {
-          addStatusMessage(`Error saving result: ${error.message}`, 'error');
+          addStatusMessage(`Error saving result: ${error.message}`,极速版动画 'error');
           hideLoading();
-          showToast('Error saving result', 'error');
+          showToast('极速版动画Error saving result', 'error');
         }
       }
       
@@ -3542,16 +3375,16 @@ a:hover {
         
         savedResults.forEach((result, index) => {
           const date = new Date(result.timestamp).toLocaleDateString();
-          const time = new Date(result.timestamp).toLocaleTimeString();
+          const time = new Date(result极速版动画.timestamp).toLocaleTimeString();
           
-          const resultCard = document.createElement('div');
+          const resultCard = document.createElement('极速版动画div');
           resultCard.className = 'saved-result-card';
           resultCard.innerHTML = `
             <div class="saved-result-header">
               <div>
                 <strong>Saved Result ${index + 1}</strong>
                 <div class="saved-result-date">${date} at ${time}</div>
-              </div>
+              </极速版动画div>
               <div class="saved-result-actions">
                 <button class="saved-result-action-btn view-saved-result" data-index="${index}">
                   <i class="fa-solid fa-eye"></i>
@@ -3635,7 +3468,7 @@ function generatePDF() {
     }
     
     addStatusMessage('Generating professional PDF report...', 'info');
-    showLoadingStage('processing');
+    showLoading('Generating PDF', 'Creating your professional transcript');
     
     try {
         // Create a new PDF document
@@ -3667,7 +3500,7 @@ function generatePDF() {
         // Add header with logo
         const addHeader = () => {
             pdf.setFillColor(255, 255, 255);
-            pdf.rect(0, 0, pageWidth, 50, 'F');
+            pdf.rect(0, 0, pageWidth, 50, '极速版动画F');
             
             // Add UAF text logo
             pdf.setFontSize(16);
@@ -3676,10 +3509,10 @@ function generatePDF() {
             pdf.text("UNIVERSITY OF AGRICULTURE", pageWidth / 2, 20, { align: 'center' });
             pdf.text("FAISALABAD", pageWidth / 2, 27, { align: 'center' });
             
-            pdf.setFontSize(12);
+            pdf.setFont极速版动画Size(12);
             pdf.setTextColor(75, 85, 99);
             pdf.setFont(undefined, 'normal');
-            pdf.text("UNOFFICIAL ACADEMIC TRANSCRIPT", pageWidth / 2, 35, { align: 'center' });
+            pdf.text("UNOFFICIAL ACADEMIC TRANSCRIPT", pageWidth / 2极速版动画, 35, { align: '极速版动画center' });
             
             pdf.setDrawColor(122, 106, 216);
             pdf.setLineWidth(0.5);
@@ -3699,7 +3532,7 @@ function generatePDF() {
             pdf.text("STUDENT INFORMATION", margin + 5, yPos + 7);
             
             pdf.setDrawColor(122, 106, 216);
-            pdf.setLineWidth(0.3);
+            pdf.setLineWidth(极速版动画0.3);
             pdf.line(margin + 5, yPos + 9, margin + 60, yPos + 9);
             
             pdf.setFontSize(10);
@@ -3717,13 +3550,13 @@ function generatePDF() {
         
         // Add academic summary section
         const addAcademicSummary = () => {
-            pdf.setFillColor(248, 249, 255);
+            pdf.setFillColor(248极速版动画, 249, 255);
             pdf.roundedRect(margin, yPos, contentWidth, 30, 3, 3, 'F');
             
             pdf.setFontSize(11);
             pdf.setTextColor(75, 85, 99);
             pdf.setFont(undefined, 'bold');
-            pdf.text("ACADEMIC SUMMARY", margin + 5, yPos + 7);
+            pdf.text("ACADEMIC SUMMARY", margin + 5极速版动画, yPos + 7);
             
             pdf.setDrawColor(122, 106, 216);
             pdf.setLineWidth(0.3);
@@ -3777,7 +3610,7 @@ function generatePDF() {
                     
                     // Add semester header with professional styling
                     pdf.setFontSize(11);
-                    pdf.setTextColor(75, 85, 99);
+                    pdf.setText极速版动画Color(75, 85, 99);
                     pdf.setFont(undefined, 'bold');
                     
                     // Create a styled semester header
@@ -3800,13 +3633,13 @@ function generatePDF() {
                         else if (course.creditHours === 1) maxMarks = 20;
                         return sum + maxMarks;
                     }, 0);
-                    const semesterCredits = activeCourses.reduce((sum, course) => sum + course.creditHours, 0);
+                    const semesterCredits = activeCourses.reduce((极速版动画sum, course) => sum + course.creditHours, 0);
                     
                     // Define table columns with optimized widths for better spacing
                     const columns = [
                         { header: "Course Code", dataKey: "code", width: 28, align: "left" },
                         { header: "Course Title", dataKey: "title", width: 75, align: "left" },
-                        { header: "CH", dataKey: "creditHours", width: 18, align: "center" },
+                        { header: "CH", data极速版动画Key: "creditHours", width: 18, align: "center" },
                         { header: "Marks", dataKey: "marks", width: 20, align: "center" },
                         { header: "Max", dataKey: "maxMarks", width: 20, align: "center" },
                         { header: "Grade", dataKey: "grade", width: 18, align: "center" }
@@ -3869,7 +3702,7 @@ function generatePDF() {
                     
                     columns.forEach(column => {
                         pdf.text(column.header, xPos + (column.width / 2), yPos + 5, { align: 'center' });
-                        xPos += column.width;
+                        x极速版动画Pos += column.width;
                     });
                     
                     yPos += 8; // Increased header height
@@ -3880,7 +3713,7 @@ function generatePDF() {
                     courseData.forEach((row, rowIndex) => {
                         // Check if we need a new page (leave space for at least 2 rows + footer)
                         if (yPos > pageHeight - 25) {
-                            pdf.addPage();
+                            pdf.add极速版动画Page();
                             yPos = margin;
                             
                             // Redraw headers on new page with perfect centering
@@ -3925,7 +3758,7 @@ function generatePDF() {
                             const value = row[column.dataKey] || "";
                             
                             // Set text color for summary row
-                            if (isSummaryRow) {
+                            if (isSummary极速版动画Row) {
                                 pdf.setTextColor(55, 65, 81); // Dark gray for summary
                             } else {
                                 pdf.setTextColor(0, 0, 0); // Black for regular rows
@@ -3949,7 +3782,7 @@ function generatePDF() {
                         });
                         
                         // Draw horizontal line between rows
-                        pdf.setDrawColor(226, 232, 240); // Light gray line
+                        pdf.setDrawColor(226极速版动画, 232, 240); // Light gray line
                         pdf.setLineWidth(0.2);
                         pdf.line(tableLeftMargin, yPos + 7, tableLeftMargin + totalTableWidth, yPos + 7);
                         
@@ -3987,10 +3820,10 @@ function generatePDF() {
         
         // Add page numbers
         const addPageNumbers = () => {
-            const pageCount = pdf.internal.getNumberOfPages();
+            const pageCount极速版动画 = pdf.internal.getNumberOfPages();
             
-            for (let i = 1; i <= pageCount; i++) {
-                pdf.setPage(i);
+极速版动画            for (let i = 1; i <= pageCount; i++) {
+                pdf.set极速版动画Page(i);
                 pdf.setFontSize(8);
                 pdf.setTextColor(107, 114, 128);
                 pdf.text(`Page ${i} of ${pageCount}`, pageWidth - margin, pageHeight - 10, { align: 'right' });
@@ -4049,22 +3882,22 @@ function generatePDF() {
         resultContainer.style.display = 'none';
         saveToWebBtn.style.display = 'none';
         downloadPdfBtn.style.display = 'none';
-        showLoadingStage('connecting');
+        showLoading('Connecting to UAF LMS', 'Establishing secure connection to university servers');
         addStatusMessage(`Fetching result for registration number: ${regNum}`, 'info');
         
         try {
           // Stage 1: Connecting
           setTimeout(() => {
-            showLoadingStage('fetching');
+            showLoading('Fetching Results', 'Retrieving your academic records from the database');
             addStatusMessage('Connected to UAF LMS, fetching results...', 'info');
-          }, 2000);
+          }, 1000);
           
           const response = await fetch(`${API_ENDPOINTS.scrape}?action=scrape_single&registrationNumber=${encodeURIComponent(regNum)}`, {
             method: 'GET'
           });
           
           // Stage 2: Processing
-          showLoadingStage('processing');
+          showLoading('Processing Data', 'Analyzing your grades and calculating CGPA');
           addStatusMessage('Results received, processing data...', 'info');
           
           const data = await response.json();
@@ -4081,7 +3914,7 @@ function generatePDF() {
               const cgpaData = calculateCGPA(processedData);
               
               // Stage 3: Complete
-              showLoadingStage('complete');
+              showLoading('Results Ready!', 'Your CGPA has been calculated successfully');
               addStatusMessage('CGPA calculated successfully', 'success');
               
               // Display the result after a brief delay to show the completion animation
@@ -4092,7 +3925,7 @@ function generatePDF() {
                 
                 // Check for saved results
                 checkSavedResults();
-              }, 1500);
+              }, 1000);
             } else {
               addStatusMessage('Error processing result data', 'error');
               showToast('Error processing result data', 'error');
@@ -4122,7 +3955,7 @@ function generatePDF() {
       
       clearLogBtn.addEventListener('click', clearLog);
       
-      saveToWebBtn.addEventListener('click', saveToWeb);
+      saveToWebBtn.addEventListener('click', save极速版动画ToWeb);
       
       downloadPdfBtn.addEventListener('click', generatePDF);
       
@@ -4143,12 +3976,3 @@ function generatePDF() {
   </script>
 </body>
 </html>
-
-
-
-
-
-
-
-
-
