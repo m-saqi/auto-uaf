@@ -3769,23 +3769,19 @@ function generatePDF() {
                 const activeCourses = semester.courses.filter(course => !course.isDeleted);
                 
                 if (activeCourses.length > 0) {
-                    // Check if we need a new page
-                    if (yPos > pageHeight - 60) {
+                    // Check if we need a new page (leave space for table header + at least 2 rows)
+                    if (yPos > pageHeight - 45) {
                         pdf.addPage();
                         yPos = margin;
                     }
                     
-                    // Add semester header
+                    // Add semester header with minimal spacing
                     pdf.setFontSize(11);
                     pdf.setTextColor(75, 85, 99);
                     pdf.setFont(undefined, 'bold');
                     pdf.text(`${semesterName.toUpperCase()} (GPA: ${formatCGPA(semester.gpa)} | ${formatPercentage(semester.percentage)}%)`, margin, yPos);
                     
-                    pdf.setDrawColor(122, 106, 216);
-                    pdf.setLineWidth(0.3);
-                    pdf.line(margin, yPos + 2, margin + 100, yPos + 2);
-                    
-                    yPos += 8;
+                    yPos += 4; // Minimal spacing between header and table
                     
                     // Calculate semester totals
                     const semesterMarks = activeCourses.reduce((sum, course) => sum + course.marks, 0);
@@ -3800,15 +3796,18 @@ function generatePDF() {
                     }, 0);
                     const semesterCredits = activeCourses.reduce((sum, course) => sum + course.creditHours, 0);
                     
-                    // Define table columns with optimized widths
+                    // Define table columns with optimized widths (extended to margins)
                     const columns = [
-                        { header: "Course Code", dataKey: "code", width: 22, align: "left" },
-                        { header: "Course Title", dataKey: "title", width: 70, align: "left" },
+                        { header: "Course Code", dataKey: "code", width: 25, align: "left" },
+                        { header: "Course Title", dataKey: "title", width: 75, align: "left" },
                         { header: "CH", dataKey: "creditHours", width: 15, align: "center" },
-                        { header: "Marks", dataKey: "marks", width: 15, align: "center" },
-                        { header: "Max", dataKey: "maxMarks", width: 15, align: "center" },
+                        { header: "Marks", dataKey: "marks", width: 18, align: "center" },
+                        { header: "Max", dataKey: "maxMarks", width: 18, align: "center" },
                         { header: "Grade", dataKey: "grade", width: 15, align: "center" }
                     ];
+                    
+                    // Verify total width matches contentWidth
+                    const totalWidth = columns.reduce((sum, col) => sum + col.width, 0);
                     
                     // Prepare course data
                     const courseData = activeCourses.map(course => {
@@ -3844,12 +3843,10 @@ function generatePDF() {
                     
                     // Create table
                     pdf.setFontSize(9);
-                    pdf.setTextColor(0, 0, 0);
                     
                     // Draw table headers
                     let xPos = margin;
-                    pdf.setFillColor(122, 106, 216);
-                    pdf.setDrawColor(122, 106, 216);
+                    pdf.setFillColor(122, 106, 216); // Brand color for header
                     
                     columns.forEach(column => {
                         pdf.rect(xPos, yPos, column.width, 7, 'F');
@@ -3870,11 +3867,10 @@ function generatePDF() {
                     
                     // Add table rows
                     pdf.setTextColor(0, 0, 0);
-                    pdf.setFont(undefined, 'normal');
                     
                     courseData.forEach((row, rowIndex) => {
-                        // Check if we need a new page
-                        if (yPos > pageHeight - 10) {
+                        // Check if we need a new page (leave space for at least 2 rows + footer)
+                        if (yPos > pageHeight - 20) {
                             pdf.addPage();
                             yPos = margin;
                             
@@ -3898,47 +3894,61 @@ function generatePDF() {
                             
                             yPos += 7;
                             pdf.setTextColor(0, 0, 0);
-                            pdf.setFont(undefined, 'normal');
                         }
                         
-                        // Highlight summary row
-                        if (rowIndex === courseData.length - 1) {
-                            pdf.setFillColor(243, 244, 246);
-                            pdf.rect(margin, yPos, contentWidth, 6, 'F');
+                        // Highlight summary row with light background
+                        const isSummaryRow = rowIndex === courseData.length - 1;
+                        if (isSummaryRow) {
+                            pdf.setFillColor(243, 244, 246); // Light gray background
+                            pdf.rect(margin, yPos, totalWidth, 6, 'F');
                             pdf.setFont(undefined, 'bold');
                         }
                         
-                        // Draw row
+                        // Alternate row colors for readability
+                        else if (rowIndex % 2 === 0) {
+                            pdf.setFillColor(249, 250, 251); // Very light gray
+                            pdf.rect(margin, yPos, totalWidth, 6, 'F');
+                        }
+                        
+                        // Draw row content
                         xPos = margin;
                         
                         columns.forEach(column => {
                             const value = row[column.dataKey] || "";
-                            const align = column.align;
                             
-                            // For course title, use left alignment and handle long text
-                            if (column.dataKey === "title") {
-                                // Truncate long course titles
-                                const maxLength = 40;
-                                const displayText = value.length > maxLength ? 
-                                    value.substring(0, maxLength - 3) + "..." : value;
-                                
-                                pdf.text(displayText, xPos + 2, yPos + 3.5, { align: 'left' });
+                            // Set text color for summary row
+                            if (isSummaryRow) {
+                                pdf.setTextColor(55, 65, 81); // Dark gray for summary
                             } else {
-                                pdf.text(value, xPos + (column.width / 2), yPos + 3.5, { align: align });
+                                pdf.setTextColor(0, 0, 0); // Black for regular rows
+                            }
+                            
+                            // For left-aligned columns (course code and title)
+                            if (column.align === "left") {
+                                pdf.text(value, xPos + 2, yPos + 3.5, { align: 'left' });
+                            } 
+                            // For centered columns
+                            else {
+                                pdf.text(value, xPos + (column.width / 2), yPos + 3.5, { align: 'center' });
                             }
                             
                             xPos += column.width;
                         });
                         
+                        // Draw horizontal line between rows
+                        pdf.setDrawColor(226, 232, 240); // Light gray line
+                        pdf.setLineWidth(0.2);
+                        pdf.line(margin, yPos + 6, margin + totalWidth, yPos + 6);
+                        
                         yPos += 6;
                         
                         // Reset font after summary row
-                        if (rowIndex === courseData.length - 1) {
+                        if (isSummaryRow) {
                             pdf.setFont(undefined, 'normal');
                         }
                     });
                     
-                    yPos += 10;
+                    yPos += 8; // Reasonable spacing after table
                 }
             }
         };
@@ -3986,19 +3996,6 @@ function generatePDF() {
         showToast('Error generating PDF', 'error');
         hideLoading();
     }
-}
-
-// Helper function to get grade color
-function getGradeColor(grade) {
-    const gradeColors = {
-        'A': '#166534', // Dark green
-        'B': '#1e40af', // Dark blue
-        'C': '#92400e', // Dark orange
-        'D': '#991b1b', // Dark red
-        'F': '#374151'  // Dark gray
-    };
-    
-    return gradeColors[grade] || '#374151'; // Default to dark gray
 }
       
       // Fetch result from UAF LMS
@@ -4124,6 +4121,7 @@ function getGradeColor(grade) {
   </script>
 </body>
 </html>
+
 
 
 
