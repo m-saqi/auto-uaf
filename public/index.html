@@ -3627,161 +3627,247 @@ a:hover {
         }
       }
       
-      // Generate PDF report
-      function generatePDF() {
-        if (!processedData) {
-          showToast('No data to download', 'error');
-          return;
-        }
+      // Generate professional PDF report
+function generatePDF() {
+    if (!processedData) {
+        showToast('No data to download', 'error');
+        return;
+    }
+    
+    addStatusMessage('Generating professional PDF report...', 'info');
+    showLoadingStage('processing');
+    
+    // Create a temporary container for PDF content
+    const pdfContainer = document.createElement('div');
+    pdfContainer.style.position = 'absolute';
+    pdfContainer.style.left = '-9999px';
+    pdfContainer.style.width = '800px';
+    pdfContainer.style.padding = '40px';
+    pdfContainer.style.backgroundColor = 'white';
+    pdfContainer.style.color = '#333';
+    pdfContainer.style.fontFamily = "'Poppins', 'Helvetica Neue', Arial, sans-serif";
+    pdfContainer.style.lineHeight = '1.5';
+    
+    // Get current date for the report
+    const currentDate = new Date().toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric'
+    });
+    
+    // Calculate CGPA data
+    const cgpaData = calculateCGPA(processedData);
+    
+    // Create PDF content with professional styling
+    pdfContainer.innerHTML = `
+        <div style="text-align: center; margin-bottom: 30px; padding-bottom: 20px; border-bottom: 2px solid #7a6ad8;">
+            <img src="https://uaftools.vercel.app/uaftools.png" alt="UAF Logo" style="height: 80px; margin-bottom: 15px;">
+            <h1 style="color: #7a6ad8; margin-bottom: 5px; font-size: 28px; font-weight: 700;">University of Agriculture, Faisalabad</h1>
+            <h2 style="color: #4b5563; margin-top: 0; font-size: 20px; font-weight: 500;">Academic Transcript</h2>
+            <p style="color: #6b7280; font-size: 14px;">Generated on: ${currentDate}</p>
+        </div>
         
-        addStatusMessage('Generating PDF report...', 'info');
-        showLoadingStage('processing');
-        
-        // Create a temporary container for PDF content
-        const pdfContainer = document.createElement('div');
-        pdfContainer.style.position = 'absolute';
-        pdfContainer.style.left = '-9999px';
-        pdfContainer.style.width = '800px';
-        pdfContainer.style.padding = '20px';
-        pdfContainer.style.backgroundColor = 'white';
-        pdfContainer.style.color = 'black';
-        pdfContainer.style.fontFamily = 'Poppins, Arial, sans-serif';
-        
-        // Get current date for the report
-        const currentDate = new Date().toLocaleDateString();
-        
-        // Create PDF content
-        pdfContainer.innerHTML = `
-          <div style="text-align: center; margin-bottom: 20px;">
-            <h1 style="color: #7a6ad8; margin-bottom: 5px;">UAF CGPA Calculator</h1>
-            <h2 style="color: #333; margin-top: 0;">Academic Transcript</h2>
-            <p style="color: #666;">Generated on: ${currentDate}</p>
-          </div>
-          
-          <div style="margin-bottom: 30px; padding: 15px; background: #f8f9ff; border-radius: 10px;">
-            <h3 style="color: #7a6ad8; margin-bottom: 10px;">Student Information</h3>
-            <p style="margin: 5px 0;"><strong>Name:</strong> ${processedData.studentInfo.name}</p>
-            <p style="margin: 5px 0;"><strong>Registration No:</strong> ${processedData.studentInfo.registration}</p>
-          </div>
-          
-          <div style="margin-bottom: 30px; padding: 15px; background: #f8f9ff; border-radius: 10px;">
-            <h3 style="color: #7a6ad8; margin-bottom: 15px;">Academic Summary</h3>
-            <div style="display: flex; justify-content: space-around; text-align: center;">
-              <div>
-                <p style="font-size: 14px; margin-bottom: 5px;">CGPA</p>
-                <p style="font-size: 24px; font-weight: bold; color: #7a6ad8; margin: 0;">${formatCGPA(calculateCGPA(processedData).cgpa)}</p>
-              </div>
-              <div>
-                <p style="font-size: 14px; margin-bottom: 5px;">Percentage</p>
-                <p style="font-size: 24px; font-weight: bold; color: #7a6ad8; margin: 0;">${formatPercentage(calculateCGPA(processedData).percentage)}%</p>
-              </div>
-              <div>
-                <p style="font-size: 14px; margin-bottom: 5px;">Total Credits</p>
-                <p style="font-size: 24px; font-weight: bold; color: #7a6ad8; margin: 0;">${calculateCGPA(processedData).totalCreditHours}</p>
-              </div>
+        <div style="margin-bottom: 30px; padding: 20px; background: #f8f9ff; border-radius: 8px; border-left: 4px solid #7a6ad8;">
+            <h3 style="color: #7a6ad8; margin-bottom: 15px; font-size: 18px; font-weight: 600;">Student Information</h3>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                <div>
+                    <p style="margin: 8px 0; font-size: 14px;"><strong style="color: #4b5563;">Name:</strong> ${processedData.studentInfo.name}</p>
+                    <p style="margin: 8px 0; font-size: 14px;"><strong style="color: #4b5563;">Registration No:</strong> ${processedData.studentInfo.registration}</p>
+                </div>
+                <div>
+                    <p style="margin: 8px 0; font-size: 14px;"><strong style="color: #4b5563;">CGPA:</strong> <span style="color: #7a6ad8; font-weight: 600;">${formatCGPA(cgpaData.cgpa)}</span></p>
+                    <p style="margin: 8px 0; font-size: 14px;"><strong style="color: #4b5563;">Percentage:</strong> <span style="color: #7a6ad8; font-weight: 600;">${formatPercentage(cgpaData.percentage)}%</span></p>
+                </div>
             </div>
-          </div>
-        `;
+        </div>
         
-        // Add semester details
-        Object.keys(processedData.semesters).forEach(semesterName => {
-          const semester = processedData.semesters[semesterName];
-          const cgpaData = calculateCGPA(processedData);
-          
-          // Filter out deleted courses for the PDF
-          const activeCourses = semester.courses.filter(course => !course.isDeleted);
-          
-          if (activeCourses.length > 0) {
-            pdfContainer.innerHTML += `
-              <div style="margin-bottom: 25px; page-break-inside: avoid;">
-                <h3 style="color: #7a6ad8; border-bottom: 2px solid #7a6ad8; padding-bottom: 5px; margin-bottom: 15px;">
-                  ${semesterName} (GPA: ${formatCGPA(semester.gpa)} | ${formatPercentage(semester.percentage)}%)
-                </h3>
-                <table style="width: 100%; border-collapse: collapse;">
-                  <thead>
-                    <tr style="background-color: #7a6ad8; color: white;">
-                      <th style="padding: 10px; text-align: left; border: 1px solid #ddd;">Course Code</th>
-                      <th style="padding: 10px; text-align: left; border: 1px solid #ddd;">Course Title</th>
-                      <th style="padding: 10px; text-align: center; border: 1px solid #ddd;">Credit Hrs</th>
-                      <th style="padding: 10px; text-align: center; border: 1px solid #ddd;">Marks</th>
-                      <th style="padding: 10px; text-align: center; border: 1px solid #ddd;">Grade</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    ${activeCourses.map(course => `
-                      <tr>
-                        <td style="padding: 8px; border: 1px solid #ddd;">${course.code}</td>
-                        <td style="padding: 8px; border: 1px solid #ddd;">${course.title}</td>
-                        <td style="padding: 8px; text-align: center; border: 1px solid #ddd;">${course.creditHours}</td>
-                        <td style="padding: 8px; text-align: center; border: 1px solid #ddd;">${course.marks}</td>
-                        <td style="padding: 8px; text-align: center; border: 1px solid #ddd; font-weight: bold;">${course.grade}</td>
-                      </tr>
-                    `).join('')}
-                  </tbody>
+        <div style="margin-bottom: 30px; padding: 20px; background: #f8f9ff; border-radius: 8px; border-left: 4px solid #7a6ad8;">
+            <h3 style="color: #7a6ad8; margin-bottom: 15px; font-size: 18px; font-weight: 600;">Academic Summary</h3>
+            <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; text-align: center;">
+                <div style="padding: 15px; background: white; border-radius: 6px; box-shadow: 0 2px 5px rgba(0,0,0,0.05);">
+                    <p style="font-size: 14px; margin-bottom: 8px; color: #6b7280;">CGPA</p>
+                    <p style="font-size: 24px; font-weight: 700; color: #7a6ad8; margin: 0;">${formatCGPA(cgpaData.cgpa)}</p>
+                </div>
+                <div style="padding: 15px; background: white; border-radius: 6px; box-shadow: 0 2px 5px rgba(0,0,0,0.05);">
+                    <p style="font-size: 14px; margin-bottom: 8px; color: #6b7280;">Percentage</p>
+                    <p style="font-size: 24px; font-weight: 700; color: #7a6ad8; margin: 0;">${formatPercentage(cgpaData.percentage)}%</p>
+                </div>
+                <div style="padding: 15px; background: white; border-radius: 6px; box-shadow: 0 2px 5px rgba(0,0,0,0.05);">
+                    <p style="font-size: 14px; margin-bottom: 8px; color: #6b7280;">Total Credits</p>
+                    <p style="font-size: 24px; font-weight: 700; color: #7a6ad8; margin: 0;">${cgpaData.totalCreditHours}</p>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    // Add semester details with proper pagination handling
+    const semesters = Object.keys(processedData.semesters);
+    
+    for (let i = 0; i < semesters.length; i++) {
+        const semesterName = semesters[i];
+        const semester = processedData.semesters[semesterName];
+        
+        // Filter out deleted courses for the PDF
+        const activeCourses = semester.courses.filter(course => !course.isDeleted);
+        
+        if (activeCourses.length > 0) {
+            const semesterSection = document.createElement('div');
+            semesterSection.style.marginBottom = '25px';
+            semesterSection.style.pageBreakInside = 'avoid';
+            
+            semesterSection.innerHTML = `
+                <div style="margin-bottom: 15px; padding-bottom: 10px; border-bottom: 1px solid #e5e7eb;">
+                    <h3 style="color: #7a6ad8; font-size: 16px; font-weight: 600; margin: 0;">
+                        ${semesterName} 
+                        <span style="color: #6b7280; font-size: 14px; font-weight: 500;">
+                            (GPA: ${formatCGPA(semester.gpa)} | ${formatPercentage(semester.percentage)}%)
+                        </span>
+                    </h3>
+                </div>
+                <table style="width: 100%; border-collapse: collapse; font-size: 12px;">
+                    <thead>
+                        <tr style="background-color: #7a6ad8; color: white;">
+                            <th style="padding: 10px; text-align: left; border: 1px solid #d1d5db; font-weight: 600;">Course Code</th>
+                            <th style="padding: 10px; text-align: left; border: 1px solid #d1d5db; font-weight: 600;">Course Title</th>
+                            <th style="padding: 10px; text-align: center; border: 1px solid #d1d5db; font-weight: 600; width: 60px;">CH</th>
+                            <th style="padding: 10px; text-align: center; border: 1px solid #d1d5db; font-weight: 600; width: 60px;">Marks</th>
+                            <th style="padding: 10px; text-align: center; border: 1px solid #d1d5db; font-weight: 600; width: 60px;">Grade</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${activeCourses.map((course, index) => `
+                            <tr style="${index % 2 === 0 ? 'background-color: #f9fafb;' : 'background-color: white;'}">
+                                <td style="padding: 8px; border: 1px solid #e5e7eb; font-family: monospace; font-weight: 500;">${course.code}</td>
+                                <td style="padding: 8px; border: 1px solid #e5e7eb; max-width: 250px;">${course.title}</td>
+                                <td style="padding: 8px; text-align: center; border: 1px solid #e5e7eb;">${course.creditHours}</td>
+                                <td style="padding: 8px; text-align: center; border: 1px solid #e5e7eb; font-weight: 500;">${course.marks}</td>
+                                <td style="padding: 8px; text-align: center; border: 1px solid #e5e7eb; font-weight: 600; color: ${getGradeColor(course.grade)};">${course.grade}</td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
                 </table>
-              </div>
             `;
-          }
-        });
+            
+            pdfContainer.appendChild(semesterSection);
+        }
+    }
+    
+    // Add footer with professional disclaimer
+    const footer = document.createElement('div');
+    footer.style.marginTop = '40px';
+    footer.style.paddingTop = '20px';
+    footer.style.borderTop = '1px solid #e5e7eb';
+    footer.style.textAlign = 'center';
+    footer.style.color = '#6b7280';
+    footer.style.fontSize = '11px';
+    
+    footer.innerHTML = `
+        <p>Generated by UAF CGPA Calculator - https://uaftools.vercel.app</p>
+        <p style="margin-top: 10px; font-style: italic;">
+            This is an unofficial transcript generated for reference purposes only.<br>
+            For official academic documents, please contact the Examination Branch,<br>
+            University of Agriculture, Faisalabad.
+        </p>
+        <p style="margin-top: 15px;">Page 1 of 1</p>
+    `;
+    
+    pdfContainer.appendChild(footer);
+    
+    // Add to document
+    document.body.appendChild(pdfContainer);
+    
+    // Use html2canvas and jsPDF to generate PDF
+    const pdf = new jspdf.jsPDF({
+        orientation: 'portrait',
+        unit: 'mm',
+        format: 'a4',
+        hotfixes: ['px_scaling']
+    });
+    
+    const pdfWidth = pdf.internal.pageSize.getWidth();
+    const pdfHeight = pdf.internal.pageSize.getHeight();
+    
+    html2canvas(pdfContainer, {
+        scale: 2, // Higher resolution for better text quality
+        useCORS: true,
+        logging: false,
+        backgroundColor: '#ffffff'
+    }).then(canvas => {
+        const imgData = canvas.toDataURL('image/jpeg', 0.92);
+        const imgWidth = pdfWidth - 20; // Margin of 10mm on each side
+        const imgHeight = (canvas.height * imgWidth) / canvas.width;
         
-        // Add footer
-        pdfContainer.innerHTML += `
-          <div style="margin-top: 40px; padding-top: 20px; border-top: 1px solid #ddd; text-align: center; color: #666; font-size: 12px;">
-            <p>Generated by UAF CGPA Calculator - https://uaftools.vercel.app</p>
-            <p>This is an unofficial transcript. For official documents, please contact University of Agriculture Faisalabad.</p>
-          </div>
-        `;
+        let heightLeft = imgHeight;
+        let position = 10; // Start 10mm from top
+        let page = 1;
         
-        // Add to document
-        document.body.appendChild(pdfContainer);
+        // Add first page
+        pdf.addImage(imgData, 'JPEG', 10, position, imgWidth, imgHeight);
+        heightLeft -= (pdfHeight - 30); // Account for margins
         
-        // Use html2canvas and jsPDF to generate PDF
-        html2canvas(pdfContainer, {
-          scale: 2,
-          useCORS: true,
-          logging: false
-        }).then(canvas => {
-          const imgData = canvas.toDataURL('image/jpeg', 0.9);
-          const pdf = new jspdf.jsPDF({
-            orientation: 'portrait',
-            unit: 'mm',
-            format: 'a4'
-          });
-          
-          const imgWidth = 210; // A4 width in mm
-          const pageHeight = 297; // A4 height in mm
-          const imgHeight = canvas.height * imgWidth / canvas.width;
-          let heightLeft = imgHeight;
-          let position = 0;
-          
-          pdf.addImage(imgData, 'JPEG', 0, position, imgWidth, imgHeight);
-          heightLeft -= pageHeight;
-          
-          // Add additional pages if needed
-          while (heightLeft >= 0) {
+        // Add additional pages if needed
+        while (heightLeft >= 0) {
             position = heightLeft - imgHeight;
             pdf.addPage();
-            pdf.addImage(imgData, 'JPEG', 0, position, imgWidth, imgHeight);
-            heightLeft -= pageHeight;
-          }
-          
-          // Save the PDF
-          const fileName = `UAF_Transcript_${processedData.studentInfo.registration}_${currentDate.replace(/\//g, '-')}.pdf`;
-          pdf.save(fileName);
-          
-          // Clean up
-          document.body.removeChild(pdfContainer);
-          
-          addStatusMessage('PDF report generated successfully', 'success');
-          showToast('PDF downloaded successfully!', 'success');
-          hideLoading();
-        }).catch(error => {
-          document.body.removeChild(pdfContainer);
-          addStatusMessage(`Error generating PDF: ${error.message}`, 'error');
-          showToast('Error generating PDF', 'error');
-          hideLoading();
-        });
-      }
+            pdf.addImage(imgData, 'JPEG', 10, position, imgWidth, imgHeight);
+            heightLeft -= (pdfHeight - 20);
+            page++;
+            
+            // Update page numbers on subsequent pages
+            pdf.setFontSize(10);
+            pdf.setTextColor(100, 100, 100);
+            pdf.text(`Page ${page} of ${page}`, pdfWidth - 20, pdfHeight - 10, { align: 'right' });
+        }
+        
+        // Add page numbers to first page
+        pdf.setPage(1);
+        pdf.setFontSize(10);
+        pdf.setTextColor(100, 100, 100);
+        pdf.text(`Page 1 of ${page}`, pdfWidth - 20, pdfHeight - 10, { align: 'right' });
+        
+        // Add watermark to all pages
+        const totalPages = pdf.internal.getNumberOfPages();
+        for (let i = 1; i <= totalPages; i++) {
+            pdf.setPage(i);
+            pdf.setFontSize(40);
+            pdf.setTextColor(240, 240, 240);
+            pdf.setFont(undefined, 'italic');
+            pdf.text('UAF', pdfWidth / 2, pdfHeight / 2, {
+                align: 'center',
+                angle: 45
+            });
+        }
+        
+        // Save the PDF
+        const fileName = `UAF_Transcript_${processedData.studentInfo.registration}_${currentDate.replace(/\//g, '-')}.pdf`;
+        pdf.save(fileName);
+        
+        // Clean up
+        document.body.removeChild(pdfContainer);
+        
+        addStatusMessage('Professional PDF report generated successfully', 'success');
+        showToast('PDF downloaded successfully!', 'success');
+        hideLoading();
+    }).catch(error => {
+        document.body.removeChild(pdfContainer);
+        addStatusMessage(`Error generating PDF: ${error.message}`, 'error');
+        showToast('Error generating PDF', 'error');
+        hideLoading();
+    });
+}
+
+// Helper function to get grade color
+function getGradeColor(grade) {
+    const gradeColors = {
+        'A': '#166534', // Dark green
+        'B': '#1e40af', // Dark blue
+        'C': '#92400e', // Dark orange
+        'D': '#991b1b', // Dark red
+        'F': '#374151'  // Dark gray
+    };
+    
+    return gradeColors[grade] || '#374151'; // Default to dark gray
+}
       
       // Fetch result from UAF LMS
       async function fetchResult() {
@@ -3906,4 +3992,5 @@ a:hover {
   </script>
 </body>
 </html>
+
 
