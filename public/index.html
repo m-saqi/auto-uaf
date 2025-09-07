@@ -4021,55 +4021,61 @@ function generatePDF() {
 }
       
       // Fetch result from UAF LMS
-      async function fetchResult() {
-        const regNum = registrationNumber.value.trim();
-        
-        if (!regNum) {
-          showToast('Please enter a registration number', 'error');
-          return;
-        }
-        
-        // Check if we have saved results first
-        try {
-          const response = await fetch(`${API_ENDPOINTS.load}&registrationNumber=${encodeURIComponent(regNum)}`);
-          const result = await response.json();
-          
-          if (result.success && result.savedResults && result.savedResults.length > 0) {
-            // Ask user if they want to load saved result
-            if (confirm('Saved results found for this registration number. Would you like to load the latest saved result instead of fetching from UAF LMS?')) {
-              loadSavedResult(result.savedResults[0]);
-              return;
-            }
-          }
-        } catch (error) {
-          console.error('Error checking saved results:', error);
-        }
-        
-        // Show loading animation
-        resultContainer.style.display = 'none';
-        saveToWebBtn.style.display = 'none';
-        downloadPdfBtn.style.display = 'none';
-        showLoadingStage('connecting');
-        addStatusMessage(`Fetching result for registration number: ${regNum}`, 'info');
-        
-        try {
-          // Stage 1: Connecting
-          setTimeout(() => {
+async function fetchResult() {
+    const regNum = registrationNumber.value.trim();
+    
+    if (!regNum) {
+        showToast('Please enter a registration number', 'error');
+        return;
+    }
+    
+    // Show loading animation
+    resultContainer.style.display = 'none';
+    saveToWebBtn.style.display = 'none';
+    downloadPdfBtn.style.display = 'none';
+    showLoadingStage('connecting');
+    addStatusMessage(`Fetching result for registration number: ${regNum}`, 'info');
+    
+    try {
+        // Stage 1: Connecting
+        setTimeout(() => {
             showLoadingStage('fetching');
             addStatusMessage('Connected to UAF LMS, fetching results...', 'info');
-          }, 2000);
-          
-          const response = await fetch(`${API_ENDPOINTS.scrape}?action=scrape_single&registrationNumber=${encodeURIComponent(regNum)}`, {
+        }, 2000);
+        
+        const response = await fetch(`${API_ENDPOINTS.scrape}?action=scrape_single&registrationNumber=${encodeURIComponent(regNum)}`, {
             method: 'GET'
-          });
-          
-          // Stage 2: Processing
-          showLoadingStage('processing');
-          addStatusMessage('Results received, processing data...', 'info');
-          
-          const data = await response.json();
-          
-          if (data.success) {
+        });
+        
+        // Handle both JSON and HTML responses
+        let data;
+        const contentType = response.headers.get('content-type');
+        
+        if (contentType && contentType.includes('application/json')) {
+            data = await response.json();
+        } else {
+            // If it's HTML, try to parse it as text first
+            const text = await response.text();
+            try {
+                // Try to parse as JSON anyway (might be mislabeled)
+                data = JSON.parse(text);
+            } catch (e) {
+                // If it's not JSON, create an error response
+                if (response.status === 500) {
+                    data = {
+                        success: false,
+                        message: "UAF LMS server error (500). Please try again later."
+                    };
+                } else {
+                    data = {
+                        success: false,
+                        message: `Unexpected response from server: ${response.status}`
+                    };
+                }
+            }
+        }
+        
+        if (data.success) {
             scrapedData = data;
             addStatusMessage('Result fetched successfully', 'success');
             
@@ -4077,38 +4083,38 @@ function generatePDF() {
             processedData = processScrapedData(data);
             
             if (processedData) {
-              // Calculate CGPA
-              const cgpaData = calculateCGPA(processedData);
-              
-              // Stage 3: Complete
-              showLoadingStage('complete');
-              addStatusMessage('CGPA calculated successfully', 'success');
-              
-              // Display the result after a brief delay to show the completion animation
-              setTimeout(() => {
-                displayCGPAResults(processedData, cgpaData);
-                hideLoading();
-                showToast('Result fetched successfully!', 'success');
+                // Calculate CGPA
+                const cgpaData = calculateCGPA(processedData);
                 
-                // Check for saved results
-                checkSavedResults();
-              }, 1500);
+                // Stage 3: Complete
+                showLoadingStage('complete');
+                addStatusMessage('CGPA calculated successfully', 'success');
+                
+                // Display the result after a brief delay to show the completion animation
+                setTimeout(() => {
+                    displayCGPAResults(processedData, cgpaData);
+                    hideLoading();
+                    showToast('Result fetched successfully!', 'success');
+                    
+                    // Check for saved results
+                    checkSavedResults();
+                }, 1500);
             } else {
-              addStatusMessage('Error processing result data', 'error');
-              showToast('Error processing result data', 'error');
-              hideLoading();
+                addStatusMessage('Error processing result data', 'error');
+                showToast('Error processing result data', 'error');
+                hideLoading();
             }
-          } else {
+        } else {
             addStatusMessage(`Error: ${data.message}`, 'error');
             showToast(data.message, 'error');
             hideLoading();
-          }
-        } catch (error) {
-          addStatusMessage(`Error fetching result: ${error.message}`, 'error');
-          showToast('Error fetching result', 'error');
-          hideLoading();
         }
-      }
+    } catch (error) {
+        addStatusMessage(`Error fetching result: ${error.message}`, 'error');
+        showToast('Error fetching result', 'error');
+        hideLoading();
+    }
+}
       
       // Event listeners
       resultForm.addEventListener('submit', function(e) {
@@ -4143,6 +4149,7 @@ function generatePDF() {
   </script>
 </body>
 </html>
+
 
 
 
