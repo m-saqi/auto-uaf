@@ -14,20 +14,14 @@ from datetime import datetime, timedelta
 import sqlite3
 import hashlib
 import urllib3
-from selenium import webdriver
-from selenium.webdriver.common.by import By
-from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.support import expected_conditions as EC
-from selenium.webdriver.chrome.options import Options
-from selenium.common.exceptions import TimeoutException, WebDriverException
-from webdriver_manager.chrome import ChromeDriverManager
-from selenium.webdriver.chrome.service import Service
+from urllib3.util.retry import Retry
+from requests.adapters import HTTPAdapter
 
 # Disable SSL warnings
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 # Set up logging
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 # Use /tmp directory for session storage
@@ -56,6 +50,17 @@ def init_db():
     ''')
     conn.commit()
     conn.close()
+
+# User agents - updated with more realistic ones
+USER_AGENTS = [
+    'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+    'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Safari/537.36',
+    'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:109.0) Gecko/20100101 Firefox/121.0',
+    'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+    'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Edge/120.0.0.0',
+    'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
+    'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/92.0.4515.107 Safari/537.36'
+]
 
 class handler(BaseHTTPRequestHandler):
     def _set_cors_headers(self):
@@ -129,82 +134,57 @@ class handler(BaseHTTPRequestHandler):
         self.end_headers()
         self.wfile.write(json.dumps(data).encode())
 
-    def setup_selenium_driver(self):
-        """Setup Chrome driver with anti-detection settings"""
-        try:
-            chrome_options = Options()
-            chrome_options.add_argument('--headless=new')
-            chrome_options.add_argument('--no-sandbox')
-            chrome_options.add_argument('--disable-dev-shm-usage')
-            chrome_options.add_argument('--disable-gpu')
-            chrome_options.add_argument('--window-size=1920,1080')
-            chrome_options.add_argument('--user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36')
-            chrome_options.add_argument('--accept-language=en-US,en;q=0.9')
-            chrome_options.add_argument('--disable-blink-features=AutomationControlled')
-            chrome_options.add_experimental_option("excludeSwitches", ["enable-automation"])
-            chrome_options.add_experimental_option('useAutomationExtension', False)
-            
-            service = Service(ChromeDriverManager().install())
-            driver = webdriver.Chrome(service=service, options=chrome_options)
-            
-            # Execute CDP commands to prevent detection
-            driver.execute_cdp_cmd('Page.addScriptToEvaluateOnNewDocument', {
-                'source': '''
-                    Object.defineProperty(navigator, 'webdriver', {
-                        get: () => undefined
-                    })
-                '''
-            })
-            
-            return driver
-        except Exception as e:
-            logger.error(f"Failed to setup Selenium driver: {e}")
-            return None
+    def create_session_with_retry(self):
+        """Create a requests session with retry logic"""
+        session = requests.Session()
+        
+        # Configure retry strategy
+        retry_strategy = Retry(
+            total=3,
+            backoff_factor=0.5,
+            status_forcelist=[429, 500, 502, 503, 504],
+            allowed_methods=["GET", "POST"]
+        )
+        
+        adapter = HTTPAdapter(max_retries=retry_strategy, pool_connections=10, pool_maxsize=10)
+        session.mount("http://", adapter)
+        session.mount("https://", adapter)
+        
+        return session
 
     def handle_test_connection(self):
-        """Test connection to UAF LMS using Selenium"""
+        """Test connection to UAF LMS - simplified version"""
         try:
-            driver = self.setup_selenium_driver()
-            if not driver:
-                response_data = {
-                    'success': False, 
-                    'message': 'Failed to initialize browser'
-                }
-                self.send_success_response(response_data)
-                return
-                
-            try:
-                driver.get('http://lms.uaf.edu.pk/login/index.php')
-                
-                # Wait for page to load
-                WebDriverWait(driver, 15).until(
-                    EC.presence_of_element_located((By.TAG_NAME, "body"))
-                )
-                
-                if "Learning Management System" in driver.title:
-                    response_data = {
-                        'success': True, 
-                        'message': f'Connection to UAF LMS successful. Page title: {driver.title}'
-                    }
-                else:
-                    response_data = {
-                        'success': False, 
-                        'message': f'Connected but unexpected page title: {driver.title}'
-                    }
-                    
-            except TimeoutException:
-                response_data = {
-                    'success': False, 
-                    'message': 'Connection timeout - page took too long to load'
-                }
-            except Exception as e:
-                response_data = {
-                    'success': False, 
-                    'message': f'Connection failed: {str(e)}'
-                }
-            finally:
-                driver.quit()
+            test_url = 'http://lms.uaf.edu.pk/login/index.php'
             
+            session = self.create_session_with_retry()
+            session.headers.update({
+                'User-Agent': random.choice(USER_AGENTS),
+                'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
+                'Accept-Language': 'en-US,en;q=0.5',
+                'Accept-Encoding': 'gzip, deflate',
+                'Connection': 'keep-alive',
+                'Upgrade-Insecure-Requests': '1',
+            })
+            
+            try:
+                response = session.get(test_url, timeout=15, verify=False)
+                
+                if response.status_code == 200:
+                    success = True
+                    message = f"Connection to UAF LMS successful (Status: {response.status_code})"
+                else:
+                    success = False
+                    message = f"UAF LMS returned status code: {response.status_code}"
+                    
+            except requests.exceptions.RequestException as e:
+                success = False
+                message = f"Connection failed: {str(e)}"
+            
+            response_data = {
+                'success': success, 
+                'message': message
+            }
             self.send_success_response(response_data)
             
         except Exception as e:
@@ -243,10 +223,30 @@ class handler(BaseHTTPRequestHandler):
         except Exception as e:
             self.send_error_response(500, f"Error checking session: {str(e)}")
 
+    def handle_clear_session(self):
+        """Manually clear a session"""
+        try:
+            content_length = int(self.headers['Content-Length'])
+            post_data = self.rfile.read(content_length)
+            data = json.loads(post_data)
+            
+            session_id = data.get('sessionId')
+            if not session_id:
+                self.send_error_response(400, 'No session ID provided')
+                return
+                
+            self.delete_session(session_id)
+            response_data = {'success': True, 'message': 'Session cleared successfully'}
+            self.send_success_response(response_data)
+            
+        except Exception as e:
+            self.send_error_response(500, f"Error clearing session: {str(e)}")
+
     def handle_scrape_single(self):
-        """Handle single result scraping using Selenium"""
+        """Handle single result scraping for CGPA calculator"""
         try:
             if self.command == 'GET':
+                # Handle GET request
                 query_params = self.path.split('?')
                 if len(query_params) > 1:
                     params = query_params[1].split('&')
@@ -260,159 +260,50 @@ class handler(BaseHTTPRequestHandler):
                         self.send_error_response(400, 'No registration number provided')
                         return
                     
-                    success, message, result_data = self.scrape_with_selenium(registration_number)
-                    response = {'success': success, 'message': message, 'resultData': result_data}
+                    # Scrape results
+                    success, message, result_data = self.scrape_uaf_results(registration_number)
+                    
+                    if success and result_data:
+                        response = {
+                            'success': success, 
+                            'message': message, 
+                            'resultData': result_data
+                        }
+                    else:
+                        response = {'success': success, 'message': message, 'resultData': result_data}
+                    
                     self.send_success_response(response)
                 else:
                     self.send_error_response(400, 'No registration number provided')
             else:
+                # Handle POST request
                 content_length = int(self.headers['Content-Length'])
                 post_data = self.rfile.read(content_length)
                 data = json.loads(post_data)
                 
                 registration_number = data.get('registrationNumber')
+                
                 if not registration_number:
                     self.send_error_response(400, 'No registration number provided')
                     return
                 
-                success, message, result_data = self.scrape_with_selenium(registration_number)
-                response = {'success': success, 'message': message, 'resultData': result_data}
+                # Scrape results
+                success, message, result_data = self.scrape_uaf_results(registration_number)
+                
+                if success and result_data:
+                    response = {
+                        'success': success, 
+                        'message': message, 
+                        'resultData': result_data
+                    }
+                else:
+                    response = {'success': success, 'message': message, 'resultData': result_data}
+                
                 self.send_success_response(response)
                 
         except Exception as e:
             self.send_error_response(500, f"Error scraping single result: {str(e)}")
 
-    def scrape_with_selenium(self, registration_number):
-        """Scrape results using Selenium to mimic real browser behavior"""
-        driver = None
-        try:
-            driver = self.setup_selenium_driver()
-            if not driver:
-                return False, "Failed to initialize browser", None
-            
-            # Navigate to login page
-            driver.get('http://lms.uaf.edu.pk/login/index.php')
-            
-            # Wait for page to load completely
-            WebDriverWait(driver, 15).until(
-                EC.presence_of_element_located((By.TAG_NAME, "body"))
-            )
-            
-            # Wait a bit to mimic human behavior
-            time.sleep(2)
-            
-            # Find the registration input field and submit button
-            try:
-                reg_input = WebDriverWait(driver, 10).until(
-                    EC.presence_of_element_located((By.ID, "REG"))
-                )
-                submit_button = WebDriverWait(driver, 10).until(
-                    EC.element_to_be_clickable((By.XPATH, "//input[@type='submit' and @value='Result']"))
-                )
-                
-                # Enter registration number and submit
-                reg_input.clear()
-                reg_input.send_keys(registration_number)
-                time.sleep(1)  # Mimic human typing delay
-                submit_button.click()
-                
-                # Wait for results to load
-                WebDriverWait(driver, 15).until(
-                    EC.presence_of_element_located((By.TAG_NAME, "table"))
-                )
-                
-                # Get page source and parse results
-                page_source = driver.page_source
-                success, message, result_data = self.parse_uaf_results(page_source, registration_number)
-                
-                return success, message, result_data
-                
-            except TimeoutException:
-                return False, "Timeout waiting for page elements to load", None
-            except Exception as e:
-                return False, f"Error interacting with page: {str(e)}", None
-                
-        except Exception as e:
-            logger.error(f"Selenium scraping error: {str(e)}")
-            return False, f"Scraping error: {str(e)}", None
-        finally:
-            if driver:
-                driver.quit()
-
-    def parse_uaf_results(self, html_content, registration_number):
-        """Parse UAF results from HTML content"""
-        try:
-            soup = BeautifulSoup(html_content, 'html.parser')
-            
-            # Check for error messages
-            page_text = soup.get_text().lower()
-            if any(msg in page_text for msg in ['blocked', 'access denied', 'not available', 'no result', 'no records']):
-                return False, "No results found or access denied", None
-            
-            # Extract student information
-            student_info = {}
-            info_tables = soup.find_all('table')
-            
-            for table in info_tables:
-                rows = table.find_all('tr')
-                for row in rows:
-                    cols = row.find_all('td')
-                    if len(cols) == 2:
-                        key = cols[0].text.strip().replace(':', '').replace('#', '').replace(' ', '')
-                        value = cols[1].text.strip()
-                        if key and value:
-                            student_info[key] = value
-            
-            student_info['Registration'] = registration_number
-            
-            # Extract results from tables
-            student_results = []
-            
-            for table in soup.find_all('table'):
-                rows = table.find_all('tr')
-                
-                if len(rows) > 3:
-                    header_row = rows[0]
-                    header_text = header_row.get_text().lower()
-                    
-                    result_indicators = ['sr', 'semester', 'course', 'teacher', 'credit', 'mid', 'assignment', 'final', 'practical', 'total', 'grade']
-                    
-                    if any(indicator in header_text for indicator in result_indicators):
-                        for i in range(1, len(rows)):
-                            row = rows[i]
-                            cols = row.find_all('td')
-                            
-                            if len(cols) >= 8:
-                                result_data = {
-                                    'RegistrationNo': student_info.get('Registration', registration_number),
-                                    'StudentName': student_info.get('StudentFullName', student_info.get('StudentName', '')),
-                                    'SrNo': cols[0].text.strip(),
-                                    'Semester': cols[1].text.strip() if len(cols) > 1 else '',
-                                    'TeacherName': cols[2].text.strip() if len(cols) > 2 else '',
-                                    'CourseCode': cols[3].text.strip() if len(cols) > 3 else '',
-                                    'CourseTitle': cols[4].text.strip() if len(cols) > 4 else '',
-                                    'CreditHours': cols[5].text.strip() if len(cols) > 5 else '',
-                                    'Mid': cols[6].text.strip() if len(cols) > 6 else '',
-                                    'Assignment': cols[7].text.strip() if len(cols) > 7 else '',
-                                    'Final': cols[8].text.strip() if len(cols) > 8 else '',
-                                    'Practical': cols[9].text.strip() if len(cols) > 9 else '',
-                                    'Total': cols[10].text.strip() if len(cols) > 10 else '',
-                                    'Grade': cols[11].text.strip() if len(cols) > 11 else ''
-                                }
-                                
-                                if result_data['CourseCode'] or result_data['CourseTitle']:
-                                    student_results.append(result_data)
-            
-            if student_results:
-                return True, f"Successfully extracted {len(student_results)} records", student_results
-            else:
-                return False, "No result data found in the page", None
-                    
-        except Exception as e:
-            logger.error(f"Error parsing results: {str(e)}")
-            return False, f"Error parsing results: {str(e)}", None
-
-    # [Keep all the other methods unchanged - handle_save_result, handle_load_result, etc.]
     def handle_save_result(self):
         """Save result data to database"""
         try:
@@ -428,27 +319,46 @@ class handler(BaseHTTPRequestHandler):
                 self.send_error_response(400, 'Missing required fields')
                 return
             
+            # Initialize database
             init_db()
+            
+            # Generate unique ID
             result_id = hashlib.md5(f"{registration_number}_{timestamp}".encode()).hexdigest()
             
+            # Save to database
             conn = sqlite3.connect(DB_PATH)
             c = conn.cursor()
             
-            c.execute('SELECT id FROM saved_results WHERE registration_number = ? AND timestamp = ?', 
-                     (registration_number, timestamp))
+            # Check if result already exists for this registration number and timestamp
+            c.execute('''
+                SELECT id FROM saved_results 
+                WHERE registration_number = ? AND timestamp = ?
+            ''', (registration_number, timestamp))
+            
             existing_result = c.fetchone()
             
             if existing_result:
-                c.execute('UPDATE saved_results SET student_data = ? WHERE id = ?', 
-                         (json.dumps(student_data), existing_result[0]))
+                # Update existing record
+                c.execute('''
+                    UPDATE saved_results 
+                    SET student_data = ?
+                    WHERE id = ?
+                ''', (json.dumps(student_data), existing_result[0]))
             else:
-                c.execute('INSERT INTO saved_results (id, registration_number, student_data, timestamp) VALUES (?, ?, ?, ?)',
-                         (result_id, registration_number, json.dumps(student_data), timestamp))
+                # Insert new record
+                c.execute('''
+                    INSERT INTO saved_results (id, registration_number, student_data, timestamp)
+                    VALUES (?, ?, ?, ?)
+                ''', (result_id, registration_number, json.dumps(student_data), timestamp))
             
             conn.commit()
             conn.close()
             
-            response_data = {'success': True, 'message': 'Result saved successfully', 'id': result_id}
+            response_data = {
+                'success': True, 
+                'message': 'Result saved successfully',
+                'id': result_id
+            }
             self.send_success_response(response_data)
             
         except Exception as e:
@@ -471,12 +381,19 @@ class handler(BaseHTTPRequestHandler):
                 self.send_error_response(400, 'No registration number provided')
                 return
             
+            # Initialize database
             init_db()
+            
+            # Load from database
             conn = sqlite3.connect(DB_PATH)
             c = conn.cursor()
             
-            c.execute('SELECT id, registration_number, student_data, timestamp FROM saved_results WHERE registration_number = ? ORDER BY timestamp DESC', 
-                     (registration_number,))
+            c.execute('''
+                SELECT id, registration_number, student_data, timestamp
+                FROM saved_results 
+                WHERE registration_number = ?
+                ORDER BY timestamp DESC
+            ''', (registration_number,))
             
             results = c.fetchall()
             conn.close()
@@ -490,11 +407,48 @@ class handler(BaseHTTPRequestHandler):
                     'timestamp': result[3]
                 })
             
-            response_data = {'success': True, 'message': 'Results loaded successfully', 'savedResults': saved_results}
+            response_data = {
+                'success': True, 
+                'message': 'Results loaded successfully',
+                'savedResults': saved_results
+            }
             self.send_success_response(response_data)
             
         except Exception as e:
             self.send_error_response(500, f"Error loading results: {str(e)}")
+
+    def handle_delete_saved_result(self):
+        """Delete a saved result from database"""
+        try:
+            content_length = int(self.headers['Content-Length'])
+            post_data = self.rfile.read(content_length)
+            data = json.loads(post_data)
+            
+            result_id = data.get('id')
+            
+            if not result_id:
+                self.send_error_response(400, 'No result ID provided')
+                return
+            
+            # Initialize database
+            init_db()
+            
+            # Delete from database
+            conn = sqlite3.connect(DB_PATH)
+            c = conn.cursor()
+            
+            c.execute('DELETE FROM saved_results WHERE id = ?', (result_id,))
+            conn.commit()
+            conn.close()
+            
+            response_data = {
+                'success': True, 
+                'message': 'Result deleted successfully'
+            }
+            self.send_success_response(response_data)
+            
+        except Exception as e:
+            self.send_error_response(500, f"Error deleting result: {str(e)}")
 
     def handle_scrape(self):
         content_length = int(self.headers['Content-Length'])
@@ -512,31 +466,345 @@ class handler(BaseHTTPRequestHandler):
             self.send_error_response(400, 'No session ID provided')
             return
         
-        success, message, result_data = self.scrape_with_selenium(registration_number)
+        # Scrape results
+        success, message, result_data = self.scrape_uaf_results(registration_number)
         
+        # Save result to session file if successful
         if success and result_data:
             self.save_to_session(session_id, result_data)
             
         response = {'success': success, 'message': message, 'resultData': result_data}
         self.send_success_response(response)
 
+    def handle_save(self):
+        content_length = int(self.headers['Content-Length'])
+        post_data = self.rfile.read(content_length)
+        data = json.loads(post_data)
+        
+        filename = data.get('filename', 'student_results')
+        session_id = data.get('sessionId')
+        
+        if not session_id:
+            self.send_error_response(400, 'No session ID provided')
+            return
+            
+        # Load results from session file
+        session_results = self.load_from_session(session_id)
+        
+        if session_results:
+            # Create Excel file
+            wb = Workbook()
+            ws = wb.active
+            ws.title = "Results"
+            
+            # Add headers if we have data
+            if session_results:
+                headers = list(session_results[0].keys())
+                ws.append(headers)
+                
+                # Add data
+                for result in session_results:
+                    ws.append([result.get(header, '') for header in headers])
+            
+            # Save to bytes buffer
+            output = BytesIO()
+            wb.save(output)
+            excel_data = output.getvalue()
+            
+            self.send_response(200)
+            self._set_cors_headers()
+            self.send_header('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+            self.send_header('Content-Disposition', f'attachment; filename="{filename}.xlsx"')
+            self.end_headers()
+            
+            self.wfile.write(excel_data)
+            
+            # DO NOT clean up session file - keep it for future downloads
+            # Session will be automatically cleaned up after 1 hour
+        else:
+            self.send_error_response(400, 'No results to save')
+
+    def scrape_uaf_results(self, registration_number):
+        """Main function to scrape UAF results"""
+        try:
+            # Create session with retry capability
+            session = self.create_session_with_retry()
+            
+            # Set realistic browser headers
+            session.headers.update({
+                'User-Agent': random.choice(USER_AGENTS),
+                'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
+                'Accept-Language': 'en-US,en;q=0.5',
+                'Accept-Encoding': 'gzip, deflate',
+                'Connection': 'keep-alive',
+                'Upgrade-Insecure-Requests': '1',
+                'Cache-Control': 'max-age=0',
+                'Origin': 'http://lms.uaf.edu.pk',
+                'Referer': 'http://lms.uaf.edu.pk/login/index.php'
+            })
+            
+            # Step 1: Get login page to extract token
+            login_url = "http://lms.uaf.edu.pk/login/index.php"
+            try:
+                logger.info(f"Fetching login page: {login_url}")
+                response = session.get(login_url, timeout=15, verify=False)
+                
+                if response.status_code != 200:
+                    return False, f"UAF LMS returned status code {response.status_code}. The server may be down.", None
+                    
+            except requests.exceptions.RequestException as e:
+                logger.error(f"Network error fetching login page: {str(e)}")
+                return False, f"Network error: {str(e)}. UAF LMS may be unavailable.", None
+            
+            # Step 2: Extract token from JavaScript
+            token = self.extract_js_token(response.text)
+            logger.info(f"Extracted token: {token}")
+            
+            if not token:
+                # Try to find token in the HTML directly
+                soup = BeautifulSoup(response.text, 'html.parser')
+                token_input = soup.find('input', {'id': 'token'})
+                if token_input and token_input.get('value'):
+                    token = token_input.get('value')
+                    logger.info(f"Found token in HTML: {token}")
+                else:
+                    return False, "Could not extract security token from UAF LMS", None
+            
+            # Step 3: Submit form with correct field names
+            result_url = "http://lms.uaf.edu.pk/course/uaf_student_result.php"
+            form_data = {
+                'token': token,
+                'Register': registration_number
+            }
+            
+            headers = {
+                'Referer': login_url,
+                'Origin': 'http://lms.uaf.edu.pk',
+                'Content-Type': 'application/x-www-form-urlencoded',
+                'Host': 'lms.uaf.edu.pk'
+            }
+            
+            try:
+                logger.info(f"Submitting form to: {result_url}")
+                response = session.post(result_url, data=form_data, headers=headers, timeout=20, verify=False)
+                
+                if response.status_code != 200:
+                    return False, f"UAF LMS returned status code {response.status_code}", None
+                    
+                logger.info(f"Successfully received response from result page")
+                    
+            except requests.exceptions.RequestException as e:
+                logger.error(f"Network error during result fetch: {str(e)}")
+                return False, f"Network error during result fetch: {str(e)}", None
+            
+            # Step 4: Parse results
+            return self.parse_uaf_results(response.text, registration_number)
+            
+        except Exception as e:
+            logger.error(f"Unexpected error in scrape_uaf_results: {str(e)}")
+            return False, f"Unexpected error: {str(e)}", None
+
+    def extract_js_token(self, html_content):
+        """Extract JavaScript-generated token from UAF LMS"""
+        try:
+            # Look for the JavaScript that sets the token value
+            js_pattern = r"document\.getElementById\('token'\)\.value\s*=\s*'([^']+)'"
+            match = re.search(js_pattern, html_content)
+            
+            if match:
+                return match.group(1)
+            
+            # Look for the script tag that contains the token assignment
+            script_pattern = r"<script[^>]*>.*?document\.getElementById\('token'\)\.value\s*=\s*'([^']+)'.*?</script>"
+            match = re.search(script_pattern, html_content, re.DOTALL | re.IGNORECASE)
+            
+            if match:
+                return match.group(1)
+            
+            # Look for token in the final script tag at the bottom
+            final_script_pattern = r"<script>\s*document\.getElementById\('token'\)\.value='([^']+)';\s*</script>"
+            match = re.search(final_script_pattern, html_content, re.DOTALL)
+            
+            if match:
+                return match.group(1)
+            
+            # Alternative: Look for any token-like value (64 char hex)
+            token_pattern = r"[a-f0-9]{64}"
+            matches = re.findall(token_pattern, html_content)
+            if matches:
+                return matches[0]  # Return the first match
+            
+            return None
+            
+        except Exception as e:
+            logger.error(f"Token extraction error: {str(e)}")
+            return None
+
+    def parse_uaf_results(self, html_content, registration_number):
+        """Parse UAF results"""
+        try:
+            soup = BeautifulSoup(html_content, 'html.parser')
+            
+            # Check if access is blocked or no results
+            page_text = soup.get_text().lower()
+            if any(blocked_text in page_text for blocked_text in ['blocked', 'access denied', 'not available', 'till result submission', 'suspended']):
+                return False, "Access blocked by UAF LMS", None
+            
+            # Check if no results found
+            if "no result" in page_text or "no records" in page_text:
+                return False, f"No results found for registration number: {registration_number}", None
+            
+            # Extract student information
+            student_info = {}
+            
+            # Look for student information in tables
+            info_tables = soup.find_all('table')
+            for table in info_tables:
+                rows = table.find_all('tr')
+                for row in rows:
+                    cols = row.find_all('td')
+                    if len(cols) == 2:
+                        key = cols[0].text.strip().replace(':', '').replace('#', '').replace(' ', '')
+                        value = cols[1].text.strip()
+                        if key and value:
+                            student_info[key] = value
+            
+            # Set defaults
+            if 'Registration' not in student_info:
+                student_info['Registration'] = registration_number
+            
+            # Extract results from tables
+            student_results = []
+            
+            # Look for result tables
+            for table in soup.find_all('table'):
+                rows = table.find_all('tr')
+                
+                # Result tables should have multiple rows and specific content
+                if len(rows) > 3:
+                    # Check if this looks like a result table
+                    header_row = rows[0]
+                    header_text = header_row.get_text().lower()
+                    
+                    result_indicators = ['sr', 'semester', 'course', 'teacher', 'credit', 'mid', 'assignment', 'final', 'practical', 'total', 'grade']
+                    
+                    if any(indicator in header_text for indicator in result_indicators):
+                        # Process each data row (skip header)
+                        for i in range(1, len(rows)):
+                            row = rows[i]
+                            cols = row.find_all('td')
+                            
+                            if len(cols) >= 8:  # At least 8 columns for a proper result row
+                                result_data = {
+                                    'RegistrationNo': student_info.get('Registration', registration_number),
+                                    'StudentName': student_info.get('StudentFullName', student_info.get('StudentName', '')),
+                                    'SrNo': cols[0].text.strip() if len(cols) > 0 else '',
+                                    'Semester': cols[1].text.strip() if len(cols) > 1 else '',
+                                    'TeacherName': cols[2].text.strip() if len(cols) > 2 else '',
+                                    'CourseCode': cols[3].text.strip() if len(cols) > 3 else '',
+                                    'CourseTitle': cols[4].text.strip() if len(cols) > 4 else '',
+                                    'CreditHours': cols[5].text.strip() if len(cols) > 5 else '',
+                                    'Mid': cols[6].text.strip() if len(cols) > 6 else '',
+                                    'Assignment': cols[7].text.strip() if len(cols) > 7 else '',
+                                    'Final': cols[8].text.strip() if len(cols) > 8 else '',
+                                    'Practical': cols[9].text.strip() if len(cols) > 9 else '',
+                                    'Total': cols[10].text.strip() if len(cols) > 10 else '',
+                                    'Grade': cols[11].text.strip() if len(cols) > 11 else ''
+                                }
+                                
+                                # Only add if we have meaningful data
+                                if result_data['CourseCode'] or result_data['CourseTitle']:
+                                    student_results.append(result_data)
+            
+            if student_results:
+                return True, f"Successfully extracted {len(student_results)} records for {registration_number}", student_results
+            else:
+                # Try alternative parsing method
+                alt_results = self.alternative_parse(soup, registration_number, student_info)
+                if alt_results:
+                    return True, f"Successfully extracted {len(alt_results)} records using alternative method", alt_results
+                
+                return False, f"No result data found for registration number: {registration_number}", None
+                    
+        except Exception as e:
+            logger.error(f"Error parsing results: {str(e)}")
+            return False, f"Error parsing results: {str(e)}", None
+
+    def alternative_parse(self, soup, registration_number, student_info):
+        """Alternative parsing method for different table structures"""
+        try:
+            student_results = []
+            
+            # Find all tables that might contain results
+            tables = soup.find_all('table')
+            
+            for table_idx, table in enumerate(tables):
+                rows = table.find_all('tr')
+                
+                # Skip tables with too few rows
+                if len(rows) < 3:
+                    continue
+                    
+                # Look for rows that might contain result data
+                for row_idx, row in enumerate(rows):
+                    cols = row.find_all('td')
+                    
+                    # A result row should have multiple columns with data
+                    if len(cols) >= 8 and any(col.text.strip() for col in cols):
+                        # Check if this looks like a result row (not a header)
+                        first_col = cols[0].text.strip()
+                        if first_col.isdigit() or any(term in first_col.lower() for term in ['sem', 'course', 'code']):
+                            
+                            result_data = {
+                                'RegistrationNo': registration_number,
+                                'StudentName': student_info.get('StudentFullName', student_info.get('StudentName', '')),
+                                'SrNo': cols[0].text.strip() if len(cols) > 0 else str(row_idx),
+                                'Semester': cols[1].text.strip() if len(cols) > 1 else '',
+                                'TeacherName': cols[2].text.strip() if len(cols) > 2 else '',
+                                'CourseCode': cols[3].text.strip() if len(cols) > 3 else '',
+                                'CourseTitle': cols[4].text.strip() if len(cols) > 4 else '',
+                                'CreditHours': cols[5].text.strip() if len(cols) > 5 else '',
+                                'Mid': cols[6].text.strip() if len(cols) > 6 else '',
+                                'Assignment': cols[7].text.strip() if len(cols) > 7 else '',
+                                'Final': cols[8].text.strip() if len(cols) > 8 else '',
+                                'Practical': cols[9].text.strip() if len(cols) > 9 else '',
+                                'Total': cols[10].text.strip() if len(cols) > 10 else '',
+                                'Grade': cols[11].text.strip() if len(cols) > 11 else ''
+                            }
+                            
+                            # Only add if we have course information
+                            if result_data['CourseCode'] or result_data['CourseTitle']:
+                                student_results.append(result_data)
+            
+            return student_results if student_results else None
+            
+        except Exception as e:
+            logger.error(f"Error in alternative parsing: {str(e)}")
+            return None
+
     def save_to_session(self, session_id, result_data):
         try:
             session_file = os.path.join(DATA_DIR, f"session_{session_id}.json")
             
+            # Load existing data or create new array
             if os.path.exists(session_file):
                 with open(session_file, 'r') as f:
                     existing_data = json.load(f)
             else:
                 existing_data = []
             
+            # Add metadata about when this data was added
             for result in result_data:
                 result['_scrapedAt'] = datetime.now().isoformat()
             
+            # Append new data to existing data
             existing_data.extend(result_data)
             
+            # Save back to file
             with open(session_file, 'w') as f:
                 json.dump(existing_data, f)
+                
+            logger.info(f"Saved {len(result_data)} records to session {session_id}, total records: {len(existing_data)}")
                 
         except Exception as e:
             logger.error(f"Error saving to session {session_id}: {e}")
@@ -548,7 +816,8 @@ class handler(BaseHTTPRequestHandler):
             if os.path.exists(session_file):
                 with open(session_file, 'r') as f:
                     data = json.load(f)
-                
+                    
+                # Clean up old data (older than 1 hour)
                 one_hour_ago = datetime.now() - timedelta(hours=1)
                 filtered_data = [
                     item for item in data 
@@ -556,6 +825,7 @@ class handler(BaseHTTPRequestHandler):
                     datetime.fromisoformat(item['_scrapedAt']) > one_hour_ago
                 ]
                 
+                # If we filtered out data, save the cleaned version
                 if len(filtered_data) != len(data):
                     with open(session_file, 'w') as f:
                         json.dump(filtered_data, f)
@@ -571,6 +841,7 @@ class handler(BaseHTTPRequestHandler):
             session_file = os.path.join(DATA_DIR, f"session_{session_id}.json")
             if os.path.exists(session_file):
                 os.remove(session_file)
+                logger.info(f"Deleted session {session_id}")
         except Exception as e:
             logger.error(f"Error deleting session {session_id}: {e}")
 
