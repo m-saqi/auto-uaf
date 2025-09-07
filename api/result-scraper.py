@@ -13,13 +13,6 @@ import uuid
 from datetime import datetime, timedelta
 import sqlite3
 import hashlib
-import urllib3
-from urllib3.util.retry import Retry
-from requests.adapters import HTTPAdapter
-import cloudscraper
-
-# Disable SSL warnings
-urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 # Set up logging
 logging.basicConfig(level=logging.INFO)
@@ -133,60 +126,50 @@ class handler(BaseHTTPRequestHandler):
         self.end_headers()
         self.wfile.write(json.dumps(data).encode())
 
-    def create_session_with_retry(self):
-        """Create a requests session with retry logic"""
-        session = requests.Session()
-        
-        # Configure retry strategy
-        retry_strategy = Retry(
-            total=3,
-            backoff_factor=1,
-            status_forcelist=[429, 500, 502, 503, 504],
-            allowed_methods=["GET", "POST"]
-        )
-        
-        adapter = HTTPAdapter(max_retries=retry_strategy, pool_connections=10, pool_maxsize=10)
-        session.mount("http://", adapter)
-        session.mount("https://", adapter)
-        
-        return session
-
-    def create_cloudscraper_session(self):
-        """Create a cloudscraper session to bypass Cloudflare protection"""
-        try:
-            scraper = cloudscraper.create_scraper(
-                browser={
-                    'browser': 'chrome',
-                    'platform': 'windows',
-                    'mobile': False,
-                }
-            )
-            return scraper
-        except Exception as e:
-            logger.error(f"Error creating cloudscraper session: {str(e)}")
-            return self.create_session_with_retry()
-
     def handle_test_connection(self):
-        """Test connection to UAF LMS"""
+        """Test connection to UAF LMS - simplified version"""
         try:
-            test_url = 'https://lms.uaf.edu.pk/login/index.php'
-            
-            # Try multiple approaches
-            approaches = [
-                self.test_direct_connection,
-                self.test_with_cloudscraper,
+            # Try multiple endpoints to test connection - updated to HTTPS
+            test_urls = [
+                'https://lms.uaf.edu.pk/login/index.php',
+                'https://lms.uaf.edu.pk/',
+                'https://lms.uaf.edu.pk'
             ]
             
             success = False
-            message = "All connection attempts failed"
+            message = "UAF LMS is not responding"
             
-            for approach in approaches:
+            for test_url in test_urls:
                 try:
-                    success, message = approach(test_url)
-                    if success:
+                    response = requests.get(test_url, timeout=10, headers={
+                        'User-Agent': random.choice(USER_AGENTS),
+                    }, verify=True)  # Enable SSL verification
+                    
+                    # If we get any response (even 500), the server is reachable
+                    if response.status_code < 500:
+                        success = True
+                        message = f"Connection to UAF LMS successful (Status: {response.status_code})"
                         break
-                except Exception as e:
-                    logger.error(f"Connection test approach failed: {str(e)}")
+                    else:
+                        message = f"UAF LMS returned status code: {response.status_code}"
+                        
+                except requests.exceptions.SSLError:
+                    # Try without SSL verification if there's an SSL error
+                    try:
+                        response = requests.get(test_url, timeout=10, headers={
+                            'User-Agent': random.choice(USER_AGENTS),
+                        }, verify=False)
+                        
+                        if response.status_code < 500:
+                            success = True
+                            message = f"Connection to UAF LMS successful with SSL verification disabled (Status: {response.status_code})"
+                            break
+                        else:
+                            message = f"UAF LMS returned status code: {response.status_code}"
+                    except:
+                        continue
+                except requests.exceptions.RequestException as e:
+                    # Continue to next URL if this one fails
                     continue
             
             response_data = {
@@ -201,43 +184,6 @@ class handler(BaseHTTPRequestHandler):
                 'message': f'Connection test error: {str(e)}'
             }
             self.send_success_response(response_data)
-
-    def test_direct_connection(self, test_url):
-        """Test direct connection"""
-        session = self.create_session_with_retry()
-        session.headers.update({
-            'User-Agent': random.choice(USER_AGENTS),
-            'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
-            'Accept-Language': 'en-US,en;q=0.5',
-            'Accept-Encoding': 'gzip, deflate',
-            'Connection': 'keep-alive',
-            'Upgrade-Insecure-Requests': '1',
-        })
-        
-        try:
-            response = session.get(test_url, timeout=15, verify=False)
-            
-            if response.status_code == 200:
-                return True, f"Direct connection successful (Status: {response.status_code})"
-            else:
-                return False, f"UAF LMS returned status code: {response.status_code}"
-                
-        except requests.exceptions.RequestException as e:
-            return False, f"Direct connection failed: {str(e)}"
-
-    def test_with_cloudscraper(self, test_url):
-        """Test connection using cloudscraper"""
-        try:
-            scraper = self.create_cloudscraper_session()
-            response = scraper.get(test_url, timeout=15)
-            
-            if response.status_code == 200:
-                return True, f"Cloudscraper connection successful (Status: {response.status_code})"
-            else:
-                return False, f"Cloudscraper connection failed with status: {response.status_code}"
-                
-        except Exception as e:
-            return False, f"Cloudscraper connection failed: {str(e)}"
 
     def handle_check_session(self):
         """Check if session exists and has data"""
@@ -570,207 +516,127 @@ class handler(BaseHTTPRequestHandler):
             self.send_error_response(400, 'No results to save')
 
     def scrape_uaf_results(self, registration_number):
-        """Main function to scrape UAF results with multiple fallback approaches"""
-        approaches = [
-            self.scrape_with_cloudscraper,
-            self.scrape_direct_method,
-            self.scrape_from_cache
-        ]
-        
-        for approach in approaches:
-            try:
-                success, message, result_data = approach(registration_number)
-                if success:
-                    return success, message, result_data
-                else:
-                    logger.warning(f"Approach failed: {message}")
-            except Exception as e:
-                logger.error(f"Scraping approach failed: {str(e)}")
-                continue
-        
-        # If all approaches fail
-        return False, "All scraping methods failed. The UAF LMS may be down or blocking requests.", None
-
-    def scrape_direct_method(self, registration_number):
-        """Direct scraping method for the new UAF LMS structure"""
+        """Main function to scrape UAF results"""
         try:
-            session = self.create_session_with_retry()
-            
-            # Set realistic browser headers
+            # Create session
+            session = requests.Session()
             session.headers.update({
                 'User-Agent': random.choice(USER_AGENTS),
                 'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
                 'Accept-Language': 'en-US,en;q=0.5',
-                'Accept-Encoding': 'gzip, deflate',
                 'Connection': 'keep-alive',
                 'Upgrade-Insecure-Requests': '1',
-                'Cache-Control': 'max-age=0',
-                'Origin': 'https://lms.uaf.edu.pk',
-                'Referer': 'https://lms.uaf.edu.pk/login/index.php'
             })
             
-            # Step 1: Get login page
+            # Step 1: Get login page to extract token - updated to HTTPS
             login_url = "https://lms.uaf.edu.pk/login/index.php"
             try:
-                logger.info(f"Fetching login page: {login_url}")
-                response = session.get(login_url, timeout=15, verify=False)
+                response = session.get(login_url, timeout=15, verify=True)
                 
                 if response.status_code != 200:
-                    return False, f"UAF LMS returned status code {response.status_code}. The server may be down.", None
-                    
-            except requests.exceptions.RequestException as e:
-                logger.error(f"Network error fetching login page: {str(e)}")
-                return False, f"Network error: {str(e)}. UAF LMS may be unavailable.", None
-            
-            # Step 2: Extract login token and form data
-            soup = BeautifulSoup(response.text, 'html.parser')
-            login_form = soup.find('form', {'id': 'login'})
-            
-            if not login_form:
-                return False, "Could not find login form on UAF LMS", None
-            
-            # Extract form data
-            form_data = {}
-            for input_tag in login_form.find_all('input'):
-                if input_tag.get('name'):
-                    form_data[input_tag.get('name')] = input_tag.get('value', '')
-            
-            # Add username and password (registration number as both)
-            form_data['username'] = registration_number
-            form_data['password'] = registration_number
-            
-            # Step 3: Submit login form
-            try:
-                logger.info(f"Submitting login form")
-                response = session.post(login_url, data=form_data, timeout=20, verify=False)
-                
-                if response.status_code != 200:
-                    return False, f"UAF LMS login failed with status code {response.status_code}", None
-                    
-                # Check if login was successful by looking for dashboard elements
-                if "dashboard" in response.url or "my/" in response.url:
-                    logger.info("Login successful, accessing student results")
-                    
-                    # Step 4: Access student results page
-                    result_url = "https://lms.uaf.edu.pk/course/uaf_student_result.php"
-                    response = session.get(result_url, timeout=20, verify=False)
+                    # Try without SSL verification if there's an SSL error
+                    response = session.get(login_url, timeout=15, verify=False)
                     
                     if response.status_code != 200:
-                        return False, f"UAF LMS results page returned status code {response.status_code}", None
+                        return False, f"UAF LMS returned status code {response.status_code}. The server may be down.", None
                     
-                    # Step 5: Parse results
-                    success, message, result_data = self.parse_uaf_results(response.text, registration_number)
+            except requests.exceptions.SSLError:
+                # Try without SSL verification
+                try:
+                    response = session.get(login_url, timeout=15, verify=False)
                     
-                    # Cache successful results
-                    if success:
-                        self.cache_results(registration_number, result_data)
+                    if response.status_code != 200:
+                        return False, f"UAF LMS returned status code {response.status_code}. The server may be down.", None
                         
-                    return success, message, result_data
-                else:
-                    return False, "Login failed - invalid credentials or system error", None
-                    
+                except requests.exceptions.RequestException as e:
+                    return False, f"Network error: {str(e)}. UAF LMS may be unavailable.", None
             except requests.exceptions.RequestException as e:
-                logger.error(f"Network error during login: {str(e)}")
-                return False, f"Network error during login: {str(e)}", None
+                return False, f"Network error: {str(e)}. UAF LMS may be unavailable.", None
             
-        except Exception as e:
-            logger.error(f"Unexpected error in scrape_direct_method: {str(e)}")
-            return False, f"Unexpected error: {str(e)}", None
-
-    def scrape_with_cloudscraper(self, registration_number):
-        """Scraping using cloudscraper to bypass protections"""
-        try:
-            scraper = self.create_cloudscraper_session()
+            # Step 2: Extract JavaScript-generated token
+            token = self.extract_js_token(response.text)
+            if not token:
+                # Try alternative method - look for the hidden input field
+                soup = BeautifulSoup(response.text, 'html.parser')
+                token_input = soup.find('input', {'id': 'token'})
+                if token_input and token_input.get('value'):
+                    token = token_input.get('value')
+                else:
+                    return False, "Could not extract security token from UAF LMS", None
             
-            # Get login page
-            login_url = "https://lms.uaf.edu.pk/login/index.php"
-            response = scraper.get(login_url, timeout=15)
-            
-            if response.status_code != 200:
-                return False, f"Cloudscraper failed with status {response.status_code}", None
-            
-            # Extract login form data
-            soup = BeautifulSoup(response.text, 'html.parser')
-            login_form = soup.find('form', {'id': 'login'})
-            
-            if not login_form:
-                return False, "Could not find login form with cloudscraper", None
-            
-            form_data = {}
-            for input_tag in login_form.find_all('input'):
-                if input_tag.get('name'):
-                    form_data[input_tag.get('name')] = input_tag.get('value', '')
-            
-            # Add username and password
-            form_data['username'] = registration_number
-            form_data['password'] = registration_number
-            
-            # Submit login form
-            response = scraper.post(login_url, data=form_data, timeout=20)
-            
-            if response.status_code != 200:
-                return False, f"Cloudscraper login failed with status {response.status_code}", None
-            
-            # Check if login was successful
-            if "dashboard" in response.url or "my/" in response.url:
-                # Access student results page
-                result_url = "https://lms.uaf.edu.pk/course/uaf_student_result.php"
-                response = scraper.get(result_url, timeout=20)
-                
-                if response.status_code != 200:
-                    return False, f"Cloudscraper results page failed with status {response.status_code}", None
-                
-                # Parse results
-                success, message, result_data = self.parse_uaf_results(response.text, registration_number)
-                
-                # Cache successful results
-                if success:
-                    self.cache_results(registration_number, result_data)
-                    
-                return success, message, result_data
-            else:
-                return False, "Cloudscraper login failed - invalid credentials", None
-            
-        except Exception as e:
-            logger.error(f"Error in scrape_with_cloudscraper: {str(e)}")
-            return False, f"Cloudscraper error: {str(e)}", None
-
-    def scrape_from_cache(self, registration_number):
-        """Try to get results from cache if direct scraping fails"""
-        cache_file = os.path.join(DATA_DIR, f"cache_{registration_number}.json")
-        
-        if os.path.exists(cache_file):
-            try:
-                with open(cache_file, 'r') as f:
-                    cached_data = json.load(f)
-                
-                # Check if cache is still valid (less than 24 hours old)
-                cache_time = datetime.fromisoformat(cached_data.get('timestamp', ''))
-                if datetime.now() - cache_time < timedelta(hours=24):
-                    return True, "Results retrieved from cache", cached_data['result_data']
-            except Exception as e:
-                logger.error(f"Error reading cache: {str(e)}")
-        
-        return False, "No valid cache available", None
-
-    def cache_results(self, registration_number, result_data):
-        """Cache results for future use"""
-        try:
-            cache_file = os.path.join(DATA_DIR, f"cache_{registration_number}.json")
-            cache_data = {
-                'timestamp': datetime.now().isoformat(),
-                'result_data': result_data
+            # Step 3: Submit form with correct field names - updated to HTTPS
+            result_url = "https://lms.uaf.edu.pk/course/uaf_student_result.php"
+            form_data = {
+                'token': token,
+                'Register': registration_number
             }
             
-            with open(cache_file, 'w') as f:
-                json.dump(cache_data, f)
+            headers = {
+                'Referer': login_url,
+                'Origin': 'https://lms.uaf.edu.pk',
+                'Content-Type': 'application/x-www-form-urlencoded'
+            }
+            
+            try:
+                response = session.post(result_url, data=form_data, headers=headers, timeout=20, verify=True)
                 
-            logger.info(f"Results cached for {registration_number}")
+                if response.status_code != 200:
+                    # Try without SSL verification if there's an SSL error
+                    response = session.post(result_url, data=form_data, headers=headers, timeout=20, verify=False)
+                    
+                    if response.status_code != 200:
+                        return False, f"UAF LMS returned status code {response.status_code}", None
+                    
+            except requests.exceptions.SSLError:
+                # Try without SSL verification
+                try:
+                    response = session.post(result_url, data=form_data, headers=headers, timeout=20, verify=False)
+                    
+                    if response.status_code != 200:
+                        return False, f"UAF LMS returned status code {response.status_code}", None
+                        
+                except requests.exceptions.RequestException as e:
+                    return False, f"Network error during result fetch: {str(e)}", None
+            except requests.exceptions.RequestException as e:
+                return False, f"Network error during result fetch: {str(e)}", None
+            
+            # Step 4: Parse results
+            return self.parse_uaf_results(response.text, registration_number)
+            
         except Exception as e:
-            logger.error(f"Error caching results: {str(e)}")
+            logger.error(f"Unexpected error: {str(e)}")
+            return False, f"Unexpected error: {str(e)}", None
+
+    def extract_js_token(self, html_content):
+        """Extract JavaScript-generated token from UAF LMS"""
+        try:
+            # Look for the JavaScript that sets the token value
+            js_pattern = r"document\.getElementById\('token'\)\.value\s*=\s*'([^']+)'"
+            match = re.search(js_pattern, html_content)
+            
+            if match:
+                return match.group(1)
+            
+            # Alternative patterns
+            patterns = [
+                r"token.*value.*=.*'([^']+)'",
+                r"value.*=.*'([a-f0-9]{64})'",  # Look for 64-character hex values
+                r"id=\"token\" value=\"([^\"]+)\"",  # Direct HTML attribute
+            ]
+            
+            for pattern in patterns:
+                match = re.search(pattern, html_content, re.IGNORECASE)
+                if match:
+                    return match.group(1)
+            
+            return None
+            
+        except Exception as e:
+            logger.error(f"Token extraction error: {str(e)}")
+            return None
 
     def parse_uaf_results(self, html_content, registration_number):
-        """Parse UAF results from the new LMS structure"""
+        """Parse UAF results"""
         try:
             soup = BeautifulSoup(html_content, 'html.parser')
             
@@ -786,17 +652,19 @@ class handler(BaseHTTPRequestHandler):
             # Extract student information
             student_info = {}
             
-            # Look for student information in tables
+            # Look for student information in the first table
             info_tables = soup.find_all('table')
-            for table in info_tables:
-                rows = table.find_all('tr')
+            if info_tables:
+                # First table usually contains student info
+                first_table = info_tables[0]
+                rows = first_table.find_all('tr')
+                
                 for row in rows:
                     cols = row.find_all('td')
                     if len(cols) == 2:
                         key = cols[0].text.strip().replace(':', '').replace('#', '').replace(' ', '')
                         value = cols[1].text.strip()
-                        if key and value:
-                            student_info[key] = value
+                        student_info[key] = value
             
             # Set defaults
             if 'Registration' not in student_info:
@@ -805,25 +673,23 @@ class handler(BaseHTTPRequestHandler):
             # Extract results from tables
             student_results = []
             
-            # Look for result tables
+            # Look for result tables (usually the second or third table)
             for table in soup.find_all('table'):
                 rows = table.find_all('tr')
                 
-                # Result tables should have multiple rows and specific content
-                if len(rows) > 3:
-                    # Check if this looks like a result table
+                # Result tables have many rows and specific headers
+                if len(rows) > 5:
+                    # Check if first row contains result headers
                     header_row = rows[0]
                     header_text = header_row.get_text().lower()
                     
-                    result_indicators = ['sr', 'semester', 'course', 'teacher', 'credit', 'mid', 'assignment', 'final', 'practical', 'total', 'grade']
-                    
-                    if any(indicator in header_text for indicator in result_indicators):
+                    if any(term in header_text for term in ['sr', 'semester', 'course', 'teacher', 'credit', 'mid', 'assignment', 'final', 'practical', 'total', 'grade']):
                         # Process each data row (skip header)
                         for i in range(1, len(rows)):
                             row = rows[i]
                             cols = row.find_all('td')
                             
-                            if len(cols) >= 8:  # At least 8 columns for a proper result row
+                            if len(cols) >= 5:  # At least 5 columns expected
                                 result_data = {
                                     'RegistrationNo': student_info.get('Registration', registration_number),
                                     'StudentName': student_info.get('StudentFullName', student_info.get('StudentName', '')),
@@ -841,17 +707,17 @@ class handler(BaseHTTPRequestHandler):
                                     'Grade': cols[11].text.strip() if len(cols) > 11 else ''
                                 }
                                 
-                                # Only add if we have meaningful data
-                                if result_data['CourseCode'] or result_data['CourseTitle']:
-                                    student_results.append(result_data)
+                                student_results.append(result_data)
             
             if student_results:
                 return True, f"Successfully extracted {len(student_results)} records for {registration_number}", student_results
             else:
-                # Try alternative parsing method
-                alt_results = self.alternative_parse(soup, registration_number, student_info)
-                if alt_results:
-                    return True, f"Successfully extracted {len(alt_results)} records using alternative method", alt_results
+                # Check if we might have found the data but in a different format
+                if "result award list" in page_text.lower():
+                    # Try alternative parsing method
+                    alt_results = self.alternative_parse(soup, registration_number, student_info)
+                    if alt_results:
+                        return True, f"Successfully extracted {len(alt_results)} records using alternative method", alt_results
                 
                 return False, f"No result data found for registration number: {registration_number}", None
                     
@@ -864,30 +730,22 @@ class handler(BaseHTTPRequestHandler):
         try:
             student_results = []
             
-            # Find all tables that might contain results
+            # Find all tables
             tables = soup.find_all('table')
             
-            for table_idx, table in enumerate(tables):
+            for table in tables:
                 rows = table.find_all('tr')
                 
-                # Skip tables with too few rows
-                if len(rows) < 3:
-                    continue
-                    
-                # Look for rows that might contain result data
-                for row_idx, row in enumerate(rows):
+                # Look for rows with data (more than 2 columns)
+                for row in rows:
                     cols = row.find_all('td')
-                    
-                    # A result row should have multiple columns with data
-                    if len(cols) >= 8 and any(col.text.strip() for col in cols):
-                        # Check if this looks like a result row (not a header)
-                        first_col = cols[0].text.strip()
-                        if first_col.isdigit() or any(term in first_col.lower() for term in ['sem', 'course', 'code']):
-                            
+                    if len(cols) >= 6:  # At least 6 columns for a result row
+                        # Check if first column is a number (likely a serial number)
+                        if cols[0].text.strip().isdigit():
                             result_data = {
                                 'RegistrationNo': registration_number,
                                 'StudentName': student_info.get('StudentFullName', student_info.get('StudentName', '')),
-                                'SrNo': cols[0].text.strip() if len(cols) > 0 else str(row_idx),
+                                'SrNo': cols[0].text.strip(),
                                 'Semester': cols[1].text.strip() if len(cols) > 1 else '',
                                 'TeacherName': cols[2].text.strip() if len(cols) > 2 else '',
                                 'CourseCode': cols[3].text.strip() if len(cols) > 3 else '',
@@ -901,9 +759,7 @@ class handler(BaseHTTPRequestHandler):
                                 'Grade': cols[11].text.strip() if len(cols) > 11 else ''
                             }
                             
-                            # Only add if we have course information
-                            if result_data['CourseCode'] or result_data['CourseTitle']:
-                                student_results.append(result_data)
+                            student_results.append(result_data)
             
             return student_results if student_results else None
             
