@@ -16,6 +16,7 @@ import hashlib
 import urllib3
 from urllib3.util.retry import Retry
 from requests.adapters import HTTPAdapter
+import socket
 
 # Disable SSL warnings
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
@@ -58,9 +59,6 @@ USER_AGENTS = [
     'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:109.0) Gecko/20100101 Firefox/121.0',
     'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
     'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Edge/120.0.0.0',
-    'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
-    'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/92.0.4515.107 Safari/537.36',
-    'Mozilla/5.0 (iPhone; CPU iPhone OS 16_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.0 Mobile/15E148 Safari/604.1'
 ]
 
 # Static token from the HTML you provided
@@ -138,58 +136,60 @@ class handler(BaseHTTPRequestHandler):
         self.end_headers()
         self.wfile.write(json.dumps(data).encode())
 
-    def create_session_with_retry(self):
-        """Create a requests session with retry logic"""
-        session = requests.Session()
-        
-        # Configure retry strategy
-        retry_strategy = Retry(
-            total=3,
-            backoff_factor=0.5,
-            status_forcelist=[429, 500, 502, 503, 504],
-            allowed_methods=["GET", "POST"]
-        )
-        
-        adapter = HTTPAdapter(max_retries=retry_strategy, pool_connections=10, pool_maxsize=10)
-        session.mount("http://", adapter)
-        session.mount("https://", adapter)
-        
-        return session
+    def is_server_accessible(self):
+        """Check if the UAF server is accessible"""
+        try:
+            # Try to connect to the server on port 80
+            sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            sock.settimeout(5)
+            result = sock.connect_ex(('lms.uaf.edu.pk', 80))
+            sock.close()
+            return result == 0
+        except:
+            return False
 
     def handle_test_connection(self):
-        """Test connection to UAF LMS - simplified version"""
+        """Test connection to UAF LMS"""
         try:
+            # First check if server is accessible at all
+            if not self.is_server_accessible():
+                response_data = {
+                    'success': False, 
+                    'message': 'UAF LMS server is not accessible. The server may be down or blocking connections.'
+                }
+                self.send_success_response(response_data)
+                return
+                
             test_url = 'http://lms.uaf.edu.pk/login/index.php'
             
-            session = self.create_session_with_retry()
+            session = requests.Session()
             session.headers.update({
                 'User-Agent': random.choice(USER_AGENTS),
                 'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
                 'Accept-Language': 'en-US,en;q=0.5',
-                'Accept-Encoding': 'gzip, deflate',
                 'Connection': 'keep-alive',
-                'Upgrade-Insecure-Requests': '1',
-                'Cache-Control': 'max-age=0'
             })
             
             try:
                 response = session.get(test_url, timeout=10, verify=False)
                 
                 if response.status_code == 200:
-                    success = True
-                    message = f"Connection to UAF LMS successful (Status: {response.status_code})"
+                    response_data = {
+                        'success': True, 
+                        'message': f'Connection to UAF LMS successful (Status: {response.status_code})'
+                    }
                 else:
-                    success = False
-                    message = f"UAF LMS returned status code: {response.status_code}"
+                    response_data = {
+                        'success': False, 
+                        'message': f'UAF LMS returned status code: {response.status_code}. Server may be blocking requests.'
+                    }
                     
             except requests.exceptions.RequestException as e:
-                success = False
-                message = f"Connection failed: {str(e)}"
+                response_data = {
+                    'success': False, 
+                    'message': f'Connection failed: {str(e)}. The server is actively blocking automated requests.'
+                }
             
-            response_data = {
-                'success': success, 
-                'message': message
-            }
             self.send_success_response(response_data)
             
         except Exception as e:
@@ -268,14 +268,11 @@ class handler(BaseHTTPRequestHandler):
                     # Scrape results
                     success, message, result_data = self.scrape_uaf_results(registration_number)
                     
-                    if success and result_data:
-                        response = {
-                            'success': success, 
-                            'message': message, 
-                            'resultData': result_data
-                        }
-                    else:
-                        response = {'success': success, 'message': message, 'resultData': result_data}
+                    response = {
+                        'success': success, 
+                        'message': message, 
+                        'resultData': result_data if success else None
+                    }
                     
                     self.send_success_response(response)
                 else:
@@ -295,14 +292,11 @@ class handler(BaseHTTPRequestHandler):
                 # Scrape results
                 success, message, result_data = self.scrape_uaf_results(registration_number)
                 
-                if success and result_data:
-                    response = {
-                        'success': success, 
-                        'message': message, 
-                        'resultData': result_data
-                    }
-                else:
-                    response = {'success': success, 'message': message, 'resultData': result_data}
+                response = {
+                    'success': success, 
+                    'message': message, 
+                    'resultData': result_data if success else None
+                }
                 
                 self.send_success_response(response)
                 
@@ -523,37 +517,28 @@ class handler(BaseHTTPRequestHandler):
             self.end_headers()
             
             self.wfile.write(excel_data)
-            
-            # DO NOT clean up session file - keep it for future downloads
-            # Session will be automatically cleaned up after 1 hour
         else:
             self.send_error_response(400, 'No results to save')
 
     def scrape_uaf_results(self, registration_number):
         """Main function to scrape UAF results"""
         try:
-            # Create session with retry capability
-            session = self.create_session_with_retry()
+            # First check if server is accessible
+            if not self.is_server_accessible():
+                return False, "UAF LMS server is not accessible. The server may be down or blocking connections.", None
             
-            # Set realistic browser headers
+            session = requests.Session()
             session.headers.update({
                 'User-Agent': random.choice(USER_AGENTS),
                 'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
                 'Accept-Language': 'en-US,en;q=0.5',
-                'Accept-Encoding': 'gzip, deflate',
                 'Connection': 'keep-alive',
                 'Upgrade-Insecure-Requests': '1',
                 'Cache-Control': 'max-age=0',
-                'Origin': 'http://lms.uaf.edu.pk',
-                'Referer': 'http://lms.uaf.edu.pk/login/index.php'
             })
             
-            # Use the static token from the HTML you provided
+            # Use the static token from the HTML
             token = STATIC_TOKEN
-            logger.info(f"Using static token: {token}")
-            
-            if not token:
-                return False, "Could not extract security token from UAF LMS", None
             
             # Submit form with token
             result_url = "http://lms.uaf.edu.pk/course/uaf_student_result.php"
@@ -566,27 +551,23 @@ class handler(BaseHTTPRequestHandler):
                 'Referer': 'http://lms.uaf.edu.pk/login/index.php',
                 'Origin': 'http://lms.uaf.edu.pk',
                 'Content-Type': 'application/x-www-form-urlencoded',
-                'Host': 'lms.uaf.edu.pk'
             }
             
             try:
-                logger.info(f"Submitting form to: {result_url}")
                 # Add a small delay to mimic human behavior
-                time.sleep(1)
+                time.sleep(2)
                 
-                response = session.post(result_url, data=form_data, headers=headers, timeout=20, verify=False)
+                response = session.post(result_url, data=form_data, headers=headers, timeout=15, verify=False)
                 
                 if response.status_code != 200:
-                    return False, f"UAF LMS returned status code {response.status_code}", None
+                    return False, f"UAF LMS returned status code {response.status_code}. Server may be blocking requests.", None
                     
-                logger.info(f"Successfully received response from result page")
+                # Parse results
+                return self.parse_uaf_results(response.text, registration_number)
                     
             except requests.exceptions.RequestException as e:
                 logger.error(f"Network error during result fetch: {str(e)}")
-                return False, f"Network error during result fetch: {str(e)}", None
-            
-            # Parse results
-            return self.parse_uaf_results(response.text, registration_number)
+                return False, f"Network error: {str(e)}. The server is actively blocking automated requests.", None
             
         except Exception as e:
             logger.error(f"Unexpected error in scrape_uaf_results: {str(e)}")
@@ -600,7 +581,7 @@ class handler(BaseHTTPRequestHandler):
             # Check if access is blocked or no results
             page_text = soup.get_text().lower()
             if any(blocked_text in page_text for blocked_text in ['blocked', 'access denied', 'not available', 'till result submission', 'suspended']):
-                return False, "Access blocked by UAF LMS", None
+                return False, "Access blocked by UAF LMS. The server is preventing automated access.", None
             
             # Check if no results found
             if "no result" in page_text or "no records" in page_text:
@@ -632,7 +613,6 @@ class handler(BaseHTTPRequestHandler):
             for table in soup.find_all('table'):
                 rows = table.find_all('tr')
                 
-                # Result tables should have multiple rows and specific content
                 if len(rows) > 3:
                     # Check if this looks like a result table
                     header_row = rows[0]
@@ -646,7 +626,7 @@ class handler(BaseHTTPRequestHandler):
                             row = rows[i]
                             cols = row.find_all('td')
                             
-                            if len(cols) >= 8:  # At least 8 columns for a proper result row
+                            if len(cols) >= 8:
                                 result_data = {
                                     'RegistrationNo': student_info.get('Registration', registration_number),
                                     'StudentName': student_info.get('StudentFullName', student_info.get('StudentName', '')),
@@ -664,99 +644,35 @@ class handler(BaseHTTPRequestHandler):
                                     'Grade': cols[11].text.strip() if len(cols) > 11 else ''
                                 }
                                 
-                                # Only add if we have meaningful data
                                 if result_data['CourseCode'] or result_data['CourseTitle']:
                                     student_results.append(result_data)
             
             if student_results:
                 return True, f"Successfully extracted {len(student_results)} records for {registration_number}", student_results
             else:
-                # Try alternative parsing method
-                alt_results = self.alternative_parse(soup, registration_number, student_info)
-                if alt_results:
-                    return True, f"Successfully extracted {len(alt_results)} records using alternative method", alt_results
-                
                 return False, f"No result data found for registration number: {registration_number}", None
                     
         except Exception as e:
             logger.error(f"Error parsing results: {str(e)}")
             return False, f"Error parsing results: {str(e)}", None
 
-    def alternative_parse(self, soup, registration_number, student_info):
-        """Alternative parsing method for different table structures"""
-        try:
-            student_results = []
-            
-            # Find all tables that might contain results
-            tables = soup.find_all('table')
-            
-            for table_idx, table in enumerate(tables):
-                rows = table.find_all('tr')
-                
-                # Skip tables with too few rows
-                if len(rows) < 3:
-                    continue
-                    
-                # Look for rows that might contain result data
-                for row_idx, row in enumerate(rows):
-                    cols = row.find_all('td')
-                    
-                    # A result row should have multiple columns with data
-                    if len(cols) >= 8 and any(col.text.strip() for col in cols):
-                        # Check if this looks like a result row (not a header)
-                        first_col = cols[0].text.strip()
-                        if first_col.isdigit() or any(term in first_col.lower() for term in ['sem', 'course', 'code']):
-                            
-                            result_data = {
-                                'RegistrationNo': registration_number,
-                                'StudentName': student_info.get('StudentFullName', student_info.get('StudentName', '')),
-                                'SrNo': cols[0].text.strip() if len(cols) > 0 else str(row_idx),
-                                'Semester': cols[1].text.strip() if len(cols) > 1 else '',
-                                'TeacherName': cols[2].text.strip() if len(cols) > 2 else '',
-                                'CourseCode': cols[3].text.strip() if len(cols) > 3 else '',
-                                'CourseTitle': cols[4].text.strip() if len(cols) > 4 else '',
-                                'CreditHours': cols[5].text.strip() if len(cols) > 5 else '',
-                                'Mid': cols[6].text.strip() if len(cols) > 6 else '',
-                                'Assignment': cols[7].text.strip() if len(cols) > 7 else '',
-                                'Final': cols[8].text.strip() if len(cols) > 8 else '',
-                                'Practical': cols[9].text.strip() if len(cols) > 9 else '',
-                                'Total': cols[10].text.strip() if len(cols) > 10 else '',
-                                'Grade': cols[11].text.strip() if len(cols) > 11 else ''
-                            }
-                            
-                            # Only add if we have course information
-                            if result_data['CourseCode'] or result_data['CourseTitle']:
-                                student_results.append(result_data)
-            
-            return student_results if student_results else None
-            
-        except Exception as e:
-            logger.error(f"Error in alternative parsing: {str(e)}")
-            return None
-
     def save_to_session(self, session_id, result_data):
         try:
             session_file = os.path.join(DATA_DIR, f"session_{session_id}.json")
             
-            # Load existing data or create new array
             if os.path.exists(session_file):
                 with open(session_file, 'r') as f:
                     existing_data = json.load(f)
             else:
                 existing_data = []
             
-            # Add metadata about when this data was added
             for result in result_data:
                 result['_scrapedAt'] = datetime.now().isoformat()
             
-            # Append new data to existing data
             existing_data.extend(result_data)
             
-            # Save back to file
             with open(session_file, 'w') as f:
                 json.dump(existing_data, f)
-                
-            logger.info(f"Saved {len(result_data)} records to session {session_id}, total records: {len(existing_data)}")
                 
         except Exception as e:
             logger.error(f"Error saving to session {session_id}: {e}")
@@ -768,8 +684,7 @@ class handler(BaseHTTPRequestHandler):
             if os.path.exists(session_file):
                 with open(session_file, 'r') as f:
                     data = json.load(f)
-                    
-                # Clean up old data (older than 1 hour)
+                
                 one_hour_ago = datetime.now() - timedelta(hours=1)
                 filtered_data = [
                     item for item in data 
@@ -777,7 +692,6 @@ class handler(BaseHTTPRequestHandler):
                     datetime.fromisoformat(item['_scrapedAt']) > one_hour_ago
                 ]
                 
-                # If we filtered out data, save the cleaned version
                 if len(filtered_data) != len(data):
                     with open(session_file, 'w') as f:
                         json.dump(filtered_data, f)
@@ -793,7 +707,6 @@ class handler(BaseHTTPRequestHandler):
             session_file = os.path.join(DATA_DIR, f"session_{session_id}.json")
             if os.path.exists(session_file):
                 os.remove(session_file)
-                logger.info(f"Deleted session {session_id}")
         except Exception as e:
             logger.error(f"Error deleting session {session_id}: {e}")
 
