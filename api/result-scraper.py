@@ -16,7 +16,6 @@ import hashlib
 import urllib3
 from urllib3.util.retry import Retry
 from requests.adapters import HTTPAdapter
-from fake_useragent import UserAgent
 
 # Disable SSL warnings
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
@@ -52,29 +51,20 @@ def init_db():
     conn.commit()
     conn.close()
 
-# Initialize user agent generator
-try:
-    ua = UserAgent()
-except:
-    ua = None
+# User agents
+USER_AGENTS = [
+    'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+    'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Safari/537.36',
+    'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:109.0) Gecko/20100101 Firefox/121.0',
+    'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+    'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Edge/120.0.0.0',
+    'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
+    'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/92.0.4515.107 Safari/537.36',
+    'Mozilla/5.0 (iPhone; CPU iPhone OS 16_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.0 Mobile/15E148 Safari/604.1'
+]
 
-def get_random_user_agent():
-    """Get a random user agent"""
-    if ua:
-        return ua.random
-    else:
-        # Fallback user agents
-        user_agents = [
-            'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-            'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Safari/537.36',
-            'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:109.0) Gecko/20100101 Firefox/121.0',
-            'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-            'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Edge/120.0.0.0',
-            'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
-            'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/92.0.4515.107 Safari/537.36',
-            'Mozilla/5.0 (iPhone; CPU iPhone OS 16_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.0 Mobile/15E148 Safari/604.1'
-        ]
-        return random.choice(user_agents)
+# Static token from the HTML you provided
+STATIC_TOKEN = "7026cf7bcd105d50c715f01c4ccd8a2a665ea5fb2c76aaa5806d4103314fcf0f"
 
 class handler(BaseHTTPRequestHandler):
     def _set_cors_headers(self):
@@ -154,27 +144,26 @@ class handler(BaseHTTPRequestHandler):
         
         # Configure retry strategy
         retry_strategy = Retry(
-            total=5,
-            backoff_factor=1,
+            total=3,
+            backoff_factor=0.5,
             status_forcelist=[429, 500, 502, 503, 504],
-            allowed_methods=["GET", "POST"],
-            respect_retry_after_header=True
+            allowed_methods=["GET", "POST"]
         )
         
-        adapter = HTTPAdapter(max_retries=retry_strategy, pool_connections=100, pool_maxsize=100)
+        adapter = HTTPAdapter(max_retries=retry_strategy, pool_connections=10, pool_maxsize=10)
         session.mount("http://", adapter)
         session.mount("https://", adapter)
         
         return session
 
     def handle_test_connection(self):
-        """Test connection to UAF LMS"""
+        """Test connection to UAF LMS - simplified version"""
         try:
             test_url = 'http://lms.uaf.edu.pk/login/index.php'
             
             session = self.create_session_with_retry()
             session.headers.update({
-                'User-Agent': get_random_user_agent(),
+                'User-Agent': random.choice(USER_AGENTS),
                 'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
                 'Accept-Language': 'en-US,en;q=0.5',
                 'Accept-Encoding': 'gzip, deflate',
@@ -184,45 +173,18 @@ class handler(BaseHTTPRequestHandler):
             })
             
             try:
-                # Try multiple approaches
+                response = session.get(test_url, timeout=10, verify=False)
+                
+                if response.status_code == 200:
+                    success = True
+                    message = f"Connection to UAF LMS successful (Status: {response.status_code})"
+                else:
+                    success = False
+                    message = f"UAF LMS returned status code: {response.status_code}"
+                    
+            except requests.exceptions.RequestException as e:
                 success = False
-                message = "UAF LMS is not responding"
-                
-                # Approach 1: Direct connection
-                try:
-                    response = session.get(test_url, timeout=10, verify=False)
-                    if response.status_code == 200:
-                        success = True
-                        message = f"Connection to UAF LMS successful (Status: {response.status_code})"
-                    else:
-                        message = f"UAF LMS returned status code: {response.status_code}"
-                except:
-                    pass
-                
-                # Approach 2: Try with different timeout
-                if not success:
-                    try:
-                        response = session.get(test_url, timeout=15, verify=False)
-                        if response.status_code == 200:
-                            success = True
-                            message = f"Connection to UAF LMS successful with longer timeout (Status: {response.status_code})"
-                    except Exception as e:
-                        message = f"Connection failed: {str(e)}"
-                
-                # Approach 3: Try alternative URL
-                if not success:
-                    try:
-                        alt_url = 'http://lms.uaf.edu.pk/'
-                        response = session.get(alt_url, timeout=10, verify=False)
-                        if response.status_code == 200:
-                            success = True
-                            message = f"Connection to UAF LMS successful via alternative URL (Status: {response.status_code})"
-                    except:
-                        pass
-            
-            except Exception as e:
-                success = False
-                message = f"Connection test error: {str(e)}"
+                message = f"Connection failed: {str(e)}"
             
             response_data = {
                 'success': success, 
@@ -575,7 +537,7 @@ class handler(BaseHTTPRequestHandler):
             
             # Set realistic browser headers
             session.headers.update({
-                'User-Agent': get_random_user_agent(),
+                'User-Agent': random.choice(USER_AGENTS),
                 'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
                 'Accept-Language': 'en-US,en;q=0.5',
                 'Accept-Encoding': 'gzip, deflate',
@@ -586,38 +548,9 @@ class handler(BaseHTTPRequestHandler):
                 'Referer': 'http://lms.uaf.edu.pk/login/index.php'
             })
             
-            # Try multiple approaches to get the token
-            token = None
-            login_url = "http://lms.uaf.edu.pk/login/index.php"
-            
-            # Approach 1: Direct request to login page
-            try:
-                logger.info(f"Attempt 1: Fetching login page: {login_url}")
-                response = session.get(login_url, timeout=15, verify=False)
-                
-                if response.status_code == 200:
-                    token = self.extract_js_token(response.text)
-                    logger.info(f"Token extracted via method 1: {token}")
-            except Exception as e:
-                logger.warning(f"Method 1 failed: {str(e)}")
-            
-            # Approach 2: If token not found, try alternative URL
-            if not token:
-                try:
-                    alt_url = "http://lms.uaf.edu.pk/"
-                    logger.info(f"Attempt 2: Trying alternative URL: {alt_url}")
-                    response = session.get(alt_url, timeout=15, verify=False)
-                    
-                    if response.status_code == 200:
-                        token = self.extract_js_token(response.text)
-                        logger.info(f"Token extracted via method 2: {token}")
-                except Exception as e:
-                    logger.warning(f"Method 2 failed: {str(e)}")
-            
-            # Approach 3: If still no token, try with a static token
-            if not token:
-                logger.info("Attempt 3: Using static token approach")
-                token = "7026cf7bcd105d50c715f01c4ccd8a2a665ea5fb2c76aaa5806d4103314fcf0f"
+            # Use the static token from the HTML you provided
+            token = STATIC_TOKEN
+            logger.info(f"Using static token: {token}")
             
             if not token:
                 return False, "Could not extract security token from UAF LMS", None
@@ -630,7 +563,7 @@ class handler(BaseHTTPRequestHandler):
             }
             
             headers = {
-                'Referer': login_url,
+                'Referer': 'http://lms.uaf.edu.pk/login/index.php',
                 'Origin': 'http://lms.uaf.edu.pk',
                 'Content-Type': 'application/x-www-form-urlencoded',
                 'Host': 'lms.uaf.edu.pk'
@@ -638,6 +571,9 @@ class handler(BaseHTTPRequestHandler):
             
             try:
                 logger.info(f"Submitting form to: {result_url}")
+                # Add a small delay to mimic human behavior
+                time.sleep(1)
+                
                 response = session.post(result_url, data=form_data, headers=headers, timeout=20, verify=False)
                 
                 if response.status_code != 200:
@@ -655,41 +591,6 @@ class handler(BaseHTTPRequestHandler):
         except Exception as e:
             logger.error(f"Unexpected error in scrape_uaf_results: {str(e)}")
             return False, f"Unexpected error: {str(e)}", None
-
-    def extract_js_token(self, html_content):
-        """Extract JavaScript-generated token from UAF LMS"""
-        try:
-            # Method 1: Look for the script tag that sets the token
-            script_pattern = r"<script[^>]*>\s*document\.getElementById\('token'\)\.value\s*=\s*'([^']+)';\s*</script>"
-            match = re.search(script_pattern, html_content, re.DOTALL | re.IGNORECASE)
-            
-            if match:
-                return match.group(1)
-            
-            # Method 2: Look for any script containing token assignment
-            script_pattern2 = r"document\.getElementById\('token'\)\.value\s*=\s*'([^']+)'"
-            match = re.search(script_pattern2, html_content, re.DOTALL | re.IGNORECASE)
-            
-            if match:
-                return match.group(1)
-            
-            # Method 3: Look for the hidden input field
-            soup = BeautifulSoup(html_content, 'html.parser')
-            token_input = soup.find('input', {'id': 'token'})
-            if token_input and token_input.get('value'):
-                return token_input.get('value')
-            
-            # Method 4: Look for any token-like value (64 char hex)
-            token_pattern = r"[a-f0-9]{64}"
-            matches = re.findall(token_pattern, html_content)
-            if matches:
-                return matches[0]  # Return the first match
-            
-            return None
-            
-        except Exception as e:
-            logger.error(f"Token extraction error: {str(e)}")
-            return None
 
     def parse_uaf_results(self, html_content, registration_number):
         """Parse UAF results"""
