@@ -17,12 +17,6 @@ import urllib3
 from urllib3.util.retry import Retry
 from requests.adapters import HTTPAdapter
 import cloudscraper
-import undetected_chromedriver as uc
-from selenium.webdriver.common.by import By
-from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.support import expected_conditions as EC
-from selenium.common.exceptions import TimeoutException
-import threading
 
 # Disable SSL warnings
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
@@ -68,50 +62,6 @@ USER_AGENTS = [
     'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
     'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/92.0.4515.107 Safari/537.36'
 ]
-
-# Global driver instance for Selenium
-driver_lock = threading.Lock()
-driver_instance = None
-
-def get_driver():
-    """Get a singleton Chrome driver instance"""
-    global driver_instance
-    with driver_lock:
-        if driver_instance is None:
-            try:
-                options = uc.ChromeOptions()
-                options.add_argument('--headless=new')
-                options.add_argument('--no-sandbox')
-                options.add_argument('--disable-dev-shm-usage')
-                options.add_argument('--disable-gpu')
-                options.add_argument('--disable-extensions')
-                options.add_argument('--remote-debugging-port=9222')
-                options.add_argument('--disable-blink-features=AutomationControlled')
-                options.add_experimental_option("excludeSwitches", ["enable-automation"])
-                options.add_experimental_option('useAutomationExtension', False)
-                
-                driver_instance = uc.Chrome(
-                    options=options,
-                    version_main=114,
-                    driver_executable_path='/usr/bin/chromedriver'
-                )
-                driver_instance.execute_script("Object.defineProperty(navigator, 'webdriver', {get: () => undefined})")
-            except Exception as e:
-                logger.error(f"Failed to create Chrome driver: {str(e)}")
-                return None
-        return driver_instance
-
-def close_driver():
-    """Close the Chrome driver instance"""
-    global driver_instance
-    with driver_lock:
-        if driver_instance is not None:
-            try:
-                driver_instance.quit()
-            except:
-                pass
-            finally:
-                driver_instance = None
 
 class handler(BaseHTTPRequestHandler):
     def _set_cors_headers(self):
@@ -227,7 +177,6 @@ class handler(BaseHTTPRequestHandler):
             approaches = [
                 self.test_direct_connection,
                 self.test_with_cloudscraper,
-                self.test_with_selenium
             ]
             
             success = False
@@ -291,29 +240,6 @@ class handler(BaseHTTPRequestHandler):
                 
         except Exception as e:
             return False, f"Cloudscraper connection failed: {str(e)}"
-
-    def test_with_selenium(self, test_url):
-        """Test connection using Selenium"""
-        driver = get_driver()
-        if not driver:
-            return False, "Selenium driver not available"
-            
-        try:
-            driver.get(test_url)
-            WebDriverWait(driver, 15).until(
-                EC.presence_of_element_located((By.TAG_NAME, "body"))
-            )
-            
-            # Check if page loaded successfully
-            if "login" in driver.title.lower() or "lms" in driver.title.lower():
-                return True, f"Selenium connection successful (Title: {driver.title})"
-            else:
-                return False, f"Selenium connection failed (Title: {driver.title})"
-                
-        except TimeoutException:
-            return False, "Selenium connection timed out"
-        except Exception as e:
-            return False, f"Selenium connection failed: {str(e)}"
 
     def handle_check_session(self):
         """Check if session exists and has data"""
@@ -648,7 +574,6 @@ class handler(BaseHTTPRequestHandler):
     def scrape_uaf_results(self, registration_number):
         """Main function to scrape UAF results with multiple fallback approaches"""
         approaches = [
-            self.scrape_with_selenium,
             self.scrape_with_cloudscraper,
             self.scrape_direct_method,
             self.scrape_from_cache
@@ -799,75 +724,6 @@ class handler(BaseHTTPRequestHandler):
         except Exception as e:
             logger.error(f"Error in scrape_with_cloudscraper: {str(e)}")
             return False, f"Cloudscraper error: {str(e)}", None
-
-    def scrape_with_selenium(self, registration_number):
-        """Scraping using Selenium WebDriver"""
-        driver = get_driver()
-        if not driver:
-            return False, "Selenium driver not available", None
-            
-        try:
-            # Navigate to login page
-            login_url = "http://lms.uaf.edu.pk/login/index.php"
-            driver.get(login_url)
-            
-            # Wait for page to load
-            WebDriverWait(driver, 15).until(
-                EC.presence_of_element_located((By.TAG_NAME, "body"))
-            )
-            
-            # Extract token using JavaScript
-            token = driver.execute_script("""
-                return document.getElementById('token') ? document.getElementById('token').value : null;
-            """)
-            
-            if not token:
-                # Try to find token in JavaScript code
-                page_source = driver.page_source
-                token = self.extract_js_token(page_source)
-                
-            if not token:
-                return False, "Could not extract security token with Selenium", None
-            
-            # Navigate to result page
-            result_url = "http://lms.uaf.edu.pk/course/uaf_student_result.php"
-            driver.get(result_url)
-            
-            # Wait for form to load
-            WebDriverWait(driver, 10).until(
-                EC.presence_of_element_located((By.TAG_NAME, "form"))
-            )
-            
-            # Fill the form using JavaScript
-            script = f"""
-                document.querySelector('input[name="token"]').value = '{token}';
-                document.querySelector('input[name="Register"]').value = '{registration_number}';
-                document.querySelector('form').submit();
-            """
-            driver.execute_script(script)
-            
-            # Wait for results to load
-            WebDriverWait(driver, 15).until(
-                EC.presence_of_element_located((By.TAG_NAME, "table"))
-            )
-            
-            # Get the page source
-            page_source = driver.page_source
-            
-            # Parse results
-            success, message, result_data = self.parse_uaf_results(page_source, registration_number)
-            
-            # Cache successful results
-            if success:
-                self.cache_results(registration_number, result_data)
-                
-            return success, message, result_data
-            
-        except TimeoutException:
-            return False, "Selenium scraping timed out", None
-        except Exception as e:
-            logger.error(f"Error in scrape_with_selenium: {str(e)}")
-            return False, f"Selenium error: {str(e)}", None
 
     def scrape_from_cache(self, registration_number):
         """Try to get results from cache if direct scraping fails"""
@@ -1146,7 +1002,3 @@ class handler(BaseHTTPRequestHandler):
 
 # Initialize database when module is loaded
 init_db()
-
-# Close driver on exit
-import atexit
-atexit.register(close_driver)
