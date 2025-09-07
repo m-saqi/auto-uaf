@@ -13,9 +13,19 @@ import uuid
 from datetime import datetime, timedelta
 import sqlite3
 import hashlib
+import threading
+import concurrent.futures
+import asyncio
+import aiohttp
+import async_timeout
+from urllib.parse import urljoin, urlparse
+import brotli
+import gzip
+from requests.adapters import HTTPAdapter
+from urllib3.util.retry import Retry
 
 # Set up logging
-logging.basicConfig(level=logging.INFO)
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
 
 # Use /tmp directory for session storage
@@ -25,6 +35,11 @@ if not os.path.exists(DATA_DIR):
 
 # Database path
 DB_PATH = os.path.join(DATA_DIR, "saved_results.db")
+
+# Cache for tokens and sessions to avoid repeated extraction
+TOKEN_CACHE = {}
+SESSION_CACHE = {}
+CACHE_LOCK = threading.Lock()
 
 # Initialize database
 def init_db():
@@ -42,6 +57,17 @@ def init_db():
         CREATE INDEX IF NOT EXISTS idx_registration_number 
         ON saved_results (registration_number)
     ''')
+    c.execute('''
+        CREATE TABLE IF NOT EXISTS cache (
+            key TEXT PRIMARY KEY,
+            value TEXT NOT NULL,
+            expiry DATETIME NOT NULL
+        )
+    ''')
+    c.execute('''
+        CREATE INDEX IF NOT EXISTS idx_cache_expiry 
+        ON cache (expiry)
+    ''')
     conn.commit()
     conn.close()
 
@@ -54,11 +80,65 @@ USER_AGENTS = [
     'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Edge/120.0.0.0'
 ]
 
+# Create a session with retry strategy
+def create_session():
+    session = requests.Session()
+    
+    # Configure retry strategy
+    retry_strategy = Retry(
+        total=3,
+        backoff_factor=0.5,
+        status_forcelist=[429, 500, 502, 503, 504],
+        allowed_methods=["GET", "POST"]
+    )
+    
+    adapter = HTTPAdapter(max_retries=retry_strategy, pool_connections=10, pool_maxsize=20)
+    session.mount("https://", adapter)
+    session.mount("http://", adapter)
+    
+    session.headers.update({
+        'User-Agent': random.choice(USER_AGENTS),
+        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7',
+        'Accept-Language': 'en-US,en;q=0.9',
+        'Accept-Encoding': 'gzip, deflate, br',
+        'Connection': 'keep-alive',
+        'Upgrade-Insecure-Requests': '1',
+        'Cache-Control': 'max-age=0',
+    })
+    
+    return session
+
+# Cache management functions
+def get_cached_value(key):
+    try:
+        conn = sqlite3.connect(DB_PATH)
+        c = conn.cursor()
+        c.execute('SELECT value FROM cache WHERE key = ? AND expiry > datetime("now")', (key,))
+        result = c.fetchone()
+        conn.close()
+        return json.loads(result[0]) if result else None
+    except:
+        return None
+
+def set_cached_value(key, value, ttl_minutes=10):
+    try:
+        expiry = datetime.now() + timedelta(minutes=ttl_minutes)
+        conn = sqlite3.connect(DB_PATH)
+        c = conn.cursor()
+        c.execute('''
+            INSERT OR REPLACE INTO cache (key, value, expiry)
+            VALUES (?, ?, ?)
+        ''', (key, json.dumps(value), expiry))
+        conn.commit()
+        conn.close()
+    except:
+        pass
+
 class handler(BaseHTTPRequestHandler):
     def _set_cors_headers(self):
         self.send_header('Access-Control-Allow-Origin', '*')
         self.send_header('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, DELETE')
-        self.send_header('Access-Control-Allow-Headers', 'Content-Type')
+        self.send_header('Access-Control-Allow-Headers', 'Content-Type, Session-Id, session_id')
     
     def do_OPTIONS(self):
         self.send_response(200)
@@ -76,6 +156,8 @@ class handler(BaseHTTPRequestHandler):
                 self.handle_scrape_single()
             elif 'action=load_result' in self.path or 'load_result' in self.path:
                 self.handle_load_result()
+            elif 'action=bulk_status' in self.path:
+                self.handle_bulk_status()
             else:
                 self.send_response(404)
                 self._set_cors_headers()
@@ -93,6 +175,8 @@ class handler(BaseHTTPRequestHandler):
                 self.handle_clear_session()
             elif 'action=scrape_single' in self.path:
                 self.handle_scrape_single()
+            elif 'action=scrape_bulk' in self.path:
+                self.handle_scrape_bulk()
             else:
                 self.send_response(404)
                 self._set_cors_headers()
@@ -138,17 +222,20 @@ class handler(BaseHTTPRequestHandler):
             
             success = False
             message = "UAF LMS is not responding"
+            response_time = None
             
             for test_url in test_urls:
                 try:
+                    start_time = time.time()
                     response = requests.get(test_url, timeout=10, headers={
                         'User-Agent': random.choice(USER_AGENTS),
-                    }, verify=True)  # Enable SSL verification
+                    }, verify=True)
+                    response_time = time.time() - start_time
                     
                     # If we get any response (even 500), the server is reachable
                     if response.status_code < 500:
                         success = True
-                        message = f"Connection to UAF LMS successful (Status: {response.status_code})"
+                        message = f"Connection to UAF LMS successful (Status: {response.status_code}, Response Time: {response_time:.2f}s)"
                         break
                     else:
                         message = f"UAF LMS returned status code: {response.status_code}"
@@ -156,13 +243,15 @@ class handler(BaseHTTPRequestHandler):
                 except requests.exceptions.SSLError:
                     # Try without SSL verification if there's an SSL error
                     try:
+                        start_time = time.time()
                         response = requests.get(test_url, timeout=10, headers={
                             'User-Agent': random.choice(USER_AGENTS),
                         }, verify=False)
+                        response_time = time.time() - start_time
                         
                         if response.status_code < 500:
                             success = True
-                            message = f"Connection to UAF LMS successful with SSL verification disabled (Status: {response.status_code})"
+                            message = f"Connection to UAF LMS successful with SSL verification disabled (Status: {response.status_code}, Response Time: {response_time:.2f}s)"
                             break
                         else:
                             message = f"UAF LMS returned status code: {response.status_code}"
@@ -174,7 +263,8 @@ class handler(BaseHTTPRequestHandler):
             
             response_data = {
                 'success': success, 
-                'message': message
+                'message': message,
+                'responseTime': response_time
             }
             self.send_success_response(response_data)
             
@@ -251,14 +341,31 @@ class handler(BaseHTTPRequestHandler):
                         self.send_error_response(400, 'No registration number provided')
                         return
                     
+                    # Check cache first
+                    cache_key = f"result_{registration_number}"
+                    cached_result = get_cached_value(cache_key)
+                    
+                    if cached_result:
+                        response = {
+                            'success': True, 
+                            'message': 'Result loaded from cache', 
+                            'resultData': cached_result,
+                            'cached': True
+                        }
+                        self.send_success_response(response)
+                        return
+                    
                     # Scrape results
                     success, message, result_data = self.scrape_uaf_results(registration_number)
                     
                     if success and result_data:
+                        # Cache the result for 10 minutes
+                        set_cached_value(cache_key, result_data, 10)
                         response = {
                             'success': success, 
                             'message': message, 
-                            'resultData': result_data
+                            'resultData': result_data,
+                            'cached': False
                         }
                     else:
                         response = {'success': success, 'message': message, 'resultData': result_data}
@@ -278,14 +385,31 @@ class handler(BaseHTTPRequestHandler):
                     self.send_error_response(400, 'No registration number provided')
                     return
                 
+                # Check cache first
+                cache_key = f"result_{registration_number}"
+                cached_result = get_cached_value(cache_key)
+                
+                if cached_result:
+                    response = {
+                        'success': True, 
+                        'message': 'Result loaded from cache', 
+                        'resultData': cached_result,
+                        'cached': True
+                    }
+                    self.send_success_response(response)
+                    return
+                
                 # Scrape results
                 success, message, result_data = self.scrape_uaf_results(registration_number)
                 
                 if success and result_data:
+                    # Cache the result for 10 minutes
+                    set_cached_value(cache_key, result_data, 10)
                     response = {
                         'success': success, 
                         'message': message, 
-                        'resultData': result_data
+                        'resultData': result_data,
+                        'cached': False
                     }
                 else:
                     response = {'success': success, 'message': message, 'resultData': result_data}
@@ -294,6 +418,159 @@ class handler(BaseHTTPRequestHandler):
                 
         except Exception as e:
             self.send_error_response(500, f"Error scraping single result: {str(e)}")
+
+    def handle_scrape_bulk(self):
+        """Handle bulk scraping of multiple registration numbers"""
+        try:
+            content_length = int(self.headers['Content-Length'])
+            post_data = self.rfile.read(content_length)
+            data = json.loads(post_data)
+            
+            registration_numbers = data.get('registrationNumbers', [])
+            session_id = data.get('sessionId')
+            
+            if not registration_numbers:
+                self.send_error_response(400, 'No registration numbers provided')
+                return
+                
+            if not session_id:
+                self.send_error_response(400, 'No session ID provided')
+                return
+            
+            # Start bulk scraping in background thread
+            thread = threading.Thread(
+                target=self.bulk_scrape_worker,
+                args=(registration_numbers, session_id)
+            )
+            thread.daemon = True
+            thread.start()
+            
+            response_data = {
+                'success': True, 
+                'message': f'Bulk scraping started for {len(registration_numbers)} registration numbers',
+                'total': len(registration_numbers)
+            }
+            self.send_success_response(response_data)
+            
+        except Exception as e:
+            self.send_error_response(500, f"Error starting bulk scrape: {str(e)}")
+
+    def bulk_scrape_worker(self, registration_numbers, session_id):
+        """Worker function for bulk scraping"""
+        try:
+            # Create progress tracking file
+            progress_file = os.path.join(DATA_DIR, f"progress_{session_id}.json")
+            progress_data = {
+                'total': len(registration_numbers),
+                'completed': 0,
+                'successful': 0,
+                'failed': 0,
+                'results': [],
+                'startTime': datetime.now().isoformat(),
+                'status': 'running'
+            }
+            
+            with open(progress_file, 'w') as f:
+                json.dump(progress_data, f)
+            
+            # Use ThreadPoolExecutor for concurrent scraping
+            with concurrent.futures.ThreadPoolExecutor(max_workers=5) as executor:
+                # Map registration numbers to executor
+                future_to_reg = {
+                    executor.submit(self.scrape_uaf_results, reg): reg 
+                    for reg in registration_numbers
+                }
+                
+                for future in concurrent.futures.as_completed(future_to_reg):
+                    reg = future_to_reg[future]
+                    try:
+                        success, message, result_data = future.result()
+                        
+                        # Update progress
+                        with open(progress_file, 'r') as f:
+                            progress_data = json.load(f)
+                        
+                        progress_data['completed'] += 1
+                        
+                        if success and result_data:
+                            progress_data['successful'] += 1
+                            # Save to session
+                            self.save_to_session(session_id, result_data)
+                            progress_data['results'].append({
+                                'registrationNumber': reg,
+                                'success': True,
+                                'count': len(result_data)
+                            })
+                        else:
+                            progress_data['failed'] += 1
+                            progress_data['results'].append({
+                                'registrationNumber': reg,
+                                'success': False,
+                                'error': message
+                            })
+                        
+                        # Save progress
+                        with open(progress_file, 'w') as f:
+                            json.dump(progress_data, f)
+                            
+                    except Exception as e:
+                        # Update progress on error
+                        with open(progress_file, 'r') as f:
+                            progress_data = json.load(f)
+                        
+                        progress_data['completed'] += 1
+                        progress_data['failed'] += 1
+                        progress_data['results'].append({
+                            'registrationNumber': reg,
+                            'success': False,
+                            'error': str(e)
+                        })
+                        
+                        # Save progress
+                        with open(progress_file, 'w') as f:
+                            json.dump(progress_data, f)
+            
+            # Mark as completed
+            with open(progress_file, 'r') as f:
+                progress_data = json.load(f)
+            
+            progress_data['status'] = 'completed'
+            progress_data['endTime'] = datetime.now().isoformat()
+            
+            with open(progress_file, 'w') as f:
+                json.dump(progress_data, f)
+                
+        except Exception as e:
+            logger.error(f"Error in bulk scrape worker: {str(e)}")
+
+    def handle_bulk_status(self):
+        """Get status of bulk scraping operation"""
+        try:
+            session_id = self.headers.get('Session-Id') or self.headers.get('session_id')
+            if not session_id:
+                self.send_error_response(400, 'No session ID provided')
+                return
+                
+            progress_file = os.path.join(DATA_DIR, f"progress_{session_id}.json")
+            
+            if os.path.exists(progress_file):
+                with open(progress_file, 'r') as f:
+                    progress_data = json.load(f)
+                
+                response_data = {
+                    'success': True,
+                    'progress': progress_data
+                }
+            else:
+                response_data = {
+                    'success': False,
+                    'message': 'No bulk operation found for this session'
+                }
+                
+            self.send_success_response(response_data)
+            
+        except Exception as e:
+            self.send_error_response(500, f"Error getting bulk status: {str(e)}")
 
     def handle_save_result(self):
         """Save result data to database"""
@@ -457,14 +734,37 @@ class handler(BaseHTTPRequestHandler):
             self.send_error_response(400, 'No session ID provided')
             return
         
+        # Check cache first
+        cache_key = f"result_{registration_number}"
+        cached_result = get_cached_value(cache_key)
+        
+        if cached_result:
+            # Save cached result to session
+            self.save_to_session(session_id, cached_result)
+            response = {
+                'success': True, 
+                'message': 'Result loaded from cache', 
+                'resultData': cached_result,
+                'cached': True
+            }
+            self.send_success_response(response)
+            return
+        
         # Scrape results
         success, message, result_data = self.scrape_uaf_results(registration_number)
         
         # Save result to session file if successful
         if success and result_data:
             self.save_to_session(session_id, result_data)
+            # Cache the result
+            set_cached_value(cache_key, result_data, 10)
             
-        response = {'success': success, 'message': message, 'resultData': result_data}
+        response = {
+            'success': success, 
+            'message': message, 
+            'resultData': result_data,
+            'cached': False
+        }
         self.send_success_response(response)
 
     def handle_save(self):
@@ -518,51 +818,60 @@ class handler(BaseHTTPRequestHandler):
     def scrape_uaf_results(self, registration_number):
         """Main function to scrape UAF results"""
         try:
-            # Create session
-            session = requests.Session()
-            session.headers.update({
-                'User-Agent': random.choice(USER_AGENTS),
-                'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
-                'Accept-Language': 'en-US,en;q=0.5',
-                'Connection': 'keep-alive',
-                'Upgrade-Insecure-Requests': '1',
-            })
+            # Check if we have a cached token and session
+            cache_key = f"token_session_{hashlib.md5(registration_number.encode()).hexdigest()}"
+            cached_data = get_cached_value(cache_key)
             
-            # Step 1: Get login page to extract token - updated to HTTPS
-            login_url = "https://lms.uaf.edu.pk/login/index.php"
-            try:
-                response = session.get(login_url, timeout=15, verify=True)
+            if cached_data and 'token' in cached_data and 'session' in cached_data:
+                # Use cached token and session
+                token = cached_data['token']
+                session = cached_data['session']
+                logger.info(f"Using cached token and session for {registration_number}")
+            else:
+                # Create new session and extract token
+                session = create_session()
                 
-                if response.status_code != 200:
-                    # Try without SSL verification if there's an SSL error
-                    response = session.get(login_url, timeout=15, verify=False)
-                    
-                    if response.status_code != 200:
-                        return False, f"UAF LMS returned status code {response.status_code}. The server may be down.", None
-                    
-            except requests.exceptions.SSLError:
-                # Try without SSL verification
+                # Step 1: Get login page to extract token - updated to HTTPS
+                login_url = "https://lms.uaf.edu.pk/login/index.php"
                 try:
-                    response = session.get(login_url, timeout=15, verify=False)
+                    response = session.get(login_url, timeout=15, verify=True)
                     
                     if response.status_code != 200:
-                        return False, f"UAF LMS returned status code {response.status_code}. The server may be down.", None
+                        # Try without SSL verification if there's an SSL error
+                        response = session.get(login_url, timeout=15, verify=False)
                         
+                        if response.status_code != 200:
+                            return False, f"UAF LMS returned status code {response.status_code}. The server may be down.", None
+                        
+                except requests.exceptions.SSLError:
+                    # Try without SSL verification
+                    try:
+                        response = session.get(login_url, timeout=15, verify=False)
+                        
+                        if response.status_code != 200:
+                            return False, f"UAF LMS returned status code {response.status_code}. The server may be down.", None
+                            
+                    except requests.exceptions.RequestException as e:
+                        return False, f"Network error: {str(e)}. UAF LMS may be unavailable.", None
                 except requests.exceptions.RequestException as e:
                     return False, f"Network error: {str(e)}. UAF LMS may be unavailable.", None
-            except requests.exceptions.RequestException as e:
-                return False, f"Network error: {str(e)}. UAF LMS may be unavailable.", None
-            
-            # Step 2: Extract JavaScript-generated token
-            token = self.extract_js_token(response.text)
-            if not token:
-                # Try alternative method - look for the hidden input field
-                soup = BeautifulSoup(response.text, 'html.parser')
-                token_input = soup.find('input', {'id': 'token'})
-                if token_input and token_input.get('value'):
-                    token = token_input.get('value')
-                else:
-                    return False, "Could not extract security token from UAF LMS", None
+                
+                # Step 2: Extract JavaScript-generated token
+                token = self.extract_js_token(response.text)
+                if not token:
+                    # Try alternative method - look for the hidden input field
+                    soup = BeautifulSoup(response.text, 'html.parser')
+                    token_input = soup.find('input', {'id': 'token'})
+                    if token_input and token_input.get('value'):
+                        token = token_input.get('value')
+                    else:
+                        return False, "Could not extract security token from UAF LMS", None
+                
+                # Cache the token and session for future use
+                set_cached_value(cache_key, {
+                    'token': token,
+                    'session': session.cookies.get_dict()
+                }, 5)  # Cache for 5 minutes
             
             # Step 3: Submit form with correct field names - updated to HTTPS
             result_url = "https://lms.uaf.edu.pk/course/uaf_student_result.php"
@@ -572,12 +881,16 @@ class handler(BaseHTTPRequestHandler):
             }
             
             headers = {
-                'Referer': login_url,
+                'Referer': 'https://lms.uaf.edu.pk/login/index.php',
                 'Origin': 'https://lms.uaf.edu.pk',
                 'Content-Type': 'application/x-www-form-urlencoded'
             }
             
             try:
+                # If we have a cached session, restore cookies
+                if cached_data and 'session' in cached_data:
+                    session.cookies.update(cached_data['session'])
+                
                 response = session.post(result_url, data=form_data, headers=headers, timeout=20, verify=True)
                 
                 if response.status_code != 200:
