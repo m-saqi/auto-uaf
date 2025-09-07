@@ -13,6 +13,12 @@ import uuid
 from datetime import datetime, timedelta
 import sqlite3
 import hashlib
+import urllib3
+from urllib3.util.retry import Retry
+from requests.adapters import HTTPAdapter
+
+# Disable SSL warnings
+urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 # Set up logging
 logging.basicConfig(level=logging.INFO)
@@ -45,13 +51,15 @@ def init_db():
     conn.commit()
     conn.close()
 
-# User agents
+# User agents - updated with more realistic ones
 USER_AGENTS = [
     'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
     'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Safari/537.36',
     'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:109.0) Gecko/20100101 Firefox/121.0',
     'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-    'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Edge/120.0.0.0'
+    'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Edge/120.0.0.0',
+    'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
+    'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/92.0.4515.107 Safari/537.36'
 ]
 
 class handler(BaseHTTPRequestHandler):
@@ -126,36 +134,52 @@ class handler(BaseHTTPRequestHandler):
         self.end_headers()
         self.wfile.write(json.dumps(data).encode())
 
+    def create_session_with_retry(self):
+        """Create a requests session with retry logic"""
+        session = requests.Session()
+        
+        # Configure retry strategy
+        retry_strategy = Retry(
+            total=3,
+            backoff_factor=0.5,
+            status_forcelist=[429, 500, 502, 503, 504],
+            allowed_methods=["GET", "POST"]
+        )
+        
+        adapter = HTTPAdapter(max_retries=retry_strategy, pool_connections=10, pool_maxsize=10)
+        session.mount("http://", adapter)
+        session.mount("https://", adapter)
+        
+        return session
+
     def handle_test_connection(self):
         """Test connection to UAF LMS - simplified version"""
         try:
-            # Try multiple endpoints to test connection
-            test_urls = [
-                'http://lms.uaf.edu.pk/login/index.php',
-                'http://lms.uaf.edu.pk/',
-                'http://lms.uaf.edu.pk'
-            ]
+            test_url = 'http://lms.uaf.edu.pk/login/index.php'
             
-            success = False
-            message = "UAF LMS is not responding"
+            session = self.create_session_with_retry()
+            session.headers.update({
+                'User-Agent': random.choice(USER_AGENTS),
+                'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
+                'Accept-Language': 'en-US,en;q=0.5',
+                'Accept-Encoding': 'gzip, deflate',
+                'Connection': 'keep-alive',
+                'Upgrade-Insecure-Requests': '1',
+            })
             
-            for test_url in test_urls:
-                try:
-                    response = requests.get(test_url, timeout=10, headers={
-                        'User-Agent': random.choice(USER_AGENTS),
-                    })
+            try:
+                response = session.get(test_url, timeout=15, verify=False)
+                
+                if response.status_code == 200:
+                    success = True
+                    message = f"Connection to UAF LMS successful (Status: {response.status_code})"
+                else:
+                    success = False
+                    message = f"UAF LMS returned status code: {response.status_code}"
                     
-                    # If we get any response (even 500), the server is reachable
-                    if response.status_code < 500:
-                        success = True
-                        message = f"Connection to UAF LMS successful (Status: {response.status_code})"
-                        break
-                    else:
-                        message = f"UAF LMS returned status code: {response.status_code}"
-                        
-                except requests.exceptions.RequestException as e:
-                    # Continue to next URL if this one fails
-                    continue
+            except requests.exceptions.RequestException as e:
+                success = False
+                message = f"Connection failed: {str(e)}"
             
             response_data = {
                 'success': success, 
@@ -503,35 +527,46 @@ class handler(BaseHTTPRequestHandler):
     def scrape_uaf_results(self, registration_number):
         """Main function to scrape UAF results"""
         try:
-            # Create session
-            session = requests.Session()
+            # Create session with retry capability
+            session = self.create_session_with_retry()
+            
+            # Set realistic browser headers
             session.headers.update({
                 'User-Agent': random.choice(USER_AGENTS),
                 'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
                 'Accept-Language': 'en-US,en;q=0.5',
+                'Accept-Encoding': 'gzip, deflate',
                 'Connection': 'keep-alive',
                 'Upgrade-Insecure-Requests': '1',
+                'Cache-Control': 'max-age=0',
+                'Origin': 'http://lms.uaf.edu.pk',
+                'Referer': 'http://lms.uaf.edu.pk/login/index.php'
             })
             
             # Step 1: Get login page to extract token
             login_url = "http://lms.uaf.edu.pk/login/index.php"
             try:
-                response = session.get(login_url, timeout=15)
+                logger.info(f"Fetching login page: {login_url}")
+                response = session.get(login_url, timeout=15, verify=False)
                 
                 if response.status_code != 200:
                     return False, f"UAF LMS returned status code {response.status_code}. The server may be down.", None
                     
             except requests.exceptions.RequestException as e:
+                logger.error(f"Network error fetching login page: {str(e)}")
                 return False, f"Network error: {str(e)}. UAF LMS may be unavailable.", None
             
-            # Step 2: Extract JavaScript-generated token
+            # Step 2: Extract token from JavaScript
             token = self.extract_js_token(response.text)
+            logger.info(f"Extracted token: {token}")
+            
             if not token:
-                # Try alternative method - look for the hidden input field
+                # Try to find token in the HTML directly
                 soup = BeautifulSoup(response.text, 'html.parser')
                 token_input = soup.find('input', {'id': 'token'})
                 if token_input and token_input.get('value'):
                     token = token_input.get('value')
+                    logger.info(f"Found token in HTML: {token}")
                 else:
                     return False, "Could not extract security token from UAF LMS", None
             
@@ -545,23 +580,28 @@ class handler(BaseHTTPRequestHandler):
             headers = {
                 'Referer': login_url,
                 'Origin': 'http://lms.uaf.edu.pk',
-                'Content-Type': 'application/x-www-form-urlencoded'
+                'Content-Type': 'application/x-www-form-urlencoded',
+                'Host': 'lms.uaf.edu.pk'
             }
             
             try:
-                response = session.post(result_url, data=form_data, headers=headers, timeout=20)
+                logger.info(f"Submitting form to: {result_url}")
+                response = session.post(result_url, data=form_data, headers=headers, timeout=20, verify=False)
                 
                 if response.status_code != 200:
                     return False, f"UAF LMS returned status code {response.status_code}", None
                     
+                logger.info(f"Successfully received response from result page")
+                    
             except requests.exceptions.RequestException as e:
+                logger.error(f"Network error during result fetch: {str(e)}")
                 return False, f"Network error during result fetch: {str(e)}", None
             
             # Step 4: Parse results
             return self.parse_uaf_results(response.text, registration_number)
             
         except Exception as e:
-            logger.error(f"Unexpected error: {str(e)}")
+            logger.error(f"Unexpected error in scrape_uaf_results: {str(e)}")
             return False, f"Unexpected error: {str(e)}", None
 
     def extract_js_token(self, html_content):
@@ -574,17 +614,25 @@ class handler(BaseHTTPRequestHandler):
             if match:
                 return match.group(1)
             
-            # Alternative patterns
-            patterns = [
-                r"token.*value.*=.*'([^']+)'",
-                r"value.*=.*'([a-f0-9]{64})'",  # Look for 64-character hex values
-                r"id=\"token\" value=\"([^\"]+)\"",  # Direct HTML attribute
-            ]
+            # Look for the script tag that contains the token assignment
+            script_pattern = r"<script[^>]*>.*?document\.getElementById\('token'\)\.value\s*=\s*'([^']+)'.*?</script>"
+            match = re.search(script_pattern, html_content, re.DOTALL | re.IGNORECASE)
             
-            for pattern in patterns:
-                match = re.search(pattern, html_content, re.IGNORECASE)
-                if match:
-                    return match.group(1)
+            if match:
+                return match.group(1)
+            
+            # Look for token in the final script tag at the bottom
+            final_script_pattern = r"<script>\s*document\.getElementById\('token'\)\.value='([^']+)';\s*</script>"
+            match = re.search(final_script_pattern, html_content, re.DOTALL)
+            
+            if match:
+                return match.group(1)
+            
+            # Alternative: Look for any token-like value (64 char hex)
+            token_pattern = r"[a-f0-9]{64}"
+            matches = re.findall(token_pattern, html_content)
+            if matches:
+                return matches[0]  # Return the first match
             
             return None
             
@@ -609,19 +657,17 @@ class handler(BaseHTTPRequestHandler):
             # Extract student information
             student_info = {}
             
-            # Look for student information in the first table
+            # Look for student information in tables
             info_tables = soup.find_all('table')
-            if info_tables:
-                # First table usually contains student info
-                first_table = info_tables[0]
-                rows = first_table.find_all('tr')
-                
+            for table in info_tables:
+                rows = table.find_all('tr')
                 for row in rows:
                     cols = row.find_all('td')
                     if len(cols) == 2:
                         key = cols[0].text.strip().replace(':', '').replace('#', '').replace(' ', '')
                         value = cols[1].text.strip()
-                        student_info[key] = value
+                        if key and value:
+                            student_info[key] = value
             
             # Set defaults
             if 'Registration' not in student_info:
@@ -630,23 +676,25 @@ class handler(BaseHTTPRequestHandler):
             # Extract results from tables
             student_results = []
             
-            # Look for result tables (usually the second or third table)
+            # Look for result tables
             for table in soup.find_all('table'):
                 rows = table.find_all('tr')
                 
-                # Result tables have many rows and specific headers
-                if len(rows) > 5:
-                    # Check if first row contains result headers
+                # Result tables should have multiple rows and specific content
+                if len(rows) > 3:
+                    # Check if this looks like a result table
                     header_row = rows[0]
                     header_text = header_row.get_text().lower()
                     
-                    if any(term in header_text for term in ['sr', 'semester', 'course', 'teacher', 'credit', 'mid', 'assignment', 'final', 'practical', 'total', 'grade']):
+                    result_indicators = ['sr', 'semester', 'course', 'teacher', 'credit', 'mid', 'assignment', 'final', 'practical', 'total', 'grade']
+                    
+                    if any(indicator in header_text for indicator in result_indicators):
                         # Process each data row (skip header)
                         for i in range(1, len(rows)):
                             row = rows[i]
                             cols = row.find_all('td')
                             
-                            if len(cols) >= 5:  # At least 5 columns expected
+                            if len(cols) >= 8:  # At least 8 columns for a proper result row
                                 result_data = {
                                     'RegistrationNo': student_info.get('Registration', registration_number),
                                     'StudentName': student_info.get('StudentFullName', student_info.get('StudentName', '')),
@@ -664,17 +712,17 @@ class handler(BaseHTTPRequestHandler):
                                     'Grade': cols[11].text.strip() if len(cols) > 11 else ''
                                 }
                                 
-                                student_results.append(result_data)
+                                # Only add if we have meaningful data
+                                if result_data['CourseCode'] or result_data['CourseTitle']:
+                                    student_results.append(result_data)
             
             if student_results:
                 return True, f"Successfully extracted {len(student_results)} records for {registration_number}", student_results
             else:
-                # Check if we might have found the data but in a different format
-                if "result award list" in page_text.lower():
-                    # Try alternative parsing method
-                    alt_results = self.alternative_parse(soup, registration_number, student_info)
-                    if alt_results:
-                        return True, f"Successfully extracted {len(alt_results)} records using alternative method", alt_results
+                # Try alternative parsing method
+                alt_results = self.alternative_parse(soup, registration_number, student_info)
+                if alt_results:
+                    return True, f"Successfully extracted {len(alt_results)} records using alternative method", alt_results
                 
                 return False, f"No result data found for registration number: {registration_number}", None
                     
@@ -687,22 +735,30 @@ class handler(BaseHTTPRequestHandler):
         try:
             student_results = []
             
-            # Find all tables
+            # Find all tables that might contain results
             tables = soup.find_all('table')
             
-            for table in tables:
+            for table_idx, table in enumerate(tables):
                 rows = table.find_all('tr')
                 
-                # Look for rows with data (more than 2 columns)
-                for row in rows:
+                # Skip tables with too few rows
+                if len(rows) < 3:
+                    continue
+                    
+                # Look for rows that might contain result data
+                for row_idx, row in enumerate(rows):
                     cols = row.find_all('td')
-                    if len(cols) >= 6:  # At least 6 columns for a result row
-                        # Check if first column is a number (likely a serial number)
-                        if cols[0].text.strip().isdigit():
+                    
+                    # A result row should have multiple columns with data
+                    if len(cols) >= 8 and any(col.text.strip() for col in cols):
+                        # Check if this looks like a result row (not a header)
+                        first_col = cols[0].text.strip()
+                        if first_col.isdigit() or any(term in first_col.lower() for term in ['sem', 'course', 'code']):
+                            
                             result_data = {
                                 'RegistrationNo': registration_number,
                                 'StudentName': student_info.get('StudentFullName', student_info.get('StudentName', '')),
-                                'SrNo': cols[0].text.strip(),
+                                'SrNo': cols[0].text.strip() if len(cols) > 0 else str(row_idx),
                                 'Semester': cols[1].text.strip() if len(cols) > 1 else '',
                                 'TeacherName': cols[2].text.strip() if len(cols) > 2 else '',
                                 'CourseCode': cols[3].text.strip() if len(cols) > 3 else '',
@@ -716,7 +772,9 @@ class handler(BaseHTTPRequestHandler):
                                 'Grade': cols[11].text.strip() if len(cols) > 11 else ''
                             }
                             
-                            student_results.append(result_data)
+                            # Only add if we have course information
+                            if result_data['CourseCode'] or result_data['CourseTitle']:
+                                student_results.append(result_data)
             
             return student_results if student_results else None
             
