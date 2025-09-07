@@ -171,7 +171,7 @@ class handler(BaseHTTPRequestHandler):
     def handle_test_connection(self):
         """Test connection to UAF LMS - improved version"""
         try:
-            test_url = 'http://lms.uaf.edu.pk/login/index.php'
+            test_url = 'https://lms.uaf.edu.pk/login/index.php'
             
             # Try multiple approaches
             approaches = [
@@ -594,7 +594,7 @@ class handler(BaseHTTPRequestHandler):
         return False, "All scraping methods failed. The UAF LMS may be down or blocking requests.", None
 
     def scrape_direct_method(self, registration_number):
-        """Original scraping method"""
+        """Direct scraping method for the new UAF LMS structure"""
         try:
             session = self.create_session_with_retry()
             
@@ -607,12 +607,12 @@ class handler(BaseHTTPRequestHandler):
                 'Connection': 'keep-alive',
                 'Upgrade-Insecure-Requests': '1',
                 'Cache-Control': 'max-age=0',
-                'Origin': 'http://lms.uaf.edu.pk',
-                'Referer': 'http://lms.uaf.edu.pk/login/index.php'
+                'Origin': 'https://lms.uaf.edu.pk',
+                'Referer': 'https://lms.uaf.edu.pk/login/index.php'
             })
             
-            # Step 1: Get login page to extract token
-            login_url = "http://lms.uaf.edu.pk/login/index.php"
+            # Step 1: Get login page
+            login_url = "https://lms.uaf.edu.pk/login/index.php"
             try:
                 logger.info(f"Fetching login page: {login_url}")
                 response = session.get(login_url, timeout=15, verify=False)
@@ -624,55 +624,56 @@ class handler(BaseHTTPRequestHandler):
                 logger.error(f"Network error fetching login page: {str(e)}")
                 return False, f"Network error: {str(e)}. UAF LMS may be unavailable.", None
             
-            # Step 2: Extract token from JavaScript
-            token = self.extract_js_token(response.text)
-            logger.info(f"Extracted token: {token}")
+            # Step 2: Extract login token and form data
+            soup = BeautifulSoup(response.text, 'html.parser')
+            login_form = soup.find('form', {'id': 'login'})
             
-            if not token:
-                # Try to find token in the HTML directly
-                soup = BeautifulSoup(response.text, 'html.parser')
-                token_input = soup.find('input', {'id': 'token'})
-                if token_input and token_input.get('value'):
-                    token = token_input.get('value')
-                    logger.info(f"Found token in HTML: {token}")
-                else:
-                    return False, "Could not extract security token from UAF LMS", None
+            if not login_form:
+                return False, "Could not find login form on UAF LMS", None
             
-            # Step 3: Submit form with correct field names
-            result_url = "http://lms.uaf.edu.pk/course/uaf_student_result.php"
-            form_data = {
-                'token': token,
-                'Register': registration_number
-            }
+            # Extract form data
+            form_data = {}
+            for input_tag in login_form.find_all('input'):
+                if input_tag.get('name'):
+                    form_data[input_tag.get('name')] = input_tag.get('value', '')
             
-            headers = {
-                'Referer': login_url,
-                'Origin': 'http://lms.uaf.edu.pk',
-                'Content-Type': 'application/x-www-form-urlencoded',
-                'Host': 'lms.uaf.edu.pk'
-            }
+            # Add username and password (registration number as both)
+            form_data['username'] = registration_number
+            form_data['password'] = registration_number
             
+            # Step 3: Submit login form
             try:
-                logger.info(f"Submitting form to: {result_url}")
-                response = session.post(result_url, data=form_data, headers=headers, timeout=20, verify=False)
+                logger.info(f"Submitting login form")
+                response = session.post(login_url, data=form_data, timeout=20, verify=False)
                 
                 if response.status_code != 200:
-                    return False, f"UAF LMS returned status code {response.status_code}", None
+                    return False, f"UAF LMS login failed with status code {response.status_code}", None
                     
-                logger.info(f"Successfully received response from result page")
+                # Check if login was successful by looking for dashboard elements
+                if "dashboard" in response.url or "my/" in response.url:
+                    logger.info("Login successful, accessing student results")
+                    
+                    # Step 4: Access student results page
+                    result_url = "https://lms.uaf.edu.pk/course/uaf_student_result.php"
+                    response = session.get(result_url, timeout=20, verify=False)
+                    
+                    if response.status_code != 200:
+                        return False, f"UAF LMS results page returned status code {response.status_code}", None
+                    
+                    # Step 5: Parse results
+                    success, message, result_data = self.parse_uaf_results(response.text, registration_number)
+                    
+                    # Cache successful results
+                    if success:
+                        self.cache_results(registration_number, result_data)
+                        
+                    return success, message, result_data
+                else:
+                    return False, "Login failed - invalid credentials or system error", None
                     
             except requests.exceptions.RequestException as e:
-                logger.error(f"Network error during result fetch: {str(e)}")
-                return False, f"Network error during result fetch: {str(e)}", None
-            
-            # Step 4: Parse results
-            success, message, result_data = self.parse_uaf_results(response.text, registration_number)
-            
-            # Cache successful results
-            if success:
-                self.cache_results(registration_number, result_data)
-                
-            return success, message, result_data
+                logger.error(f"Network error during login: {str(e)}")
+                return False, f"Network error during login: {str(e)}", None
             
         except Exception as e:
             logger.error(f"Unexpected error in scrape_direct_method: {str(e)}")
@@ -684,42 +685,53 @@ class handler(BaseHTTPRequestHandler):
             scraper = self.create_cloudscraper_session()
             
             # Get login page
-            login_url = "http://lms.uaf.edu.pk/login/index.php"
+            login_url = "https://lms.uaf.edu.pk/login/index.php"
             response = scraper.get(login_url, timeout=15)
             
             if response.status_code != 200:
                 return False, f"Cloudscraper failed with status {response.status_code}", None
             
-            # Extract token
-            token = self.extract_js_token(response.text)
-            if not token:
-                soup = BeautifulSoup(response.text, 'html.parser')
-                token_input = soup.find('input', {'id': 'token'})
-                if token_input and token_input.get('value'):
-                    token = token_input.get('value')
-                else:
-                    return False, "Could not extract security token with cloudscraper", None
+            # Extract login form data
+            soup = BeautifulSoup(response.text, 'html.parser')
+            login_form = soup.find('form', {'id': 'login'})
             
-            # Submit form
-            result_url = "http://lms.uaf.edu.pk/course/uaf_student_result.php"
-            form_data = {
-                'token': token,
-                'Register': registration_number
-            }
+            if not login_form:
+                return False, "Could not find login form with cloudscraper", None
             
-            response = scraper.post(result_url, data=form_data, timeout=20)
+            form_data = {}
+            for input_tag in login_form.find_all('input'):
+                if input_tag.get('name'):
+                    form_data[input_tag.get('name')] = input_tag.get('value', '')
+            
+            # Add username and password
+            form_data['username'] = registration_number
+            form_data['password'] = registration_number
+            
+            # Submit login form
+            response = scraper.post(login_url, data=form_data, timeout=20)
             
             if response.status_code != 200:
-                return False, f"Cloudscraper form submission failed with status {response.status_code}", None
+                return False, f"Cloudscraper login failed with status {response.status_code}", None
             
-            # Parse results
-            success, message, result_data = self.parse_uaf_results(response.text, registration_number)
-            
-            # Cache successful results
-            if success:
-                self.cache_results(registration_number, result_data)
+            # Check if login was successful
+            if "dashboard" in response.url or "my/" in response.url:
+                # Access student results page
+                result_url = "https://lms.uaf.edu.pk/course/uaf_student_result.php"
+                response = scraper.get(result_url, timeout=20)
                 
-            return success, message, result_data
+                if response.status_code != 200:
+                    return False, f"Cloudscraper results page failed with status {response.status_code}", None
+                
+                # Parse results
+                success, message, result_data = self.parse_uaf_results(response.text, registration_number)
+                
+                # Cache successful results
+                if success:
+                    self.cache_results(registration_number, result_data)
+                    
+                return success, message, result_data
+            else:
+                return False, "Cloudscraper login failed - invalid credentials", None
             
         except Exception as e:
             logger.error(f"Error in scrape_with_cloudscraper: {str(e)}")
@@ -759,44 +771,8 @@ class handler(BaseHTTPRequestHandler):
         except Exception as e:
             logger.error(f"Error caching results: {str(e)}")
 
-    def extract_js_token(self, html_content):
-        """Extract JavaScript-generated token from UAF LMS"""
-        try:
-            # Look for the JavaScript that sets the token value
-            js_pattern = r"document\.getElementById\('token'\)\.value\s*=\s*'([^']+)'"
-            match = re.search(js_pattern, html_content)
-            
-            if match:
-                return match.group(1)
-            
-            # Look for the script tag that contains the token assignment
-            script_pattern = r"<script[^>]*>.*?document\.getElementById\('token'\)\.value\s*=\s*'([^']+)'.*?</script>"
-            match = re.search(script_pattern, html_content, re.DOTALL | re.IGNORECASE)
-            
-            if match:
-                return match.group(1)
-            
-            # Look for token in the final script tag at the bottom
-            final_script_pattern = r"<script>\s*document\.getElementById\('token'\)\.value='([^']+)';\s*</script>"
-            match = re.search(final_script_pattern, html_content, re.DOTALL)
-            
-            if match:
-                return match.group(1)
-            
-            # Alternative: Look for any token-like value (64 char hex)
-            token_pattern = r"[a-f0-9]{64}"
-            matches = re.findall(token_pattern, html_content)
-            if matches:
-                return matches[0]  # Return the first match
-            
-            return None
-            
-        except Exception as e:
-            logger.error(f"Token extraction error: {str(e)}")
-            return None
-
     def parse_uaf_results(self, html_content, registration_number):
-        """Parse UAF results"""
+        """Parse UAF results from the new LMS structure"""
         try:
             soup = BeautifulSoup(html_content, 'html.parser')
             
