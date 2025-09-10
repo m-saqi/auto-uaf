@@ -2400,7 +2400,7 @@ a:hover {
   <!-- Add this new script reference -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js"></script>
   
-  <!-- App JS -->
+    <!-- App JS -->
   <script>
     document.addEventListener('DOMContentLoaded', function() {
       // Elements
@@ -2447,6 +2447,7 @@ a:hover {
       let processedData = null;
       let currentSessionId = null;
       let deletedSemesters = {}; // Track deleted semesters for undo functionality
+      let isLMSOffline = false;
       
       // API endpoints - FIXED to match your Python backend
       const API_ENDPOINTS = {
@@ -2454,7 +2455,8 @@ a:hover {
         test: `/api/result-scraper`,
         save: `/api/result-scraper?action=save_result`,
         load: `/api/result-scraper?action=load_result`,
-        loadSaved: `/api/result-scraper?action=load_saved_result`
+        loadSaved: `/api/result-scraper?action=load_saved_result`,
+        delete: `/api/result-scraper?action=delete_result`
       };
       
       // Initialize the application
@@ -2466,6 +2468,14 @@ a:hover {
         currentSessionId = generateSessionId();
         checkSavedResults();
         initBackToTop();
+        
+        // Check if registration number exists in URL parameters
+        const urlParams = new URLSearchParams(window.location.search);
+        const regNum = urlParams.get('reg');
+        if (regNum) {
+          registrationNumber.value = regNum;
+          checkSavedResults();
+        }
       }
       
       // Initialize Back to Top button
@@ -2588,8 +2598,8 @@ a:hover {
             }
           }catch{
             contactFormStatus.textContent = "Network error. Try again.";
-              contactFormStatus.className = "text-danger";
-              showToast('Network error. Please try again.', 'error');
+            contactFormStatus.className = "text-danger";
+            showToast('Network error. Please try again.', 'error');
           }
         });
       }
@@ -2719,6 +2729,7 @@ a:hover {
             addStatusMessage('Connection test successful - UAF LMS is accessible', 'success');
             showToast('Connection test successful!', 'success');
             showLoadingStage('complete');
+            isLMSOffline = false;
             
             // Hide loading after delay
             setTimeout(() => {
@@ -2727,11 +2738,13 @@ a:hover {
           } else {
             addStatusMessage(`Connection test failed: ${responseData.message}`, 'error');
             showToast('Connection test failed!', 'error');
+            isLMSOffline = true;
             hideLoading();
           }
         } catch (error) {
           addStatusMessage(`Connection test failed: ${error.message}`, 'error');
           showToast('Connection test failed!', 'error');
+          isLMSOffline = true;
           hideLoading();
         } finally {
           testInProgress = false;
@@ -3309,7 +3322,7 @@ a:hover {
             <div class="col-md-6">
               <p><strong>Mid Term:</strong> ${course.mid}</p>
               <p><strong>Assignment:</strong> ${course.assignment}</p>
-              <p><strong>Final Term:</strong> ${course.final}</p>
+              <p><strong>Final Term:</strong> ${course.final</p>
               ${course.practical ? `<p><strong>Practical:</strong> ${course.practical}</p>` : ''}
             </div>
           </div>
@@ -3631,6 +3644,7 @@ a:hover {
         }
         
         // Show modal to get result name
+        resultNameInput.value = 'MPHIL'; // Default value
         saveResultModal.show();
       }
       
@@ -3770,6 +3784,11 @@ a:hover {
         const resultName = savedResult.custom_name || 'Saved Result';
         showToast(`"${resultName}" loaded successfully!`, 'success');
         addStatusMessage(`Loaded saved result: ${resultName}`, 'info');
+        
+        // Scroll to results
+        setTimeout(() => {
+          resultContainer.scrollIntoView({ behavior: 'smooth' });
+        }, 300);
       }
       
       // Delete saved result
@@ -3779,8 +3798,8 @@ a:hover {
         }
         
         try {
-          const response = await fetch(API_ENDPOINTS.save, {
-            method: 'DELETE',
+          const response = await fetch(API_ENDPOINTS.delete, {
+            method: 'POST',
             headers: {
               'Content-Type': 'application/json'
             },
@@ -4209,23 +4228,6 @@ a:hover {
           return;
         }
         
-        // Check if we have saved results first
-        try {
-          const response = await fetch(`${API_ENDPOINTS.load}?registrationNumber=${encodeURIComponent(regNum)}`);
-          const result = await response.json();
-          
-          if (result.success && result.savedResults && result.savedResults.length > 0) {
-            // Ask user if they want to load saved result
-            if (confirm('Saved results found for this registration number. Would you like to load a saved result instead of fetching from UAF LMS?')) {
-              // Show saved results section if not already visible
-              displaySavedResults(result.savedResults);
-              return;
-            }
-          }
-        } catch (error) {
-          console.error('Error checking saved results:', error);
-        }
-        
         // Show loading animation
         resultContainer.style.display = 'none';
         saveToWebBtn.style.display = 'none';
@@ -4278,16 +4280,32 @@ a:hover {
               addStatusMessage('Error processing result data', 'error');
               showToast('Error processing result data', 'error');
               hideLoading();
+              
+              // If LMS is offline, show saved results
+              if (isLMSOffline) {
+                showToast('UAF LMS is offline. You can load your saved results.', 'warning');
+                checkSavedResults();
+              }
             }
           } else {
             addStatusMessage(`Error: ${data.message}`, 'error');
             showToast(data.message, 'error');
+            isLMSOffline = true;
             hideLoading();
+            
+            // If LMS is offline, show saved results
+            showToast('UAF LMS is offline. You can load your saved results.', 'warning');
+            checkSavedResults();
           }
         } catch (error) {
           addStatusMessage(`Error fetching result: ${error.message}`, 'error');
           showToast('Error fetching result', 'error');
+          isLMSOffline = true;
           hideLoading();
+          
+          // If LMS is offline, show saved results
+          showToast('UAF LMS is offline. You can load your saved results.', 'warning');
+          checkSavedResults();
         }
       }
       
@@ -4326,3 +4344,4 @@ a:hover {
   </script>
 </body>
 </html>
+
