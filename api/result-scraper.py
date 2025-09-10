@@ -35,7 +35,8 @@ def init_db():
             id TEXT PRIMARY KEY,
             registration_number TEXT NOT NULL,
             student_data TEXT NOT NULL,
-            timestamp DATETIME DEFAULT CURRENT_TIMESTAMP
+            timestamp DATETIME DEFAULT CURRENT_TIMESTAMP,
+            custom_name TEXT
         )
     ''')
     c.execute('''
@@ -76,6 +77,8 @@ class handler(BaseHTTPRequestHandler):
                 self.handle_scrape_single()
             elif 'action=load_result' in self.path or 'load_result' in self.path:
                 self.handle_load_result()
+            elif 'action=load_saved_result' in self.path:
+                self.handle_load_saved_result()
             else:
                 self.send_response(404)
                 self._set_cors_headers()
@@ -305,6 +308,7 @@ class handler(BaseHTTPRequestHandler):
             registration_number = data.get('registrationNumber')
             student_data = data.get('studentData')
             timestamp = data.get('timestamp')
+            custom_name = data.get('customName', '')
             
             if not registration_number or not student_data:
                 self.send_error_response(400, 'Missing required fields')
@@ -314,7 +318,7 @@ class handler(BaseHTTPRequestHandler):
             init_db()
             
             # Generate unique ID
-            result_id = hashlib.md5(f"{registration_number}_{timestamp}".encode()).hexdigest()
+            result_id = hashlib.md5(f"{registration_number}_{timestamp}_{custom_name}".encode()).hexdigest()
             
             # Save to database
             conn = sqlite3.connect(DB_PATH)
@@ -323,8 +327,8 @@ class handler(BaseHTTPRequestHandler):
             # Check if result already exists for this registration number and timestamp
             c.execute('''
                 SELECT id FROM saved_results 
-                WHERE registration_number = ? AND timestamp = ?
-            ''', (registration_number, timestamp))
+                WHERE registration_number = ? AND custom_name = ?
+            ''', (registration_number, custom_name))
             
             existing_result = c.fetchone()
             
@@ -332,15 +336,15 @@ class handler(BaseHTTPRequestHandler):
                 # Update existing record
                 c.execute('''
                     UPDATE saved_results 
-                    SET student_data = ?
+                    SET student_data = ?, timestamp = ?
                     WHERE id = ?
-                ''', (json.dumps(student_data), existing_result[0]))
+                ''', (json.dumps(student_data), timestamp, existing_result[0]))
             else:
                 # Insert new record
                 c.execute('''
-                    INSERT INTO saved_results (id, registration_number, student_data, timestamp)
-                    VALUES (?, ?, ?, ?)
-                ''', (result_id, registration_number, json.dumps(student_data), timestamp))
+                    INSERT INTO saved_results (id, registration_number, student_data, timestamp, custom_name)
+                    VALUES (?, ?, ?, ?, ?)
+                ''', (result_id, registration_number, json.dumps(student_data), timestamp, custom_name))
             
             conn.commit()
             conn.close()
@@ -380,7 +384,7 @@ class handler(BaseHTTPRequestHandler):
             c = conn.cursor()
             
             c.execute('''
-                SELECT id, registration_number, student_data, timestamp
+                SELECT id, registration_number, student_data, timestamp, custom_name
                 FROM saved_results 
                 WHERE registration_number = ?
                 ORDER BY timestamp DESC
@@ -395,7 +399,8 @@ class handler(BaseHTTPRequestHandler):
                     'id': result[0],
                     'registration_number': result[1],
                     'student_data': json.loads(result[2]),
-                    'timestamp': result[3]
+                    'timestamp': result[3],
+                    'custom_name': result[4] or 'Saved Result'
                 })
             
             response_data = {
@@ -407,6 +412,64 @@ class handler(BaseHTTPRequestHandler):
             
         except Exception as e:
             self.send_error_response(500, f"Error loading results: {str(e)}")
+
+    def handle_load_saved_result(self):
+        """Load a specific saved result from database"""
+        try:
+            query_params = self.path.split('?')
+            result_id = None
+            
+            if len(query_params) > 1:
+                params = query_params[1].split('&')
+                for param in params:
+                    if param.startswith('id='):
+                        result_id = param.split('=')[1]
+                        break
+            
+            if not result_id:
+                self.send_error_response(400, 'No result ID provided')
+                return
+            
+            # Initialize database
+            init_db()
+            
+            # Load from database
+            conn = sqlite3.connect(DB_PATH)
+            c = conn.cursor()
+            
+            c.execute('''
+                SELECT id, registration_number, student_data, timestamp, custom_name
+                FROM saved_results 
+                WHERE id = ?
+            ''', (result_id,))
+            
+            result = c.fetchone()
+            conn.close()
+            
+            if result:
+                saved_result = {
+                    'id': result[0],
+                    'registration_number': result[1],
+                    'student_data': json.loads(result[2]),
+                    'timestamp': result[3],
+                    'custom_name': result[4] or 'Saved Result'
+                }
+                
+                response_data = {
+                    'success': True, 
+                    'message': 'Result loaded successfully',
+                    'savedResult': saved_result
+                }
+                self.send_success_response(response_data)
+            else:
+                response_data = {
+                    'success': False, 
+                    'message': 'Result not found'
+                }
+                self.send_success_response(response_data)
+            
+        except Exception as e:
+            self.send_error_response(500, f"Error loading result: {str(e)}")
 
     def handle_delete_saved_result(self):
         """Delete a saved result from database"""
