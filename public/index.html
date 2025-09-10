@@ -1364,6 +1364,31 @@ a:hover {
   }
 }
 
+/* New styles for saved results section positioning */
+.saved-results-container {
+  display: none;
+  margin-top: 2rem;
+  max-width: 900px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* Ensure proper positioning of the saved results section */
+#savedResultsSection {
+  order: 2; /* Display after input section, before result container */
+}
+
+#resultContainer {
+  order: 3; /* Display after saved results section */
+}
+
+/* Container for the main content areas */
+.main-content-container {
+  display: flex;
+  flex-direction: column;
+}
+
+
 /* Semester section layout improvements */
 .semester-results-container {
   width: 100%;
@@ -2173,166 +2198,166 @@ a:hover {
     <div class="container">
       <div class="row justify-content-center">
         <div class="col-md-10">
-          
-          <!-- Saved Results Section -->
-          <div id="savedResultsSection" class="card card-modern mb-4">
-            <div class="card-header p-4">
-              <h4 class="mb-0"><i class="fa-solid fa-floppy-disk me-2"></i>Saved Results</h4>
-            </div>
-            <div class="card-body p-4">
-              <div id="savedResultsList">
-                <!-- Saved results will be populated here -->
+          <div class="main-content-container">
+            <!-- Input Section -->
+            <div class="card card-modern mb-4">
+              <div class="card-header p-4">
+                <h4 class="mb-0"><i class="fa-solid fa-bolt me-2"></i>UAF CGPA Calculator</h4>
               </div>
-            </div>
-          </div>
-          
-          <!-- Input Section -->
-          <div class="card card-modern mb-4">
-            <div class="card-header p-4">
-              <h4 class="mb-0"><i class="fa-solid fa-bolt me-2"></i>UAF CGPA Calculator</h4>
-            </div>
-            <div class="card-body p-4 scraping-section">
-              <form id="resultForm">
-                <div class="mb-3">
-                  <label for="registrationNumber" class="form-label">Registration Number</label>
-                  <input type="text" class="form-control" id="registrationNumber" 
-                         placeholder="e.g., 2020-ag-1234" required>
-                  <div class="form-text">Enter your UAF registration number</div>
-                </div>
-                
-                <div class="center-buttons">
-                  <button type="submit" class="btn btn-primary-action rounded-pill">
-                    <i class="fa-solid fa-cloud-arrow-down me-2"></i>Fetch Result
-                  </button>
-                  <button id="testConnectionBtn" type="button" class="btn test-connection-btn rounded-pill">
-                    <i class="fa-solid fa-vial me-2"></i>Test Connection
-                  </button>
-                </div>
-              </form>
-              
-              <!-- Improved Loading Animation Section -->
-              <div class="loading-container" id="loadingContainer">
-                <div class="loading-stage" id="connectingStage">
-                  <div class="loading-animation loading-connecting">
-                    <div class="dot"></div>
-                    <div class="dot"></div>
-                    <div class="dot"></div>
+              <div class="card-body p-4 scraping-section">
+                <form id="resultForm">
+                  <div class="mb-3">
+                    <label for="registrationNumber" class="form-label">Registration Number</label>
+                    <input type="text" class="form-control" id="registrationNumber" 
+                           placeholder="e.g., 2020-ag-1234" required>
+                    <div class="form-text">Enter your UAF registration number</div>
                   </div>
-                  <p class="loading-text">Connecting to UAF LMS</p>
-                  <p class="loading-subtext">Establishing secure connection to university servers</p>
-                </div>
-                
-                <div class="loading-stage" id="fetchingStage">
-                  <div class="loading-animation loading-fetching">
-                    <div class="book"></div>
+                  
+                  <div class="center-buttons">
+                    <button type="submit" class="btn btn-primary-action rounded-pill">
+                      <i class="fa-solid fa-cloud-arrow-down me-2"></i>Fetch Result
+                    </button>
+                    <button id="testConnectionBtn" type="button" class="btn test-connection-btn rounded-pill">
+                      <i class="fa-solid fa-vial me-2"></i>Test Connection
+                    </button>
                   </div>
-                  <p class="loading-text">Fetching Your Results</p>
-                  <p class="loading-subtext">Retrieving your academic records from the database</p>
-                </div>
+                </form>
                 
-                <div class="loading-stage" id="processingStage">
-                  <div class="loading-animation loading-processing">
-                    <div class="calculator"></div>
+                <!-- Improved Loading Animation Section -->
+                <div class="loading-container" id="loadingContainer">
+                  <div class="loading-stage" id="connectingStage">
+                    <div class="loading-animation loading-connecting">
+                      <div class="dot"></div>
+                      <div class="dot"></div>
+                      <div class="dot"></div>
+                    </div>
+                    <p class="loading-text">Connecting to UAF LMS</p>
+                    <p class="loading-subtext">Establishing secure connection to university servers</p>
                   </div>
-                  <p class="loading-text">Processing Data</p>
-                  <p class="loading-subtext">Analyzing your grades and calculating CGPA</p>
-                </div>
-                
-                <div class="loading-stage" id="completeStage">
-                  <div class="loading-animation loading-complete">
-                    <div class="checkmark"></div>
+                  
+                  <div class="loading-stage" id="fetchingStage">
+                    <div class="loading-animation loading-fetching">
+                      <div class="book"></div>
+                    </div>
+                    <p class="loading-text">Fetching Your Results</p>
+                    <p class="loading-subtext">Retrieving your academic records from the database</p>
                   </div>
-                  <p class="loading-text">Results Ready!</p>
-                  <p class="loading-subtext">Your CGPA has been calculated successfully</p>
+                  
+                  <div class="loading-stage" id="processingStage">
+                    <div class="loading-animation loading-processing">
+                      <div class="calculator"></div>
+                    </div>
+                    <p class="loading-text">Processing Data</p>
+                    <p class="loading-subtext">Analyzing your grades and calculating CGPA</p>
+                  </div>
+                  
+                  <div class="loading-stage" id="completeStage">
+                    <div class="loading-animation loading-complete">
+                      <div class="checkmark"></div>
+                    </div>
+                    <p class="loading-text">Results Ready!</p>
+                    <p class="loading-subtext">Your CGPA has been calculated successfully</p>
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
-          
-          <!-- Results Section -->
-          <div id="resultContainer" class="result-container">
-            <!-- Replace the CGPA display section with this code -->
-<div class="gpa-result-card">
-  <div class="card-body p-4">
-    <div class="cgpa-display-container">
-      <!-- Name and Registration (centered on top) -->
-      <div class="cgpa-main-info">
-        <h2 class="mb-1 fw-bold" id="studentName"><i class="fa-solid fa-user-graduate me-2"></i>Student Name</h2>
-        <p class="mb-0 text-body-secondary" id="studentReg">Registration Number</p>
-      </div>
-      
-      <!-- Metrics Row -->
-      <div class="cgpa-metrics-row">
-        <!-- CGPA (left) -->
-        <div class="cgpa-metric cgpa-metric-left">
-          <p class="mb-0 cgpa-metric-label">CGPA</p>
-          <p class="mb-0 cgpa-metric-value" id="totalCgpa">0.0000</p>
-        </div>
-        
-        <!-- Percentage (center) -->
-        <div class="cgpa-metric cgpa-metric-center">
-          <p class="mb-0 cgpa-metric-label">Percentage</p>
-          <p class="mb-0 cgpa-metric-value" id="totalPercentage">0.0000%</p>
-        </div>
-        
-        <!-- Marks (right) -->
-        <div class="cgpa-metric cgpa-metric-right">
-          <p class="mb-0 cgpa-metric-label">Marks</p>
-          <div class="cgpa-metric-value-container">
-            <p class="mb-0 cgpa-metric-value" id="totalMarksObtained">0</p>
-            <p class="mb-0 cgpa-metric-subvalue" id="totalMaxMarks">/ 0</p>
-          </div>
-        </div>
-      </div>
-    </div>
-    
-    <!-- Action Buttons -->
-    <div class="action-buttons">
-      <button id="saveToWebBtn" class="btn btn-primary-action rounded-pill save-to-web-btn">
-        <i class="fa-solid fa-cloud-arrow-up me-2"></i>Save to Web
-      </button>
-      <button id="downloadPdfBtn" class="btn btn-pdf-download rounded-pill">
-        <i class="fa-solid fa-file-pdf me-2"></i>Download PDF
-      </button>
-    </div>
-  </div>
-</div>
             
-            <!-- Semester Results Container - Removed outer card -->
-            <div class="semester-results-container">
-              <div id="semesterResults" class="semester-grid">
-                <!-- Semester cards will be dynamically inserted here -->
+            <!-- Saved Results Section - MOVED HERE -->
+            <div id="savedResultsSection" class="card card-modern mb-4">
+              <div class="card-header p-4">
+                <h4 class="mb-0"><i class="fa-solid fa-floppy-disk me-2"></i>Saved Results</h4>
+              </div>
+              <div class="card-body p-4">
+                <div id="savedResultsList">
+                  <!-- Saved results will be populated here -->
+                </div>
+              </div>
+            </div>
+            
+            <!-- Results Section -->
+            <div id="resultContainer" class="result-container">
+              <!-- Replace the CGPA display section with this code -->
+              <div class="gpa-result-card">
+                <div class="card-body p-4">
+                  <div class="cgpa-display-container">
+                    <!-- Name and Registration (centered on top) -->
+                    <div class="cgpa-main-info">
+                      <h2 class="mb-1 fw-bold" id="studentName"><i class="fa-solid fa-user-graduate me-2"></i>Student Name</h2>
+                      <p class="mb-0 text-body-secondary" id="studentReg">Registration Number</p>
+                    </div>
+                    
+                    <!-- Metrics Row -->
+                    <div class="cgpa-metrics-row">
+                      <!-- CGPA (left) -->
+                      <div class="cgpa-metric cgpa-metric-left">
+                        <p class="mb-0 cgpa-metric-label">CGPA</p>
+                        <p class="mb-0 cgpa-metric-value" id="totalCgpa">0.0000</p>
+                      </div>
+                      
+                      <!-- Percentage (center) -->
+                      <div class="cgpa-metric cgpa-metric-center">
+                        <p class="mb-0 cgpa-metric-label">Percentage</p>
+                        <p class="mb-0 cgpa-metric-value" id="totalPercentage">0.0000%</p>
+                      </div>
+                      
+                      <!-- Marks (right) -->
+                      <div class="cgpa-metric cgpa-metric-right">
+                        <p class="mb-0 cgpa-metric-label">Marks</p>
+                        <div class="cgpa-metric-value-container">
+                          <p class="mb-0 cgpa-metric-value" id="totalMarksObtained">0</p>
+                          <p class="mb-0 cgpa-metric-subvalue" id="totalMaxMarks">/ 0</p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <!-- Action Buttons -->
+                  <div class="action-buttons">
+                    <button id="saveToWebBtn" class="btn btn-primary-action rounded-pill save-to-web-btn">
+                      <i class="fa-solid fa-cloud-arrow-up me-2"></i>Save to Web
+                    </button>
+                    <button id="downloadPdfBtn" class="btn btn-pdf-download rounded-pill">
+                      <i class="fa-solid fa-file-pdf me-2"></i>Download PDF
+                    </button>
+                  </div>
+                </div>
+              </div>
+              
+              <!-- Semester Results Container - Removed outer card -->
+              <div class="semester-results-container">
+                <div id="semesterResults" class="semester-grid">
+                  <!-- Semester cards will be dynamically inserted here -->
+                </div>
+              </div>
+            </div>
+            
+            <!-- Status Log Section -->
+            <div class="card card-modern">
+              <div class="card-header p-4">
+                <h4 class="mb-0"><i class="fa-solid fa-terminal me-2"></i>Status Log</h4>
+              </div>
+              <div class="card-body p-4">
+                <!-- Status Log -->
+                <div class="status-log" id="statusLog">
+                  <div class="status-line status-info">Ready to fetch your results. Enter your registration number and click "Fetch Result".</div>
+                </div>
+                
+                <!-- Log Action Buttons -->
+                <div class="log-section center-buttons mt-3">
+                  <button id="downloadLogBtn" class="btn btn-secondary-action rounded-pill">
+                    <i class="fa-solid fa-file-lines me-2"></i>Download Log
+                  </button>
+                  <button id="clearLogBtn" class="btn btn-danger-action rounded-pill">
+                    <i class="fa-solid fa-trash me-2"></i>Clear Log
+                  </button>
+                </div>
               </div>
             </div>
           </div>
-          
-  <!-- Status Log Section -->
-  <div class="card card-modern">
-    <div class="card-header p-4">
-      <h4 class="mb-0"><i class="fa-solid fa-terminal me-2"></i>Status Log</h4>
-    </div>
-    <div class="card-body p-4">
-      <!-- Status Log -->
-      <div class="status-log" id="statusLog">
-        <div class="status-line status-info">Ready to fetch your results. Enter your registration number and click "Fetch Result".</div>
-      </div>
-      
-      <!-- Log Action Buttons -->
-      <div class="log-section center-buttons mt-3">
-        <button id="downloadLogBtn" class="btn btn-secondary-action rounded-pill">
-          <i class="fa-solid fa-file-lines me-2"></i>Download Log
-        </button>
-        <button id="clearLogBtn" class="btn btn-danger-action rounded-pill">
-          <i class="fa-solid fa-trash me-2"></i>Clear Log
-        </button>
+        </div>
       </div>
     </div>
-  </div>
-  
-</div>
-</div>
-</div>
-</section>
+  </section>
 
   <!-- Contact Section -->
   <section class="py-5" id="contact-us">
@@ -2400,7 +2425,7 @@ a:hover {
   <!-- Add this new script reference -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js"></script>
   
-    <!-- App JS -->
+  <!-- App JS -->
   <script>
     document.addEventListener('DOMContentLoaded', function() {
       // Elements
@@ -2466,8 +2491,6 @@ a:hover {
         initContactForm();
         createToastContainer();
         currentSessionId = generateSessionId();
-        checkSavedResults();
-        initBackToTop();
         
         // Check if registration number exists in URL parameters
         const urlParams = new URLSearchParams(window.location.search);
@@ -2476,6 +2499,13 @@ a:hover {
           registrationNumber.value = regNum;
           checkSavedResults();
         }
+        
+        // Also check saved results when page loads if there's a registration number
+        if (registrationNumber.value.trim()) {
+          checkSavedResults();
+        }
+        
+        initBackToTop();
       }
       
       // Initialize Back to Top button
@@ -4001,7 +4031,7 @@ a:hover {
                 }, 0);
                 const semesterCredits = activeCourses.reduce((sum, course) => sum + course.creditHours, 0);
                 
-                // Define table columns with optimized widths for better spacing
+                                // Define table columns with optimized widths for better spacing
                 const columns = [
                   { header: "Course Code", dataKey: "code", width: 28, align: "left" },
                   { header: "Course Title", dataKey: "title", width: 75, align: "left" },
@@ -4344,5 +4374,4 @@ a:hover {
   </script>
 </body>
 </html>
-
 
