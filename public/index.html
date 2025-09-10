@@ -804,7 +804,62 @@ a:hover {
   display: none;
 }
 
+/* Saved Results Section */
+.saved-results-container {
+  display: none;
+  margin-top: 2rem;
+  max-width: 900px;
+  margin-left: auto;
+  margin-right: auto;
+}
 
+.saved-result-card {
+  background: rgba(255, 255, 255, 0.8);
+  border-radius: var(--radius);
+  padding: 1.5rem;
+  box-shadow: 0 5px 15px rgba(17, 24, 39, 0.1);
+  margin-bottom: 1rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  backdrop-filter: blur(10px);
+}
+
+.saved-result-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 25px rgba(17, 24, 39, 0.15);
+  background: rgba(255, 255, 255, 0.95);
+}
+
+.saved-result-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.5rem;
+}
+
+.saved-result-date {
+  font-size: 0.8rem;
+  color: var(--muted);
+}
+
+.saved-result-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.saved-result-action-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--muted);
+  font-size: 0.9rem;
+  transition: all 0.3s ease;
+}
+
+.saved-result-action-btn:hover {
+  color: var(--brand);
+  transform: scale(1.1);
+}
 
 /* Add Course Form */
 .add-course-form {
@@ -1309,48 +1364,7 @@ a:hover {
   }
 }
 
-/* New styles for saved results section positioning */
-.saved-results-container {
-  display: none;
-  margin-top: 2rem;
-  max-width: 900px;
-  margin-left: auto;
-  margin-right: auto;
-}
 
-/* Ensure proper positioning of the saved results section */
-#savedResultsSection {
-  order: 2; /* Display after input section, before result container */
-}
-
-#resultContainer {
-  order: 3; /* Display after saved results section */
-}
-
-/* Container for the main content areas */
-.main-content-container {
-  display: flex;
-  flex-direction: column;
-}
-
-
-/* Semester section layout improvements */
-.semester-results-container {
-  width: 100%;
-}
-
-.semester-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
-  gap: 1.5rem;
-  width: 100%;
-}
-
-@media (max-width: 992px) {
-  .semester-grid {
-    grid-template-columns: 1fr;
-  }
-}
 
 /* NEW STYLES FOR UPDATES */
 .repeated-badge {
@@ -4319,5 +4333,6 @@ a:hover {
   </script>
 </body>
 </html>
+
 
 
