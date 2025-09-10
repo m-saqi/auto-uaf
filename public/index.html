@@ -861,6 +861,100 @@ a:hover {
   transform: scale(1.1);
 }
 
+    /* Saved Results Top Container */
+.saved-results-top-container {
+    margin-bottom: 2rem;
+}
+
+.saved-results-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 1rem;
+}
+
+.saved-result-item {
+    background: var(--card-bg);
+    border-radius: 8px;
+    padding: 1rem;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.saved-result-item:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+.saved-result-name {
+    font-weight: 600;
+    font-size: 1.1rem;
+    color: var(--primary-color);
+    margin-bottom: 0.5rem;
+}
+
+.saved-result-date {
+    font-size: 0.9rem;
+    color: var(--text-muted);
+    margin-bottom: 1rem;
+}
+
+.saved-result-actions {
+    display: flex;
+    gap: 0.5rem;
+}
+
+/* Saved Results Sidebar */
+.saved-results-container {
+    margin-top: 2rem;
+}
+
+.saved-result-card {
+    background: var(--card-bg);
+    border-radius: 8px;
+    padding: 1rem;
+    margin-bottom: 1rem;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.saved-result-header {
+    flex: 1;
+}
+
+.saved-result-card .saved-result-name {
+    font-size: 1rem;
+    margin-bottom: 0.25rem;
+}
+
+.saved-result-card .saved-result-date {
+    font-size: 0.8rem;
+    margin-bottom: 0;
+}
+
+.saved-result-card .saved-result-actions {
+    display: flex;
+    gap: 0.25rem;
+}
+
+.saved-result-card .btn {
+    padding: 0.25rem 0.5rem;
+    font-size: 0.8rem;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .saved-results-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .saved-result-item {
+        margin-bottom: 1rem;
+    }
+}
+
+    
 /* Add Course Form */
 .add-course-form {
   background: rgba(248, 249, 250, 0.7);
@@ -2292,13 +2386,17 @@ a:hover {
       let currentSessionId = null;
       let deletedSemesters = {}; // Track deleted semesters for undo functionality
       
-      // API endpoints - FIXED to match your Python backend
-      const API_ENDPOINTS = {
-        scrape: `/api/result-scraper`,
-        test: `/api/result-scraper`,
-        save: `/api/result-scraper?action=save`,
-        load: `/api/result-scraper?action=load_result`
-      };
+      // API endpoints configuration
+const API_ENDPOINTS = {
+    scrape: '/api/result-scraper?action=scrape',
+    scrapeSingle: '/api/result-scraper?action=scrape_single',
+    save: '/api/result-scraper?action=save',
+    load: '/api/result-scraper?action=load_result',
+    delete: '/api/result-scraper?action=delete',
+    test: '/api/result-scraper?action=test',
+    checkSession: '/api/result-scraper?action=check_session',
+    clearSession: '/api/result-scraper?action=clear_session'
+};
       
       // Initialize the application
       function init() {
@@ -3460,172 +3558,305 @@ a:hover {
         showToast(`Course ${course.code} restored`, 'success');
       }
       
-      // Save result to web storage
-      async function saveToWeb() {
-        if (!processedData) {
-          showToast('No data to save', 'error');
-          return;
-        }
-        
-        const regNum = registrationNumber.value.trim();
-        if (!regNum) {
-          showToast('Please enter a registration number', 'error');
-          return;
-        }
-        
-        addStatusMessage('Saving result to web storage...', 'info');
-        showLoadingStage('processing');
-        
-        try {
-          const response = await fetch(API_ENDPOINTS.save, {
+      // Save result to web storage with custom name
+async function saveToWeb() {
+    if (!processedData) {
+        showToast('No data to save', 'error');
+        return;
+    }
+    
+    const regNum = registrationNumber.value.trim();
+    if (!regNum) {
+        showToast('Please enter a registration number', 'error');
+        return;
+    }
+    
+    // Prompt user for custom name
+    const customName = prompt('Please enter a name for this saved result (e.g., MPHIL):', 'MPHIL');
+    if (!customName) {
+        addStatusMessage('Save cancelled by user', 'info');
+        return;
+    }
+    
+    addStatusMessage(`Saving result as "${customName}" to web storage...`, 'info');
+    showLoadingStage('processing');
+    
+    try {
+        const response = await fetch(API_ENDPOINTS.save, {
             method: 'POST',
             headers: {
-              'Content-Type': 'application/json'
+                'Content-Type': 'application/json'
             },
             body: JSON.stringify({
-              registrationNumber: regNum,
-              studentData: processedData,
-              timestamp: new Date().toISOString()
+                registrationNumber: regNum,
+                studentData: processedData,
+                timestamp: new Date().toISOString(),
+                customName: customName
             })
-          });
-          
-          const result = await response.json();
-          
-          if (result.success) {
-            addStatusMessage('Result saved successfully to web storage', 'success');
+        });
+        
+        const result = await response.json();
+        
+        if (result.success) {
+            addStatusMessage(`Result saved successfully as "${customName}"`, 'success');
             showLoadingStage('complete');
-            showToast('Result saved successfully!', 'success');
+            showToast(`Result saved as "${customName}"!`, 'success');
             
             // Refresh saved results list
             checkSavedResults();
             
             // Hide loading after delay
             setTimeout(() => {
-              hideLoading();
+                hideLoading();
             }, 2000);
-          } else {
+        } else {
             addStatusMessage(`Error saving result: ${result.message}`, 'error');
             hideLoading();
             showToast('Error saving result', 'error');
-          }
-        } catch (error) {
-          addStatusMessage(`Error saving result: ${error.message}`, 'error');
-          hideLoading();
-          showToast('Error saving result', 'error');
         }
-      }
-      
-      // Check for saved results
-      async function checkSavedResults() {
-        const regNum = registrationNumber.value.trim();
-        if (!regNum) return;
-        
-        try {
-          const response = await fetch(`${API_ENDPOINTS.load}&registrationNumber=${encodeURIComponent(regNum)}`);
-          const result = await response.json();
-          
-          if (result.success && result.savedResults && result.savedResults.length > 0) {
-            displaySavedResults(result.savedResults);
-          } else {
-            savedResultsContainer.style.display = 'none';
-          }
-        } catch (error) {
-          console.error('Error checking saved results:', error);
-          savedResultsContainer.style.display = 'none';
-        }
-      }
-      
-      // Display saved results
-      function displaySavedResults(savedResults) {
-        savedResultsList.innerHTML = '';
-        savedResultsContainer.style.display = 'block';
-        
-        savedResults.forEach((result, index) => {
-          const date = new Date(result.timestamp).toLocaleDateString();
-          const time = new Date(result.timestamp).toLocaleTimeString();
-          
-          const resultCard = document.createElement('div');
-          resultCard.className = 'saved-result-card';
-          resultCard.innerHTML = `
-            <div class="saved-result-header">
-              <div>
-                <strong>Saved Result ${index + 1}</strong>
-                <div class="saved-result-date">${date} at ${time}</div>
-              </div>
-              <div class="saved-result-actions">
-                <button class="saved-result-action-btn view-saved-result" data-index="${index}">
-                  <i class="fa-solid fa-eye"></i>
-                </button>
-                <button class="saved-result-action-btn delete-saved-result" data-index="${index}">
-                  <i class="fa-solid fa-trash"></i>
-                </button>
-              </div>
+    } catch (error) {
+        addStatusMessage(`Error saving result: ${error.message}`, 'error');
+        hideLoading();
+        showToast('Error saving result', 'error');
+    }
+}
+
+// Display saved results at the top of the result section
+function displaySavedResults(savedResults) {
+    // Create a container for saved results at the top
+    const savedResultsTopContainer = document.createElement('div');
+    savedResultsTopContainer.id = 'saved-results-top-container';
+    savedResultsTopContainer.className = 'saved-results-top-container mb-4';
+    
+    if (savedResults.length > 0) {
+        savedResultsTopContainer.innerHTML = `
+            <div class="card card-modern">
+                <div class="card-header p-3">
+                    <h5 class="mb-0"><i class="fa-solid fa-floppy-disk me-2"></i>Saved Results</h5>
+                </div>
+                <div class="card-body p-3">
+                    <div class="saved-results-grid">
+                        ${savedResults.map((result, index) => `
+                            <div class="saved-result-item">
+                                <div class="saved-result-name">${result.custom_name}</div>
+                                <div class="saved-result-date">${new Date(result.timestamp).toLocaleDateString()}</div>
+                                <div class="saved-result-actions">
+                                    <button class="btn btn-sm btn-primary-action view-saved-result-top" data-index="${index}">
+                                        <i class="fa-solid fa-eye"></i> Show
+                                    </button>
+                                    <button class="btn btn-sm btn-danger-action delete-saved-result-top" data-index="${index}">
+                                        <i class="fa-solid fa-trash"></i> Delete
+                                    </button>
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
             </div>
-          `;
-          
-          savedResultsList.appendChild(resultCard);
+        `;
+        
+        // Insert at the top of the result container
+        if (resultContainer.firstChild) {
+            resultContainer.insertBefore(savedResultsTopContainer, resultContainer.firstChild);
+        } else {
+            resultContainer.appendChild(savedResultsTopContainer);
+        }
+        
+        // Add event listeners for top container buttons
+        document.querySelectorAll('.view-saved-result-top').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const index = parseInt(this.dataset.index);
+                loadSavedResult(savedResults[index]);
+            });
         });
         
-        // Add event listeners
-        document.querySelectorAll('.view-saved-result').forEach(btn => {
-          btn.addEventListener('click', function() {
+        document.querySelectorAll('.delete-saved-result-top').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const index = parseInt(this.dataset.index);
+                if (confirm(`Are you sure you want to delete "${savedResults[index].custom_name}"?`)) {
+                    deleteSavedResult(savedResults[index].id);
+                }
+            });
+        });
+    }
+    
+    // Also update the sidebar saved results
+    savedResultsList.innerHTML = '';
+    savedResultsContainer.style.display = savedResults.length > 0 ? 'block' : 'none';
+    
+    savedResults.forEach((result, index) => {
+        const date = new Date(result.timestamp).toLocaleDateString();
+        const time = new Date(result.timestamp).toLocaleTimeString();
+        
+        const resultCard = document.createElement('div');
+        resultCard.className = 'saved-result-card';
+        resultCard.innerHTML = `
+            <div class="saved-result-header">
+                <span class="saved-result-name">${result.custom_name}</span>
+                <span class="saved-result-date">${date}</span>
+            </div>
+            <div class="saved-result-actions">
+                <button class="btn btn-sm btn-primary-action view-saved-result" data-index="${index}">
+                    <i class="fa-solid fa-eye"></i>
+                </button>
+                <button class="btn btn-sm btn-danger-action delete-saved-result" data-index="${index}">
+                    <i class="fa-solid fa-trash"></i>
+                </button>
+            </div>
+        `;
+        
+        savedResultsList.appendChild(resultCard);
+    });
+    
+    // Add event listeners for sidebar buttons
+    document.querySelectorAll('.view-saved-result').forEach(btn => {
+        btn.addEventListener('click', function() {
             const index = parseInt(this.dataset.index);
             loadSavedResult(savedResults[index]);
-          });
         });
-        
-        document.querySelectorAll('.delete-saved-result').forEach(btn => {
-          btn.addEventListener('click', function() {
+    });
+    
+    document.querySelectorAll('.delete-saved-result').forEach(btn => {
+        btn.addEventListener('click', function() {
             const index = parseInt(this.dataset.index);
-            deleteSavedResult(savedResults[index].id);
-          });
+            if (confirm(`Are you sure you want to delete "${savedResults[index].custom_name}"?`)) {
+                deleteSavedResult(savedResults[index].id);
+            }
         });
-      }
-      
-      // Load saved result
-      function loadSavedResult(savedResult) {
-        processedData = savedResult.studentData;
-        
-        // Calculate CGPA
-        const cgpaData = calculateCGPA(processedData);
-        
-        // Display the result
-        displayCGPAResults(processedData, cgpaData);
-        
-        showToast('Saved result loaded successfully!', 'success');
-        addStatusMessage('Loaded saved result from web storage', 'info');
-      }
-      
-      // Delete saved result
-      async function deleteSavedResult(resultId) {
-        try {
-          const response = await fetch(API_ENDPOINTS.save, {
+    });
+}
+
+// Load a saved result
+function loadSavedResult(savedResult) {
+    const studentData = savedResult.student_data;
+    
+    // Update the UI with the saved result
+    displayStudentInfo(studentData);
+    displaySemesterResults(studentData);
+    calculateAndDisplayCGPA(studentData);
+    
+    // Update the registration number input
+    registrationNumber.value = savedResult.registration_number;
+    
+    // Show the result container
+    resultContainer.style.display = 'block';
+    
+    // Scroll to results
+    resultContainer.scrollIntoView({ behavior: 'smooth' });
+    
+    // Show success message
+    addStatusMessage(`Loaded saved result: ${savedResult.custom_name}`, 'success');
+    showToast(`Loaded saved result: ${savedResult.custom_name}`, 'success');
+}
+
+// Delete a saved result
+async function deleteSavedResult(resultId) {
+    try {
+        const response = await fetch(API_ENDPOINTS.save, {
             method: 'DELETE',
             headers: {
-              'Content-Type': 'application/json'
+                'Content-Type': 'application/json'
             },
             body: JSON.stringify({
-              id: resultId
+                id: resultId
             })
-          });
-          
-          const result = await response.json();
-          
-          if (result.success) {
-            showToast('Saved result deleted successfully!', 'success');
-            addStatusMessage('Deleted saved result from web storage', 'info');
+        });
+        
+        const result = await response.json();
+        
+        if (result.success) {
+            showToast('Saved result deleted successfully', 'success');
             
             // Refresh saved results list
             checkSavedResults();
-          } else {
+        } else {
             showToast('Error deleting saved result', 'error');
-            addStatusMessage(`Error deleting saved result: ${result.message}`, 'error');
-          }
-        } catch (error) {
-          showToast('Error deleting saved result', 'error');
-          addStatusMessage(`Error deleting saved result: ${error.message}`, 'error');
         }
-      }
+    } catch (error) {
+        showToast('Error deleting saved result', 'error');
+    }
+}
+
+// Check for saved results
+async function checkSavedResults() {
+    const regNum = registrationNumber.value.trim();
+    if (!regNum) return;
+    
+    try {
+        const response = await fetch(`${API_ENDPOINTS.load}?registrationNumber=${encodeURIComponent(regNum)}`);
+        const result = await response.json();
+        
+        if (result.success && result.savedResults && result.savedResults.length > 0) {
+            displaySavedResults(result.savedResults);
+        } else {
+            // Remove saved results display if none exist
+            const savedResultsTopContainer = document.getElementById('saved-results-top-container');
+            if (savedResultsTopContainer) {
+                savedResultsTopContainer.remove();
+            }
+            
+            // Hide sidebar saved results
+            savedResultsContainer.style.display = 'none';
+        }
+    } catch (error) {
+        console.error('Error checking saved results:', error);
+    }
+}
+
+// Update the fetchResult function to check for saved results
+async function fetchResult() {
+    const regNum = registrationNumber.value.trim();
+    if (!regNum) {
+        showToast('Please enter a registration number', 'error');
+        return;
+    }
+    
+    // Check for saved results first
+    await checkSavedResults();
+    
+    // Then proceed with scraping
+    addStatusMessage(`Fetching results for ${regNum}...`, 'info');
+    showLoadingStage('scraping');
+    
+    try {
+        const response = await fetch(API_ENDPOINTS.scrapeSingle, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                registrationNumber: regNum
+            })
+        });
+        
+        const result = await response.json();
+        
+        if (result.success && result.resultData) {
+            addStatusMessage(`Successfully fetched ${result.resultData.length} records`, 'success');
+            
+            // Process and display the data
+            processResultData(result.resultData);
+            
+            // Check for saved results again after fetching
+            await checkSavedResults();
+            
+            showLoadingStage('complete');
+            
+            // Hide loading after delay
+            setTimeout(() => {
+                hideLoading();
+            }, 2000);
+        } else {
+            addStatusMessage(`Error: ${result.message}`, 'error');
+            hideLoading();
+            showToast(result.message, 'error');
+        }
+    } catch (error) {
+        addStatusMessage(`Network error: ${error.message}`, 'error');
+        hideLoading();
+        showToast('Network error. Please try again.', 'error');
+    }
+}
       
       // Generate professional PDF report
 function generatePDF() {
@@ -4143,6 +4374,7 @@ function generatePDF() {
   </script>
 </body>
 </html>
+
 
 
 
