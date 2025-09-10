@@ -1821,6 +1821,136 @@ a:hover {
   }
 }
 
+    /* Saved Results Section */
+#savedResultsSection {
+  margin: 20px 0;
+  padding: 15px;
+  background-color: #f8f9fa;
+  border-radius: 8px;
+  border: 1px solid #e9ecef;
+  display: none;
+}
+
+.saved-results-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+}
+
+.saved-results-header h3 {
+  margin: 0;
+  color: #495057;
+  font-size: 1.2rem;
+}
+
+.saved-result-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px;
+  margin-bottom: 10px;
+  background-color: white;
+  border-radius: 6px;
+  border: 1px solid #dee2e6;
+}
+
+.saved-result-info {
+  flex: 1;
+}
+
+.saved-result-info strong {
+  display: block;
+  color: #495057;
+  margin-bottom: 5px;
+}
+
+.saved-result-info span {
+  font-size: 0.85rem;
+  color: #6c757d;
+}
+
+.saved-result-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.btn-icon {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 1.2rem;
+  padding: 5px;
+  border-radius: 4px;
+  transition: background-color 0.2s;
+}
+
+.btn-icon:hover {
+  background-color: #e9ecef;
+}
+
+/* Loading stages */
+.loading-stage {
+  display: none;
+  text-align: center;
+  margin: 10px 0;
+}
+
+.loading-stage.active {
+  display: block;
+}
+
+.stage-icon {
+  font-size: 2rem;
+  margin-bottom: 10px;
+}
+
+.stage-text {
+  font-weight: 500;
+  margin-bottom: 5px;
+}
+
+.stage-details {
+  font-size: 0.9rem;
+  color: #6c757d;
+}
+
+/* Status messages */
+.status-messages {
+  margin: 15px 0;
+}
+
+.status-message {
+  padding: 10px;
+  border-radius: 4px;
+  margin-bottom: 8px;
+  font-size: 0.9rem;
+}
+
+.status-message.info {
+  background-color: #e7f3ff;
+  color: #0a58ca;
+  border-left: 4px solid #0a58ca;
+}
+
+.status-message.success {
+  background-color: #d4edda;
+  color: #0f5132;
+  border-left: 4px solid #0f5132;
+}
+
+.status-message.error {
+  background-color: #f8d7da;
+  color: #842029;
+  border-left: 4px solid #842029;
+}
+
+.status-message.warning {
+  background-color: #fff3cd;
+  color: #664d03;
+  border-left: 4px solid #664d03;
+}
+
   </style>
 </head>
 <body>
@@ -2086,6 +2216,15 @@ a:hover {
           
           <!-- Results Section -->
           <div id="resultContainer" class="result-container">
+            <!-- Saved Results Section -->
+<div id="savedResultsSection" class="card">
+  <div class="saved-results-header">
+    <h3>📁 Saved Results</h3>
+  </div>
+  <div id="savedResultsList" class="saved-results-list">
+    <!-- Saved results will be displayed here -->
+  </div>
+</div>
             <!-- Replace the CGPA display section with this code -->
 <div class="gpa-result-card">
   <div class="card-body p-4">
@@ -2292,13 +2431,14 @@ a:hover {
       let currentSessionId = null;
       let deletedSemesters = {}; // Track deleted semesters for undo functionality
       
-      // API endpoints - FIXED to match your Python backend
       const API_ENDPOINTS = {
-        scrape: `/api/result-scraper`,
-        test: `/api/result-scraper`,
-        save: `/api/result-scraper?action=save`,
-        load: `/api/result-scraper?action=load_result`
-      };
+  scrape: '/api/result-scraper?action=scrape',
+  scrapeSingle: '/api/result-scraper?action=scrape_single',
+  save: '/api/result-scraper?action=save_result',
+  load: '/api/result-scraper?action=load_result',
+  loadSaved: '/api/result-scraper?action=load_saved_result',
+  test: '/api/result-scraper?action=test'
+};
       
       // Initialize the application
       function init() {
@@ -3460,111 +3600,215 @@ a:hover {
         showToast(`Course ${course.code} restored`, 'success');
       }
       
-      // Save result to web storage
-      async function saveToWeb() {
-        if (!processedData) {
-          showToast('No data to save', 'error');
-          return;
-        }
-        
-        const regNum = registrationNumber.value.trim();
-        if (!regNum) {
-          showToast('Please enter a registration number', 'error');
-          return;
-        }
-        
-        addStatusMessage('Saving result to web storage...', 'info');
-        showLoadingStage('processing');
-        
-        try {
-          const response = await fetch(API_ENDPOINTS.save, {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-              registrationNumber: regNum,
-              studentData: processedData,
-              timestamp: new Date().toISOString()
-            })
-          });
-          
-          const result = await response.json();
-          
-          if (result.success) {
-            addStatusMessage('Result saved successfully to web storage', 'success');
-            showLoadingStage('complete');
-            showToast('Result saved successfully!', 'success');
-            
-            // Refresh saved results list
-            checkSavedResults();
-            
-            // Hide loading after delay
-            setTimeout(() => {
-              hideLoading();
-            }, 2000);
-          } else {
-            addStatusMessage(`Error saving result: ${result.message}`, 'error');
-            hideLoading();
-            showToast('Error saving result', 'error');
-          }
-        } catch (error) {
-          addStatusMessage(`Error saving result: ${error.message}`, 'error');
-          hideLoading();
-          showToast('Error saving result', 'error');
-        }
-      }
+      // ... (previous JavaScript code remains the same until the saveToWeb function)
+
+// Save result to web storage
+async function saveToWeb() {
+  if (!processedData) {
+    showToast('No data to save', 'error');
+    return;
+  }
+
+  const regNum = registrationNumber.value.trim();
+  if (!regNum) {
+    showToast('Please enter a registration number', 'error');
+    return;
+  }
+
+  // Prompt user for a custom name
+  const customName = prompt('Please enter a name for this saved result (e.g., MPHIL):', 'Saved Result');
+  
+  if (!customName) {
+    showToast('Save cancelled', 'info');
+    return;
+  }
+
+  addStatusMessage(`Saving result as "${customName}" to web storage...`, 'info');
+  showLoadingStage('processing');
+
+  try {
+    const response = await fetch(API_ENDPOINTS.save, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        registrationNumber: regNum,
+        studentData: processedData,
+        timestamp: new Date().toISOString(),
+        customName: customName
+      })
+    });
+
+    const result = await response.json();
+
+    if (result.success) {
+      addStatusMessage(`Result saved successfully as "${customName}"`, 'success');
+      showLoadingStage('complete');
+      showToast(`Result saved as "${customName}"!`, 'success');
       
-      // Check for saved results
-      async function checkSavedResults() {
-        const regNum = registrationNumber.value.trim();
-        if (!regNum) return;
-        
-        try {
-          const response = await fetch(`${API_ENDPOINTS.load}&registrationNumber=${encodeURIComponent(regNum)}`);
-          const result = await response.json();
-          
-          if (result.success && result.savedResults && result.savedResults.length > 0) {
-            displaySavedResults(result.savedResults);
-          } else {
-            savedResultsContainer.style.display = 'none';
-          }
-        } catch (error) {
-          console.error('Error checking saved results:', error);
-          savedResultsContainer.style.display = 'none';
-        }
-      }
+      // Refresh saved results list
+      checkSavedResults();
       
-      // Display saved results
-      function displaySavedResults(savedResults) {
-        savedResultsList.innerHTML = '';
-        savedResultsContainer.style.display = 'block';
-        
-        savedResults.forEach((result, index) => {
-          const date = new Date(result.timestamp).toLocaleDateString();
-          const time = new Date(result.timestamp).toLocaleTimeString();
-          
-          const resultCard = document.createElement('div');
-          resultCard.className = 'saved-result-card';
-          resultCard.innerHTML = `
-            <div class="saved-result-header">
-              <div>
-                <strong>Saved Result ${index + 1}</strong>
-                <div class="saved-result-date">${date} at ${time}</div>
-              </div>
-              <div class="saved-result-actions">
-                <button class="saved-result-action-btn view-saved-result" data-index="${index}">
-                  <i class="fa-solid fa-eye"></i>
-                </button>
-                <button class="saved-result-action-btn delete-saved-result" data-index="${index}">
-                  <i class="fa-solid fa-trash"></i>
-                </button>
-              </div>
-            </div>
-          `;
-          
-          savedResultsList.appendChild(resultCard);
-        });
+      // Hide loading after delay
+      setTimeout(() => {
+        hideLoading();
+      }, 2000);
+    } else {
+      addStatusMessage(`Error saving result: ${result.message}`, 'error');
+      hideLoading();
+      showToast('Error saving result', 'error');
+    }
+  } catch (error) {
+    addStatusMessage(`Error saving result: ${error.message}`, 'error');
+    hideLoading();
+    showToast('Error saving result', 'error');
+  }
+}
+
+// Load a specific saved result
+async function loadSavedResult(savedResult) {
+  try {
+    addStatusMessage(`Loading saved result: ${savedResult.custom_name || 'Saved Result'}`, 'info');
+    showLoadingStage('processing');
+
+    const response = await fetch(`${API_ENDPOINTS.loadSaved}?id=${savedResult.id}`);
+    const result = await response.json();
+
+    if (result.success && result.savedResult) {
+      // Process the saved result data
+      processResultData(result.savedResult.student_data);
+      
+      addStatusMessage(`Loaded saved result: ${savedResult.custom_name || 'Saved Result'}`, 'success');
+      showLoadingStage('complete');
+      showToast('Saved result loaded successfully!', 'success');
+      
+      // Hide loading after delay
+      setTimeout(() => {
+        hideLoading();
+      }, 2000);
+    } else {
+      addStatusMessage(`Error loading saved result: ${result.message}`, 'error');
+      hideLoading();
+      showToast('Error loading saved result', 'error');
+    }
+  } catch (error) {
+    addStatusMessage(`Error loading saved result: ${error.message}`, 'error');
+    hideLoading();
+    showToast('Error loading saved result', 'error');
+  }
+}
+
+// Delete a saved result
+async function deleteSavedResult(resultId, resultName) {
+  if (!confirm(`Are you sure you want to delete the saved result "${resultName}"?`)) {
+    return;
+  }
+
+  try {
+    addStatusMessage(`Deleting saved result: ${resultName}`, 'info');
+    showLoadingStage('processing');
+
+    const response = await fetch(API_ENDPOINTS.save, {
+      method: 'DELETE',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        id: resultId
+      })
+    });
+
+    const result = await response.json();
+
+    if (result.success) {
+      addStatusMessage(`Deleted saved result: ${resultName}`, 'success');
+      showLoadingStage('complete');
+      showToast('Saved result deleted successfully!', 'success');
+      
+      // Refresh saved results list
+      checkSavedResults();
+      
+      // Hide loading after delay
+      setTimeout(() => {
+        hideLoading();
+      }, 2000);
+    } else {
+      addStatusMessage(`Error deleting saved result: ${result.message}`, 'error');
+      hideLoading();
+      showToast('Error deleting saved result', 'error');
+    }
+  } catch (error) {
+    addStatusMessage(`Error deleting saved result: ${error.message}`, 'error');
+    hideLoading();
+    showToast('Error deleting saved result', 'error');
+  }
+}
+
+// Check for saved results
+async function checkSavedResults() {
+  const regNum = registrationNumber.value.trim();
+  if (!regNum) return;
+
+  try {
+    const response = await fetch(`${API_ENDPOINTS.load}?registrationNumber=${regNum}`);
+    const result = await response.json();
+
+    if (result.success && result.savedResults && result.savedResults.length > 0) {
+      displaySavedResults(result.savedResults);
+    } else {
+      // Hide saved results section if no saved results
+      const savedResultsSection = document.getElementById('savedResultsSection');
+      if (savedResultsSection) {
+        savedResultsSection.style.display = 'none';
+      }
+    }
+  } catch (error) {
+    console.error('Error checking saved results:', error);
+  }
+}
+
+// Display saved results
+function displaySavedResults(savedResults) {
+  const savedResultsSection = document.getElementById('savedResultsSection');
+  const savedResultsList = document.getElementById('savedResultsList');
+  
+  if (!savedResultsSection || !savedResultsList) return;
+  
+  // Clear previous results
+  savedResultsList.innerHTML = '';
+  
+  // Show the section
+  savedResultsSection.style.display = 'block';
+  
+  // Add each saved result
+  savedResults.forEach(result => {
+    const resultItem = document.createElement('div');
+    resultItem.className = 'saved-result-item';
+    
+    const resultName = result.custom_name || 'Saved Result';
+    const timestamp = new Date(result.timestamp).toLocaleString();
+    
+    resultItem.innerHTML = `
+      <div class="saved-result-info">
+        <strong>${resultName}</strong>
+        <span>Saved: ${timestamp}</span>
+      </div>
+      <div class="saved-result-actions">
+        <button class="btn-icon" onclick="loadSavedResult(${JSON.stringify(result).replace(/"/g, '&quot;')})" title="Load this result">
+          👁️
+        </button>
+        <button class="btn-icon" onclick="deleteSavedResult('${result.id}', '${resultName.replace(/'/g, "\\'")}')" title="Delete this result">
+          🗑️
+        </button>
+      </div>
+    `;
+    
+    savedResultsList.appendChild(resultItem);
+  });
+}
+
+// ... (rest of the JavaScript code remains the same)
         
         // Add event listeners
         document.querySelectorAll('.view-saved-result').forEach(btn => {
@@ -4143,6 +4387,7 @@ function generatePDF() {
   </script>
 </body>
 </html>
+
 
 
 
