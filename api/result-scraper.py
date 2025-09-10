@@ -77,6 +77,8 @@ class handler(BaseHTTPRequestHandler):
                 self.handle_scrape_single()
             elif 'action=load_result' in self.path or 'load_result' in self.path:
                 self.handle_load_result()
+            elif 'action=load_saved_result' in self.path:
+                self.handle_load_saved_result()
             else:
                 self.send_response(404)
                 self._set_cors_headers()
@@ -86,52 +88,29 @@ class handler(BaseHTTPRequestHandler):
 
     def do_POST(self):
         try:
-            content_length = int(self.headers['Content-Length'])
-            post_data = self.rfile.read(content_length)
-            
-            # Check if post_data is empty
-            if not post_data:
-                self.send_error_response(400, 'Empty request body')
-                return
-                
-            data = json.loads(post_data)
-            
             if 'action=scrape' in self.path:
-                self.handle_scrape(data)
+                self.handle_scrape()
             elif 'action=save' in self.path or 'save_result' in self.path:
-                self.handle_save_result(data)
+                self.handle_save_result()
             elif 'action=clear_session' in self.path:
-                self.handle_clear_session(data)
+                self.handle_clear_session()
             elif 'action=scrape_single' in self.path:
-                self.handle_scrape_single_post(data)
+                self.handle_scrape_single()
             else:
                 self.send_response(404)
                 self._set_cors_headers()
                 self.end_headers()
-        except json.JSONDecodeError as e:
-            self.send_error_response(400, f"Invalid JSON: {str(e)}")
         except Exception as e:
             self.send_error_response(500, f"Server error: {str(e)}")
 
     def do_DELETE(self):
         try:
-            content_length = int(self.headers['Content-Length'])
-            post_data = self.rfile.read(content_length)
-            
-            if not post_data:
-                self.send_error_response(400, 'Empty request body')
-                return
-                
-            data = json.loads(post_data)
-            
             if 'action=save' in self.path or 'save_result' in self.path:
-                self.handle_delete_saved_result(data)
+                self.handle_delete_saved_result()
             else:
                 self.send_response(404)
                 self._set_cors_headers()
                 self.end_headers()
-        except json.JSONDecodeError as e:
-            self.send_error_response(400, f"Invalid JSON: {str(e)}")
         except Exception as e:
             self.send_error_response(500, f"Server error: {str(e)}")
 
@@ -238,9 +217,13 @@ class handler(BaseHTTPRequestHandler):
         except Exception as e:
             self.send_error_response(500, f"Error checking session: {str(e)}")
 
-    def handle_clear_session(self, data):
+    def handle_clear_session(self):
         """Manually clear a session"""
         try:
+            content_length = int(self.headers['Content-Length'])
+            post_data = self.rfile.read(content_length)
+            data = json.loads(post_data)
+            
             session_id = data.get('sessionId')
             if not session_id:
                 self.send_error_response(400, 'No session ID provided')
@@ -254,16 +237,45 @@ class handler(BaseHTTPRequestHandler):
             self.send_error_response(500, f"Error clearing session: {str(e)}")
 
     def handle_scrape_single(self):
-        """Handle single result scraping for CGPA calculator via GET"""
+        """Handle single result scraping for CGPA calculator"""
         try:
-            query_params = self.path.split('?')
-            if len(query_params) > 1:
-                params = query_params[1].split('&')
-                registration_number = None
-                for param in params:
-                    if param.startswith('registrationNumber='):
-                        registration_number = param.split('=')[1]
-                        break
+            if self.command == 'GET':
+                # Handle GET request
+                query_params = self.path.split('?')
+                if len(query_params) > 1:
+                    params = query_params[1].split('&')
+                    registration_number = None
+                    for param in params:
+                        if param.startswith('registrationNumber='):
+                            registration_number = param.split('=')[1]
+                            break
+                    
+                    if not registration_number:
+                        self.send_error_response(400, 'No registration number provided')
+                        return
+                    
+                    # Scrape results
+                    success, message, result_data = self.scrape_uaf_results(registration_number)
+                    
+                    if success and result_data:
+                        response = {
+                            'success': success, 
+                            'message': message, 
+                            'resultData': result_data
+                        }
+                    else:
+                        response = {'success': success, 'message': message, 'resultData': result_data}
+                    
+                    self.send_success_response(response)
+                else:
+                    self.send_error_response(400, 'No registration number provided')
+            else:
+                # Handle POST request
+                content_length = int(self.headers['Content-Length'])
+                post_data = self.rfile.read(content_length)
+                data = json.loads(post_data)
+                
+                registration_number = data.get('registrationNumber')
                 
                 if not registration_number:
                     self.send_error_response(400, 'No registration number provided')
@@ -282,41 +294,17 @@ class handler(BaseHTTPRequestHandler):
                     response = {'success': success, 'message': message, 'resultData': result_data}
                 
                 self.send_success_response(response)
-            else:
-                self.send_error_response(400, 'No registration number provided')
                 
         except Exception as e:
             self.send_error_response(500, f"Error scraping single result: {str(e)}")
 
-    def handle_scrape_single_post(self, data):
-        """Handle single result scraping for CGPA calculator via POST"""
-        try:
-            registration_number = data.get('registrationNumber')
-            
-            if not registration_number:
-                self.send_error_response(400, 'No registration number provided')
-                return
-            
-            # Scrape results
-            success, message, result_data = self.scrape_uaf_results(registration_number)
-            
-            if success and result_data:
-                response = {
-                    'success': success, 
-                    'message': message, 
-                    'resultData': result_data
-                }
-            else:
-                response = {'success': success, 'message': message, 'resultData': result_data}
-            
-            self.send_success_response(response)
-            
-        except Exception as e:
-            self.send_error_response(500, f"Error scraping single result: {str(e)}")
-
-    def handle_save_result(self, data):
+    def handle_save_result(self):
         """Save result data to database"""
         try:
+            content_length = int(self.headers['Content-Length'])
+            post_data = self.rfile.read(content_length)
+            data = json.loads(post_data)
+            
             registration_number = data.get('registrationNumber')
             student_data = data.get('studentData')
             timestamp = data.get('timestamp')
@@ -336,7 +324,7 @@ class handler(BaseHTTPRequestHandler):
             conn = sqlite3.connect(DB_PATH)
             c = conn.cursor()
             
-            # Check if result already exists for this registration number and custom name
+            # Check if result already exists for this registration number and timestamp
             c.execute('''
                 SELECT id FROM saved_results 
                 WHERE registration_number = ? AND custom_name = ?
@@ -351,7 +339,6 @@ class handler(BaseHTTPRequestHandler):
                     SET student_data = ?, timestamp = ?
                     WHERE id = ?
                 ''', (json.dumps(student_data), timestamp, existing_result[0]))
-                result_id = existing_result[0]
             else:
                 # Insert new record
                 c.execute('''
@@ -426,9 +413,71 @@ class handler(BaseHTTPRequestHandler):
         except Exception as e:
             self.send_error_response(500, f"Error loading results: {str(e)}")
 
-    def handle_delete_saved_result(self, data):
+    def handle_load_saved_result(self):
+        """Load a specific saved result from database"""
+        try:
+            query_params = self.path.split('?')
+            result_id = None
+            
+            if len(query_params) > 1:
+                params = query_params[1].split('&')
+                for param in params:
+                    if param.startswith('id='):
+                        result_id = param.split('=')[1]
+                        break
+            
+            if not result_id:
+                self.send_error_response(400, 'No result ID provided')
+                return
+            
+            # Initialize database
+            init_db()
+            
+            # Load from database
+            conn = sqlite3.connect(DB_PATH)
+            c = conn.cursor()
+            
+            c.execute('''
+                SELECT id, registration_number, student_data, timestamp, custom_name
+                FROM saved_results 
+                WHERE id = ?
+            ''', (result_id,))
+            
+            result = c.fetchone()
+            conn.close()
+            
+            if result:
+                saved_result = {
+                    'id': result[0],
+                    'registration_number': result[1],
+                    'student_data': json.loads(result[2]),
+                    'timestamp': result[3],
+                    'custom_name': result[4] or 'Saved Result'
+                }
+                
+                response_data = {
+                    'success': True, 
+                    'message': 'Result loaded successfully',
+                    'savedResult': saved_result
+                }
+                self.send_success_response(response_data)
+            else:
+                response_data = {
+                    'success': False, 
+                    'message': 'Result not found'
+                }
+                self.send_success_response(response_data)
+            
+        except Exception as e:
+            self.send_error_response(500, f"Error loading result: {str(e)}")
+
+    def handle_delete_saved_result(self):
         """Delete a saved result from database"""
         try:
+            content_length = int(self.headers['Content-Length'])
+            post_data = self.rfile.read(content_length)
+            data = json.loads(post_data)
+            
             result_id = data.get('id')
             
             if not result_id:
@@ -455,79 +504,79 @@ class handler(BaseHTTPRequestHandler):
         except Exception as e:
             self.send_error_response(500, f"Error deleting result: {str(e)}")
 
-    def handle_scrape(self, data):
-        try:
-            registration_number = data.get('registrationNumber')
-            session_id = data.get('sessionId')
+    def handle_scrape(self):
+        content_length = int(self.headers['Content-Length'])
+        post_data = self.rfile.read(content_length)
+        data = json.loads(post_data)
+        
+        registration_number = data.get('registrationNumber')
+        session_id = data.get('sessionId')
+        
+        if not registration_number:
+            self.send_error_response(400, 'No registration number provided')
+            return
             
-            if not registration_number:
-                self.send_error_response(400, 'No registration number provided')
-                return
-                
-            if not session_id:
-                self.send_error_response(400, 'No session ID provided')
-                return
+        if not session_id:
+            self.send_error_response(400, 'No session ID provided')
+            return
+        
+        # Scrape results
+        success, message, result_data = self.scrape_uaf_results(registration_number)
+        
+        # Save result to session file if successful
+        if success and result_data:
+            self.save_to_session(session_id, result_data)
             
-            # Scrape results
-            success, message, result_data = self.scrape_uaf_results(registration_number)
-            
-            # Save result to session file if successful
-            if success and result_data:
-                self.save_to_session(session_id, result_data)
-                
-            response = {'success': success, 'message': message, 'resultData': result_data}
-            self.send_success_response(response)
-            
-        except Exception as e:
-            self.send_error_response(500, f"Error scraping: {str(e)}")
+        response = {'success': success, 'message': message, 'resultData': result_data}
+        self.send_success_response(response)
 
-    def handle_save(self, data):
-        try:
-            filename = data.get('filename', 'student_results')
-            session_id = data.get('sessionId')
+    def handle_save(self):
+        content_length = int(self.headers['Content-Length'])
+        post_data = self.rfile.read(content_length)
+        data = json.loads(post_data)
+        
+        filename = data.get('filename', 'student_results')
+        session_id = data.get('sessionId')
+        
+        if not session_id:
+            self.send_error_response(400, 'No session ID provided')
+            return
             
-            if not session_id:
-                self.send_error_response(400, 'No session ID provided')
-                return
-                
-            # Load results from session file
-            session_results = self.load_from_session(session_id)
+        # Load results from session file
+        session_results = self.load_from_session(session_id)
+        
+        if session_results:
+            # Create Excel file
+            wb = Workbook()
+            ws = wb.active
+            ws.title = "Results"
             
+            # Add headers if we have data
             if session_results:
-                # Create Excel file
-                wb = Workbook()
-                ws = wb.active
-                ws.title = "Results"
+                headers = list(session_results[0].keys())
+                ws.append(headers)
                 
-                # Add headers if we have data
-                if session_results:
-                    headers = list(session_results[0].keys())
-                    ws.append(headers)
-                    
-                    # Add data
-                    for result in session_results:
-                        ws.append([result.get(header, '') for header in headers])
-                
-                # Save to bytes buffer
-                output = BytesIO()
-                wb.save(output)
-                excel_data = output.getvalue()
-                
-                self.send_response(200)
-                self._set_cors_headers()
-                self.send_header('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
-                self.send_header('Content-Disposition', f'attachment; filename="{filename}.xlsx"')
-                self.end_headers()
-                
-                self.wfile.write(excel_data)
-                
-                # DO NOT clean up session file - keep it for future downloads
-                # Session will be automatically cleaned up after 1 hour
-            else:
-                self.send_error_response(400, 'No results to save')
-                
-        except Exception as e:
-            self.send_error_response(500, f"Error saving file: {str(e)}")
+                # Add data
+                for result in session_results:
+                    ws.append([result.get(header, '') for header in headers])
+            
+            # Save to bytes buffer
+            output = BytesIO()
+            wb.save(output)
+            excel_data = output.getvalue()
+            
+            self.send_response(200)
+            self._set_cors_headers()
+            self.send_header('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+            self.send_header('Content-Disposition', f'attachment; filename="{filename}.xlsx"')
+            self.end_headers()
+            
+            self.wfile.write(excel_data)
+            
+            # DO NOT clean up session file - keep it for future downloads
+            # Session will be automatically cleaned up after 1 hour
+        else:
+            self.send_error_response(400, 'No results to save')
 
     def scrape_uaf_results(self, registration_number):
         """Main function to scrape UAF results"""
