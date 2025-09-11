@@ -1364,7 +1364,48 @@ a:hover {
   }
 }
 
+/* New styles for saved results section positioning */
+.saved-results-container {
+  display: none;
+  margin-top: 2rem;
+  max-width: 900px;
+  margin-left: auto;
+  margin-right: auto;
+}
 
+/* Ensure proper positioning of the saved results section */
+#savedResultsSection {
+  order: 2; /* Display after input section, before result container */
+}
+
+#resultContainer {
+  order: 3; /* Display after saved results section */
+}
+
+/* Container for the main content areas */
+.main-content-container {
+  display: flex;
+  flex-direction: column;
+}
+
+
+/* Semester section layout improvements */
+.semester-results-container {
+  width: 100%;
+}
+
+.semester-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
+  gap: 1.5rem;
+  width: 100%;
+}
+
+@media (max-width: 992px) {
+  .semester-grid {
+    grid-template-columns: 1fr;
+  }
+}
 
 /* NEW STYLES FOR UPDATES */
 .repeated-badge {
@@ -4333,6 +4374,4 @@ a:hover {
   </script>
 </body>
 </html>
-
-
 
