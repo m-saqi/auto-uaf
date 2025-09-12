@@ -1054,7 +1054,7 @@ a:hover {
   border-radius: 50%;
   background: var(--brand);
   pointer-events: none;
-  transform: translate(-50%, -50%);
+  transform: translate(-50%, -50);
   opacity: .7;
   mix-blend-mode: multiply;
   z-index: 9999;
@@ -2337,7 +2337,7 @@ a:hover {
                 <h4 class="mb-0"><i class="fa-solid fa-terminal me-2"></i>Status Log</h4>
               </div>
               <div class="card-body p-4">
-                <!-- Status Log -->
+                                <!-- Status Log -->
                 <div class="status-log" id="statusLog">
                   <div class="status-line status-info">Ready to fetch your results. Enter your registration number and click "Fetch Result".</div>
                 </div>
@@ -2347,10 +2347,9 @@ a:hover {
                   <button id="downloadLogBtn" class="btn btn-secondary-action rounded-pill">
                     <i class="fa-solid fa-file-lines me-2"></i>Download Log
                   </button>
-                    <button id="clearLogBtn" class="btn btn-danger-action rounded-pill">
-                      <i class="fa-solid fa-trash me-2"></i>Clear Log
-                    </button>
-                  </div>
+                  <button id="clearLogBtn" class="btn btn-danger-action rounded-pill">
+                    <i class="fa-solid fa-trash me-2"></i>Clear Log
+                  </button>
                 </div>
               </div>
             </div>
@@ -2438,7 +2437,7 @@ a:hover {
       const themeToggle = document.getElementById('themeToggle');
       const cursorDot = document.getElementById('cursorDot');
       const contactForm = document.getElementById('contact-form');
-      const contactFormStatus = document.getElementById('contact-formStatus');
+      const contactFormStatus = document.getElementById('contact-form-status');
       const downloadLogBtn = document.getElementById('downloadLogBtn');
       const clearLogBtn = document.getElementById('clearLogBtn');
       const semesterResults = document.getElementById('semesterResults');
@@ -2959,7 +2958,7 @@ a:hover {
             
             // Find the highest marks/quality points
             let highest = history[0];
-            for (let i = 1; i < history.length; i++) {
+            for (let i = 1; i < history.length; i) {
               if (history[i].marks > highest.marks) {
                 highest = history[i];
               }
@@ -3216,7 +3215,7 @@ a:hover {
               </h5>
               <div class="text-right" style="margin-right: 40px;">
                 <p class="mb-0 text-body-secondary small">GPA:</p>
-                <p class="mb-0 h4 fw-bold" style="color: var(--brand;">${semester.gpa ? formatCGPA(semester.gpa) : 0}</p>
+                <p class="mb-0 h4 fw-bold" style="color: var(--brand);">${semester.gpa ? formatCGPA(semester.gpa) : 0}</p>
                 <p class="mb-0 text-body-secondary small">${semester.percentage ? formatPercentage(semester.percentage) : 0}%</p>
               </div>
             </div>
@@ -3352,7 +3351,7 @@ a:hover {
             </div>
             <div class="col-md-6">
               <p><strong>Mid Term:</strong> ${course.mid}</p>
-              <p><strong>Assignment:</strong> ${course.assignment}</p>
+              <p><strong>Assignment:</strong> ${course.assignment</p>
               <p><strong>Final Term:</strong> ${course.final}</p>
               ${course.practical ? `<p><strong>Practical:</strong> ${course.practical}</p>` : ''}
             </div>
@@ -3932,7 +3931,7 @@ a:hover {
             pdf.setLineWidth(0.3);
             pdf.line(margin + 5, yPos + 9, margin + 60, yPos + 9);
             
-                        pdf.setFontSize(10);
+            pdf.setFontSize(10);
             pdf.setTextColor(0, 0, 0);
             pdf.setFont(undefined, 'normal');
             
