@@ -754,21 +754,22 @@ class handler(BaseHTTPRequestHandler):
                             
                             if len(cols) >= 5:  # At least 5 columns expected
                                 result_data = {
-                                    'RegistrationNo': student_info.get('Registration', registration_number),
-                                    'StudentName': student_info.get('StudentFullName', student_info.get('StudentName', '')),
-                                    'SrNo': cols[0].text.strip() if len(cols) > 0 else '',
-                                    'Semester': cols[1].text.strip() if len(cols) > 1 else '',
-                                    'TeacherName': cols[2].text.strip() if len(cols) > 2 else '',
-                                    'CourseCode': cols[3].text.strip() if len(cols) > 3 else '',
-                                    'CourseTitle': cols[4].text.strip() if len(cols) > 4 else '',
-                                    'CreditHours': cols[5].text.strip() if len(cols) > 5 else '',
-                                    'Mid': cols[6].text.strip() if len(cols) > 6 else '',
-                                    'Assignment': cols[7].text.parse_uaf_results
-                                    'Final': cols[8].text.strip() if len(cols) > 8 else '',
-                                    'Practical': cols[9].text.strip() if len(cols) > 9 else '',
-                                    'Total': cols[10].text.strip() if len(cols) > 10 else '',
-                                    'Grade': cols[11].text.strip() if len(cols) > 11 else ''
-                                }
+    'RegistrationNo': student_info.get('Registration', registration_number),
+    'StudentName': student_info.get('StudentFullName', student_info.get('StudentName', '')),
+    'SrNo': cols[0].text.strip() if len(cols) > 0 else '',
+    'Semester': cols[1].text.strip() if len(cols) > 1 else '',
+    'TeacherName': cols[2].text.strip() if len(cols) > 2 else '',
+    'CourseCode': cols[3].text.strip() if len(cols) > 3 else '',
+    'CourseTitle': cols[4].text.strip() if len(cols) > 4 else '',
+    'CreditHours': cols[5].text.strip() if len(cols) > 5 else '',
+    'Mid': cols[6].text.strip() if len(cols) > 6 else '',
+    'Assignment': cols[7].text.strip() if len(cols) > 7 else '',
+    'Final': cols[8].text.strip() if len(cols) > 8 else '',
+    'Practical': cols[9].text.strip() if len(cols) > 9 else '',
+    'Total': cols[10].text.strip() if len(cols) > 10 else '',
+    'Grade': cols[11].text.strip() if len(cols) > 11 else ''
+}
+
                                 
                                 student_results.append(result_data)
             
@@ -895,3 +896,4 @@ class handler(BaseHTTPRequestHandler):
 
 # Initialize database when module is loaded
 init_db()
+
