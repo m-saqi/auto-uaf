@@ -1364,31 +1364,6 @@ a:hover {
   }
 }
 
-/* New styles for saved results section positioning */
-.saved-results-container {
-  display: none;
-  margin-top: 2rem;
-  max-width: 900px;
-  margin-left: auto;
-  margin-right: auto;
-}
-
-/* Ensure proper positioning of the saved results section */
-#savedResultsSection {
-  order: 2; /* Display after input section, before result container */
-}
-
-#resultContainer {
-  order: 3; /* Display after saved results section */
-}
-
-/* Container for the main content areas */
-.main-content-container {
-  display: flex;
-  flex-direction: column;
-}
-
-
 /* Semester section layout improvements */
 .semester-results-container {
   width: 100%;
@@ -1638,7 +1613,7 @@ a:hover {
 
 ::-webkit-scrollbar-thumb {
   background: var(--brand);
-  borderRadius: 10px;
+  border-radius: 10px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
@@ -1846,136 +1821,6 @@ a:hover {
   }
 }
 
-/* Saved Results Section */
-#savedResultsSection {
-  margin: 20px 0;
-  padding: 15px;
-  background-color: #f8f9fa;
-  border-radius: 8px;
-  border: 1px solid #e9ecef;
-  display: none;
-}
-
-.saved-results-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 15px;
-}
-
-.saved-results-header h3 {
-  margin: 0;
-  color: #495057;
-  font-size: 1.2rem;
-}
-
-.saved-result-item {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 10px;
-  margin-bottom: 10px;
-  background-color: white;
-  border-radius: 6px;
-  border: 1px solid #dee2e6;
-}
-
-.saved-result-info {
-  flex: 1;
-}
-
-.saved-result-info strong {
-  display: block;
-  color: #495057;
-  margin-bottom: 5px;
-}
-
-.saved-result-info span {
-  font-size: 0.85rem;
-  color: #6c757d;
-}
-
-.saved-result-actions {
-  display: flex;
-  gap: 8px;
-}
-
-.btn-icon {
-  background: none;
-  border: none;
-  cursor: pointer;
-  font-size: 1.2rem;
-  padding: 5px;
-  border-radius: 4px;
-  transition: background-color 0.2s;
-}
-
-.btn-icon:hover {
-  background-color: #e9ecef;
-}
-
-/* Loading stages */
-.loading-stage {
-  display: none;
-  text-align: center;
-  margin: 10px 0;
-}
-
-.loading-stage.active {
-  display: block;
-}
-
-.stage-icon {
-  font-size: 2rem;
-  margin-bottom: 10px;
-}
-
-.stage-text {
-  font-weight: 500;
-  margin-bottom: 5px;
-}
-
-.stage-details {
-  font-size: 0.9rem;
-  color: #6c757d;
-}
-
-/* Status messages */
-.status-messages {
-  margin: 15px 0;
-}
-
-.status-message {
-  padding: 10px;
-  border-radius: 4px;
-  margin-bottom: 8px;
-  font-size: 0.9rem;
-}
-
-.status-message.info {
-  background-color: #e7f3ff;
-  color: #0a58ca;
-  border-left: 4px solid #0a58ca;
-}
-
-.status-message.success {
-  background-color: #d4edda;
-  color: #0f5132;
-  border-left: 4px solid #0f5132;
-}
-
-.status-message.error {
-  background-color: #f8d7da;
-  color: #842029;
-  border-left: 4px solid #842029;
-}
-
-.status-message.warning {
-  background-color: #fff3cd;
-  color: #664d03;
-  border-left: 4px solid #664d03;
-}
-
   </style>
 </head>
 <body>
@@ -2043,29 +1888,6 @@ a:hover {
         <div class="modal-footer">
           <button type="button" class="btn btn-secondary rounded-pill" data-bs-dismiss="modal">Cancel</button>
           <button type="button" class="btn btn-primary-action rounded-pill" id="saveCourseBtn">Add Course</button>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Save Result Name Modal -->
-  <div class="modal fade" id="saveResultModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title">Save Result</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-        </div>
-        <div class="modal-body">
-          <div class="mb-3">
-            <label for="resultName" class="form-label">Result Name</label>
-            <input type="text" class="form-control" id="resultName" placeholder="e.g., MPHIL" required>
-            <div class="form-text">Give a descriptive name for your saved result</div>
-          </div>
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-secondary rounded-pill" data-bs-dismiss="modal">Cancel</button>
-          <button type="button" class="btn btn-primary-action rounded-pill" id="confirmSaveBtn">Save</button>
         </div>
       </div>
     </div>
@@ -2198,166 +2020,166 @@ a:hover {
     <div class="container">
       <div class="row justify-content-center">
         <div class="col-md-10">
-          <div class="main-content-container">
-            <!-- Input Section -->
-            <div class="card card-modern mb-4">
-              <div class="card-header p-4">
-                <h4 class="mb-0"><i class="fa-solid fa-bolt me-2"></i>UAF CGPA Calculator</h4>
-              </div>
-              <div class="card-body p-4 scraping-section">
-                <form id="resultForm">
-                  <div class="mb-3">
-                    <label for="registrationNumber" class="form-label">Registration Number</label>
-                    <input type="text" class="form-control" id="registrationNumber" 
-                           placeholder="e.g., 2020-ag-1234" required>
-                    <div class="form-text">Enter your UAF registration number</div>
-                  </div>
-                  
-                  <div class="center-buttons">
-                    <button type="submit" class="btn btn-primary-action rounded-pill">
-                      <i class="fa-solid fa-cloud-arrow-down me-2"></i>Fetch Result
-                    </button>
-                    <button id="testConnectionBtn" type="button" class="btn test-connection-btn rounded-pill">
-                      <i class="fa-solid fa-vial me-2"></i>Test Connection
-                    </button>
-                  </div>
-                </form>
+          
+          <!-- Input Section -->
+          <div class="card card-modern mb-4">
+            <div class="card-header p-4">
+              <h4 class="mb-0"><i class="fa-solid fa-bolt me-2"></i>UAF CGPA Calculator</h4>
+            </div>
+            <div class="card-body p-4 scraping-section">
+              <form id="resultForm">
+                <div class="mb-3">
+                  <label for="registrationNumber" class="form-label">Registration Number</label>
+                  <input type="text" class="form-control" id="registrationNumber" 
+                         placeholder="e.g., 2020-ag-1234" required>
+                  <div class="form-text">Enter your UAF registration number</div>
+                </div>
                 
-                <!-- Improved Loading Animation Section -->
-                <div class="loading-container" id="loadingContainer">
-                  <div class="loading-stage" id="connectingStage">
-                    <div class="loading-animation loading-connecting">
-                      <div class="dot"></div>
-                      <div class="dot"></div>
-                      <div class="dot"></div>
-                    </div>
-                    <p class="loading-text">Connecting to UAF LMS</p>
-                    <p class="loading-subtext">Establishing secure connection to university servers</p>
-                  </div>
-                  
-                  <div class="loading-stage" id="fetchingStage">
-                    <div class="loading-animation loading-fetching">
-                      <div class="book"></div>
-                    </div>
-                    <p class="loading-text">Fetching Your Results</p>
-                    <p class="loading-subtext">Retrieving your academic records from the database</p>
-                  </div>
-                  
-                  <div class="loading-stage" id="processingStage">
-                    <div class="loading-animation loading-processing">
-                      <div class="calculator"></div>
-                    </div>
-                    <p class="loading-text">Processing Data</p>
-                    <p class="loading-subtext">Analyzing your grades and calculating CGPA</p>
-                  </div>
-                  
-                  <div class="loading-stage" id="completeStage">
-                    <div class="loading-animation loading-complete">
-                      <div class="checkmark"></div>
-                    </div>
-                    <p class="loading-text">Results Ready!</p>
-                    <p class="loading-subtext">Your CGPA has been calculated successfully</p>
-                  </div>
+                <div class="center-buttons">
+                  <button type="submit" class="btn btn-primary-action rounded-pill">
+                    <i class="fa-solid fa-cloud-arrow-down me-2"></i>Fetch Result
+                  </button>
+                  <button id="testConnectionBtn" type="button" class="btn test-connection-btn rounded-pill">
+                    <i class="fa-solid fa-vial me-2"></i>Test Connection
+                  </button>
                 </div>
-              </div>
-            </div>
-            
-            <!-- Saved Results Section - MOVED HERE -->
-            <div id="savedResultsSection" class="card card-modern mb-4">
-              <div class="card-header p-4">
-                <h4 class="mb-0"><i class="fa-solid fa-floppy-disk me-2"></i>Saved Results</h4>
-              </div>
-              <div class="card-body p-4">
-                <div id="savedResultsList">
-                  <!-- Saved results will be populated here -->
-                </div>
-              </div>
-            </div>
-            
-            <!-- Results Section -->
-            <div id="resultContainer" class="result-container">
-              <!-- Replace the CGPA display section with this code -->
-              <div class="gpa-result-card">
-                <div class="card-body p-4">
-                  <div class="cgpa-display-container">
-                    <!-- Name and Registration (centered on top) -->
-                    <div class="cgpa-main-info">
-                      <h2 class="mb-1 fw-bold" id="studentName"><i class="fa-solid fa-user-graduate me-2"></i>Student Name</h2>
-                      <p class="mb-0 text-body-secondary" id="studentReg">Registration Number</p>
-                    </div>
-                    
-                    <!-- Metrics Row -->
-                    <div class="cgpa-metrics-row">
-                      <!-- CGPA (left) -->
-                      <div class="cgpa-metric cgpa-metric-left">
-                        <p class="mb-0 cgpa-metric-label">CGPA</p>
-                        <p class="mb-0 cgpa-metric-value" id="totalCgpa">0.0000</p>
-                      </div>
-                      
-                      <!-- Percentage (center) -->
-                      <div class="cgpa-metric cgpa-metric-center">
-                        <p class="mb-0 cgpa-metric-label">Percentage</p>
-                        <p class="mb-0 cgpa-metric-value" id="totalPercentage">0.0000%</p>
-                      </div>
-                      
-                      <!-- Marks (right) -->
-                      <div class="cgpa-metric cgpa-metric-right">
-                        <p class="mb-0 cgpa-metric-label">Marks</p>
-                        <div class="cgpa-metric-value-container">
-                          <p class="mb-0 cgpa-metric-value" id="totalMarksObtained">0</p>
-                          <p class="mb-0 cgpa-metric-subvalue" id="totalMaxMarks">/ 0</p>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                  
-                  <!-- Action Buttons -->
-                  <div class="action-buttons">
-                    <button id="saveToWebBtn" class="btn btn-primary-action rounded-pill save-to-web-btn">
-                      <i class="fa-solid fa-cloud-arrow-up me-2"></i>Save to Web
-                    </button>
-                    <button id="downloadPdfBtn" class="btn btn-pdf-download rounded-pill">
-                      <i class="fa-solid fa-file-pdf me-2"></i>Download PDF
-                    </button>
-                  </div>
-                </div>
-              </div>
+              </form>
               
-              <!-- Semester Results Container - Removed outer card -->
-              <div class="semester-results-container">
-                <div id="semesterResults" class="semester-grid">
-                  <!-- Semester cards will be dynamically inserted here -->
-                </div>
-              </div>
-            </div>
-            
-            <!-- Status Log Section -->
-            <div class="card card-modern">
-              <div class="card-header p-4">
-                <h4 class="mb-0"><i class="fa-solid fa-terminal me-2"></i>Status Log</h4>
-              </div>
-              <div class="card-body p-4">
-                <!-- Status Log -->
-                <div class="status-log" id="statusLog">
-                  <div class="status-line status-info">Ready to fetch your results. Enter your registration number and click "Fetch Result".</div>
+              <!-- Improved Loading Animation Section -->
+              <div class="loading-container" id="loadingContainer">
+                <div class="loading-stage" id="connectingStage">
+                  <div class="loading-animation loading-connecting">
+                    <div class="dot"></div>
+                    <div class="dot"></div>
+                    <div class="dot"></div>
+                  </div>
+                  <p class="loading-text">Connecting to UAF LMS</p>
+                  <p class="loading-subtext">Establishing secure connection to university servers</p>
                 </div>
                 
-                <!-- Log Action Buttons -->
-                <div class="log-section center-buttons mt-3">
-                  <button id="downloadLogBtn" class="btn btn-secondary-action rounded-pill">
-                    <i class="fa-solid fa-file-lines me-2"></i>Download Log
-                  </button>
-                  <button id="clearLogBtn" class="btn btn-danger-action rounded-pill">
-                    <i class="fa-solid fa-trash me-2"></i>Clear Log
-                  </button>
+                <div class="loading-stage" id="fetchingStage">
+                  <div class="loading-animation loading-fetching">
+                    <div class="book"></div>
+                  </div>
+                  <p class="loading-text">Fetching Your Results</p>
+                  <p class="loading-subtext">Retrieving your academic records from the database</p>
+                </div>
+                
+                <div class="loading-stage" id="processingStage">
+                  <div class="loading-animation loading-processing">
+                    <div class="calculator"></div>
+                  </div>
+                  <p class="loading-text">Processing Data</p>
+                  <p class="loading-subtext">Analyzing your grades and calculating CGPA</p>
+                </div>
+                
+                <div class="loading-stage" id="completeStage">
+                  <div class="loading-animation loading-complete">
+                    <div class="checkmark"></div>
+                  </div>
+                  <p class="loading-text">Results Ready!</p>
+                  <p class="loading-subtext">Your CGPA has been calculated successfully</p>
                 </div>
               </div>
             </div>
           </div>
+          
+          <!-- Results Section -->
+          <div id="resultContainer" class="result-container">
+            <!-- Replace the CGPA display section with this code -->
+<div class="gpa-result-card">
+  <div class="card-body p-4">
+    <div class="cgpa-display-container">
+      <!-- Name and Registration (centered on top) -->
+      <div class="cgpa-main-info">
+        <h2 class="mb-1 fw-bold" id="studentName"><i class="fa-solid fa-user-graduate me-2"></i>Student Name</h2>
+        <p class="mb-0 text-body-secondary" id="studentReg">Registration Number</p>
+      </div>
+      
+      <!-- Metrics Row -->
+      <div class="cgpa-metrics-row">
+        <!-- CGPA (left) -->
+        <div class="cgpa-metric cgpa-metric-left">
+          <p class="mb-0 cgpa-metric-label">CGPA</p>
+          <p class="mb-0 cgpa-metric-value" id="totalCgpa">0.0000</p>
+        </div>
+        
+        <!-- Percentage (center) -->
+        <div class="cgpa-metric cgpa-metric-center">
+          <p class="mb-0 cgpa-metric-label">Percentage</p>
+          <p class="mb-0 cgpa-metric-value" id="totalPercentage">0.0000%</p>
+        </div>
+        
+        <!-- Marks (right) -->
+        <div class="cgpa-metric cgpa-metric-right">
+          <p class="mb-0 cgpa-metric-label">Marks</p>
+          <div class="cgpa-metric-value-container">
+            <p class="mb-0 cgpa-metric-value" id="totalMarksObtained">0</p>
+            <p class="mb-0 cgpa-metric-subvalue" id="totalMaxMarks">/ 0</p>
+          </div>
         </div>
       </div>
     </div>
-  </section>
+    
+    <!-- Action Buttons -->
+    <div class="action-buttons">
+      <button id="saveToWebBtn" class="btn btn-primary-action rounded-pill save-to-web-btn">
+        <i class="fa-solid fa-cloud-arrow-up me-2"></i>Save to Web
+      </button>
+      <button id="downloadPdfBtn" class="btn btn-pdf-download rounded-pill">
+        <i class="fa-solid fa-file-pdf me-2"></i>Download PDF
+      </button>
+    </div>
+  </div>
+</div>
+            
+            <!-- Semester Results Container - Removed outer card -->
+            <div class="semester-results-container">
+              <div id="semesterResults" class="semester-grid">
+                <!-- Semester cards will be dynamically inserted here -->
+              </div>
+            </div>
+          </div>
+          
+          <!-- Saved Results Section -->
+          <div id="savedResultsContainer" class="saved-results-container card card-modern mb-4">
+            <div class="card-header p-4">
+              <h4 class="mb-0"><i class="fa-solid fa-floppy-disk me-2"></i>Saved Results</h4>
+            </div>
+            <div class="card-body p-4">
+              <div id="savedResultsList">
+                <!-- Saved results will be populated here -->
+              </div>
+            </div>
+          </div>
+          
+  <!-- Status Log Section -->
+  <div class="card card-modern">
+    <div class="card-header p-4">
+      <h4 class="mb-0"><i class="fa-solid fa-terminal me-2"></i>Status Log</h4>
+    </div>
+    <div class="card-body p-4">
+      <!-- Status Log -->
+      <div class="status-log" id="statusLog">
+        <div class="status-line status-info">Ready to fetch your results. Enter your registration number and click "Fetch Result".</div>
+      </div>
+      
+      <!-- Log Action Buttons -->
+      <div class="log-section center-buttons mt-3">
+        <button id="downloadLogBtn" class="btn btn-secondary-action rounded-pill">
+          <i class="fa-solid fa-file-lines me-2"></i>Download Log
+        </button>
+        <button id="clearLogBtn" class="btn btn-danger-action rounded-pill">
+          <i class="fa-solid fa-trash me-2"></i>Clear Log
+        </button>
+      </div>
+    </div>
+  </div>
+  
+</div>
+</div>
+</div>
+</section>
 
   <!-- Contact Section -->
   <section class="py-5" id="contact-us">
@@ -2449,14 +2271,11 @@ a:hover {
       const totalMaxMarks = document.getElementById('totalMaxMarks');
       const saveToWebBtn = document.getElementById('saveToWebBtn');
       const downloadPdfBtn = document.getElementById('downloadPdfBtn');
-      const savedResultsSection = document.getElementById('savedResultsSection');
+      const savedResultsContainer = document.getElementById('savedResultsContainer');
       const savedResultsList = document.getElementById('savedResultsList');
       const courseDetailsModal = new bootstrap.Modal(document.getElementById('courseDetailsModal'));
       const addCourseModal = new bootstrap.Modal(document.getElementById('addCourseModal'));
-      const saveResultModal = new bootstrap.Modal(document.getElementById('saveResultModal'));
       const saveCourseBtn = document.getElementById('saveCourseBtn');
-      const confirmSaveBtn = document.getElementById('confirmSaveBtn');
-      const resultNameInput = document.getElementById('resultName');
       const addCourseForm = document.getElementById('addCourseForm');
       const loadingContainer = document.getElementById('loadingContainer');
       const connectingStage = document.getElementById('connectingStage');
@@ -2472,16 +2291,13 @@ a:hover {
       let processedData = null;
       let currentSessionId = null;
       let deletedSemesters = {}; // Track deleted semesters for undo functionality
-      let isLMSOffline = false;
       
       // API endpoints - FIXED to match your Python backend
       const API_ENDPOINTS = {
         scrape: `/api/result-scraper`,
         test: `/api/result-scraper`,
-        save: `/api/result-scraper?action=save_result`,
-        load: `/api/result-scraper?action=load_result`,
-        loadSaved: `/api/result-scraper?action=load_saved_result`,
-        delete: `/api/result-scraper?action=delete_result`
+        save: `/api/result-scraper?action=save`,
+        load: `/api/result-scraper?action=load_result`
       };
       
       // Initialize the application
@@ -2491,20 +2307,7 @@ a:hover {
         initContactForm();
         createToastContainer();
         currentSessionId = generateSessionId();
-        
-        // Check if registration number exists in URL parameters
-        const urlParams = new URLSearchParams(window.location.search);
-        const regNum = urlParams.get('reg');
-        if (regNum) {
-          registrationNumber.value = regNum;
-          checkSavedResults();
-        }
-        
-        // Also check saved results when page loads if there's a registration number
-        if (registrationNumber.value.trim()) {
-          checkSavedResults();
-        }
-        
+        checkSavedResults();
         initBackToTop();
       }
       
@@ -2759,7 +2562,6 @@ a:hover {
             addStatusMessage('Connection test successful - UAF LMS is accessible', 'success');
             showToast('Connection test successful!', 'success');
             showLoadingStage('complete');
-            isLMSOffline = false;
             
             // Hide loading after delay
             setTimeout(() => {
@@ -2768,13 +2570,11 @@ a:hover {
           } else {
             addStatusMessage(`Connection test failed: ${responseData.message}`, 'error');
             showToast('Connection test failed!', 'error');
-            isLMSOffline = true;
             hideLoading();
           }
         } catch (error) {
           addStatusMessage(`Connection test failed: ${error.message}`, 'error');
           showToast('Connection test failed!', 'error');
-          isLMSOffline = true;
           hideLoading();
         } finally {
           testInProgress = false;
@@ -3673,22 +3473,7 @@ a:hover {
           return;
         }
         
-        // Show modal to get result name
-        resultNameInput.value = 'MPHIL'; // Default value
-        saveResultModal.show();
-      }
-      
-      // Confirm save with custom name
-      async function confirmSave() {
-        const resultName = resultNameInput.value.trim();
-        if (!resultName) {
-          showToast('Please enter a name for your result', 'error');
-          return;
-        }
-        
-        saveResultModal.hide();
-        
-        addStatusMessage(`Saving result as "${resultName}" to web storage...`, 'info');
+        addStatusMessage('Saving result to web storage...', 'info');
         showLoadingStage('processing');
         
         try {
@@ -3698,19 +3483,18 @@ a:hover {
               'Content-Type': 'application/json'
             },
             body: JSON.stringify({
-              registrationNumber: registrationNumber.value.trim(),
+              registrationNumber: regNum,
               studentData: processedData,
-              timestamp: new Date().toISOString(),
-              customName: resultName
+              timestamp: new Date().toISOString()
             })
           });
           
           const result = await response.json();
           
           if (result.success) {
-            addStatusMessage(`Result "${resultName}" saved successfully to web storage`, 'success');
+            addStatusMessage('Result saved successfully to web storage', 'success');
             showLoadingStage('complete');
-            showToast(`Result "${resultName}" saved successfully!`, 'success');
+            showToast('Result saved successfully!', 'success');
             
             // Refresh saved results list
             checkSavedResults();
@@ -3734,76 +3518,73 @@ a:hover {
       // Check for saved results
       async function checkSavedResults() {
         const regNum = registrationNumber.value.trim();
-        if (!regNum) {
-          savedResultsSection.style.display = 'none';
-          return;
-        }
+        if (!regNum) return;
         
         try {
-          const response = await fetch(`${API_ENDPOINTS.load}?registrationNumber=${encodeURIComponent(regNum)}`);
+          const response = await fetch(`${API_ENDPOINTS.load}&registrationNumber=${encodeURIComponent(regNum)}`);
           const result = await response.json();
           
           if (result.success && result.savedResults && result.savedResults.length > 0) {
             displaySavedResults(result.savedResults);
           } else {
-            savedResultsSection.style.display = 'none';
+            savedResultsContainer.style.display = 'none';
           }
         } catch (error) {
           console.error('Error checking saved results:', error);
-          savedResultsSection.style.display = 'none';
+          savedResultsContainer.style.display = 'none';
         }
       }
       
       // Display saved results
       function displaySavedResults(savedResults) {
         savedResultsList.innerHTML = '';
-        savedResultsSection.style.display = 'block';
+        savedResultsContainer.style.display = 'block';
         
         savedResults.forEach((result, index) => {
           const date = new Date(result.timestamp).toLocaleDateString();
           const time = new Date(result.timestamp).toLocaleTimeString();
-          const resultName = result.custom_name || `Saved Result ${index + 1}`;
           
-          const resultItem = document.createElement('div');
-          resultItem.className = 'saved-result-item';
-          resultItem.innerHTML = `
-            <div class="saved-result-info">
-              <strong>${resultName}</strong>
-              <span>Saved: ${date} at ${time}</span>
-            </div>
-            <div class="saved-result-actions">
-              <button class="btn-icon view-saved-result" data-result='${JSON.stringify(result).replace(/"/g, '&quot;')}' title="Load this result">
-                <i class="fa-solid fa-eye"></i>
-              </button>
-              <button class="btn-icon delete-saved-result" data-id="${result.id}" data-name="${resultName.replace(/'/g, "\\'")}" title="Delete this result">
-                <i class="fa-solid fa-trash"></i>
-              </button>
+          const resultCard = document.createElement('div');
+          resultCard.className = 'saved-result-card';
+          resultCard.innerHTML = `
+            <div class="saved-result-header">
+              <div>
+                <strong>Saved Result ${index + 1}</strong>
+                <div class="saved-result-date">${date} at ${time}</div>
+              </div>
+              <div class="saved-result-actions">
+                <button class="saved-result-action-btn view-saved-result" data-index="${index}">
+                  <i class="fa-solid fa-eye"></i>
+                </button>
+                <button class="saved-result-action-btn delete-saved-result" data-index="${index}">
+                  <i class="fa-solid fa-trash"></i>
+                </button>
+              </div>
             </div>
           `;
           
-          savedResultsList.appendChild(resultItem);
+          savedResultsList.appendChild(resultCard);
         });
         
         // Add event listeners
         document.querySelectorAll('.view-saved-result').forEach(btn => {
           btn.addEventListener('click', function() {
-            const resultData = JSON.parse(this.dataset.result.replace(/&quot;/g, '"'));
-            loadSavedResult(resultData);
+            const index = parseInt(this.dataset.index);
+            loadSavedResult(savedResults[index]);
           });
         });
         
         document.querySelectorAll('.delete-saved-result').forEach(btn => {
           btn.addEventListener('click', function() {
-            const resultId = this.dataset.id;
-            const resultName = this.dataset.name;
-            deleteSavedResult(resultId, resultName);
+            const index = parseInt(this.dataset.index);
+            deleteSavedResult(savedResults[index].id);
           });
         });
       }
       
       // Load saved result
       function loadSavedResult(savedResult) {
-        processedData = savedResult.student_data;
+        processedData = savedResult.studentData;
         
         // Calculate CGPA
         const cgpaData = calculateCGPA(processedData);
@@ -3811,25 +3592,15 @@ a:hover {
         // Display the result
         displayCGPAResults(processedData, cgpaData);
         
-        const resultName = savedResult.custom_name || 'Saved Result';
-        showToast(`"${resultName}" loaded successfully!`, 'success');
-        addStatusMessage(`Loaded saved result: ${resultName}`, 'info');
-        
-        // Scroll to results
-        setTimeout(() => {
-          resultContainer.scrollIntoView({ behavior: 'smooth' });
-        }, 300);
+        showToast('Saved result loaded successfully!', 'success');
+        addStatusMessage('Loaded saved result from web storage', 'info');
       }
       
       // Delete saved result
-      async function deleteSavedResult(resultId, resultName) {
-        if (!confirm(`Are you sure you want to delete the saved result "${resultName}"?`)) {
-          return;
-        }
-        
+      async function deleteSavedResult(resultId) {
         try {
-          const response = await fetch(API_ENDPOINTS.delete, {
-            method: 'POST',
+          const response = await fetch(API_ENDPOINTS.save, {
+            method: 'DELETE',
             headers: {
               'Content-Type': 'application/json'
             },
@@ -3841,8 +3612,8 @@ a:hover {
           const result = await response.json();
           
           if (result.success) {
-            showToast(`"${resultName}" deleted successfully!`, 'success');
-            addStatusMessage(`Deleted saved result: ${resultName}`, 'info');
+            showToast('Saved result deleted successfully!', 'success');
+            addStatusMessage('Deleted saved result from web storage', 'info');
             
             // Refresh saved results list
             checkSavedResults();
@@ -3857,44 +3628,44 @@ a:hover {
       }
       
       // Generate professional PDF report
-      function generatePDF() {
-        if (!processedData) {
-          showToast('No data to download', 'error');
-          return;
-        }
-        
-        addStatusMessage('Generating professional PDF report...', 'info');
-        showLoadingStage('processing');
-        
-        try {
-          // Create a new PDF document
-          const pdf = new jspdf.jsPDF({
+function generatePDF() {
+    if (!processedData) {
+        showToast('No data to download', 'error');
+        return;
+    }
+    
+    addStatusMessage('Generating professional PDF report...', 'info');
+    showLoadingStage('processing');
+    
+    try {
+        // Create a new PDF document
+        const pdf = new jspdf.jsPDF({
             orientation: 'portrait',
             unit: 'mm',
             format: 'a4'
-          });
-          
-          // Set margins
-          const margin = 15;
-          const pageWidth = pdf.internal.pageSize.getWidth();
-          const pageHeight = pdf.internal.pageSize.getHeight();
-          const contentWidth = pageWidth - (margin * 2);
-          
-          // Calculate CGPA data
-          const cgpaData = calculateCGPA(processedData);
-          
-          // Get current date for the report
-          const currentDate = new Date().toLocaleDateString('en-US', {
+        });
+        
+        // Set margins
+        const margin = 15;
+        const pageWidth = pdf.internal.pageSize.getWidth();
+        const pageHeight = pdf.internal.pageSize.getHeight();
+        const contentWidth = pageWidth - (margin * 2);
+        
+        // Calculate CGPA data
+        const cgpaData = calculateCGPA(processedData);
+        
+        // Get current date for the report
+        const currentDate = new Date().toLocaleDateString('en-US', {
             year: 'numeric',
             month: 'long',
             day: 'numeric'
-          });
-          
-          // Set initial y position
-          let yPos = margin;
-          
-          // Add header with logo
-          const addHeader = () => {
+        });
+        
+        // Set initial y position
+        let yPos = margin;
+        
+        // Add header with logo
+        const addHeader = () => {
             pdf.setFillColor(255, 255, 255);
             pdf.rect(0, 0, pageWidth, 50, 'F');
             
@@ -3915,10 +3686,10 @@ a:hover {
             pdf.line(margin, 40, pageWidth - margin, 40);
             
             yPos = 50;
-          };
-          
-          // Add student information section
-          const addStudentInfo = () => {
+        };
+        
+        // Add student information section
+        const addStudentInfo = () => {
             pdf.setFillColor(248, 249, 255);
             pdf.roundedRect(margin, yPos, contentWidth, 30, 3, 3, 'F');
             
@@ -3942,10 +3713,10 @@ a:hover {
             pdf.text(`Percentage: ${formatPercentage(cgpaData.percentage)}%`, margin + contentWidth / 2, yPos + 22);
             
             yPos += 35;
-          };
-          
-          // Add academic summary section
-          const addAcademicSummary = () => {
+        };
+        
+        // Add academic summary section
+        const addAcademicSummary = () => {
             pdf.setFillColor(248, 249, 255);
             pdf.roundedRect(margin, yPos, contentWidth, 30, 3, 3, 'F');
             
@@ -3965,289 +3736,289 @@ a:hover {
             // Create a grid for the summary
             const gridWidth = contentWidth / 4;
             const summaries = [
-              { label: "CGPA", value: formatCGPA(cgpaData.cgpa) },
-              { label: "Percentage", value: `${formatPercentage(cgpaData.percentage)}%` },
-              { label: "Total Credits", value: cgpaData.totalCreditHours },
-              { label: "Marks", value: `${cgpaData.totalMarksObtained.toFixed(0)}/${cgpaData.totalMaxMarks.toFixed(0)}` }
+                { label: "CGPA", value: formatCGPA(cgpaData.cgpa) },
+                { label: "Percentage", value: `${formatPercentage(cgpaData.percentage)}%` },
+                { label: "Total Credits", value: cgpaData.totalCreditHours },
+                { label: "Marks", value: `${cgpaData.totalMarksObtained.toFixed(0)}/${cgpaData.totalMaxMarks.toFixed(0)}` }
             ];
             
             summaries.forEach((summary, index) => {
-              const x = margin + (index * gridWidth) + (gridWidth / 2);
-              
-              pdf.setFont(undefined, 'bold');
-              pdf.text(summary.label, x, yPos + 16, { align: 'center' });
-              
-              pdf.setFont(undefined, 'normal');
-              pdf.setTextColor(122, 106, 216);
-              pdf.text(summary.value.toString(), x, yPos + 22, { align: 'center' });
-              pdf.setTextColor(0, 0, 0);
+                const x = margin + (index * gridWidth) + (gridWidth / 2);
+                
+                pdf.setFont(undefined, 'bold');
+                pdf.text(summary.label, x, yPos + 16, { align: 'center' });
+                
+                pdf.setFont(undefined, 'normal');
+                pdf.setTextColor(122, 106, 216);
+                pdf.text(summary.value.toString(), x, yPos + 22, { align: 'center' });
+                pdf.setTextColor(0, 0, 0);
             });
             
             yPos += 35;
-          };
-          
-          // Add semester results
-          const addSemesterResults = () => {
+        };
+        
+        // Add semester results
+        const addSemesterResults = () => {
             const semesters = Object.keys(processedData.semesters);
             
             for (let i = 0; i < semesters.length; i++) {
-              const semesterName = semesters[i];
-              const semester = processedData.semesters[semesterName];
-              
-              // Filter out deleted courses
-              const activeCourses = semester.courses.filter(course => !course.isDeleted);
-              
-              if (activeCourses.length > 0) {
-                // Check if we need a new page (leave space for table header + at least 3 rows + spacing)
-                if (yPos > pageHeight - 70) {
-                  pdf.addPage();
-                  yPos = margin;
-                }
+                const semesterName = semesters[i];
+                const semester = processedData.semesters[semesterName];
                 
-                // Add semester header with professional styling
-                pdf.setFontSize(11);
-                pdf.setTextColor(75, 85, 99);
-                pdf.setFont(undefined, 'bold');
+                // Filter out deleted courses
+                const activeCourses = semester.courses.filter(course => !course.isDeleted);
                 
-                // Create a styled semester header
-                pdf.setFillColor(249, 250, 251);
-                pdf.roundedRect(margin, yPos, contentWidth, 10, 2, 2, 'F');
-                
-                pdf.text(`${semesterName.toUpperCase()} (GPA: ${formatCGPA(semester.gpa)} | ${formatPercentage(semester.percentage)}%)`, 
-                         margin + 8, yPos + 6.5);
-                
-                yPos += 14; // Space after semester header
-                
-                // Calculate semester totals
-                const semesterMarks = activeCourses.reduce((sum, course) => sum + course.marks, 0);
-                const semesterMaxMarks = activeCourses.reduce((sum, course) => {
-                  let maxMarks = 0;
-                  if (course.creditHours === 5) maxMarks = 100;
-                  else if (course.creditHours === 4) maxMarks = 80;
-                  else if (course.creditHours === 3) maxMarks = 60;
-                  else if (course.creditHours === 2) maxMarks = 40;
-                  else if (course.creditHours === 1) maxMarks = 20;
-                  return sum + maxMarks;
-                }, 0);
-                const semesterCredits = activeCourses.reduce((sum, course) => sum + course.creditHours, 0);
-                
-                                // Define table columns with optimized widths for better spacing
-                const columns = [
-                  { header: "Course Code", dataKey: "code", width: 28, align: "left" },
-                  { header: "Course Title", dataKey: "title", width: 75, align: "left" },
-                  { header: "CH", dataKey: "creditHours", width: 18, align: "center" },
-                  { header: "Marks", dataKey: "marks", width: 20, align: "center" },
-                  { header: "Max", dataKey: "maxMarks", width: 20, align: "center" },
-                  { header: "Grade", dataKey: "grade", width: 18, align: "center" }
-                ];
-                
-                // Calculate total table width
-                const totalTableWidth = columns.reduce((sum, col) => sum + col.width, 0);
-                
-                // Calculate left margin to center the table
-                const tableLeftMargin = margin + (contentWidth - totalTableWidth) / 2;
-                
-                // Prepare course data
-                const courseData = activeCourses.map(course => {
-                  let maxMarks = 0;
-                  if (course.creditHours === 5) maxMarks = 100;
-                  else if (course.creditHours === 4) maxMarks = 80;
-                  else if (course.creditHours === 3) maxMarks = 60;
-                  else if (course.creditHours === 2) maxMarks = 40;
-                  else if (course.creditHours === 1) maxMarks = 20;
-                  
-                  // Use the original credit hours format if available
-                  const creditHoursDisplay = course.creditHoursDisplay || course.creditHours.toString();
-                  
-                  return {
-                    code: course.code,
-                    title: course.title,
-                    creditHours: creditHoursDisplay,
-                    marks: course.marks.toString(),
-                    maxMarks: maxMarks.toString(),
-                    grade: course.grade
-                  };
-                });
-                
-                // Add summary row
-                courseData.push({
-                  code: "",
-                  title: "SEMESTER TOTAL",
-                  creditHours: semesterCredits.toString(),
-                  marks: semesterMarks.toFixed(0),
-                  maxMarks: semesterMaxMarks.toString(),
-                  grade: ""
-                });
-                
-                // Create table
-                pdf.setFontSize(9);
-                
-                // Draw table headers with perfect centering
-                let xPos = tableLeftMargin;
-                pdf.setFillColor(122, 106, 216); // Brand color for header
-                
-                columns.forEach(column => {
-                  pdf.rect(xPos, yPos, column.width, 8, 'F'); // Increased header height for better spacing
-                  xPos += column.width;
-                });
-                
-                // Add header text with better padding
-                xPos = tableLeftMargin;
-                pdf.setTextColor(255, 255, 255);
-                pdf.setFont(undefined, 'bold');
-                
-                columns.forEach(column => {
-                  pdf.text(column.header, xPos + (column.width / 2), yPos + 5, { align: 'center' });
-                  xPos += column.width;
-                });
-                
-                yPos += 8; // Increased header height
-                
-                // Add table rows
-                pdf.setTextColor(0, 0, 0);
-                
-                courseData.forEach((row, rowIndex) => {
-                  // Check if we need a new page (leave space for at least 2 rows + footer)
-                  if (yPos > pageHeight - 25) {
-                    pdf.addPage();
-                    yPos = margin;
+                if (activeCourses.length > 0) {
+                    // Check if we need a new page (leave space for table header + at least 3 rows + spacing)
+                    if (yPos > pageHeight - 70) {
+                        pdf.addPage();
+                        yPos = margin;
+                    }
                     
-                    // Redraw headers on new page with perfect centering
-                    xPos = tableLeftMargin;
-                    pdf.setFillColor(122, 106, 216);
+                    // Add semester header with professional styling
+                    pdf.setFontSize(11);
+                    pdf.setTextColor(75, 85, 99);
+                    pdf.setFont(undefined, 'bold');
                     
-                    columns.forEach(column => {
-                      pdf.rect(xPos, yPos, column.width, 8, 'F');
-                      xPos += column.width;
+                    // Create a styled semester header
+                    pdf.setFillColor(249, 250, 251);
+                    pdf.roundedRect(margin, yPos, contentWidth, 10, 2, 2, 'F');
+                    
+                    pdf.text(`${semesterName.toUpperCase()} (GPA: ${formatCGPA(semester.gpa)} | ${formatPercentage(semester.percentage)}%)`, 
+                             margin + 8, yPos + 6.5);
+                    
+                    yPos += 14; // Space after semester header
+                    
+                    // Calculate semester totals
+                    const semesterMarks = activeCourses.reduce((sum, course) => sum + course.marks, 0);
+                    const semesterMaxMarks = activeCourses.reduce((sum, course) => {
+                        let maxMarks = 0;
+                        if (course.creditHours === 5) maxMarks = 100;
+                        else if (course.creditHours === 4) maxMarks = 80;
+                        else if (course.creditHours === 3) maxMarks = 60;
+                        else if (course.creditHours === 2) maxMarks = 40;
+                        else if (course.creditHours === 1) maxMarks = 20;
+                        return sum + maxMarks;
+                    }, 0);
+                    const semesterCredits = activeCourses.reduce((sum, course) => sum + course.creditHours, 0);
+                    
+                    // Define table columns with optimized widths for better spacing
+                    const columns = [
+                        { header: "Course Code", dataKey: "code", width: 28, align: "left" },
+                        { header: "Course Title", dataKey: "title", width: 75, align: "left" },
+                        { header: "CH", dataKey: "creditHours", width: 18, align: "center" },
+                        { header: "Marks", dataKey: "marks", width: 20, align: "center" },
+                        { header: "Max", dataKey: "maxMarks", width: 20, align: "center" },
+                        { header: "Grade", dataKey: "grade", width: 18, align: "center" }
+                    ];
+                    
+                    // Calculate total table width
+                    const totalTableWidth = columns.reduce((sum, col) => sum + col.width, 0);
+                    
+                    // Calculate left margin to center the table
+                    const tableLeftMargin = margin + (contentWidth - totalTableWidth) / 2;
+                    
+                    // Prepare course data
+                    const courseData = activeCourses.map(course => {
+                        let maxMarks = 0;
+                        if (course.creditHours === 5) maxMarks = 100;
+                        else if (course.creditHours === 4) maxMarks = 80;
+                        else if (course.creditHours === 3) maxMarks = 60;
+                        else if (course.creditHours === 2) maxMarks = 40;
+                        else if (course.creditHours === 1) maxMarks = 20;
+                        
+                        // Use the original credit hours format if available
+                        const creditHoursDisplay = course.creditHoursDisplay || course.creditHours.toString();
+                        
+                        return {
+                            code: course.code,
+                            title: course.title,
+                            creditHours: creditHoursDisplay,
+                            marks: course.marks.toString(),
+                            maxMarks: maxMarks.toString(),
+                            grade: course.grade
+                        };
                     });
                     
+                    // Add summary row
+                    courseData.push({
+                        code: "",
+                        title: "SEMESTER TOTAL",
+                        creditHours: semesterCredits.toString(),
+                        marks: semesterMarks.toFixed(0),
+                        maxMarks: semesterMaxMarks.toString(),
+                        grade: ""
+                    });
+                    
+                    // Create table
+                    pdf.setFontSize(9);
+                    
+                    // Draw table headers with perfect centering
+                    let xPos = tableLeftMargin;
+                    pdf.setFillColor(122, 106, 216); // Brand color for header
+                    
+                    columns.forEach(column => {
+                        pdf.rect(xPos, yPos, column.width, 8, 'F'); // Increased header height for better spacing
+                        xPos += column.width;
+                    });
+                    
+                    // Add header text with better padding
                     xPos = tableLeftMargin;
                     pdf.setTextColor(255, 255, 255);
                     pdf.setFont(undefined, 'bold');
                     
                     columns.forEach(column => {
-                      pdf.text(column.header, xPos + (column.width / 2), yPos + 5, { align: 'center' });
-                      xPos += column.width;
+                        pdf.text(column.header, xPos + (column.width / 2), yPos + 5, { align: 'center' });
+                        xPos += column.width;
                     });
                     
-                    yPos += 8;
+                    yPos += 8; // Increased header height
+                    
+                    // Add table rows
                     pdf.setTextColor(0, 0, 0);
-                  }
-                  
-                  // Highlight summary row with light background
-                  const isSummaryRow = rowIndex === courseData.length - 1;
-                  if (isSummaryRow) {
-                    pdf.setFillColor(243, 244, 246); // Light gray background
-                    pdf.rect(tableLeftMargin, yPos, totalTableWidth, 7, 'F');
-                    pdf.setFont(undefined, 'bold');
-                  }
-                  // Alternate row colors for readability
-                  else if (rowIndex % 2 === 0) {
-                    pdf.setFillColor(249, 250, 251); // Very light gray
-                    pdf.rect(tableLeftMargin, yPos, totalTableWidth, 7, 'F');
-                  }
-                  
-                  // Draw row content with better padding
-                  xPos = tableLeftMargin;
-                  
-                  columns.forEach(column => {
-                    const value = row[column.dataKey] || "";
                     
-                    // Set text color for summary row
-                    if (isSummaryRow) {
-                      pdf.setTextColor(55, 65, 81); // Dark gray for summary
-                    } else {
-                      pdf.setTextColor(0, 0, 0); // Black for regular rows
+                    courseData.forEach((row, rowIndex) => {
+                        // Check if we need a new page (leave space for at least 2 rows + footer)
+                        if (yPos > pageHeight - 25) {
+                            pdf.addPage();
+                            yPos = margin;
+                            
+                            // Redraw headers on new page with perfect centering
+                            xPos = tableLeftMargin;
+                            pdf.setFillColor(122, 106, 216);
+                            
+                            columns.forEach(column => {
+                                pdf.rect(xPos, yPos, column.width, 8, 'F');
+                                xPos += column.width;
+                            });
+                            
+                            xPos = tableLeftMargin;
+                            pdf.setTextColor(255, 255, 255);
+                            pdf.setFont(undefined, 'bold');
+                            
+                            columns.forEach(column => {
+                                pdf.text(column.header, xPos + (column.width / 2), yPos + 5, { align: 'center' });
+                                xPos += column.width;
+                            });
+                            
+                            yPos += 8;
+                            pdf.setTextColor(0, 0, 0);
+                        }
+                        
+                        // Highlight summary row with light background
+                        const isSummaryRow = rowIndex === courseData.length - 1;
+                        if (isSummaryRow) {
+                            pdf.setFillColor(243, 244, 246); // Light gray background
+                            pdf.rect(tableLeftMargin, yPos, totalTableWidth, 7, 'F');
+                            pdf.setFont(undefined, 'bold');
+                        }
+                        // Alternate row colors for readability
+                        else if (rowIndex % 2 === 0) {
+                            pdf.setFillColor(249, 250, 251); // Very light gray
+                            pdf.rect(tableLeftMargin, yPos, totalTableWidth, 7, 'F');
+                        }
+                        
+                        // Draw row content with better padding
+                        xPos = tableLeftMargin;
+                        
+                        columns.forEach(column => {
+                            const value = row[column.dataKey] || "";
+                            
+                            // Set text color for summary row
+                            if (isSummaryRow) {
+                                pdf.setTextColor(55, 65, 81); // Dark gray for summary
+                            } else {
+                                pdf.setTextColor(0, 0, 0); // Black for regular rows
+                            }
+                            
+                            // For left-aligned columns (course code and title)
+                            if (column.align === "left") {
+                                // Handle text truncation for long course titles with better padding
+                                let displayText = value;
+                                if (column.dataKey === "title" && value.length > 50) {
+                                    displayText = value.substring(0, 47) + "...";
+                                }
+                                pdf.text(displayText, xPos + 3, yPos + 4.5, { align: 'left' }); // Increased left padding
+                            } 
+                            // For centered columns
+                            else {
+                                pdf.text(value, xPos + (column.width / 2), yPos + 4.5, { align: 'center' });
+                            }
+                            
+                            xPos += column.width;
+                        });
+                        
+                        // Draw horizontal line between rows
+                        pdf.setDrawColor(226, 232, 240); // Light gray line
+                        pdf.setLineWidth(0.2);
+                        pdf.line(tableLeftMargin, yPos + 7, tableLeftMargin + totalTableWidth, yPos + 7);
+                        
+                        yPos += 7; // Increased row height for better spacing
+                        
+                        // Reset font after summary row
+                        if (isSummaryRow) {
+                            pdf.setFont(undefined, 'normal');
+                        }
+                    });
+                    
+                    // Add more space between semesters (18mm for better separation)
+                    yPos += 18;
+                    
+                    // Add a subtle separator line between semesters
+                    if (i < semesters.length - 1 && yPos < pageHeight - 15) {
+                        pdf.setDrawColor(229, 231, 235);
+                        pdf.setLineWidth(0.3);
+                        const lineY = yPos - 8;
+                        pdf.line(margin, lineY, pageWidth - margin, lineY);
                     }
-                    
-                    // For left-aligned columns (course code and title)
-                    if (column.align === "left") {
-                      // Handle text truncation for long course titles with better padding
-                      let displayText = value;
-                      if (column.dataKey === "title" && value.length > 50) {
-                        displayText = value.substring(0, 47) + "...";
-                      }
-                      pdf.text(displayText, xPos + 3, yPos + 4.5, { align: 'left' }); // Increased left padding
-                    } 
-                    // For centered columns
-                    else {
-                      pdf.text(value, xPos + (column.width / 2), yPos + 4.5, { align: 'center' });
-                    }
-                    
-                    xPos += column.width;
-                  });
-                  
-                  // Draw horizontal line between rows
-                  pdf.setDrawColor(226, 232, 240); // Light gray line
-                  pdf.setLineWidth(0.2);
-                  pdf.line(tableLeftMargin, yPos + 7, tableLeftMargin + totalTableWidth, yPos + 7);
-                  
-                  yPos += 7; // Increased row height for better spacing
-                  
-                  // Reset font after summary row
-                  if (isSummaryRow) {
-                    pdf.setFont(undefined, 'normal');
-                  }
-                });
-                
-                // Add more space between semesters (18mm for better separation)
-                yPos += 18;
-                
-                // Add a subtle separator line between semesters
-                if (i < semesters.length - 1 && yPos < pageHeight - 15) {
-                  pdf.setDrawColor(229, 231, 235);
-                  pdf.setLineWidth(0.3);
-                  const lineY = yPos - 8;
-                  pdf.line(margin, lineY, pageWidth - margin, lineY);
                 }
-              }
             }
-          };
-          
-          // Add footer
-          const addFooter = () => {
+        };
+        
+        // Add footer
+        const addFooter = () => {
             pdf.setFontSize(8);
             pdf.setTextColor(107, 114, 128);
             pdf.setFont(undefined, 'italic');
             
             pdf.text("Generated by UAF CGPA Calculator - https://auto-uaf.vercel.app", pageWidth / 2, pageHeight - 15, { align: 'center' });
             pdf.text("This is an unofficial transcript. For official documents, contact University of Agriculture, Faisalabad.", pageWidth / 2, pageHeight - 10, { align: 'center' });
-          };
-          
-          // Add page numbers
-          const addPageNumbers = () => {
+        };
+        
+        // Add page numbers
+        const addPageNumbers = () => {
             const pageCount = pdf.internal.getNumberOfPages();
             
             for (let i = 1; i <= pageCount; i++) {
-              pdf.setPage(i);
-              pdf.setFontSize(8);
-              pdf.setTextColor(107, 114, 128);
-              pdf.text(`Page ${i} of ${pageCount}`, pageWidth - margin, pageHeight - 10, { align: 'right' });
+                pdf.setPage(i);
+                pdf.setFontSize(8);
+                pdf.setTextColor(107, 114, 128);
+                pdf.text(`Page ${i} of ${pageCount}`, pageWidth - margin, pageHeight - 10, { align: 'right' });
             }
-          };
-          
-          // Build the PDF
-          addHeader();
-          addStudentInfo();
-          addAcademicSummary();
-          addSemesterResults();
-          addFooter();
-          addPageNumbers();
-          
-          // Save the PDF
-          const fileName = `UAF_Transcript_${processedData.studentInfo.registration}_${currentDate.replace(/\//g, '-')}.pdf`;
-          pdf.save(fileName);
-          
-          addStatusMessage('Professional PDF report generated successfully', 'success');
-          showToast('PDF downloaded successfully!', 'success');
-          hideLoading();
-          
-        } catch (error) {
-          addStatusMessage(`Error generating PDF: ${error.message}`, 'error');
-          showToast('Error generating PDF', 'error');
-          hideLoading();
-        }
-      }
+        };
+        
+        // Build the PDF
+        addHeader();
+        addStudentInfo();
+        addAcademicSummary();
+        addSemesterResults();
+        addFooter();
+        addPageNumbers();
+        
+        // Save the PDF
+        const fileName = `UAF_Transcript_${processedData.studentInfo.registration}_${currentDate.replace(/\//g, '-')}.pdf`;
+        pdf.save(fileName);
+        
+        addStatusMessage('Professional PDF report generated successfully', 'success');
+        showToast('PDF downloaded successfully!', 'success');
+        hideLoading();
+        
+    } catch (error) {
+        addStatusMessage(`Error generating PDF: ${error.message}`, 'error');
+        showToast('Error generating PDF', 'error');
+        hideLoading();
+    }
+}
       
       // Fetch result from UAF LMS
       async function fetchResult() {
@@ -4256,6 +4027,22 @@ a:hover {
         if (!regNum) {
           showToast('Please enter a registration number', 'error');
           return;
+        }
+        
+        // Check if we have saved results first
+        try {
+          const response = await fetch(`${API_ENDPOINTS.load}&registrationNumber=${encodeURIComponent(regNum)}`);
+          const result = await response.json();
+          
+          if (result.success && result.savedResults && result.savedResults.length > 0) {
+            // Ask user if they want to load saved result
+            if (confirm('Saved results found for this registration number. Would you like to load the latest saved result instead of fetching from UAF LMS?')) {
+              loadSavedResult(result.savedResults[0]);
+              return;
+            }
+          }
+        } catch (error) {
+          console.error('Error checking saved results:', error);
         }
         
         // Show loading animation
@@ -4310,32 +4097,16 @@ a:hover {
               addStatusMessage('Error processing result data', 'error');
               showToast('Error processing result data', 'error');
               hideLoading();
-              
-              // If LMS is offline, show saved results
-              if (isLMSOffline) {
-                showToast('UAF LMS is offline. You can load your saved results.', 'warning');
-                checkSavedResults();
-              }
             }
           } else {
             addStatusMessage(`Error: ${data.message}`, 'error');
             showToast(data.message, 'error');
-            isLMSOffline = true;
             hideLoading();
-            
-            // If LMS is offline, show saved results
-            showToast('UAF LMS is offline. You can load your saved results.', 'warning');
-            checkSavedResults();
           }
         } catch (error) {
           addStatusMessage(`Error fetching result: ${error.message}`, 'error');
           showToast('Error fetching result', 'error');
-          isLMSOffline = true;
           hideLoading();
-          
-          // If LMS is offline, show saved results
-          showToast('UAF LMS is offline. You can load your saved results.', 'warning');
-          checkSavedResults();
         }
       }
       
@@ -4357,14 +4128,12 @@ a:hover {
       
       saveCourseBtn.addEventListener('click', addCustomCourse);
       
-      confirmSaveBtn.addEventListener('click', confirmSave);
-      
       registrationNumber.addEventListener('input', function() {
         const regNum = this.value.trim();
         if (regNum) {
           checkSavedResults();
         } else {
-          savedResultsSection.style.display = 'none';
+          savedResultsContainer.style.display = 'none';
         }
       });
       
@@ -4374,4 +4143,12 @@ a:hover {
   </script>
 </body>
 </html>
+
+
+
+
+
+
+
+
 
