@@ -26,17 +26,18 @@ if not os.path.exists(DATA_DIR):
 # Database path
 DB_PATH = os.path.join(DATA_DIR, "saved_results.db")
 
-# Initialize database
+# Initialize database (UPDATED SCHEMA)
 def init_db():
     conn = sqlite3.connect(DB_PATH)
     c = conn.cursor()
+    # ADDED fileName column to store the user-defined name for the result
     c.execute('''
         CREATE TABLE IF NOT EXISTS saved_results (
             id TEXT PRIMARY KEY,
             registration_number TEXT NOT NULL,
+            file_name TEXT NOT NULL,
             student_data TEXT NOT NULL,
-            timestamp DATETIME DEFAULT CURRENT_TIMESTAMP,
-            custom_name TEXT
+            timestamp DATETIME DEFAULT CURRENT_TIMESTAMP
         )
     ''')
     c.execute('''
@@ -77,8 +78,6 @@ class handler(BaseHTTPRequestHandler):
                 self.handle_scrape_single()
             elif 'action=load_result' in self.path or 'load_result' in self.path:
                 self.handle_load_result()
-            elif 'action=load_saved_result' in self.path:
-                self.handle_load_saved_result()
             else:
                 self.send_response(404)
                 self._set_cors_headers()
@@ -299,7 +298,7 @@ class handler(BaseHTTPRequestHandler):
             self.send_error_response(500, f"Error scraping single result: {str(e)}")
 
     def handle_save_result(self):
-        """Save result data to database"""
+        """Save result data to database (UPDATED)"""
         try:
             content_length = int(self.headers['Content-Length'])
             post_data = self.rfile.read(content_length)
@@ -307,44 +306,39 @@ class handler(BaseHTTPRequestHandler):
             
             registration_number = data.get('registrationNumber')
             student_data = data.get('studentData')
-            timestamp = data.get('timestamp')
-            custom_name = data.get('customName', '')
+            file_name = data.get('fileName') # Get the new file_name
             
-            if not registration_number or not student_data:
+            if not registration_number or not student_data or not file_name:
                 self.send_error_response(400, 'Missing required fields')
                 return
             
             # Initialize database
             init_db()
             
-            # Generate unique ID
-            result_id = hashlib.md5(f"{registration_number}_{timestamp}_{custom_name}".encode()).hexdigest()
+            # Generate unique ID based on registration number and file name for uniqueness
+            result_id = hashlib.md5(f"{registration_number}_{file_name}".encode()).hexdigest()
             
             # Save to database
             conn = sqlite3.connect(DB_PATH)
             c = conn.cursor()
             
-            # Check if result already exists for this registration number and timestamp
-            c.execute('''
-                SELECT id FROM saved_results 
-                WHERE registration_number = ? AND custom_name = ?
-            ''', (registration_number, custom_name))
-            
+            # Check if a result with this ID already exists
+            c.execute('SELECT id FROM saved_results WHERE id = ?', (result_id,))
             existing_result = c.fetchone()
             
             if existing_result:
                 # Update existing record
                 c.execute('''
                     UPDATE saved_results 
-                    SET student_data = ?, timestamp = ?
+                    SET student_data = ?, timestamp = CURRENT_TIMESTAMP
                     WHERE id = ?
-                ''', (json.dumps(student_data), timestamp, existing_result[0]))
+                ''', (json.dumps(student_data), result_id))
             else:
                 # Insert new record
                 c.execute('''
-                    INSERT INTO saved_results (id, registration_number, student_data, timestamp, custom_name)
-                    VALUES (?, ?, ?, ?, ?)
-                ''', (result_id, registration_number, json.dumps(student_data), timestamp, custom_name))
+                    INSERT INTO saved_results (id, registration_number, file_name, student_data)
+                    VALUES (?, ?, ?, ?)
+                ''', (result_id, registration_number, file_name, json.dumps(student_data)))
             
             conn.commit()
             conn.close()
@@ -360,7 +354,7 @@ class handler(BaseHTTPRequestHandler):
             self.send_error_response(500, f"Error saving result: {str(e)}")
 
     def handle_load_result(self):
-        """Load saved results from database"""
+        """Load saved results from database (UPDATED)"""
         try:
             query_params = self.path.split('?')
             registration_number = None
@@ -383,8 +377,9 @@ class handler(BaseHTTPRequestHandler):
             conn = sqlite3.connect(DB_PATH)
             c = conn.cursor()
             
+            # Select the new file_name column
             c.execute('''
-                SELECT id, registration_number, student_data, timestamp, custom_name
+                SELECT id, registration_number, file_name, student_data, timestamp
                 FROM saved_results 
                 WHERE registration_number = ?
                 ORDER BY timestamp DESC
@@ -398,9 +393,9 @@ class handler(BaseHTTPRequestHandler):
                 saved_results.append({
                     'id': result[0],
                     'registration_number': result[1],
-                    'student_data': json.loads(result[2]),
-                    'timestamp': result[3],
-                    'custom_name': result[4] or 'Saved Result'
+                    'fileName': result[2], # Add fileName to response
+                    'student_data': json.loads(result[3]),
+                    'timestamp': result[4]
                 })
             
             response_data = {
@@ -412,64 +407,6 @@ class handler(BaseHTTPRequestHandler):
             
         except Exception as e:
             self.send_error_response(500, f"Error loading results: {str(e)}")
-
-    def handle_load_saved_result(self):
-        """Load a specific saved result from database"""
-        try:
-            query_params = self.path.split('?')
-            result_id = None
-            
-            if len(query_params) > 1:
-                params = query_params[1].split('&')
-                for param in params:
-                    if param.startswith('id='):
-                        result_id = param.split('=')[1]
-                        break
-            
-            if not result_id:
-                self.send_error_response(400, 'No result ID provided')
-                return
-            
-            # Initialize database
-            init_db()
-            
-            # Load from database
-            conn = sqlite3.connect(DB_PATH)
-            c = conn.cursor()
-            
-            c.execute('''
-                SELECT id, registration_number, student_data, timestamp, custom_name
-                FROM saved_results 
-                WHERE id = ?
-            ''', (result_id,))
-            
-            result = c.fetchone()
-            conn.close()
-            
-            if result:
-                saved_result = {
-                    'id': result[0],
-                    'registration_number': result[1],
-                    'student_data': json.loads(result[2]),
-                    'timestamp': result[3],
-                    'custom_name': result[4] or 'Saved Result'
-                }
-                
-                response_data = {
-                    'success': True, 
-                    'message': 'Result loaded successfully',
-                    'savedResult': saved_result
-                }
-                self.send_success_response(response_data)
-            else:
-                response_data = {
-                    'success': False, 
-                    'message': 'Result not found'
-                }
-                self.send_success_response(response_data)
-            
-        except Exception as e:
-            self.send_error_response(500, f"Error loading result: {str(e)}")
 
     def handle_delete_saved_result(self):
         """Delete a saved result from database"""
