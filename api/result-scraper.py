@@ -26,7 +26,7 @@ if not os.path.exists(DATA_DIR):
 # Database path
 DB_PATH = os.path.join(DATA_DIR, "saved_results.db")
 
-# Initialize database (UPDATED SCHEMA)
+# Initialize database
 def init_db():
     conn = sqlite3.connect(DB_PATH)
     c = conn.cursor()
@@ -131,7 +131,6 @@ class handler(BaseHTTPRequestHandler):
     def handle_test_connection(self):
         """Test connection to UAF LMS - simplified version"""
         try:
-            # Try multiple endpoints to test connection - updated to HTTPS
             test_urls = [
                 'https://lms.uaf.edu.pk/login/index.php',
                 'https://lms.uaf.edu.pk/',
@@ -143,49 +142,20 @@ class handler(BaseHTTPRequestHandler):
             
             for test_url in test_urls:
                 try:
-                    response = requests.get(test_url, timeout=10, headers={
-                        'User-Agent': random.choice(USER_AGENTS),
-                    }, verify=True)  # Enable SSL verification
-                    
-                    # If we get any response (even 500), the server is reachable
+                    response = requests.get(test_url, timeout=10, headers={'User-Agent': random.choice(USER_AGENTS)}, verify=True)
                     if response.status_code < 500:
                         success = True
                         message = f"Connection to UAF LMS successful (Status: {response.status_code})"
                         break
                     else:
                         message = f"UAF LMS returned status code: {response.status_code}"
-                        
-                except requests.exceptions.SSLError:
-                    # Try without SSL verification if there's an SSL error
-                    try:
-                        response = requests.get(test_url, timeout=10, headers={
-                            'User-Agent': random.choice(USER_AGENTS),
-                        }, verify=False)
-                        
-                        if response.status_code < 500:
-                            success = True
-                            message = f"Connection to UAF LMS successful with SSL verification disabled (Status: {response.status_code})"
-                            break
-                        else:
-                            message = f"UAF LMS returned status code: {response.status_code}"
-                    except:
-                        continue
-                except requests.exceptions.RequestException as e:
-                    # Continue to next URL if this one fails
+                except requests.exceptions.RequestException:
                     continue
             
-            response_data = {
-                'success': success, 
-                'message': message
-            }
+            response_data = {'success': success, 'message': message}
             self.send_success_response(response_data)
-            
         except Exception as e:
-            response_data = {
-                'success': False, 
-                'message': f'Connection test error: {str(e)}'
-            }
-            self.send_success_response(response_data)
+            self.send_success_response({'success': False, 'message': f'Connection test error: {str(e)}'})
 
     def handle_check_session(self):
         """Check if session exists and has data"""
@@ -194,25 +164,15 @@ class handler(BaseHTTPRequestHandler):
             if not session_id:
                 self.send_error_response(400, 'No session ID provided')
                 return
-                
             session_data = self.load_from_session(session_id)
-            if session_data:
-                response_data = {
-                    'success': True, 
-                    'hasData': True,
-                    'recordCount': len(session_data),
-                    'message': f'Session has {len(session_data)} records'
-                }
-            else:
-                response_data = {
-                    'success': True, 
-                    'hasData': False,
-                    'recordCount': 0,
-                    'message': 'Session has no data'
-                }
-                
+            has_data = bool(session_data)
+            response_data = {
+                'success': True, 
+                'hasData': has_data,
+                'recordCount': len(session_data) if has_data else 0,
+                'message': f'Session has {len(session_data)} records' if has_data else 'Session has no data'
+            }
             self.send_success_response(response_data)
-            
         except Exception as e:
             self.send_error_response(500, f"Error checking session: {str(e)}")
 
@@ -222,16 +182,12 @@ class handler(BaseHTTPRequestHandler):
             content_length = int(self.headers['Content-Length'])
             post_data = self.rfile.read(content_length)
             data = json.loads(post_data)
-            
             session_id = data.get('sessionId')
             if not session_id:
                 self.send_error_response(400, 'No session ID provided')
                 return
-                
             self.delete_session(session_id)
-            response_data = {'success': True, 'message': 'Session cleared successfully'}
-            self.send_success_response(response_data)
-            
+            self.send_success_response({'success': True, 'message': 'Session cleared successfully'})
         except Exception as e:
             self.send_error_response(500, f"Error clearing session: {str(e)}")
 
@@ -239,66 +195,31 @@ class handler(BaseHTTPRequestHandler):
         """Handle single result scraping for CGPA calculator"""
         try:
             if self.command == 'GET':
-                # Handle GET request
                 query_params = self.path.split('?')
                 if len(query_params) > 1:
-                    params = query_params[1].split('&')
-                    registration_number = None
-                    for param in params:
-                        if param.startswith('registrationNumber='):
-                            registration_number = param.split('=')[1]
-                            break
-                    
-                    if not registration_number:
-                        self.send_error_response(400, 'No registration number provided')
-                        return
-                    
-                    # Scrape results
-                    success, message, result_data = self.scrape_uaf_results(registration_number)
-                    
-                    if success and result_data:
-                        response = {
-                            'success': success, 
-                            'message': message, 
-                            'resultData': result_data
-                        }
-                    else:
-                        response = {'success': success, 'message': message, 'resultData': result_data}
-                    
-                    self.send_success_response(response)
+                    params = dict(param.split('=') for param in query_params[1].split('&'))
+                    registration_number = params.get('registrationNumber')
                 else:
                     self.send_error_response(400, 'No registration number provided')
-            else:
-                # Handle POST request
+                    return
+            else: # POST
                 content_length = int(self.headers['Content-Length'])
                 post_data = self.rfile.read(content_length)
                 data = json.loads(post_data)
-                
                 registration_number = data.get('registrationNumber')
-                
-                if not registration_number:
-                    self.send_error_response(400, 'No registration number provided')
-                    return
-                
-                # Scrape results
-                success, message, result_data = self.scrape_uaf_results(registration_number)
-                
-                if success and result_data:
-                    response = {
-                        'success': success, 
-                        'message': message, 
-                        'resultData': result_data
-                    }
-                else:
-                    response = {'success': success, 'message': message, 'resultData': result_data}
-                
-                self.send_success_response(response)
-                
+            
+            if not registration_number:
+                self.send_error_response(400, 'No registration number provided')
+                return
+            
+            success, message, result_data = self.scrape_uaf_results(registration_number)
+            response = {'success': success, 'message': message, 'resultData': result_data}
+            self.send_success_response(response)
         except Exception as e:
             self.send_error_response(500, f"Error scraping single result: {str(e)}")
 
     def handle_save_result(self):
-        """Save result data to database (UPDATED)"""
+        """Save result data to database"""
         try:
             content_length = int(self.headers['Content-Length'])
             post_data = self.rfile.read(content_length)
@@ -306,105 +227,51 @@ class handler(BaseHTTPRequestHandler):
             
             registration_number = data.get('registrationNumber')
             student_data = data.get('studentData')
-            file_name = data.get('fileName') # Get the new file_name
+            file_name = data.get('fileName')
             
-            if not registration_number or not student_data or not file_name:
+            if not all([registration_number, student_data, file_name]):
                 self.send_error_response(400, 'Missing required fields')
                 return
             
-            # Initialize database
             init_db()
-            
-            # Generate unique ID based on registration number and file name for uniqueness
             result_id = hashlib.md5(f"{registration_number}_{file_name}".encode()).hexdigest()
-            
-            # Save to database
             conn = sqlite3.connect(DB_PATH)
             c = conn.cursor()
             
-            # Check if a result with this ID already exists
             c.execute('SELECT id FROM saved_results WHERE id = ?', (result_id,))
-            existing_result = c.fetchone()
-            
-            if existing_result:
-                # Update existing record
-                c.execute('''
-                    UPDATE saved_results 
-                    SET student_data = ?, timestamp = CURRENT_TIMESTAMP
-                    WHERE id = ?
-                ''', (json.dumps(student_data), result_id))
+            if c.fetchone():
+                c.execute('UPDATE saved_results SET student_data = ?, timestamp = CURRENT_TIMESTAMP WHERE id = ?', (json.dumps(student_data), result_id))
             else:
-                # Insert new record
-                c.execute('''
-                    INSERT INTO saved_results (id, registration_number, file_name, student_data)
-                    VALUES (?, ?, ?, ?)
-                ''', (result_id, registration_number, file_name, json.dumps(student_data)))
+                c.execute('INSERT INTO saved_results (id, registration_number, file_name, student_data) VALUES (?, ?, ?, ?)', (result_id, registration_number, file_name, json.dumps(student_data)))
             
             conn.commit()
             conn.close()
-            
-            response_data = {
-                'success': True, 
-                'message': 'Result saved successfully',
-                'id': result_id
-            }
-            self.send_success_response(response_data)
-            
+            self.send_success_response({'success': True, 'message': 'Result saved successfully', 'id': result_id})
         except Exception as e:
             self.send_error_response(500, f"Error saving result: {str(e)}")
 
     def handle_load_result(self):
-        """Load saved results from database (UPDATED)"""
+        """Load saved results from database"""
         try:
             query_params = self.path.split('?')
             registration_number = None
-            
             if len(query_params) > 1:
-                params = query_params[1].split('&')
-                for param in params:
-                    if param.startswith('registrationNumber='):
-                        registration_number = param.split('=')[1]
-                        break
-            
+                params = dict(param.split('=') for param in query_params[1].split('&'))
+                registration_number = params.get('registrationNumber')
+
             if not registration_number:
                 self.send_error_response(400, 'No registration number provided')
                 return
             
-            # Initialize database
             init_db()
-            
-            # Load from database
             conn = sqlite3.connect(DB_PATH)
             c = conn.cursor()
-            
-            # Select the new file_name column
-            c.execute('''
-                SELECT id, registration_number, file_name, student_data, timestamp
-                FROM saved_results 
-                WHERE registration_number = ?
-                ORDER BY timestamp DESC
-            ''', (registration_number,))
-            
+            c.execute('SELECT id, registration_number, file_name, student_data, timestamp FROM saved_results WHERE registration_number = ? ORDER BY timestamp DESC', (registration_number,))
             results = c.fetchall()
             conn.close()
             
-            saved_results = []
-            for result in results:
-                saved_results.append({
-                    'id': result[0],
-                    'registration_number': result[1],
-                    'fileName': result[2], # Add fileName to response
-                    'student_data': json.loads(result[3]),
-                    'timestamp': result[4]
-                })
-            
-            response_data = {
-                'success': True, 
-                'message': 'Results loaded successfully',
-                'savedResults': saved_results
-            }
-            self.send_success_response(response_data)
-            
+            saved_results = [{'id': r[0], 'registration_number': r[1], 'fileName': r[2], 'student_data': json.loads(r[3]), 'timestamp': r[4]} for r in results]
+            self.send_success_response({'success': True, 'message': 'Results loaded successfully', 'savedResults': saved_results})
         except Exception as e:
             self.send_error_response(500, f"Error loading results: {str(e)}")
 
@@ -414,408 +281,108 @@ class handler(BaseHTTPRequestHandler):
             content_length = int(self.headers['Content-Length'])
             post_data = self.rfile.read(content_length)
             data = json.loads(post_data)
-            
             result_id = data.get('id')
-            
             if not result_id:
                 self.send_error_response(400, 'No result ID provided')
                 return
             
-            # Initialize database
             init_db()
-            
-            # Delete from database
             conn = sqlite3.connect(DB_PATH)
             c = conn.cursor()
-            
             c.execute('DELETE FROM saved_results WHERE id = ?', (result_id,))
             conn.commit()
             conn.close()
-            
-            response_data = {
-                'success': True, 
-                'message': 'Result deleted successfully'
-            }
-            self.send_success_response(response_data)
-            
+            self.send_success_response({'success': True, 'message': 'Result deleted successfully'})
         except Exception as e:
             self.send_error_response(500, f"Error deleting result: {str(e)}")
-
-    def handle_scrape(self):
-        content_length = int(self.headers['Content-Length'])
-        post_data = self.rfile.read(content_length)
-        data = json.loads(post_data)
-        
-        registration_number = data.get('registrationNumber')
-        session_id = data.get('sessionId')
-        
-        if not registration_number:
-            self.send_error_response(400, 'No registration number provided')
-            return
-            
-        if not session_id:
-            self.send_error_response(400, 'No session ID provided')
-            return
-        
-        # Scrape results
-        success, message, result_data = self.scrape_uaf_results(registration_number)
-        
-        # Save result to session file if successful
-        if success and result_data:
-            self.save_to_session(session_id, result_data)
-            
-        response = {'success': success, 'message': message, 'resultData': result_data}
-        self.send_success_response(response)
-
-    def handle_save(self):
-        content_length = int(self.headers['Content-Length'])
-        post_data = self.rfile.read(content_length)
-        data = json.loads(post_data)
-        
-        filename = data.get('filename', 'student_results')
-        session_id = data.get('sessionId')
-        
-        if not session_id:
-            self.send_error_response(400, 'No session ID provided')
-            return
-            
-        # Load results from session file
-        session_results = self.load_from_session(session_id)
-        
-        if session_results:
-            # Create Excel file
-            wb = Workbook()
-            ws = wb.active
-            ws.title = "Results"
-            
-            # Add headers if we have data
-            if session_results:
-                headers = list(session_results[0].keys())
-                ws.append(headers)
-                
-                # Add data
-                for result in session_results:
-                    ws.append([result.get(header, '') for header in headers])
-            
-            # Save to bytes buffer
-            output = BytesIO()
-            wb.save(output)
-            excel_data = output.getvalue()
-            
-            self.send_response(200)
-            self._set_cors_headers()
-            self.send_header('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
-            self.send_header('Content-Disposition', f'attachment; filename="{filename}.xlsx"')
-            self.end_headers()
-            
-            self.wfile.write(excel_data)
-            
-            # DO NOT clean up session file - keep it for future downloads
-            # Session will be automatically cleaned up after 1 hour
-        else:
-            self.send_error_response(400, 'No results to save')
 
     def scrape_uaf_results(self, registration_number):
         """Main function to scrape UAF results"""
         try:
-            # Create session
             session = requests.Session()
-            session.headers.update({
-                'User-Agent': random.choice(USER_AGENTS),
-                'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
-                'Accept-Language': 'en-US,en;q=0.5',
-                'Connection': 'keep-alive',
-                'Upgrade-Insecure-Requests': '1',
-            })
-            
-            # Step 1: Get login page to extract token - updated to HTTPS
+            session.headers.update({'User-Agent': random.choice(USER_AGENTS)})
             login_url = "https://lms.uaf.edu.pk/login/index.php"
-            try:
-                response = session.get(login_url, timeout=15, verify=True)
-                
-                if response.status_code != 200:
-                    # Try without SSL verification if there's an SSL error
-                    response = session.get(login_url, timeout=15, verify=False)
-                    
-                    if response.status_code != 200:
-                        return False, f"UAF LMS returned status code {response.status_code}. The server may be down.", None
-                    
-            except requests.exceptions.SSLError:
-                # Try without SSL verification
-                try:
-                    response = session.get(login_url, timeout=15, verify=False)
-                    
-                    if response.status_code != 200:
-                        return False, f"UAF LMS returned status code {response.status_code}. The server may be down.", None
-                        
-                except requests.exceptions.RequestException as e:
-                    return False, f"Network error: {str(e)}. UAF LMS may be unavailable.", None
-            except requests.exceptions.RequestException as e:
-                return False, f"Network error: {str(e)}. UAF LMS may be unavailable.", None
+            response = session.get(login_url, timeout=15, verify=False) # Often UAF LMS has cert issues
+            if response.status_code != 200:
+                return False, f"UAF LMS returned status code {response.status_code}. The server may be down.", None
             
-            # Step 2: Extract JavaScript-generated token
             token = self.extract_js_token(response.text)
             if not token:
-                # Try alternative method - look for the hidden input field
                 soup = BeautifulSoup(response.text, 'html.parser')
                 token_input = soup.find('input', {'id': 'token'})
-                if token_input and token_input.get('value'):
-                    token = token_input.get('value')
-                else:
-                    return False, "Could not extract security token from UAF LMS", None
+                token = token_input.get('value') if token_input else None
+            if not token:
+                return False, "Could not extract security token from UAF LMS", None
             
-            # Step 3: Submit form with correct field names - updated to HTTPS
             result_url = "https://lms.uaf.edu.pk/course/uaf_student_result.php"
-            form_data = {
-                'token': token,
-                'Register': registration_number
-            }
+            form_data = {'token': token, 'Register': registration_number}
+            headers = {'Referer': login_url, 'Origin': 'https://lms.uaf.edu.pk'}
+            response = session.post(result_url, data=form_data, headers=headers, timeout=20, verify=False)
+            if response.status_code != 200:
+                return False, f"UAF LMS returned status code {response.status_code}", None
             
-            headers = {
-                'Referer': login_url,
-                'Origin': 'https://lms.uaf.edu.pk',
-                'Content-Type': 'application/x-www-form-urlencoded'
-            }
-            
-            try:
-                response = session.post(result_url, data=form_data, headers=headers, timeout=20, verify=True)
-                
-                if response.status_code != 200:
-                    # Try without SSL verification if there's an SSL error
-                    response = session.post(result_url, data=form_data, headers=headers, timeout=20, verify=False)
-                    
-                    if response.status_code != 200:
-                        return False, f"UAF LMS returned status code {response.status_code}", None
-                    
-            except requests.exceptions.SSLError:
-                # Try without SSL verification
-                try:
-                    response = session.post(result_url, data=form_data, headers=headers, timeout=20, verify=False)
-                    
-                    if response.status_code != 200:
-                        return False, f"UAF LMS returned status code {response.status_code}", None
-                        
-                except requests.exceptions.RequestException as e:
-                    return False, f"Network error during result fetch: {str(e)}", None
-            except requests.exceptions.RequestException as e:
-                return False, f"Network error during result fetch: {str(e)}", None
-            
-            # Step 4: Parse results
             return self.parse_uaf_results(response.text, registration_number)
-            
+        except requests.exceptions.RequestException as e:
+            return False, f"Network error: {str(e)}. UAF LMS may be unavailable.", None
         except Exception as e:
             logger.error(f"Unexpected error: {str(e)}")
             return False, f"Unexpected error: {str(e)}", None
 
     def extract_js_token(self, html_content):
         """Extract JavaScript-generated token from UAF LMS"""
-        try:
-            # Look for the JavaScript that sets the token value
-            js_pattern = r"document\.getElementById\('token'\)\.value\s*=\s*'([^']+)'"
-            match = re.search(js_pattern, html_content)
-            
-            if match:
-                return match.group(1)
-            
-            # Alternative patterns
-            patterns = [
-                r"token.*value.*=.*'([^']+)'",
-                r"value.*=.*'([a-f0-9]{64})'",  # Look for 64-character hex values
-                r"id=\"token\" value=\"([^\"]+)\"",  # Direct HTML attribute
-            ]
-            
-            for pattern in patterns:
-                match = re.search(pattern, html_content, re.IGNORECASE)
-                if match:
-                    return match.group(1)
-            
-            return None
-            
-        except Exception as e:
-            logger.error(f"Token extraction error: {str(e)}")
-            return None
+        match = re.search(r"document\.getElementById\('token'\)\.value\s*=\s*'([^']+)'", html_content)
+        return match.group(1) if match else None
 
     def parse_uaf_results(self, html_content, registration_number):
         """Parse UAF results"""
         try:
             soup = BeautifulSoup(html_content, 'html.parser')
-            
-            # Check if access is blocked or no results
             page_text = soup.get_text().lower()
-            if any(blocked_text in page_text for blocked_text in ['blocked', 'access denied', 'not available', 'till result submission', 'suspended']):
+            if any(text in page_text for text in ['blocked', 'access denied', 'not available']):
                 return False, "Access blocked by UAF LMS", None
-            
-            # Check if no results found
             if "no result" in page_text or "no records" in page_text:
                 return False, f"No results found for registration number: {registration_number}", None
             
-            # Extract student information
             student_info = {}
-            
-            # Look for student information in the first table
             info_tables = soup.find_all('table')
             if info_tables:
-                # First table usually contains student info
-                first_table = info_tables[0]
-                rows = first_table.find_all('tr')
-                
-                for row in rows:
+                for row in info_tables[0].find_all('tr'):
                     cols = row.find_all('td')
                     if len(cols) == 2:
                         key = cols[0].text.strip().replace(':', '').replace('#', '').replace(' ', '')
-                        value = cols[1].text.strip()
-                        student_info[key] = value
+                        student_info[key] = cols[1].text.strip()
             
-            # Set defaults
-            if 'Registration' not in student_info:
-                student_info['Registration'] = registration_number
-            
-            # Extract results from tables
             student_results = []
-            
-            # Look for result tables (usually the second or third table)
             for table in soup.find_all('table'):
                 rows = table.find_all('tr')
-                
-                # Result tables have many rows and specific headers
-                if len(rows) > 5:
-                    # Check if first row contains result headers
-                    header_row = rows[0]
-                    header_text = header_row.get_text().lower()
-                    
-                    if any(term in header_text for term in ['sr', 'semester', 'course', 'teacher', 'credit', 'mid', 'assignment', 'final', 'practical', 'total', 'grade']):
-                        # Process each data row (skip header)
-                        for i in range(1, len(rows)):
-                            row = rows[i]
-                            cols = row.find_all('td')
-                            
-                            if len(cols) >= 5:  # At least 5 columns expected
-                                result_data = {
-                                    'RegistrationNo': student_info.get('Registration', registration_number),
-                                    'StudentName': student_info.get('StudentFullName', student_info.get('StudentName', '')),
-                                    'SrNo': cols[0].text.strip() if len(cols) > 0 else '',
-                                    'Semester': cols[1].text.strip() if len(cols) > 1 else '',
-                                    'TeacherName': cols[2].text.strip() if len(cols) > 2 else '',
-                                    'CourseCode': cols[3].text.strip() if len(cols) > 3 else '',
-                                    'CourseTitle': cols[4].text.strip() if len(cols) > 4 else '',
-                                    'CreditHours': cols[5].text.strip() if len(cols) > 5 else '',
-                                    'Mid': cols[6].text.strip() if len(cols) > 6 else '',
-                                    'Assignment': cols[7].text.strip() if len(cols) > 7 else '',
-                                    'Final': cols[8].text.strip() if len(cols) > 8 else '',
-                                    'Practical': cols[9].text.strip() if len(cols) > 9 else '',
-                                    'Total': cols[10].text.strip() if len(cols) > 10 else '',
-                                    'Grade': cols[11].text.strip() if len(cols) > 11 else ''
-                                }
-                                
-                                student_results.append(result_data)
+                if len(rows) > 5 and 'sr' in rows[0].get_text().lower():
+                    for i in range(1, len(rows)):
+                        cols = [col.text.strip() for col in rows[i].find_all('td')]
+                        if len(cols) >= 5:
+                            student_results.append({
+                                'RegistrationNo': student_info.get('Registration', registration_number),
+                                'StudentName': student_info.get('StudentFullName', student_info.get('StudentName', '')),
+                                'SrNo': cols[0] if len(cols) > 0 else '', 'Semester': cols[1] if len(cols) > 1 else '',
+                                'TeacherName': cols[2] if len(cols) > 2 else '', 'CourseCode': cols[3] if len(cols) > 3 else '',
+                                'CourseTitle': cols[4] if len(cols) > 4 else '', 'CreditHours': cols[5] if len(cols) > 5 else '',
+                                'Mid': cols[6] if len(cols) > 6 else '', 'Assignment': cols[7] if len(cols) > 7 else '',
+                                'Final': cols[8] if len(cols) > 8 else '', 'Practical': cols[9] if len(cols) > 9 else '',
+                                'Total': cols[10] if len(cols) > 10 else '', 'Grade': cols[11] if len(cols) > 11 else ''
+                            })
             
             if student_results:
-                return True, f"Successfully extracted {len(student_results)} records for {registration_number}", student_results
-            else:
-                # Check if we might have found the data but in a different format
-                if "result award list" in page_text.lower():
-                    # Try alternative parsing method
-                    alt_results = self.alternative_parse(soup, registration_number, student_info)
-                    if alt_results:
-                        return True, f"Successfully extracted {len(alt_results)} records using alternative method", alt_results
-                
-                return False, f"No result data found for registration number: {registration_number}", None
-                    
+                return True, f"Successfully extracted {len(student_results)} records", student_results
+            return False, f"No result data found for: {registration_number}", None
         except Exception as e:
-            logger.error(f"Error parsing results: {str(e)}")
             return False, f"Error parsing results: {str(e)}", None
 
-    def alternative_parse(self, soup, registration_number, student_info):
-        """Alternative parsing method for different table structures"""
-        try:
-            student_results = []
-            
-            # Find all tables
-            tables = soup.find_all('table')
-            
-            for table in tables:
-                rows = table.find_all('tr')
-                
-                # Look for rows with data (more than 2 columns)
-                for row in rows:
-                    cols = row.find_all('td')
-                    if len(cols) >= 6:  # At least 6 columns for a result row
-                        # Check if first column is a number (likely a serial number)
-                        if cols[0].text.strip().isdigit():
-                            result_data = {
-                                'RegistrationNo': registration_number,
-                                'StudentName': student_info.get('StudentFullName', student_info.get('StudentName', '')),
-                                'SrNo': cols[0].text.strip(),
-                                'Semester': cols[1].text.strip() if len(cols) > 1 else '',
-                                'TeacherName': cols[2].text.strip() if len(cols) > 2 else '',
-                                'CourseCode': cols[3].text.strip() if len(cols) > 3 else '',
-                                'CourseTitle': cols[4].text.strip() if len(cols) > 4 else '',
-                                'CreditHours': cols[5].text.strip() if len(cols) > 5 else '',
-                                'Mid': cols[6].text.strip() if len(cols) > 6 else '',
-                                'Assignment': cols[7].text.strip() if len(cols) > 7 else '',
-                                'Final': cols[8].text.strip() if len(cols) > 8 else '',
-                                'Practical': cols[9].text.strip() if len(cols) > 9 else '',
-                                'Total': cols[10].text.strip() if len(cols) > 10 else '',
-                                'Grade': cols[11].text.strip() if len(cols) > 11 else ''
-                            }
-                            
-                            student_results.append(result_data)
-            
-            return student_results if student_results else None
-            
-        except Exception as e:
-            logger.error(f"Error in alternative parsing: {str(e)}")
-            return None
-
-    def save_to_session(self, session_id, result_data):
-        try:
-            session_file = os.path.join(DATA_DIR, f"session_{session_id}.json")
-            
-            # Load existing data or create new array
-            if os.path.exists(session_file):
-                with open(session_file, 'r') as f:
-                    existing_data = json.load(f)
-            else:
-                existing_data = []
-            
-            # Add metadata about when this data was added
-            for result in result_data:
-                result['_scrapedAt'] = datetime.now().isoformat()
-            
-            # Append new data to existing data
-            existing_data.extend(result_data)
-            
-            # Save back to file
-            with open(session_file, 'w') as f:
-                json.dump(existing_data, f)
-                
-            logger.info(f"Saved {len(result_data)} records to session {session_id}, total records: {len(existing_data)}")
-                
-        except Exception as e:
-            logger.error(f"Error saving to session {session_id}: {e}")
-
+    # UPDATED: Removed the 1-hour retention limit. Note that Vercel's /tmp is ephemeral.
     def load_from_session(self, session_id):
         try:
             session_file = os.path.join(DATA_DIR, f"session_{session_id}.json")
-            
             if os.path.exists(session_file):
                 with open(session_file, 'r') as f:
-                    data = json.load(f)
-                    
-                # Clean up old data (older than 1 hour)
-                one_hour_ago = datetime.now() - timedelta(hours=1)
-                filtered_data = [
-                    item for item in data 
-                    if '_scrapedAt' not in item or 
-                    datetime.fromisoformat(item['_scrapedAt']) > one_hour_ago
-                ]
-                
-                # If we filtered out data, save the cleaned version
-                if len(filtered_data) != len(data):
-                    with open(session_file, 'w') as f:
-                        json.dump(filtered_data, f)
-                    
-                return filtered_data
+                    return json.load(f)
             return None
         except Exception as e:
             logger.error(f"Error loading from session {session_id}: {e}")
