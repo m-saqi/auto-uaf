@@ -5,6 +5,16 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>UAF CGPA Calculator</title>
   <meta name="description" content="UAF CGPA Calculator that fetches your results directly from UAF LMS. Built for University of Agriculture Faisalabad students." />
+  <link rel="canonical" href="https://uaftools.vercel.app/auto.html" />
+  <meta property="og:title" content="UAF CGPA Calculator" />
+  <meta property="og:description" content="Fetch your results directly from UAF LMS and calculate CGPA automatically." />
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="UAF Tools" />
+  <meta property="og:url" content="https://uaftools.vercel.app/auto.html" />
+  <meta property="og:image" content="https://uaftools.vercel.app/uaftools.png" />
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:title" content="UAF CGPA Calculator" />
+  <meta name="twitter:description" content="Fetch your results directly from UAF LMS and calculate CGPA automatically." />
 
   <link rel="icon" type="image/x-icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🎓</text></svg>">
 
@@ -25,13 +35,19 @@
   --brand-gradient: linear-gradient(135deg, #7a6ad8 0%, #6b5fca 50%, #5d52b8 100%);
   --brand-gradient-hover: linear-gradient(135deg, #8a7ce8 0%, #7b6fda 50%, #6d62c8 100%);
   --accent: #ff6b6b;
+  --accent-gradient: linear-gradient(135deg, #ff6b6b 0%, #ff8e8e 100%);
   --text: #1b1f24;
   --text-light: #4b5563;
   --muted: #6b7280;
   --light-bg: #f8f9ff;
+  --card-bg: #ffffff;
   --radius: 1.25rem;
   --shadow: 0 10px 30px rgba(17, 24, 39, 0.1);
   --shadow-hover: 0 15px 40px rgba(17, 24, 39, 0.15);
+  
+  /* New gradient variables */
+  --brand-primary: #7a6ad8;
+  --brand-secondary: #6b5fca;
 }
 
 html, body {
@@ -42,33 +58,93 @@ html, body {
 body {
   background: linear-gradient(180deg, #f8f9ff 0%, #ffffff 70%);
   min-height: 100vh;
+  margin: 0;
+  padding: 0;
+  color: var(--text); /* Added base text color */
 }
 
-/* Navbar */
+/* Improved navbar with glassmorphism effect */
 .navbar {
   backdrop-filter: saturate(180%) blur(12px);
   background-color: rgba(255, 255, 255, 0.8);
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+  transition: all 0.3s ease;
 }
 
 .navbar .navbar-brand {
   font-weight: 800;
+  letter-spacing: .3px;
   color: var(--brand);
+  transition: all 0.3s ease;
+}
+
+.navbar .navbar-brand:hover {
+  transform: translateY(-1px);
 }
 
 .navbar .nav-link {
+  position: relative;
   font-weight: 500;
+  transition: all 0.3s ease;
   color: var(--text);
 }
 
-/* Buttons */
+.navbar .nav-link::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 0;
+  height: 2px;
+  background: var(--brand-gradient);
+  transition: width 0.3s ease;
+}
+
+.navbar .nav-link:hover::after {
+  width: 100%;
+}
+
+/* Improved buttons */
+.btn-brand {
+  background: var(--brand-gradient);
+  border: none;
+  color: white;
+  transition: all 0.3s ease;
+  box-shadow: var(--shadow);
+}
+
+.btn-brand:hover {
+  background: var(--brand-gradient-hover);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-hover);
+  color: white;
+}
+
+.btn-soft {
+  background: rgba(122, 106, 216, 0.1);
+  color: var(--brand);
+  transition: all 0.3s ease;
+}
+
+.btn-soft:hover {
+  background: rgba(122, 106, 216, 0.2);
+  transform: translateY(-1px);
+}
+
+.badge-brand {
+  background: var(--brand-gradient);
+  color: white;
+}
+
 .btn-primary-action {
   background: var(--brand-gradient);
   color: #fff;
   border: 0;
   box-shadow: 0 6px 18px rgba(122, 106, 216, 0.2);
+  cursor: pointer;
   transition: all 0.3s ease;
 }
+
 .btn-primary-action:hover {
   background: var(--brand-gradient-hover);
   color: #fff;
@@ -76,25 +152,106 @@ body {
   box-shadow: 0 10px 25px rgba(122, 106, 216, 0.3);
 }
 
-/* Hero Section */
+.btn-secondary-action {
+  background: #fff;
+  color: var(--brand);
+  border: 1px solid rgba(122, 106, 216, 0.15);
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.btn-secondary-action:hover {
+  background: #f8f9ff;
+  color: var(--brand);
+  transform: translateY(-1px);
+  box-shadow: 0 5px 15px rgba(122, 106, 216, 0.1);
+}
+
+.btn-danger-action {
+  background: var(--accent-gradient);
+  color: white;
+  border: 0;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.btn-danger-action:hover {
+  background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+  color: white;
+  transform: translateY(-2px);
+}
+
+.btn-success-action {
+  background: linear-gradient(135deg, #10ac84 0%, #0d916b 100%);
+  color: white;
+  border: 0;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.btn-success-action:hover {
+  background: linear-gradient(135deg, #12c29a 0%, #0fa57c 100%);
+  color: white;
+  transform: translateY(-2px);
+}
+
+/* Improved hero section */
 .hero {
   padding: 5rem 0 4rem;
   position: relative;
   overflow: hidden;
 }
 
+.hero::before {
+  content: '';
+  position: absolute;
+  top: -100px;
+  right: -100px;
+  width: 300px;
+  height: 300px;
+  border-radius: 50%;
+  background: rgba(122, 106, 216, 0.1);
+  z-index: -1;
+}
+
+.hero::after {
+  content: '';
+  position: absolute;
+  bottom: -50px;
+  left: -50px;
+  width: 200px;
+  height: 200px;
+  border-radius: 50%;
+  background: rgba(255, 107, 107, 0.1);
+  z-index: -1;
+}
+
 .hero h1 {
   font-weight: 800;
-  line-height: 1.1;
-  font-size: 3.2rem;
+  line-height: 1.05;
+  font-size: 3.5rem;
+  margin-bottom: 1.5rem;
+  background: linear-gradient(135deg, var(--brand) 0%, var(--text) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
 
 .hero .lead {
   color: var(--text-light);
   font-size: 1.25rem;
+  margin-bottom: 2rem;
 }
 
-/* Cards */
+.mt-3 {
+  margin-top: 1rem !important;
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+/* Improved cards with glassmorphism effect */
 .card-modern {
   border: 0;
   border-radius: var(--radius);
@@ -102,6 +259,8 @@ body {
   backdrop-filter: blur(10px);
   background: rgba(255, 255, 255, 0.8);
   transition: all 0.3s ease;
+  overflow: hidden;
+  color: var(--text);
 }
 
 .card-modern:hover {
@@ -111,73 +270,882 @@ body {
 
 .card-modern .card-header {
   border: 0;
-  background: linear-gradient(135deg, rgba(122, 106, 216, 0.15), rgba(122, 106, 216, 0.05));
+  border-top-left-radius: var(--radius);
+  border-top-right-radius: var(--radius);
+  background: linear-gradient(135deg, rgba(122, 106, 216, 0.2), rgba(122, 106, 216, 0.1));
   padding: 1.5rem 2rem;
 }
 
-.form-control, .form-select {
+.card-modern .card-header h4 {
+  font-weight: 700;
+  color: var(--text);
+}
+
+.form-select, .form-control {
   border-radius: .85rem;
   border: 1px solid rgba(122, 106, 216, 0.2);
   padding: 0.75rem 1rem;
   transition: all 0.3s ease;
+  color: var(--text);
+  background-color: rgba(255, 255, 255, 0.9);
 }
 
-.form-control:focus, .form-select:focus {
+.form-select:focus, .form-control:focus {
   border-color: var(--brand);
   box-shadow: 0 0 0 0.25rem rgba(122, 106, 216, 0.25);
 }
 
-/* Loading Animations */
-.loading-container {
-  display: none;
-  text-align: center;
-  padding: 2rem;
+.form-text {
+  transition: color 0.3s ease;
 }
-.loading-stage { display: none; }
-.loading-animation { width: 60px; height: 60px; margin: 0 auto 1rem; }
-.loading-connecting .dot { width: 10px; height: 10px; border-radius: 50%; background: var(--brand); margin: 0 4px; display: inline-block; animation: bounce 1.4s infinite ease-in-out both; }
-.loading-connecting .dot:nth-child(1) { animation-delay: -0.32s; }
-.loading-connecting .dot:nth-child(2) { animation-delay: -0.16s; }
-@keyframes bounce { 0%, 80%, 100% { transform: scale(0); } 40% { transform: scale(1.0); } }
-.loading-text { font-weight: 600; color: var(--brand); }
-.loading-subtext { color: var(--muted); font-size: 0.9rem; }
 
-/* Status Log */
-.status-log { max-height: 250px; overflow-y: auto; background: #f8f9fa; border-radius: 0.5rem; padding: 1rem; font-family: monospace; font-size: 0.875rem; }
-.status-line { margin-bottom: 0.5rem; padding-bottom: 0.5rem; border-bottom: 1px solid #e9ecef; }
-.status-success { color: #198754; }
+label {
+  font-weight: 600;
+  color: var(--text);
+  margin-bottom: 0.5rem;
+}
+
+.subject-row {
+  border: 1px dashed rgba(122, 106, 216, 0.3);
+  border-radius: 1rem;
+  padding: 1.5rem;
+  background: rgba(255, 255, 255, 0.5);
+  transition: all 0.3s ease;
+}
+
+.subject-row:hover {
+  border-color: var(--brand);
+  background: rgba(255, 255, 255, 0.8);
+}
+
+.result-display {
+  font-size: 1.75rem;
+  font-weight: 800;
+  color: var(--brand);
+  background: linear-gradient(135deg, var(--brand) 0%, var(--text) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Improved loading animations */
+.loading-container {
+  margin-top: 1.5rem;
+  text-align: center;
+  padding: 3rem 2rem;
+  border-radius: var(--radius);
+  background: linear-gradient(135deg, rgba(122, 106, 216, 0.1), rgba(122, 106, 216, 0.05));
+  display: none;
+  backdrop-filter: blur(10px);
+}
+
+.loading-stage {
+  display: none;
+}
+
+.loading-animation {
+  width: 80px;
+  height: 80px;
+  margin: 0 auto 1.5rem;
+  position: relative;
+}
+
+.loading-connecting {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.loading-connecting .dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: var(--brand);
+  margin: 0 5px;
+  animation: bounce 1.5s infinite ease-in-out;
+}
+
+.loading-connecting .dot:nth-child(2) {
+  animation-delay: 0.2s;
+}
+
+.loading-connecting .dot:nth-child(3) {
+  animation-delay: 0.4s;
+}
+
+.loading-fetching {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.loading-fetching .book {
+  width: 40px;
+  height: 30px;
+  background: var(--brand);
+  border-radius: 5px;
+  position: relative;
+  animation: bookFlip 2s infinite ease-in-out;
+  transform-style: preserve-3d;
+}
+
+.loading-fetching .book:before {
+  content: '';
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  background: var(--brand-600);
+  border-radius: 5px;
+  transform: rotateY(180deg);
+}
+
+.loading-processing {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.loading-processing .calculator {
+  width: 40px;
+  height: 50px;
+  background: var(--brand);
+  border-radius: 5px;
+  position: relative;
+}
+
+.loading-processing .calculator:before {
+  content: '';
+  position: absolute;
+  top: 10px;
+  left: 5px;
+  width: 30px;
+  height: 5px;
+  background: rgba(255, 255, 255, 0.7);
+  border-radius: 2px;
+  box-shadow: 0 10px 0 rgba(255, 255, 255, 0.7), 0 20px 0 rgba(255, 255, 255, 0.7);
+}
+
+.loading-processing .calculator:after {
+  content: '';
+  position: absolute;
+  bottom: 5px;
+  right: 5px;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  border: 2px solid rgba(255, 255, 255, 0.7);
+  border-top-color: transparent;
+  animation: spin 1s infinite linear;
+}
+
+.loading-complete .checkmark {
+  width: 80px;
+  height: 80px;
+  margin: 0 auto;
+  position: relative;
+}
+
+.loading-complete .checkmark:before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 40px;
+  height: 20px;
+  border: 6px solid var(--brand);
+  border-top: none;
+  border-right: none;
+  transform: translate(-50%, -60%) rotate(-45deg);
+  animation: checkmark 0.6s ease-in-out;
+}
+
+@keyframes bounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-15px); }
+}
+
+@keyframes bookFlip {
+  0%, 100% { transform: rotateY(0deg); }
+  50% { transform: rotateY(180deg); }
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+@keyframes checkmark {
+  0% { opacity: 0; transform: translate(-50%, -60%) rotate(-45deg) scale(0); }
+  50% { opacity: 1; transform: translate(-50%, -60%) rotate(-45deg) scale(1.2); }
+  100% { opacity: 1; transform: translate(-50%, -60%) rotate(-45deg) scale(1); }
+}
+
+.loading-text {
+  font-weight: 600;
+  color: var(--brand);
+  margin-bottom: 0.5rem;
+  font-size: 1.1rem;
+}
+
+.loading-subtext {
+  color: var(--muted);
+  font-size: 0.9rem;
+  max-width: 400px;
+  margin: 0 auto;
+}
+
+.status-log {
+  max-height: 300px;
+  overflow-y: auto;
+  background: rgba(248, 249, 250, 0.7);
+  border-radius: 0.5rem;
+  padding: 1rem;
+  font-family: monospace;
+  font-size: 0.875rem;
+  margin-bottom: 1rem;
+  backdrop-filter: blur(10px);
+}
+
+.status-line {
+  margin-bottom: 0.5rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid rgba(233, 236, 239, 0.5);
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.status-line:hover {
+  background: rgba(255, 255, 255, 0.5);
+  border-radius: 0.25rem;
+  padding-left: 0.5rem;
+}
+
+.status-line:last-child {
+  margin-bottom: 0;
+  border-bottom: none;
+}
+
+.status-success { color: #28a745; }
 .status-error { color: #dc3545; }
-.status-warning { color: #ffc107; }
+status-warning { color: #fd7e14; }
 .status-info { color: var(--brand); }
 
-/* Result Display */
-.result-container { display: none; }
-.gpa-result-card { background: rgba(255, 255, 255, 0.8); border-radius: var(--radius); padding: 2rem; box-shadow: var(--shadow); margin-bottom: 2rem; }
-.semester-card { background: rgba(255, 255, 255, 0.8); border-radius: var(--radius); padding: 1.5rem; box-shadow: var(--shadow); margin-bottom: 1.5rem; position: relative; }
-.course-table { width: 100%; }
-.course-table th, .course-table td { padding: 0.75rem; text-align: left; border-bottom: 1px solid #dee2e6; }
-.grade-badge { padding: 0.25rem 0.5rem; border-radius: 0.375rem; font-weight: 600; font-size: 0.8rem; }
-.grade-A { background-color: #d1e7dd; color: #0f5132; }
-.grade-B { background-color: #cfe2ff; color: #0a3622; }
-.grade-C { background-color: #fff3cd; color: #664d03; }
-.grade-D { background-color: #f8d7da; color: #842029; }
-.grade-F { background-color: #e9ecef; color: #495057; }
-.extra-enrolled { font-size: 0.75rem; color: #6c757d; margin-left: 0.5rem; }
+.footer {
+  color: #9ca3af;
+  background: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(10px);
+}
 
-/* Saved Results */
-.saved-results-container { display: none; margin-top: 1.5rem; }
-.saved-result-card { background: rgba(255, 255, 255, 0.9); border-radius: 1rem; padding: 1rem; box-shadow: 0 4px 15px rgba(0,0,0,0.07); margin-bottom: 1rem; }
-.saved-result-header { display: flex; justify-content: space-between; align-items: center; }
-.saved-result-info .saved-result-filename { font-weight: 600; }
-.saved-result-info .saved-result-date { font-size: 0.8rem; color: var(--muted); }
-.saved-result-actions { display: flex; gap: 0.5rem; }
-.saved-result-action-btn { background: none; border: none; cursor: pointer; color: var(--muted); font-size: 1rem; padding: 0.5rem; border-radius: 50%; width: 36px; height: 36px; line-height: 1; transition: all 0.2s ease; }
-.saved-result-action-btn.view-saved-result:hover { color: var(--brand); background-color: rgba(122, 106, 216, 0.1); }
-.saved-result-action-btn.delete-saved-result:hover { color: #dc3545; background-color: rgba(220, 53, 69, 0.1); }
+a {
+  color: var(--brand);
+  text-decoration: none;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
 
-/* Toast Notifications */
-#toast-container { position: fixed; top: 80px; right: 20px; z-index: 1056; }
-.toast { min-width: 300px; }
+a:hover {
+  color: var(--brand-600);
+}
+
+/* Loading spinner styles */
+.loading {
+  display: none;
+  text-align: center;
+  padding: 20px;
+}
+
+.loading p {
+  margin-top: 10px;
+}
+
+/* Result container styles */
+.result-container {
+  display: none;
+}
+
+/* Toast notifications */
+#toast-container {
+  position: fixed;
+  top: 65px;
+  right: 10px;
+  z-index: 9999;
+  display: flex;
+  flex-direction: column-reverse;
+  gap: 10px;
+}
+
+.toast {
+  background: white;
+  border-radius: 12px;
+  padding: 16px 20px;
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+  display: flex;
+  align-items: center;
+  min-width: 300px;
+  max-width: 400px;
+  transform: translateX(100%);
+  opacity: 0;
+  transition: transform 0.3s ease, opacity 0.3s ease;
+  position: relative;
+  overflow: hidden;
+  border-left: 4px solid var(--brand);
+  backdrop-filter: blur(10px);
+  background: rgba(255, 255, 255, 0.95);
+}
+
+.toast.show {
+  transform: translateX(0);
+  opacity: 1;
+}
+
+.toast-success {
+  border-left-color: #10ac84;
+}
+
+.toast-error {
+  border-left-color: #e74c3c;
+}
+
+.toast-warning {
+  border-left-color: #f39c12;
+}
+
+.toast-info {
+  border-left-color: #3498db;
+}
+
+.toast-content {
+  display: flex;
+  align-items: center;
+  width: 100%;
+}
+
+.toast-icon {
+  margin-right: 12px;
+  font-size: 20px;
+}
+
+.toast-success .toast-icon {
+  color: #10ac84;
+}
+
+.toast-error .toast-icon {
+  color: #e74c3c;
+}
+
+.toast-warning .toast-icon {
+  color: #f39c12;
+}
+
+.toast-info .toast-icon {
+  color: #3498db;
+}
+
+.toast-message {
+  flex: 1;
+  font-weight: 500;
+  font-size: 14px;
+  color: #2d3748;
+}
+
+.toast-progress {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  height: 3px;
+  width: 100%;
+  background: rgba(0, 0, 0, 0.1);
+  transform: scaleX(1);
+  transform-origin: left;
+  animation: toastProgress 3s linear forwards;
+}
+
+.toast-success .toast-progress {
+  background: linear-gradient(to right, #10ac84, #0d916b);
+}
+
+.toast-error .toast-progress {
+  background: linear-gradient(to right, #e74c3c, #c0392b);
+}
+
+.toast-warning .toast-progress {
+  background: linear-gradient(to right, #f39c12, #e67e22);
+}
+
+.toast-info .toast-progress {
+  background: linear-gradient(to right, #3498db, #2980b9);
+}
+
+@keyframes toastProgress {
+  from { transform: scaleX(1); }
+  to { transform: scaleX(0); }
+}
+
+/* GPA Result Display - UPDATED WIDTH */
+.gpa-result-card {
+  background: rgba(255, 255, 255, 0.8);
+  border-radius: var(--radius);
+  padding: 2rem;
+  box-shadow: var(--shadow);
+  margin-bottom: 2rem;
+  max-width: 900px;
+  margin-left: auto;
+  margin-right: auto;
+  backdrop-filter: blur(10px);
+  transition: all 0.3s ease;
+}
+
+.gpa-result-card:hover {
+  transform: translateY(-5px);
+  box-shadow: var(--shadow-hover);
+}
+
+.semester-card {
+  background: rgba(255, 255, 255, 0.8);
+  border-radius: var(--radius);
+  padding: 2rem;
+  box-shadow: var(--shadow);
+  margin-bottom: 1.5rem;
+  position: relative;
+  backdrop-filter: blur(10px);
+  transition: all 0.3s ease;
+}
+
+.semester-card:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-hover);
+}
+
+.delete-semester {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  cursor: pointer;
+  color: #dc3545;
+  font-size: 1.2rem;
+  z-index: 10;
+  transition: all 0.3s ease;
+}
+
+.delete-semester:hover {
+  transform: scale(1.2);
+}
+
+.add-course-btn {
+  position: absolute;
+  top: 1rem;
+  right: 3rem;
+  cursor: pointer;
+  color: var(--brand);
+  font-size: 1.2rem;
+  z-index: 10;
+  transition: all 0.3s ease;
+}
+
+.add-course-btn:hover {
+  transform: scale(1.2);
+}
+
+.course-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 1rem;
+}
+
+.course-table th, .course-table td {
+  padding: 0.75rem;
+  text-align: left;
+  border-bottom: 1px solid rgba(229, 231, 235, 0.5);
+}
+
+.course-table th {
+  font-weight: 600;
+  color: var(--muted);
+  background: rgba(122, 106, 216, 0.05);
+}
+
+.grade-badge {
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.375rem;
+  font-weight: 600;
+  font-size: 0.75rem;
+}
+
+.grade-A { background-color: rgba(220, 252, 231, 0.7); color: #166534; }
+.grade-B { background-color: rgba(219, 234, 254, 0.7); color: #1e40af; }
+.grade-C { background-color: rgba(254, 243, 199, 0.7); color: #92400e; }
+.grade-D { background-color: rgba(254, 226, 226, 0.7); color: #991b1b; }
+.grade-F { background-color: rgba(243, 244, 246, 0.7); color: #374151; }
+
+.extra-enrolled {
+  background-color: rgba(255, 193, 7, 0.2);
+  color: #856404;
+  padding: 0.15rem 0.35rem;
+  border-radius: 0.25rem;
+  font-size: 0.7rem;
+  margin-left: 0.5rem;
+}
+
+.course-details-modal .modal-content {
+  border-radius: var(--radius);
+  backdrop-filter: blur(10px);
+  background: rgba(255, 255, 255, 0.95);
+}
+
+.course-details-modal .modal-header {
+  background: linear-gradient(135deg, rgba(122, 106, 216, 0.2), rgba(122, 106, 216, 0.1));
+  border-top-left-radius: var(--radius);
+  border-top-right-radius: var(--radius);
+}
+
+.calculate-cgpa-btn {
+  margin-top: 1rem;
+  display: none;
+}
+
+/* Saved Results Section - UPDATED */
+.saved-results-container {
+  display: none; /* Hidden by default */
+  margin-top: 1.5rem; /* Space from the input card */
+}
+
+.saved-result-card {
+  background: rgba(255, 255, 255, 0.8);
+  border-radius: var(--radius);
+  padding: 1.25rem;
+  box-shadow: 0 5px 15px rgba(17, 24, 39, 0.08);
+  margin-bottom: 1rem;
+  transition: all 0.3s ease;
+  backdrop-filter: blur(10px);
+}
+
+.saved-result-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 25px rgba(17, 24, 39, 0.12);
+  background: rgba(255, 255, 255, 0.95);
+}
+
+.saved-result-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.saved-result-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.saved-result-filename {
+  font-weight: 600;
+  color: var(--text);
+}
+
+.saved-result-date {
+  font-size: 0.8rem;
+  color: var(--muted);
+}
+
+.saved-result-actions {
+  display: flex;
+  gap: 0.75rem;
+  align-items: center;
+}
+
+.saved-result-action-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--muted);
+  font-size: 1.1rem;
+  transition: all 0.3s ease;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.saved-result-action-btn.view-saved-result:hover {
+  color: var(--brand);
+  background-color: rgba(122, 106, 216, 0.1);
+}
+
+.saved-result-action-btn.delete-saved-result:hover {
+  color: var(--accent);
+  background-color: rgba(255, 107, 107, 0.1);
+}
+
+/* Add Course Modal UI/UX Improvements */
+#addCourseModal .modal-content {
+  border-radius: var(--radius);
+  backdrop-filter: blur(10px);
+  background: rgba(255, 255, 255, 0.95);
+}
+#addCourseModal .modal-header {
+  background: linear-gradient(135deg, rgba(122, 106, 216, 0.2), rgba(122, 106, 216, 0.1));
+  border-top-left-radius: var(--radius);
+  border-top-right-radius: var(--radius);
+}
+#addCourseModal .form-label {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+/* Save to Web Button */
+.save-to-web-btn {
+  margin-top: 1rem;
+  display: none;
+  text-align: center;
+}
+
+/* ----------- DARK MODE IMPROVED ----------- */
+[data-theme="dark"] {
+  --text: #e5e7eb;
+  --text-light: #d1d5db;
+  --muted: #9ca3af;
+}
+
+[data-theme="dark"] body {
+  background: linear-gradient(180deg, #0b0e13 0%, #0f1320 70%);
+  color: #f1f5f9;
+}
+
+[data-theme="dark"] .navbar {
+  background-color: rgba(17, 24, 39, 0.8);
+}
+
+[data-theme="dark"] .navbar .nav-link {
+  color: #d1d5db;
+}
+
+[data-theme="dark"] .navbar .nav-link:hover {
+  color: #fff;
+}
+
+[data-theme="dark"] .card-modern {
+  background: rgba(15, 20, 34, 0.8);
+  color: #e5e7eb;
+}
+
+[data-theme="dark"] .card-modern .card-header {
+  background: linear-gradient(135deg, rgba(122, 106, 216, 0.3), rgba(122, 106, 216, 0.15));
+}
+
+[data-theme="dark"] h1, [data-theme="dark"] h2, [data-theme="dark"] h3, [data-theme="dark"] h4, [data-theme="dark"] h5 {
+  color: #ffffff;
+}
+
+[data-theme="dark"] .lead {
+  color: #9ca3af;
+}
+
+[data-theme="dark"] .subject-row {
+  background: rgba(26, 31, 46, 0.8);
+  border-color: rgba(122, 106, 216, 0.3);
+}
+
+[data-theme="dark"] label {
+  color: #e5e7eb;
+}
+
+[data-theme="dark"] .form-control, [data-theme="dark"] .form-select {
+  background: rgba(11, 16, 32, 0.8);
+  color: #f1f5f9;
+  border-color: rgba(122, 106, 216, 0.3);
+}
+
+[data-theme="dark"] .form-control::placeholder {
+  color: #9ca3af;
+}
+/* Dark theme for form-text */
+[data-theme="dark"] .form-text {
+  color: var(--muted);
+}
+
+[data-theme="dark"] .input-group-text {
+  background: rgba(31, 41, 55, 0.8);
+  color: #e5e7eb;
+}
+
+[data-theme="dark"] .footer {
+  color: #9ca3af;
+  background: rgba(17, 24, 39, 0.8);
+}
+
+[data-theme="dark"] a {
+  color: rgb(158, 141, 240);
+}
+
+[data-theme="dark"] a:hover {
+  color: #9f8df0;
+}
+
+[data-theme="dark"] .status-log {
+  background: rgba(26, 32, 48, 0.8);
+}
+
+[data-theme="dark"] .status-line {
+  border-bottom-color: rgba(45, 55, 72, 0.5);
+}
+
+[data-theme="dark"] .gpa-result-card {
+  background: rgba(26, 32, 48, 0.8);
+}
+
+[data-theme="dark"] .semester-card {
+  background: rgba(26, 32, 48, 0.8);
+}
+
+[data-theme="dark"] .course-table th, 
+[data-theme="dark"] .course-table td {
+  border-bottom-color: rgba(45, 55, 72, 0.5);
+}
+
+[data-theme="dark"] .course-table th {
+  background: rgba(122, 106, 216, 0.1);
+}
+
+[data-theme="dark"] .saved-result-card {
+  background: rgba(26, 32, 48, 0.8);
+}
+
+[data-theme="dark"] .loading-container {
+  background: linear-gradient(135deg, rgba(122, 106, 216, 0.15), rgba(122, 106, 216, 0.08));
+}
+
+[data-theme="dark"] .grade-A { background-color: rgba(21, 128, 61, 0.3); color: #86efac; }
+[data-theme="dark"] .grade-B { background-color: rgba(30, 64, 175, 0.3); color: #93c5fd; }
+[data-theme="dark"] .grade-C { background-color: rgba(146, 64, 14, 0.3); color: #fed7aa; }
+[data-theme="dark"] .grade-D { background-color: rgba(153, 27, 27, 0.3); color: #fecaca; }
+[data-theme="dark"] .grade-F { background-color: rgba(55, 65, 81, 0.3); color: #d1d5db; }
+
+/* Dark mode for add course modal */
+[data-theme="dark"] #addCourseModal .modal-content {
+  background: rgba(26, 32, 48, 0.95);
+  color: #e5e7eb;
+}
+[data-theme="dark"] #addCourseModal .modal-header {
+  background: linear-gradient(135deg, rgba(122, 106, 216, 0.3), rgba(122, 106, 216, 0.15));
+  border-bottom-color: rgba(45, 55, 72, 0.5);
+}
+[data-theme="dark"] #addCourseModal .modal-header .btn-close {
+  filter: invert(1);
+}
+
+/* Dark mode for course details modal */
+[data-theme="dark"] .course-details-modal .modal-content {
+  background: rgba(26, 32, 48, 0.95);
+  color: #e5e7eb;
+}
+
+[data-theme="dark"] .course-details-modal .modal-header {
+  background: linear-gradient(135deg, rgba(122, 106, 216, 0.3), rgba(122, 106, 216, 0.15));
+  border-bottom-color: rgba(45, 55, 72, 0.5);
+}
+
+[data-theme="dark"] .course-details-modal .modal-header .btn-close {
+  filter: invert(1);
+}
+
+[data-theme="dark"] .course-details-modal .alert-info {
+  background-color: rgba(23, 162, 184, 0.2);
+  border-color: rgba(23, 162, 184, 0.3);
+  color: #71d4f0;
+}
+
+[data-theme="dark"] .course-details-modal .alert-warning {
+  background-color: rgba(255, 193, 7, 0.2);
+  border-color: rgba(255, 193, 7, 0.3);
+  color: #ffd351;
+}
+
+/* Dark mode contrast improvements */
+[data-theme="dark"] .text-body-secondary {
+  color: #d1d5db !important;
+}
+
+[data-theme="dark"] .btn-primary-action {
+  color: #ffffff !important;
+}
+
+.cursor-dot {
+  position: fixed;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--brand);
+  pointer-events: none;
+  transform: translate(-50%, -50%);
+  opacity: .7;
+  mix-blend-mode: multiply;
+  z-index: 9999;
+  transition: all 0.1s ease;
+}
+
+[data-theme="dark"] .cursor-dot {
+  mix-blend-mode: screen;
+}
+
+/* Course action buttons */
+.course-actions i {
+  cursor: pointer;
+  font-size: 14px;
+  padding: 4px;
+  border-radius: 4px;
+  transition: all 0.3s ease;
+}
+
+.delete-course {
+  color: #dc3545;
+}
+
+.delete-course:hover {
+  background-color: rgba(220, 53, 69, 0.1);
+  transform: scale(1.2);
+}
+
+.restore-course {
+  color: #10ac84;
+}
+
+.restore-course:hover {
+  background-color: rgba(16, 172, 132, 0.1);
+  transform: scale(1.2);
+}
+
+/* Clickable info icon */
+.clickable-info {
+  cursor: pointer;
+  color: var(--brand);
+  transition: all 0.3s ease;
+}
+.clickable-info.small {
+    margin-left: 0.3rem !important;
+}
+
+.clickable-info:hover {
+  opacity: 0.8;
+  transform: scale(1.1);
+}
+
+/* Mobile responsive adjustments */
+@media (max-width: 768px) {
+  .hero { padding: 2rem 0; }
+  .hero h1 { font-size: 2.5rem; }
+  .toast { min-width: 250px; max-width: 300px; padding: 12px 16px; }
+  .toast-message { font-size: 12px; }
+  .card-modern .card-header { padding: 1rem; }
+  .gpa-result-card, .semester-card { padding: 1.5rem; }
+  .course-table { font-size: 12px; }
+  .course-code-container { flex-direction: column; align-items: flex-start; }
+  .extra-enrolled { margin-left: 0; margin-top: 0.25rem; }
+  .btn { padding: 0.75rem 1rem; }
+  /* Hide info icon on mobile to save space */
+  .course-table .clickable-info.small { display: none; }
+}
 
 /* Undo Notification - Mobile Fix */
 .undo-notification {
@@ -185,124 +1153,291 @@ body {
   bottom: 20px;
   left: 50%;
   transform: translateX(-50%);
-  background-color: rgba(33, 37, 41, 0.9);
+  width: calc(100% - 40px);
+  max-width: 400px;
+  background-color: rgba(51, 51, 51, 0.9);
   color: white;
   padding: 12px 20px;
   border-radius: 8px;
   display: flex;
   align-items: center;
-  gap: 15px;
+  justify-content: space-between;
+  gap: 10px;
+  z-index: 10000; /* Ensure it's on top */
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
-  backdrop-filter: blur(5px);
-  z-index: 1056; /* Ensure it's above other elements */
-}
-.undo-btn { background: var(--brand); color: white; border: none; padding: 6px 12px; border-radius: 6px; cursor: pointer; }
-
-/* Why Choose Section */
-.why-choose-section { padding: 4rem 0; background-color: var(--light-bg); }
-.feature-card { background: #ffffff; border-radius: var(--radius); padding: 2rem; text-align: center; height: 100%; }
-.feature-icon { width: 60px; height: 60px; margin: 0 auto 1.5rem; background: var(--brand-gradient); color: white; font-size: 1.5rem; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
-
-/* Dark Mode */
-[data-theme="dark"] body { background: #0f172a; color: #e2e8f0; }
-[data-theme="dark"] .navbar, [data-theme="dark"] .card-modern, [data-theme="dark"] .gpa-result-card, [data-theme="dark"] .semester-card, [data-theme="dark"] .saved-result-card { background: rgba(30, 41, 59, 0.8); }
-[data-theme="dark"] .navbar .nav-link, [data-theme="dark"] .hero .lead, [data-theme="dark"] .form-text { color: #94a3b8; }
-[data-theme="dark"] h1, [data-theme="dark"] h2, [data-theme="dark"] h3, [data-theme="dark"] h4, [data-theme="dark"] h5 { color: #ffffff; }
-[data-theme="dark"] .form-control, [data-theme="dark"] .form-select { background: #1e293b; color: #e2e8f0; border-color: #334155; }
-[data-theme="dark"] .status-log { background: #1e293b; }
-[data-theme="dark"] .why-choose-section { background-color: #0b1120; }
-[data-theme="dark"] .feature-card { background: #1e293b; }
-[data-theme="dark"] .feature-card p { color: #94a3b8; } /* Dark theme for 'Why Choose' text */
-[data-theme="dark"] .modal-content { background-color: #1e293b; color: #e2e8f0; } /* Dark theme for modals */
-[data-theme="dark"] .modal-header { border-bottom-color: #334155; }
-[data-theme="dark"] .btn-close { filter: invert(1) grayscale(100%) brightness(200%); }
-
-/* Mobile Responsiveness */
-@media (max-width: 767.98px) {
-  .hero h1 { font-size: 2.5rem; }
-  .course-table { font-size: 0.8rem; }
-  .course-table .fa-info-circle { display: none; } /* Hide info icon on mobile */
-  .course-table td, .course-table th { padding: 0.5rem 0.4rem; }
+  backdrop-filter: blur(10px);
 }
 
-/* Other small fixes */
-.fa-info-circle { margin-left: 0.3rem !important; }
-.gradient-text { background: linear-gradient(90deg, var(--brand), var(--accent)); background-size: 200% 200%; -webkit-background-clip: text; -webkit-text-fill-color: transparent; animation: gradient-text 3s ease infinite; }
-@keyframes gradient-text { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
+.undo-btn {
+  background: var(--brand-gradient);
+  color: white;
+  border: none;
+  padding: 5px 10px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  white-space: nowrap;
+}
+.undo-btn:hover {
+  background: var(--brand-gradient-hover);
+  transform: translateY(-1px);
+}
 
+/* Updated CGPA Display Layout */
+.cgpa-display-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.5rem;
+}
+
+.cgpa-main-info {
+  text-align: center;
+  width: 100%;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid rgba(122, 106, 216, 0.3);
+}
+
+.cgpa-metrics-row {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+  gap: 1rem;
+}
+
+.cgpa-metric {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex: 1;
+}
+
+.cgpa-metric-left { align-items: flex-start; }
+.cgpa-metric-center { align-items: center; }
+.cgpa-metric-right { align-items: flex-end; }
+
+.cgpa-metric-label {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--muted);
+  margin-bottom: 0.5rem;
+}
+
+.cgpa-metric-value {
+  font-size: 1.75rem;
+  font-weight: 650;
+  color: var(--brand);
+  line-height: 1.2;
+  background: var(--brand-gradient);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.cgpa-metric-subvalue {
+  font-size: 0.9rem;
+  color: var(--muted);
+}
+
+/* Mobile responsive adjustments for CGPA display*/
+@media (max-width: 768px) {
+  .cgpa-metrics-row {
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+  .cgpa-metric {
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    padding: 0.5rem 0;
+    border-bottom: 1px solid rgba(122, 106, 216, 0.1);
+  }
+  .cgpa-metric:last-child { border-bottom: none; }
+  .cgpa-metric-left, .cgpa-metric-center, .cgpa-metric-right { align-items: center; }
+  .cgpa-metric-label { margin-bottom: 0; min-width: 100px; text-align: left; }
+  .cgpa-metric-value-container { display: flex; flex-direction: column; align-items: flex-end; }
+  .cgpa-metric-value { font-size: 1.5rem; }
+  .cgpa-main-info h2 { font-size: 1.5rem; }
+}
+
+/* Why Choose Section Dark Theme Text */
+[data-theme="dark"] .feature-card p {
+  color: var(--text-light);
+}
+
+/* Back to Top Button */
+#backToTop {
+  position: fixed;
+  bottom: 30px;
+  right: 30px;
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  background: var(--brand-gradient);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.3s ease;
+  box-shadow: 0 5px 15px rgba(122, 106, 216, 0.3);
+  z-index: 1000;
+}
+#backToTop.visible { opacity: 1; visibility: visible; }
+#backToTop:hover {
+  background: var(--brand-gradient-hover);
+  transform: translateY(-5px);
+  box-shadow: 0 8px 20px rgba(122, 106, 216, 0.4);
+}
   </style>
 </head>
-<body data-bs-theme="light">
+<body>
+  <div class="cursor-dot" id="cursorDot"></div>
 
-  <div class="modal fade" id="addCourseModal" tabindex="-1" aria-labelledby="addCourseModalLabel" aria-hidden="true">
+  <div class="back-to-top" id="backToTop">
+    <i class="fas fa-arrow-up"></i>
+  </div>
+
+  <div class="modal fade course-details-modal" id="courseDetailsModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
       <div class="modal-content">
         <div class="modal-header">
-          <h5 class="modal-title" id="addCourseModalLabel"><i class="fa-solid fa-plus-circle me-2"></i>Add Custom Course</h5>
+          <h5 class="modal-title" id="courseDetailsModalTitle">Course Details</h5>
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
-        <div class="modal-body">
-          <form id="addCourseForm">
-            <input type="hidden" id="addCourseSemester">
-            <div class="mb-3">
-              <label for="courseCode" class="form-label">Course Code</label>
-              <input type="text" class="form-control" id="courseCode" placeholder="e.g., CHEM-101" required>
-            </div>
-            <div class="mb-3">
-              <label for="courseTitle" class="form-label">Course Title</label>
-              <input type="text" class="form-control" id="courseTitle" placeholder="e.g., Introduction to Chemistry" required>
-            </div>
-            <div class="row">
-              <div class="col-md-6 mb-3">
-                <label for="creditHours" class="form-label">Credit Hours</label>
-                <select class="form-select" id="creditHours" required>
-                  <option value="1">1</option>
-                  <option value="2">2</option>
-                  <option value="3" selected>3</option>
-                  <option value="4">4</option>
-                  <option value="5">5</option>
-                </select>
-              </div>
-              <div class="col-md-6 mb-3">
-                <label for="courseMarks" class="form-label">Marks Obtained</label>
-                <input type="number" class="form-control" id="courseMarks" min="0" max="100" placeholder="e.g., 85" required>
-              </div>
-            </div>
-          </form>
-        </div>
+        <div class="modal-body" id="courseDetailsModalBody"></div>
         <div class="modal-footer">
-          <button type="button" class="btn btn-secondary rounded-pill" data-bs-dismiss="modal">Cancel</button>
-          <button type="button" class="btn btn-primary-action rounded-pill" id="saveCourseBtn">Add Course</button>
+          <button type="button" class="btn btn-secondary-action rounded-pill" data-bs-dismiss="modal">Close</button>
         </div>
       </div>
     </div>
   </div>
 
-  <div class="modal fade" id="courseDetailsModal" tabindex="-1" aria-hidden="true">
-      <div class="modal-dialog modal-dialog-centered">
-          <div class="modal-content">
-              <div class="modal-header"><h5 class="modal-title" id="courseDetailsModalTitle"></h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
-              <div class="modal-body" id="courseDetailsModalBody"></div>
-          </div>
+  <div class="modal fade" id="addCourseModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title"><i class="fa-solid fa-plus-circle me-2"></i>Add Custom Course</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <form id="addCourseForm">
+            <input type="hidden" id="addCourseSemester" value="">
+            <div class="mb-3">
+              <label for="courseCode" class="form-label"><i class="fa-solid fa-hashtag fa-fw"></i> Course Code</label>
+              <input type="text" class="form-control" id="courseCode" placeholder="e.g., CHEM-101" required>
+            </div>
+            <div class="mb-3">
+              <label for="courseTitle" class="form-label"><i class="fa-solid fa-book fa-fw"></i> Course Title</label>
+              <input type="text" class="form-control" id="courseTitle" placeholder="e.g., Introduction to Chemistry" required>
+            </div>
+            <div class="row">
+                <div class="col-6">
+                    <div class="mb-3">
+                        <label for="creditHours" class="form-label"><i class="fa-solid fa-star fa-fw"></i> Credit Hours</label>
+                        <select class="form-select" id="creditHours" required>
+                            <option value="1">1</option>
+                            <option value="2">2</option>
+                            <option value="3" selected>3</option>
+                            <option value="4">4</option>
+                            <option value="5">5</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="col-6">
+                    <div class="mb-3">
+                        <label for="courseMarks" class="form-label"><i class="fa-solid fa-check-double fa-fw"></i> Marks</label>
+                        <input type="number" class="form-control" id="courseMarks" placeholder="e.g., 85" min="0" max="100" required>
+                    </div>
+                </div>
+            </div>
+          </form>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary-action rounded-pill" data-bs-dismiss="modal">Cancel</button>
+          <button type="button" class="btn btn-primary-action rounded-pill" id="saveCourseBtn">
+            <i class="fa-solid fa-plus me-2"></i>Add Course
+          </button>
+        </div>
       </div>
+    </div>
   </div>
 
   <nav class="navbar navbar-expand-lg sticky-top border-bottom">
     <div class="container">
       <a class="navbar-brand d-flex align-items-center gap-2" href="/">
-        <span class="badge rounded-pill" style="background: var(--brand-gradient);">UAF</span>
+        <span class="badge rounded-pill badge-brand">UAF</span>
         <span class="gradient-text">CGPA Calculator</span>
       </a>
-      <div class="d-flex align-items-center gap-2">
-        <button id="themeToggle" class="btn btn-sm btn-outline-secondary rounded-pill border-0" type="button" aria-label="Toggle theme"><i class="fa-solid fa-moon"></i></button>
+      <div class="d-flex align-items-center gap-2 order-lg-2">
+        <button id="themeToggle" class="btn btn-sm btn-soft rounded-pill" type="button" aria-label="Toggle dark mode">
+          <i class="fa-solid fa-moon"></i>
+        </button>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNav">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+      </div>
+      <div class="collapse navbar-collapse" id="mainNav">
+        <ul class="navbar-nav ms-auto align-items-lg-center">
+          <li class="nav-item"><a class="nav-link" href="index.html#Home">Home</a></li>
+          <li class="nav-item"><a class="nav-link" href="index.html#CGPA-Calculator">Manual Calculator</a></li>
+          <li class="nav-item"><a class="nav-link" href="uaf-results.html">UAF Results</a></li>
+          <li class="nav-item"><a class="nav-link" href="#contact-us">Contact</a></li>
+        </ul>
       </div>
     </div>
   </nav>
 
-  <section class="hero">
-    <div class="container text-center">
-      <h1 class="display-4">Calculate Your <span class="gradient-text">CGPA Automatically</span></h1>
-      <p class="lead col-md-8 mx-auto">Enter your registration number to fetch results directly from the UAF LMS. Or, use our advanced tools to edit results, add custom courses, and save your progress online.</p>
+  <section class="hero" id="Home">
+    <div class="container">
+      <div class="row align-items-center g-4">
+        <div class="col-lg-7">
+          <span class="badge rounded-pill badge-brand mb-3">University of Agriculture Faisalabad</span>
+          <h1 class="display-5 mb-3">Calculate Your <span class="hero-text-gradient">CGPA Automatically</span><br/>from <span class="hero-text-gradient">UAF LMS</span></h1>
+          <p class="lead mb-4">Enter your <strong>registration number</strong> to fetch your results directly from UAF LMS. The calculator will automatically compute your CGPA and Percentage based on UAF grading system.</p>
+          <div class="d-flex gap-2">
+            <a href="#Auto-Calculator" class="btn btn-primary-action btn-lg rounded-pill" style="font-size: 1.05rem; padding: 0.9rem;"><i class="fa-solid fa-bolt me-2"></i>Try It Now</a>
+            <a href="index.html#CGPA-Calculator" class="btn btn-secondary-action rounded-pill" style="display:block; padding:14px;"><i class="fa-solid fa-calculator me-2"></i>Manual Calculator</a>
+          </div>
+        </div>
+        <div class="col-lg-5">
+          <div class="card card-modern">
+            <div class="card-body p-4">
+              <div class="d-flex align-items-center gap-3">
+                <div class="display-6 robot-icon-gradient"><i class="fa-solid fa-robot"></i></div>
+                <div>
+                  <h5 class="mb-1 fw-bold">Automatic CGPA Calculation</h5>
+                  <p class="mb-0 text-body-secondary">No manual inputs needed. Just enter your registration number.</p>
+                </div>
+              </div>
+              <hr class="my-4" />
+              <ul class="list-unstyled m-0">
+                <li class="d-flex align-items-center gap-2 mb-2"><i class="fa-solid fa-check text-success"></i> Fetches results directly from UAF LMS</li>
+                <li class="d-flex align-items-center gap-2 mb-2"><i class="fa-solid fa-check text-success"></i> Automatic CGPA calculation</li>
+                <li class="d-flex align-items-center gap-2"><i class="fa-solid fa-check text-success"></i> Same accurate UAF grading system</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="why-choose-section">
+    <div class="container">
+      <div class="text-center mb-5">
+        <h2 class="fw-bold">Why Choose Our <span class="gradient-text">CGPA Calculator</span></h2>
+        <p class="lead text-muted">The most advanced tool for UAF students</p>
+      </div>
+      <div class="row g-4">
+        <div class="col-md-6 col-lg-3"><div class="feature-card"><div class="feature-icon"><i class="fas fa-bolt"></i></div><h5>Lightning Fast</h5><p class="text-muted">Get your results in seconds with our optimized algorithm</p></div></div>
+        <div class="col-md-6 col-lg-3"><div class="feature-card"><div class="feature-icon"><i class="fas fa-lock"></i></div><h5>Secure</h5><p class="text-muted">Your data is safe with us. We don't store personal information</p></div></div>
+        <div class="col-md-6 col-lg-3"><div class="feature-card"><div class="feature-icon"><i class="fas fa-chart-line"></i></div><h5>Accurate</h5><p class="text-muted">Precise calculations based on UAF's official grading system</p></div></div>
+        <div class="col-md-6 col-lg-3"><div class="feature-card"><div class="feature-icon"><i class="fas fa-mobile-alt"></i></div><h5>Responsive</h5><p class="text-muted">Works perfectly on all devices - desktop, tablet, and mobile</p></div></div>
+      </div>
     </div>
   </section>
 
@@ -312,52 +1447,57 @@ body {
         <div class="col-md-10">
           
           <div class="card card-modern mb-4">
-            <div class="card-header"><h4 class="mb-0"><i class="fa-solid fa-bolt me-2"></i>UAF Result Automator</h4></div>
-            <div class="card-body p-4">
+            <div class="card-header p-4"><h4 class="mb-0"><i class="fa-solid fa-bolt me-2"></i>UAF CGPA Calculator</h4></div>
+            <div class="card-body p-4 scraping-section">
               <form id="resultForm">
                 <div class="mb-3">
                   <label for="registrationNumber" class="form-label">Registration Number</label>
                   <input type="text" class="form-control" id="registrationNumber" placeholder="e.g., 2020-ag-1234" required>
-                  <div class="form-text">Enter your UAF registration number.</div>
+                  <div class="form-text">Enter your UAF registration number</div>
                 </div>
-                <div class="d-flex justify-content-center gap-2">
+                <div class="center-buttons">
                   <button type="submit" class="btn btn-primary-action rounded-pill"><i class="fa-solid fa-cloud-arrow-down me-2"></i>Fetch Result</button>
-                  <button id="testConnectionBtn" type="button" class="btn btn-outline-secondary rounded-pill"><i class="fa-solid fa-vial me-2"></i>Test Connection</button>
+                  <button id="testConnectionBtn" type="button" class="btn test-connection-btn rounded-pill"><i class="fa-solid fa-vial me-2"></i>Test Connection</button>
                 </div>
               </form>
               <div class="loading-container" id="loadingContainer">
-                <div class="loading-stage" id="connectingStage"><div class="loading-animation loading-connecting"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div><p class="loading-text">Connecting to UAF LMS...</p></div>
-                <div class="loading-stage" id="fetchingStage"><div class="loading-animation"></div><p class="loading-text">Fetching Results...</p></div>
-                <div class="loading-stage" id="processingStage"><div class="loading-animation"></div><p class="loading-text">Calculating CGPA...</p></div>
+                <div class="loading-stage" id="connectingStage"><div class="loading-animation loading-connecting"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div><p class="loading-text">Connecting to UAF LMS</p><p class="loading-subtext">Establishing secure connection to university servers</p></div>
+                <div class="loading-stage" id="fetchingStage"><div class="loading-animation loading-fetching"><div class="book"></div></div><p class="loading-text">Fetching Your Results</p><p class="loading-subtext">Retrieving your academic records from the database</p></div>
+                <div class="loading-stage" id="processingStage"><div class="loading-animation loading-processing"><div class="calculator"></div></div><p class="loading-text">Processing Data</p><p class="loading-subtext">Analyzing your grades and calculating CGPA</p></div>
+                <div class="loading-stage" id="completeStage"><div class="loading-animation loading-complete"><div class="checkmark"></div></div><p class="loading-text">Results Ready!</p><p class="loading-subtext">Your CGPA has been calculated successfully</p></div>
               </div>
             </div>
           </div>
 
           <div id="savedResultsContainer" class="saved-results-container"></div>
           
-          <div id="resultContainer" class="result-container mt-4">
+          <div id="resultContainer" class="result-container">
             <div class="gpa-result-card">
-              <div id="studentName" class="h4"></div>
-              <div id="studentReg" class="text-muted mb-3"></div>
-              <div class="row text-center">
-                <div class="col-4"><h5>CGPA</h5><p id="totalCgpa" class="h3 gradient-text">0.00</p></div>
-                <div class="col-4"><h5>Percentage</h5><p id="totalPercentage" class="h3">0.00%</p></div>
-                <div class="col-4"><h5>Marks</h5><p class="h3"><span id="totalMarksObtained">0</span><span id="totalMaxMarks"> / 0</span></p></div>
-              </div>
-              <div class="d-flex justify-content-center gap-2 mt-4">
-                  <button id="saveToWebBtn" class="btn btn-primary-action rounded-pill"><i class="fa-solid fa-cloud-arrow-up me-2"></i>Save to Web</button>
-                  <button id="downloadPdfBtn" class="btn btn-outline-danger rounded-pill"><i class="fa-solid fa-file-pdf me-2"></i>Download PDF</button>
+              <div class="card-body p-md-4">
+                <div class="cgpa-display-container">
+                  <div class="cgpa-main-info"><h2 class="mb-1 fw-bold" id="studentName"><i class="fa-solid fa-user-graduate me-2"></i>Student Name</h2><p class="mb-0 text-body-secondary" id="studentReg">Registration Number</p></div>
+                  <div class="cgpa-metrics-row">
+                    <div class="cgpa-metric cgpa-metric-left"><p class="mb-0 cgpa-metric-label">CGPA</p><p class="mb-0 cgpa-metric-value" id="totalCgpa">0.0000</p></div>
+                    <div class="cgpa-metric cgpa-metric-center"><p class="mb-0 cgpa-metric-label">Percentage</p><p class="mb-0 cgpa-metric-value" id="totalPercentage">0.00%</p></div>
+                    <div class="cgpa-metric cgpa-metric-right"><p class="mb-0 cgpa-metric-label">Marks</p><div class="cgpa-metric-value-container"><p class="mb-0 cgpa-metric-value" id="totalMarksObtained">0</p><p class="mb-0 cgpa-metric-subvalue" id="totalMaxMarks">/ 0</p></div></div>
+                  </div>
+                </div>
+                <div class="action-buttons">
+                  <button id="saveToWebBtn" class="btn btn-primary-action rounded-pill save-to-web-btn"><i class="fa-solid fa-cloud-arrow-up me-2"></i>Save to Web</button>
+                  <button id="downloadPdfBtn" class="btn btn-pdf-download rounded-pill"><i class="fa-solid fa-file-pdf me-2"></i>Download PDF</button>
+                </div>
               </div>
             </div>
-            <div id="semesterResults" class="row"></div>
+            <div class="semester-results-container"><div id="semesterResults" class="semester-grid"></div></div>
           </div>
           
-          <div class="card card-modern mt-4">
-            <div class="card-header"><h4 class="mb-0"><i class="fa-solid fa-terminal me-2"></i>Status Log</h4></div>
-            <div class="card-body">
-              <div class="status-log" id="statusLog"><div class="status-line status-info">Ready to fetch results.</div></div>
-              <div class="d-flex justify-content-end gap-2 mt-3">
-                  <button id="clearLogBtn" class="btn btn-sm btn-outline-secondary rounded-pill">Clear Log</button>
+          <div class="card card-modern">
+            <div class="card-header p-4"><h4 class="mb-0"><i class="fa-solid fa-terminal me-2"></i>Status Log</h4></div>
+            <div class="card-body p-4">
+              <div class="status-log" id="statusLog"><div class="status-line status-info">Ready to fetch your results. Enter your registration number and click "Fetch Result".</div></div>
+              <div class="log-section center-buttons mt-3">
+                <button id="downloadLogBtn" class="btn btn-secondary-action rounded-pill"><i class="fa-solid fa-file-lines me-2"></i>Download Log</button>
+                <button id="clearLogBtn" class="btn btn-danger-action rounded-pill"><i class="fa-solid fa-trash me-2"></i>Clear Log</button>
               </div>
             </div>
           </div>
@@ -366,23 +1506,10 @@ body {
     </div>
   </section>
 
-  <section class="why-choose-section">
-      <div class="container">
-          <div class="text-center mb-5"><h2 class="fw-bold">Why Choose Our <span class="gradient-text">CGPA Calculator</span></h2></div>
-          <div class="row g-4">
-              <div class="col-md-3"><div class="feature-card"><div class="feature-icon"><i class="fas fa-bolt"></i></div><h5>Lightning Fast</h5><p class="text-muted">Get your results in seconds with our optimized algorithm.</p></div></div>
-              <div class="col-md-3"><div class="feature-card"><div class="feature-icon"><i class="fas fa-lock"></i></div><h5>Secure</h5><p class="text-muted">Your data is safe. We don't store personal information without your consent.</p></div></div>
-              <div class="col-md-3"><div class="feature-card"><div class="feature-icon"><i class="fas fa-edit"></i></div><h5>Editable</h5><p class="text-muted">Edit results, add custom courses, and see how it affects your CGPA in real-time.</p></div></div>
-              <div class="col-md-3"><div class="feature-card"><div class="feature-icon"><i class="fas fa-cloud"></i></div><h5>Save Online</h5><p class="text-muted">Save your edited or raw results online and access them anytime.</p></div></div>
-          </div>
-      </div>
+  <section class="py-5" id="contact-us">
+    <div class="container"><div class="row g-4"><div class="col-lg-6"><h3 class="fw-bold mb-2">Contact</h3><p class="text-body-secondary">Questions or suggestions? Send a message.</p><form id="contact-form" action="https://formspree.io/f/xblrolwp" method="post" class="needs-validation" novalidate><div class="row g-3"><div class="col-md-6"><label class="form-label" for="name">Your Name</label><input class="form-control" id="name" name="name" placeholder="e.g., Ali Raza" required /><div class="invalid-feedback">Please enter your name.</div></div><div class="col-md-6"><label class="form-label" for="email">Email</label><input type="email" class="form-control" id="email" name="email" placeholder="you@example.com" required /><div class="invalid-feedback">Enter a valid email.</div></div><div class="col-12"><label class="form-label" for="message">Message</label><textarea class="form-control" id="message" name="message" rows="4" placeholder="Write your message..." required></textarea><div class="invalid-feedback">Please write a message.</div></div><div class="col-12"><button class="btn btn-primary-action rounded-pill" type="submit"><i class="fa-solid fa-paper-plane me-2"></i>Send</button></div><div id="contact-form-status" class="mt-2 small"></div></div></form></div><div class="col-lg-6"><div class="h-100 p-4 p-lg-5 rounded-4" style="background:linear-gradient(180deg, rgba(122,106,216,.15), rgba(122,106,216,.05));"><h5 class="fw-bold">Developer</h5><div class="d-flex align-items-center gap-3 mt-2"><img src="assets/images/member-01.png" alt="Muhammad Saqlain" class="rounded-circle" width="56" height="56" /><div><div class="fw-semibold">Muhammad Saqlain</div><div class="text-body-secondary small">BS Chemistry (2020–2024)</div><div class="d-flex gap-3 mt-2"><a class="text-decoration-none" href="https://www.facebook.com/UAFChemist.Rustam" target="_blank"><i class="fa-brands fa-facebook"></i></a><a class="text-decoration-none" href="https://x.com/M_Saqlain_Akbar" target="_blank"><i class="fa-brands fa-x-twitter"></i></a><a class="text-decoration-none" href="https://www.linkedin.com/in/muhammad-saqlain-akbar/" target="_blank"><i class="fa-brands fa-linkedin"></i></a></div></div></div><hr class="my-4" /><p class="mb-0 small text-body-secondary">Share this tool with your friends to support the project. ♥</p></div></div></div></div>
   </section>
-
-  <footer class="border-top py-4 mt-5">
-    <div class="container text-center text-muted">© 2025 Muhammad Saqlain. All rights reserved.</div>
-  </footer>
-  
-  <div id="toast-container"></div>
+  <footer class="border-top py-4"><div class="container text-center footer"><div>© 2025 Saqlain. All rights reserved.</div></div></footer>
   
   <script>
     document.addEventListener('DOMContentLoaded', function() {
@@ -393,6 +1520,9 @@ body {
       const testConnectionBtn = document.getElementById('testConnectionBtn');
       const statusLog = document.getElementById('statusLog');
       const themeToggle = document.getElementById('themeToggle');
+      const downloadLogBtn = document.getElementById('downloadLogBtn');
+      const clearLogBtn = document.getElementById('clearLogBtn');
+      const semesterResults = document.getElementById('semesterResults');
       const studentName = document.getElementById('studentName');
       const studentReg = document.getElementById('studentReg');
       const totalCgpa = document.getElementById('totalCgpa');
@@ -402,15 +1532,16 @@ body {
       const saveToWebBtn = document.getElementById('saveToWebBtn');
       const downloadPdfBtn = document.getElementById('downloadPdfBtn');
       const savedResultsContainer = document.getElementById('savedResultsContainer');
-      const semesterResults = document.getElementById('semesterResults');
       const courseDetailsModal = new bootstrap.Modal(document.getElementById('courseDetailsModal'));
       const addCourseModal = new bootstrap.Modal(document.getElementById('addCourseModal'));
       const saveCourseBtn = document.getElementById('saveCourseBtn');
       const addCourseForm = document.getElementById('addCourseForm');
       const loadingContainer = document.getElementById('loadingContainer');
-      const clearLogBtn = document.getElementById('clearLogBtn');
+      const backToTopButton = document.getElementById('backToTop');
       
       // State variables
+      let allLogs = [];
+      let testInProgress = false;
       let processedData = null;
       let deletedSemesters = {};
       
@@ -423,28 +1554,81 @@ body {
       
       // --- Initialization ---
       function init() {
+        createToastContainer();
         initTheme();
+        initEventListeners();
+      }
+      
+      function initEventListeners() {
         resultForm.addEventListener('submit', e => { e.preventDefault(); fetchResult(); });
         testConnectionBtn.addEventListener('click', testConnection);
+        downloadLogBtn.addEventListener('click', downloadLog);
+        clearLogBtn.addEventListener('click', clearLog);
         saveToWebBtn.addEventListener('click', saveToWeb);
         downloadPdfBtn.addEventListener('click', generatePDF);
         saveCourseBtn.addEventListener('click', addCustomCourse);
-        clearLogBtn.addEventListener('click', clearLog);
         registrationNumber.addEventListener('input', () => checkSavedResults());
+        themeToggle.addEventListener('click', () => {
+          const currentTheme = document.documentElement.getAttribute('data-theme') || 'light';
+          const nextTheme = currentTheme === 'light' ? 'dark' : 'light';
+          applyTheme(nextTheme);
+        });
+        window.addEventListener('scroll', () => {
+          backToTopButton.classList.toggle('visible', window.pageYOffset > 300);
+        });
+        backToTopButton.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
       }
       
       function initTheme() {
-        const applyTheme = (theme) => {
-          document.body.setAttribute('data-theme', theme);
-          themeToggle.innerHTML = theme === 'dark' ? '<i class="fa-solid fa-sun"></i>' : '<i class="fa-solid fa-moon"></i>';
-          localStorage.setItem('theme', theme);
-        };
-        const savedTheme = localStorage.getItem('theme') || 'light';
+        const savedTheme = localStorage.getItem('uaf-theme') || 'light';
         applyTheme(savedTheme);
-        themeToggle.addEventListener('click', () => {
-          const currentTheme = document.body.getAttribute('data-theme');
-          applyTheme(currentTheme === 'light' ? 'dark' : 'light');
-        });
+      }
+      
+      function applyTheme(theme) {
+          document.documentElement.setAttribute('data-theme', theme);
+          localStorage.setItem('uaf-theme', theme);
+          themeToggle.innerHTML = theme === 'dark' ? '<i class="fa-solid fa-sun"></i>' : '<i class="fa-solid fa-moon"></i>';
+      }
+
+      // --- UI & Notifications ---
+      function createToastContainer() {
+        const toastContainer = document.createElement('div');
+        toastContainer.id = 'toast-container';
+        document.body.appendChild(toastContainer);
+      }
+      
+      function showToast(message, type = 'success') {
+        const toastContainer = document.getElementById('toast-container');
+        const toast = document.createElement('div');
+        const icons = { success: 'fa-circle-check', error: 'fa-circle-exclamation', warning: 'fa-triangle-exclamation', info: 'fa-circle-info' };
+        toast.className = `toast toast-${type}`;
+        toast.innerHTML = `<div class="toast-content"><i class="toast-icon fa-solid ${icons[type]}"></i><span class="toast-message">${message}</span></div><div class="toast-progress"></div>`;
+        toastContainer.appendChild(toast);
+        setTimeout(() => toast.classList.add('show'), 10);
+        setTimeout(() => {
+          toast.classList.remove('show');
+          setTimeout(() => toast.remove(), 300);
+        }, 3000);
+      }
+      
+      function addStatusMessage(message, type = 'info') {
+        const timestamp = new Date().toLocaleTimeString();
+        const fullMessage = `[${timestamp}] ${message}`;
+        allLogs.push({timestamp, message, type});
+        const messageEl = document.createElement('div');
+        messageEl.className = `status-line status-${type}`;
+        messageEl.textContent = fullMessage;
+        statusLog.prepend(messageEl);
+      }
+
+      function showLoadingStage(stage) {
+        document.querySelectorAll('.loading-stage').forEach(s => s.style.display = 'none');
+        if (stage) {
+            document.getElementById(`${stage}Stage`).style.display = 'block';
+            loadingContainer.style.display = 'block';
+        } else {
+            loadingContainer.style.display = 'none';
+        }
       }
 
       // --- Core Logic: Fetching and Processing ---
@@ -452,7 +1636,7 @@ body {
         const regNum = registrationNumber.value.trim();
         if (!regNum) { showToast('Please enter a registration number', 'error'); return; }
         
-        hideAllContainers();
+        resultContainer.style.display = 'none';
         showLoadingStage('connecting');
         addStatusMessage(`Fetching result for: ${regNum}`, 'info');
 
@@ -466,8 +1650,7 @@ body {
           if (data.success && data.resultData) {
             addStatusMessage('Result fetched successfully from UAF LMS', 'success');
             const processed = processScrapedData(data);
-            const cgpaData = calculateCGPA(processed);
-            displayCGPAResults(processed, cgpaData);
+            recalculateAndDisplay(processed);
             checkSavedResults();
             showToast('Result fetched successfully!', 'success');
           } else {
@@ -475,52 +1658,69 @@ body {
           }
         } catch (error) {
           addStatusMessage(`LMS Fetch Failed: ${error.message}`, 'error');
-          showToast('UAF LMS seems to be offline.', 'warning');
-          addStatusMessage('Checking for saved results...', 'info');
+          showToast('UAF LMS seems to be unavailable.', 'warning');
+          addStatusMessage('Checking for previously saved results...', 'info');
           const savedResults = await checkSavedResults();
           if (savedResults) {
-            showToast('Showing saved results instead.', 'info');
+              showToast('Showing saved results instead.', 'info');
           } else {
-            showToast('No saved results found.', 'error');
+              showToast('No saved results found.', 'error');
           }
         } finally {
-            hideLoading();
+            showLoadingStage(null);
         }
       }
-
+      
       function processScrapedData(data) {
-        const { resultData } = data;
-        const studentInfo = { name: resultData[0]?.StudentName || '', registration: resultData[0]?.RegistrationNo || '' };
+        const studentInfo = {
+          name: data.resultData[0]?.StudentName || '',
+          registration: data.resultData[0]?.RegistrationNo || ''
+        };
         const semesters = {};
         const courseHistory = {};
         
-        resultData.forEach(course => {
-          const semesterName = processSemesterName(course.Semester);
-          const courseCode = course.CourseCode || 'N/A';
+        data.resultData.forEach(course => {
+          const semesterName = course.Semester || 'Unknown Semester';
+          const courseCode = course.CourseCode || '';
           if (!semesters[semesterName]) {
-            semesters[semesterName] = { courses: [], sortKey: getSemesterOrderKey(course.Semester) };
+            semesters[semesterName] = { courses: [], sortKey: getSemesterOrderKey(semesterName) };
           }
-          const creditHours = parseInt((course.CreditHours || '0').match(/\d+/)?.[0] || '0');
+          const creditHoursStr = course.CreditHours || '0';
+          const creditHours = parseInt(creditHoursStr.match(/\d+/)?.[0] || '0');
           const marks = parseFloat(course.Total || '0');
-          const courseObj = { ...course, semesterName, creditHours, marks, qualityPoints: calculateQualityPoints(marks, creditHours), isDeleted: false, isCustom: false, isRepeated: false, isExtraEnrolled: false };
-          semesters[semesterName].courses.push(courseObj);
+          
+          const courseData = { ...course, creditHours, marks, semesterName, isExtraEnrolled: false, isRepeated: false, isDeleted: false, isCustom: false };
           if (!courseHistory[courseCode]) courseHistory[courseCode] = [];
-          courseHistory[courseCode].push(courseObj);
+          courseHistory[courseCode].push({ semester: semesterName, marks, data: courseData });
+          semesters[semesterName].courses.push(courseData);
         });
-
-        Object.values(courseHistory).filter(history => history.length > 1).forEach(history => {
-            history.sort((a,b) => a.sortKey.localeCompare(b.sortKey));
-            const bestAttempt = history.reduce((best, current) => current.marks > best.marks ? current : best);
-            history.forEach(course => {
-                course.isRepeated = true;
-                if (course !== bestAttempt) course.isExtraEnrolled = true;
+        
+        Object.values(courseHistory).forEach(history => {
+          if (history.length > 1) {
+            let highest = history.reduce((prev, curr) => (prev.marks > curr.marks) ? prev : curr);
+            history.forEach(item => {
+              item.data.isRepeated = true;
+              if (item !== highest) item.data.isExtraEnrolled = true;
             });
+          }
         });
-
         return { studentInfo, semesters };
       }
+      
+      function getSemesterOrderKey(semesterName) {
+        if (!semesterName) return '9999-9';
+        const yearMatch = semesterName.match(/\b(20\d{2})\b/);
+        const year = yearMatch ? yearMatch[1] : '9999';
+        let seasonOrder = 9;
+        const lowerName = semesterName.toLowerCase();
+        if (lowerName.includes('winter')) seasonOrder = 1;
+        else if (lowerName.includes('spring')) seasonOrder = 2;
+        else if (lowerName.includes('summer')) seasonOrder = 3;
+        else if (lowerName.includes('fall')) seasonOrder = 4;
+        return `${year}-${seasonOrder}`;
+      }
 
-      // --- CGPA Calculation (FIXED) ---
+      // --- CGPA Calculation (RESTORED TO ORIGINAL) ---
       function calculateQualityPoints(marks, creditHours) {
         marks = parseFloat(marks);
         creditHours = parseInt(creditHours);
@@ -551,288 +1751,343 @@ body {
           else if (marks < 10) qualityPoints = 2 - ((10 - marks) * 0.5);
           if (marks < 8) qualityPoints = 0;
         }
-        return parseFloat(qualityPoints.toFixed(2));
+        return parseFloat(Math.max(0, qualityPoints).toFixed(4));
       }
 
       function calculateCGPA(data) {
         let totalQP = 0, totalCH = 0, totalMarks = 0, totalMaxMarks = 0;
         Object.values(data.semesters).forEach(semester => {
-            let semesterQP = 0, semesterCH = 0;
+            let semQP = 0, semCH = 0, semMarks = 0, semMaxMarks = 0;
             semester.courses.forEach(course => {
+                course.qualityPoints = calculateQualityPoints(course.marks, course.creditHours); // Recalculate QP
                 if (!course.isExtraEnrolled && !course.isDeleted) {
-                    semesterQP += course.qualityPoints;
-                    semesterCH += course.creditHours;
-                    totalMarks += course.marks;
-                    totalMaxMarks += course.creditHours * 20;
+                    const maxMarks = course.creditHours * 20;
+                    semQP += course.qualityPoints;
+                    semCH += course.creditHours;
+                    semMarks += course.marks;
+                    semMaxMarks += maxMarks;
                 }
             });
-            semester.gpa = semesterCH > 0 ? (semesterQP / semesterCH) : 0;
-            totalQP += semesterQP;
-            totalCH += semesterCH;
+            semester.gpa = semCH > 0 ? (semQP / semCH) : 0;
+            semester.percentage = semMaxMarks > 0 ? (semMarks / semMaxMarks * 100) : 0;
+            totalQP += semQP; totalCH += semCH; totalMarks += semMarks; totalMaxMarks += semMaxMarks;
         });
         const cgpa = totalCH > 0 ? (totalQP / totalCH) : 0;
         const percentage = totalMaxMarks > 0 ? (totalMarks / totalMaxMarks * 100) : 0;
-        return { cgpa, percentage, totalMarks, totalMaxMarks };
+        return { cgpa, percentage, totalMarksObtained: totalMarks, totalMaxMarks };
+      }
+      
+      function recalculateAndDisplay(data = processedData) {
+        const cgpaData = calculateCGPA(data);
+        displayCGPAResults(data, cgpaData);
       }
 
-      // --- Display and UI Interaction ---
+      // --- Display and Interaction ---
       function displayCGPAResults(data, cgpaData) {
         processedData = data;
-        studentName.textContent = data.studentInfo.name;
+        studentName.innerHTML = `<i class="fa-solid fa-user-graduate me-2"></i>${data.studentInfo.name}`;
         studentReg.textContent = data.studentInfo.registration;
         totalCgpa.textContent = cgpaData.cgpa.toFixed(4);
         totalPercentage.textContent = `${cgpaData.percentage.toFixed(2)}%`;
-        totalMarksObtained.textContent = cgpaData.totalMarks.toFixed(0);
-        totalMaxMarks.textContent = ` / ${cgpaData.totalMaxMarks}`;
+        totalMarksObtained.textContent = cgpaData.totalMarksObtained.toFixed(0);
+        totalMaxMarks.textContent = `/ ${cgpaData.totalMaxMarks.toFixed(0)}`;
         
         semesterResults.innerHTML = '';
-        Object.keys(data.semesters).sort((a,b) => data.semesters[a].sortKey.localeCompare(data.semesters[b].sortKey)).forEach(semesterName => {
-            const semester = data.semesters[semesterName];
-            const semesterCol = document.createElement('div');
-            semesterCol.className = 'col-lg-6 mb-4';
-            semesterCol.innerHTML = `
-              <div class="semester-card h-100">
-                <h5>${semesterName} <span class="float-end fs-6 text-muted">GPA: ${semester.gpa.toFixed(4)}</span></h5>
-                <table class="course-table">
-                  <tbody>
-                    ${semester.courses.map(course => `
-                      <tr class="${course.isDeleted ? 'opacity-50' : ''}">
-                        <td>
-                          ${course.CourseCode} ${course.isExtraEnrolled ? `<span class="extra-enrolled">(Rep)</span>` : ''}
-                          <i class="fa-solid fa-info-circle text-muted clickable-info" data-course='${JSON.stringify(course)}'></i>
-                        </td>
-                        <td><span class="grade-badge grade-${course.Grade}">${course.Grade}</span></td>
-                        <td>
-                          <button class="btn btn-sm border-0 p-1" onclick="window.modifyCourseState('${semesterName}', '${course.CourseCode}', ${!course.isDeleted})">
-                            <i class="fa-solid ${course.isDeleted ? 'fa-undo' : 'fa-trash'}" style="color: ${course.isDeleted ? '#198754' : '#dc3545'};"></i>
-                          </button>
-                        </td>
-                      </tr>
-                    `).join('')}
-                  </tbody>
-                </table>
-              </div>`;
-            semesterResults.appendChild(semesterCol);
+        Object.keys(data.semesters).sort((a,b) => data.semesters[a].sortKey.localeCompare(data.semesters[b].sortKey)).forEach(name => {
+          const semester = data.semesters[name];
+          const card = document.createElement('div');
+          card.className = 'semester-card';
+          card.innerHTML = `
+            <i class="fa-solid fa-trash delete-semester" title="Delete semester" data-semester="${name}"></i>
+            <div class="d-flex justify-content-between mb-3"><h5 class="mb-0"><i class="fa-solid fa-book-open me-2 text-primary"></i>${name}</h5><div class="text-end" style="margin-right:2rem;"><p class="mb-0 small text-muted">GPA:</p><p class="mb-0 h4 fw-bold text-primary">${semester.gpa.toFixed(4)}</p></div></div>
+            <button class="custom-course-btn" data-semester="${name}"><i class="fa-solid fa-plus"></i> Custom Course</button>
+            <div class="table-responsive"><table class="course-table"><thead><tr><th>Course</th><th>CH</th><th>Marks</th><th>Grade</th><th>Action</th></tr></thead><tbody>
+              ${semester.courses.map(c => `
+                <tr class="${c.isExtraEnrolled ? 'table-warning' : ''} ${c.isDeleted ? 'table-danger text-decoration-line-through' : ''}">
+                  <td><div class="d-flex align-items-center"><span class="fw-medium clickable-info" data-course='${JSON.stringify(c).replace(/'/g, "&#39;")}'>${c.CourseCode} ${c.isExtraEnrolled ? '<span class="extra-enrolled">Rep.</span>':''}</span><i class="fa-solid fa-info-circle clickable-info small" data-course='${JSON.stringify(c).replace(/'/g, "&#39;")}' title="${c.CourseTitle}"></i></div></td>
+                  <td>${c.CreditHours}</td><td>${c.marks}</td><td><span class="grade-badge grade-${c.Grade}">${c.Grade}</span></td>
+                  <td class="course-actions">${c.isDeleted ? `<i class="fa-solid fa-rotate-left restore-course" title="Restore" data-course='${JSON.stringify(c).replace(/'/g, "&#39;")}'></i>` : `<i class="fa-solid fa-trash delete-course" title="Delete" data-course='${JSON.stringify(c).replace(/'/g, "&#39;")}'></i>`}</td>
+                </tr>`).join('')}
+            </tbody></table></div>`;
+          semesterResults.appendChild(card);
         });
-        document.querySelectorAll('.clickable-info').forEach(el => el.addEventListener('click', e => showCourseDetails(JSON.parse(e.target.dataset.course))));
+        
         resultContainer.style.display = 'block';
+        attachResultEventListeners();
+      }
+
+      function attachResultEventListeners() {
+        document.querySelectorAll('.clickable-info').forEach(el => el.addEventListener('click', e => showCourseDetails(JSON.parse(e.currentTarget.dataset.course.replace(/'/g, "'")))));
+        document.querySelectorAll('.delete-semester').forEach(btn => btn.addEventListener('click', e => deleteSemester(e.currentTarget.dataset.semester)));
+        document.querySelectorAll('.custom-course-btn').forEach(btn => btn.addEventListener('click', e => openAddCourseModal(e.currentTarget.dataset.semester)));
+        document.querySelectorAll('.delete-course, .restore-course').forEach(btn => btn.addEventListener('click', e => {
+            const course = JSON.parse(e.currentTarget.dataset.course.replace(/'/g, "'"));
+            const isDeleting = e.currentTarget.classList.contains('delete-course');
+            modifyCourseState(course, isDeleting);
+        }));
       }
       
-      window.modifyCourseState = (semesterName, courseCode, isDeleted) => {
-          const course = processedData.semesters[semesterName].courses.find(c => c.CourseCode === courseCode);
-          if(course) course.isDeleted = isDeleted;
-          recalculateAndDisplay();
-      };
-
-      function recalculateAndDisplay() {
-          const cgpaData = calculateCGPA(processedData);
-          displayCGPAResults(processedData, cgpaData);
-      }
-
       function showCourseDetails(course) {
-          document.getElementById('courseDetailsModalTitle').textContent = `${course.CourseCode} - ${course.CourseTitle}`;
-          document.getElementById('courseDetailsModalBody').innerHTML = `<p><strong>Teacher:</strong> ${course.TeacherName}</p><p><strong>Marks:</strong> ${course.Total}</p><p><strong>Quality Points:</strong> ${course.qualityPoints}</p>`;
-          courseDetailsModal.show();
+        document.getElementById('courseDetailsModalTitle').textContent = `${course.CourseCode} - ${course.CourseTitle}`;
+        document.getElementById('courseDetailsModalBody').innerHTML = `<p><strong>Teacher:</strong> ${course.TeacherName}</p><p><strong>Marks:</strong> Mid(${course.Mid}), Assign(${course.Assignment}), Final(${course.Final})</p>`;
+        courseDetailsModal.show();
       }
 
-      // --- Save to Web Feature (Improved) ---
-      async function saveToWeb() {
-        if (!processedData) { showToast('No result to save', 'error'); return; }
-        const fileName = prompt("Enter a name for this result version:", "MPHIL Chemistry Result");
-        if (!fileName) { showToast('Save cancelled', 'info'); return; }
-
-        showLoadingStage('processing');
-        try {
-          await fetch(API_ENDPOINTS.save, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ registrationNumber: processedData.studentInfo.registration, studentData: processedData, fileName: fileName.trim() })
-          }).then(res => res.json()).then(result => {
-            if (result.success) {
-              showToast('Result saved successfully!', 'success');
-              checkSavedResults();
-            } else { throw new Error(result.message); }
-          });
-        } catch (error) {
-          showToast(`Error saving: ${error.message}`, 'error');
-        } finally {
-          hideLoading();
-        }
+      function modifyCourseState(courseToModify, isDeleted) {
+        Object.values(processedData.semesters).forEach(semester => {
+            const course = semester.courses.find(c => c.SrNo === courseToModify.SrNo);
+            if (course) course.isDeleted = isDeleted;
+        });
+        recalculateAndDisplay();
       }
 
+      function deleteSemester(name) {
+        deletedSemesters[name] = { ...processedData.semesters[name] };
+        delete processedData.semesters[name];
+        recalculateAndDisplay();
+        showUndoNotification(name);
+      }
+      
+      function showUndoNotification(name) {
+        const existing = document.getElementById('undo-notification');
+        if (existing) existing.remove();
+        const notification = document.createElement('div');
+        notification.id = 'undo-notification';
+        notification.className = 'undo-notification';
+        notification.innerHTML = `<span>Semester "${name}" deleted</span><button class="undo-btn" data-semester="${name}">Undo</button>`;
+        document.body.appendChild(notification);
+        notification.querySelector('.undo-btn').addEventListener('click', e => {
+          undoDeleteSemester(e.target.dataset.semester);
+          notification.remove();
+        });
+        setTimeout(() => notification.remove(), 5000);
+      }
+
+      function undoDeleteSemester(name) {
+        processedData.semesters[name] = deletedSemesters[name];
+        delete deletedSemesters[name];
+        recalculateAndDisplay();
+        showToast(`Semester ${name} restored`, 'success');
+      }
+
+      // --- Saved Results ---
       async function checkSavedResults() {
-          const regNum = registrationNumber.value.trim();
-          if (!regNum) { savedResultsContainer.style.display = 'none'; return null; }
-          try {
-              const response = await fetch(`${API_ENDPOINTS.load}&registrationNumber=${encodeURIComponent(regNum)}`);
-              const result = await response.json();
-              if (result.success && result.savedResults.length > 0) {
-                  displaySavedResults(result.savedResults);
-                  return result.savedResults;
-              } else {
-                  savedResultsContainer.style.display = 'none';
-                  return null;
-              }
-          } catch (e) { return null; }
+        const regNum = registrationNumber.value.trim();
+        if (!regNum) { savedResultsContainer.style.display = 'none'; return null; }
+        try {
+          const res = await fetch(`${API_ENDPOINTS.load}&registrationNumber=${encodeURIComponent(regNum)}`);
+          const data = await res.json();
+          if (data.success && data.savedResults.length > 0) {
+            displaySavedResults(data.savedResults);
+            return data.savedResults;
+          } else {
+            savedResultsContainer.style.display = 'none';
+            return null;
+          }
+        } catch (e) { return null; }
       }
 
       function displaySavedResults(results) {
-          savedResultsContainer.innerHTML = `<div class="card card-modern"><div class="card-header"><h4 class="mb-0"><i class="fa-solid fa-floppy-disk me-2"></i>Saved Versions</h4></div><div class="card-body p-3" id="savedResultsList"></div></div>`;
-          const listEl = document.getElementById('savedResultsList');
-          listEl.innerHTML = '';
-          results.forEach(result => {
-              const card = document.createElement('div');
-              card.className = 'saved-result-card';
-              // UPDATED to show time
-              const savedDate = new Date(result.timestamp).toLocaleString('en-US', { dateStyle: 'medium', timeStyle: 'short' });
-              card.innerHTML = `
-                <div class="saved-result-header">
-                  <div class="saved-result-info">
-                    <span class="saved-result-filename">${result.fileName}</span>
-                    <span class="saved-result-date">Saved: ${savedDate}</span>
-                  </div>
-                  <div class="saved-result-actions">
-                    <button class="saved-result-action-btn view-saved-result" title="Show"><i class="fa-solid fa-eye"></i></button>
-                    <button class="saved-result-action-btn delete-saved-result" title="Delete"><i class="fa-solid fa-trash"></i></button>
-                  </div>
-                </div>`;
-              card.querySelector('.view-saved-result').addEventListener('click', () => loadSavedResult(result));
-              card.querySelector('.delete-saved-result').addEventListener('click', () => deleteSavedResult(result.id));
-              listEl.appendChild(card);
-          });
-          savedResultsContainer.style.display = 'block';
+        savedResultsContainer.innerHTML = `<div class="card card-modern"><div class="card-header p-4"><h4 class="mb-0"><i class="fa-solid fa-floppy-disk me-2"></i>Saved Results</h4></div><div class="card-body p-4" id="savedResultsList"></div></div>`;
+        const listEl = document.getElementById('savedResultsList');
+        results.forEach(result => {
+          const card = document.createElement('div');
+          card.className = 'saved-result-card';
+          // ADDED toLocaleString() for date and time
+          const savedDate = new Date(result.timestamp).toLocaleString();
+          card.innerHTML = `
+            <div class="saved-result-header">
+              <div class="saved-result-info">
+                <span class="saved-result-filename">${result.fileName}</span>
+                <span class="saved-result-date">Saved: ${savedDate}</span>
+              </div>
+              <div class="saved-result-actions">
+                <button class="saved-result-action-btn view-saved-result" title="Show"><i class="fa-solid fa-eye"></i></button>
+                <button class="saved-result-action-btn delete-saved-result" title="Delete"><i class="fa-solid fa-trash"></i></button>
+              </div>
+            </div>`;
+          card.querySelector('.view-saved-result').addEventListener('click', () => loadSavedResult(result));
+          card.querySelector('.delete-saved-result').addEventListener('click', () => deleteSavedResult(result.id));
+          listEl.appendChild(card);
+        });
+        savedResultsContainer.style.display = 'block';
       }
       
       function loadSavedResult(result) {
-          const cgpaData = calculateCGPA(result.student_data);
-          displayCGPAResults(result.student_data, cgpaData);
-          showToast(`Loaded "${result.fileName}"`, 'info');
+        recalculateAndDisplay(result.student_data);
+        showToast(`Loaded "${result.fileName}"`, 'success');
+        window.scrollTo({ top: resultContainer.offsetTop, behavior: 'smooth' });
+      }
+
+      async function saveToWeb() {
+        const fileName = prompt("Enter a name for this result version:", "MPHIL Chemistry");
+        if (!fileName) { showToast('Save cancelled.', 'info'); return; }
+        showLoadingStage('processing');
+        try {
+          const res = await fetch(API_ENDPOINTS.save, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ registrationNumber: processedData.studentInfo.registration, studentData: processedData, fileName: fileName.trim() })
+          });
+          const data = await res.json();
+          if (data.success) {
+            showToast('Result saved!', 'success');
+            checkSavedResults();
+          } else { throw new Error(data.message); }
+        } catch (e) {
+          showToast(`Error saving: ${e.message}`, 'error');
+        } finally {
+          showLoadingStage(null);
+        }
       }
 
       async function deleteSavedResult(id) {
-          if (!confirm("Are you sure?")) return;
-          try {
-              await fetch(API_ENDPOINTS.save, { method: 'DELETE', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id }) })
-                  .then(res => res.json()).then(result => {
-                      if(result.success) { showToast('Deleted successfully', 'success'); checkSavedResults(); }
-                      else { throw new Error(result.message); }
-                  });
-          } catch (e) { showToast(`Error: ${e.message}`, 'error'); }
+        if (!confirm("Delete this saved result?")) return;
+        try {
+          const res = await fetch(API_ENDPOINTS.save, { method: 'DELETE', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id }) });
+          const data = await res.json();
+          if (data.success) {
+            showToast('Result deleted', 'success');
+            checkSavedResults();
+          } else { throw new Error(data.message); }
+        } catch (e) { showToast(`Error deleting: ${e.message}`, 'error'); }
       }
-
-      // --- PDF Generation (FIXED) ---
+      
+      // --- PDF Generation (RESTORED TO ORIGINAL) ---
       function generatePDF() {
-        if (!processedData) { showToast('No data to generate PDF', 'error'); return; }
-        showLoadingStage('processing');
-        addStatusMessage('Generating PDF...', 'info');
+        if (!processedData) { showToast('No data to download', 'error'); return; }
+        addStatusMessage('Generating PDF report...', 'info');
         try {
             const { jsPDF } = window.jspdf;
             const pdf = new jsPDF({ orientation: 'p', unit: 'mm', format: 'a4' });
+            const margin = 15;
+            const pageWidth = pdf.internal.pageSize.getWidth();
+            let yPos = margin;
             const cgpaData = calculateCGPA(processedData);
-            let yPos = 15;
 
-            pdf.setFontSize(18).setFont(undefined, 'bold').text('Unofficial Academic Transcript', pdf.internal.pageSize.getWidth() / 2, yPos, { align: 'center' });
+            pdf.setFontSize(18).setFont(undefined, 'bold').text('Unofficial Academic Transcript', pageWidth / 2, yPos, { align: 'center' });
             yPos += 10;
-            pdf.setFontSize(12).text(processedData.studentInfo.name, 15, yPos);
-            pdf.text(processedData.studentInfo.registration, pdf.internal.pageSize.getWidth() - 15, yPos, { align: 'right' });
-            yPos += 8;
-            pdf.setFontSize(10).text(`CGPA: ${cgpaData.cgpa.toFixed(4)}`, 15, yPos);
-            pdf.text(`Percentage: ${cgpaData.percentage.toFixed(2)}%`, pdf.internal.pageSize.getWidth() - 15, yPos, { align: 'right' });
+            pdf.setFontSize(10).text(`Generated by UAF CGPA Calculator on ${new Date().toLocaleDateString()}`, pageWidth / 2, yPos, { align: 'center' });
+            yPos += 12;
+
+            pdf.setFontSize(12).setFont(undefined, 'bold').text('Student Information', margin, yPos);
+            yPos += 6;
+            pdf.setFontSize(10).setFont(undefined, 'normal');
+            pdf.text(`Name: ${processedData.studentInfo.name}`, margin, yPos);
+            pdf.text(`CGPA: ${cgpaData.cgpa.toFixed(4)}`, pageWidth / 2, yPos);
+            yPos += 6;
+            pdf.text(`Registration No: ${processedData.studentInfo.registration}`, margin, yPos);
+            pdf.text(`Percentage: ${cgpaData.percentage.toFixed(2)}%`, pageWidth / 2, yPos);
             yPos += 10;
-            
-            Object.keys(processedData.semesters).sort((a,b) => processedData.semesters[a].sortKey.localeCompare(processedData.semesters[b].sortKey)).forEach(semesterName => {
+
+            const sortedSemesters = Object.keys(processedData.semesters).sort((a, b) => processedData.semesters[a].sortKey.localeCompare(processedData.semesters[b].sortKey));
+
+            sortedSemesters.forEach(semesterName => {
                 const semester = processedData.semesters[semesterName];
                 const activeCourses = semester.courses.filter(c => !c.isDeleted);
                 if (activeCourses.length === 0) return;
-                
-                const tableBody = activeCourses.map(c => [c.CourseCode, c.CourseTitle, c.creditHours, c.marks, c.Grade]);
-                
-                if (yPos + (tableBody.length * 7) > 280) { // Simple page break check
-                    pdf.addPage();
-                    yPos = 15;
-                }
-                
-                pdf.setFontSize(12).setFont(undefined, 'bold').text(`${semesterName} (GPA: ${semester.gpa.toFixed(4)})`, 15, yPos);
-                yPos += 6;
 
+                const tableBody = activeCourses.map(c => [c.CourseCode, c.CourseTitle, c.CreditHours, c.marks, c.Grade]);
+                const tableHeight = (tableBody.length + 1) * 7 + 10; // Approx height
+
+                if (yPos + tableHeight > pdf.internal.pageSize.getHeight() - margin) {
+                    pdf.addPage();
+                    yPos = margin;
+                }
+
+                pdf.setFontSize(11).setFont(undefined, 'bold').text(`${semesterName} (GPA: ${semester.gpa.toFixed(4)})`, margin, yPos);
+                yPos += 2;
+                
                 pdf.autoTable({
                     head: [['Code', 'Title', 'CH', 'Marks', 'Grade']],
                     body: tableBody,
                     startY: yPos,
                     theme: 'grid',
-                    headStyles: { fillColor: [122, 106, 216] },
-                    styles: { fontSize: 9 }
+                    headStyles: { fillColor: [122, 106, 216] }, // #7a6ad8
+                    styles: { fontSize: 8 },
+                    columnStyles: { 1: { cellWidth: 'auto' } }
                 });
                 yPos = pdf.lastAutoTable.finalY + 10;
             });
+            
             pdf.save(`UAF_Transcript_${processedData.studentInfo.registration}.pdf`);
-            showToast('PDF downloaded successfully!', 'success');
+            addStatusMessage('PDF report generated successfully', 'success');
         } catch (e) {
-            showToast('Error generating PDF.', 'error');
             addStatusMessage(`PDF Error: ${e.message}`, 'error');
-        } finally {
-            hideLoading();
+            showToast('Error generating PDF', 'error');
         }
       }
 
-      // --- Utility Functions ---
-      function showToast(message, type = 'success') {
-          const container = document.getElementById('toast-container');
-          const toastEl = document.createElement('div');
-          toastEl.className = `toast align-items-center text-bg-${type} border-0 show`;
-          toastEl.innerHTML = `<div class="d-flex"><div class="toast-body">${message}</div><button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button></div>`;
-          container.appendChild(toastEl);
-          const toast = new bootstrap.Toast(toastEl, { delay: 3000 });
-          toast.show();
-          toastEl.addEventListener('hidden.bs.toast', () => toastEl.remove());
+      // --- Misc ---
+      function testConnection() {
+        if(testInProgress) return;
+        testInProgress = true;
+        addStatusMessage('Testing connection to UAF LMS...', 'info');
+        showLoadingStage('connecting');
+        fetch(API_ENDPOINTS.test)
+          .then(res => res.json())
+          .then(data => {
+            if(data.success) {
+              addStatusMessage('Connection successful!', 'success');
+              showToast('Connection test successful!', 'success');
+            } else {
+              throw new Error(data.message);
+            }
+          })
+          .catch(err => {
+            addStatusMessage(`Connection failed: ${err.message}`, 'error');
+            showToast('Connection test failed!', 'error');
+          })
+          .finally(() => {
+            testInProgress = false;
+            showLoadingStage(null);
+          });
       }
-      function addStatusMessage(message, type = 'info') { statusLog.innerHTML = `<div class="status-line status-${type}">[${new Date().toLocaleTimeString()}] ${message}</div>` + statusLog.innerHTML; }
-      function clearLog() { statusLog.innerHTML = ''; addStatusMessage('Log cleared.', 'info'); }
-      function showLoadingStage(stage) {
-          document.querySelectorAll('.loading-stage').forEach(el => el.style.display = 'none');
-          const stageEl = document.getElementById(stage + 'Stage');
-          if (stageEl) stageEl.style.display = 'block';
-          loadingContainer.style.display = 'block';
+
+      function downloadLog() {
+        const blob = new Blob([allLogs.map(log => `[${log.timestamp}] ${log.message}`).join('\n')], { type: 'text/plain' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'cgpa_calculator_log.txt';
+        a.click();
+        URL.revokeObjectURL(url);
+        showToast('Log downloaded', 'success');
       }
-      function hideLoading() { loadingContainer.style.display = 'none'; }
-      function hideAllContainers() {
-          resultContainer.style.display = 'none';
-          savedResultsContainer.style.display = 'none';
+
+      function clearLog() {
+        statusLog.innerHTML = '';
+        allLogs = [];
+        addStatusMessage('Log cleared', 'info');
       }
-      async function testConnection() {
-          showLoadingStage('connecting');
-          addStatusMessage('Testing connection to UAF LMS...', 'info');
-          try {
-              const res = await fetch(API_ENDPOINTS.test).then(r => r.json());
-              if (res.success) { showToast('Connection successful!', 'success'); addStatusMessage('UAF LMS is online.', 'success'); }
-              else { throw new Error(res.message); }
-          } catch(e) {
-              showToast('Connection failed.', 'error');
-              addStatusMessage(`Connection failed: ${e.message}`, 'error');
-          } finally {
-              hideLoading();
-          }
+
+      function openAddCourseModal(semesterName) {
+        document.getElementById('addCourseSemester').value = semesterName;
+        addCourseForm.reset();
+        addCourseModal.show();
       }
+
       function addCustomCourse() {
         const semesterName = document.getElementById('addCourseSemester').value;
-        if (!processedData || !processedData.semesters[semesterName]) return;
-        const course = {
-            CourseCode: document.getElementById('courseCode').value,
-            CourseTitle: document.getElementById('courseTitle').value,
-            creditHours: parseInt(document.getElementById('creditHours').value),
-            marks: parseFloat(document.getElementById('courseMarks').value)
-        };
-        if (!course.CourseCode || !course.CourseTitle || !course.creditHours || isNaN(course.marks)) {
-            showToast('Please fill all fields correctly.', 'error');
-            return;
+        const courseCode = document.getElementById('courseCode').value.trim();
+        const courseTitle = document.getElementById('courseTitle').value.trim();
+        const creditHours = parseInt(document.getElementById('creditHours').value);
+        const marks = parseFloat(document.getElementById('courseMarks').value);
+        
+        if (!courseCode || !courseTitle || isNaN(creditHours) || isNaN(marks)) {
+          showToast('Please fill all fields correctly', 'error');
+          return;
         }
-        const qualityPoints = calculateQualityPoints(course.marks, course.creditHours);
-        const grade = Object.entries({'A':80, 'B':65, 'C':50, 'D':40, 'F':0}).find(([g, m]) => course.marks / (course.creditHours*20) * 100 >= m)[0];
-        const newCourse = { ...course, Grade: grade, qualityPoints, isDeleted: false, isCustom: true, Total: course.marks, TeacherName: 'Custom' };
+
+        const grade = "Custom"; // Simplified grade for custom courses
+        const newCourse = {
+          CourseCode: courseCode, CourseTitle: courseTitle, CreditHours: creditHours.toString(), marks, Grade: grade,
+          SrNo: `custom-${Date.now()}`, semesterName, isDeleted: false, isCustom: true, qualityPoints: 0 // Will be recalculated
+        };
         processedData.semesters[semesterName].courses.push(newCourse);
         recalculateAndDisplay();
         addCourseModal.hide();
-        addStatusMessage(`Added custom course: ${newCourse.CourseCode}`, 'info');
+        showToast(`Course ${courseCode} added`, 'success');
       }
 
       init();
