@@ -2730,7 +2730,7 @@ a:hover {
         }
       }
       
-      // <<< START: FINAL, TWO-COLUMN LAYOUT PDF GENERATION FUNCTION V5 >>>
+      // <<< START: FINAL, POLISHED LAYOUT PDF GENERATION FUNCTION V6 >>>
       function generatePDF() {
         if (!processedData) {
             showToast('No data to download', 'error');
@@ -2754,6 +2754,7 @@ a:hover {
                 textDark: '#1b1f24',
                 textLight: '#4b5563',
                 line: '#e0e0e0',
+                fillLight: '#f8f9ff',
             };
             let lastY = 0;
 
@@ -2777,40 +2778,51 @@ a:hover {
             
             drawFirstPageHeader();
 
-            // --- 2. Two-Column Top Section (Manual Layout) ---
+            // --- 2. Two-Column Top Section ---
             const topSectionY = lastY + 10;
-            const lineSpacing = 6;
-
+            
             // Left Column: Student Info
             pdf.setFontSize(11);
             pdf.setFont('helvetica', 'bold');
             pdf.setTextColor(colors.textDark);
-            pdf.text(processedData.studentInfo.name, pageMargin, topSectionY);
-            pdf.text(processedData.studentInfo.registration, pageMargin, topSectionY + lineSpacing);
+            pdf.text(processedData.studentInfo.name, pageMargin, topSectionY + 2);
+            pdf.text(processedData.studentInfo.registration, pageMargin, topSectionY + 8);
+            const studentInfoBottomY = topSectionY + 8;
 
-            // Right Column: Academic Summary
-            const rightColumnX = pageWidth - pageMargin;
-            pdf.setFontSize(9);
-            pdf.setFont('helvetica', 'bold');
-            pdf.setTextColor(colors.textLight);
-
-            const summaryPairs = {
-                "Overall CGPA:": formatNumber(cgpaData.cgpa, 4).toFixed(4),
-                "Total Credit Hours:": cgpaData.totalCreditHours.toString(),
-                "Overall Percentage:": `${formatNumber(cgpaData.percentage, 2).toFixed(2)}%`,
-                "Total Marks:": `${cgpaData.totalMarksObtained.toFixed(0)} / ${cgpaData.totalMaxMarks}`
-            };
+            // Right Column: Academic Summary "Badges" in a 2x2 Grid
+            const badgeWidth = (availableWidth / 2) - 25;
+            const badgeHeight = 14;
+            const badgeGap = 4;
+            const rightColumnX = pageWidth - pageMargin - (badgeWidth * 2 + badgeGap);
             
-            let i = 0;
-            for (const [label, value] of Object.entries(summaryPairs)) {
-                pdf.text(label, rightColumnX - 30, topSectionY + (i * lineSpacing * 0.8), { align: 'right' });
-                pdf.setTextColor(colors.textDark);
-                pdf.text(value, rightColumnX, topSectionY + (i * lineSpacing * 0.8), { align: 'right' });
+            const summaryBadges = [
+                { label: 'OVERALL CGPA', value: formatNumber(cgpaData.cgpa, 4).toFixed(4) },
+                { label: 'OVERALL PERCENTAGE', value: `${formatNumber(cgpaData.percentage, 2).toFixed(2)}%` },
+                { label: 'TOTAL CREDITS', value: cgpaData.totalCreditHours.toString() },
+                { label: 'TOTAL MARKS', value: `${cgpaData.totalMarksObtained.toFixed(0)}/${cgpaData.totalMaxMarks}` }
+            ];
+
+            summaryBadges.forEach((badge, i) => {
+                const badgeX = rightColumnX + (i % 2) * (badgeWidth + badgeGap);
+                const badgeY = topSectionY - 2 + Math.floor(i / 2) * (badgeHeight + badgeGap);
+                
+                pdf.setFillColor(colors.fillLight);
+                pdf.setDrawColor(colors.line);
+                pdf.roundedRect(badgeX, badgeY, badgeWidth, badgeHeight, 3, 3, 'FD');
+
+                pdf.setFontSize(7);
                 pdf.setTextColor(colors.textLight);
-                i++;
-            }
-            lastY = topSectionY + (i * lineSpacing * 0.8);
-            
+                pdf.setFont('helvetica', 'bold');
+                pdf.text(badge.label, badgeX + badgeWidth / 2, badgeY + 5, { align: 'center' });
+
+                pdf.setFontSize(11);
+                pdf.setTextColor(colors.textDark);
+                pdf.setFont('helvetica', 'bold');
+                pdf.text(badge.value, badgeX + badgeWidth / 2, badgeY + 11, { align: 'center' });
+            });
+            const summaryBadgesBottomY = topSectionY - 2 + 2 * (badgeHeight + badgeGap) - badgeGap;
+            lastY = Math.max(studentInfoBottomY, summaryBadgesBottomY);
+
             // --- 3. Semesters Loop ---
             let semesterIndex = 0;
             Object.keys(processedData.semesters)
@@ -2851,7 +2863,7 @@ a:hover {
                         body: body,
                         startY: lastY,
                         margin: { left: pageMargin, right: pageMargin, bottom: 25 },
-                        headStyles: { fillColor: colors.primary, textColor: '#ffffff', fontStyle: 'bold', halign: 'center' },
+                        headStyles: { fillColor: colors.primary, textColor: '#ffffff', fontStyle: 'bold', halign: 'center', valign: 'middle' },
                         columnStyles: { 
                             0: { halign: 'left', cellWidth: availableWidth * 0.18 },
                             1: { halign: 'left', cellWidth: availableWidth * 0.46, cellPadding: { left: 2 } },
@@ -2859,7 +2871,7 @@ a:hover {
                             3: { halign: 'center', cellWidth: availableWidth * 0.12 },
                             4: { halign: 'center', cellWidth: availableWidth * 0.12 }
                         },
-                        styles: { cellPadding: 2.2, fontSize: 9, overflow: 'linebreak' },
+                        styles: { valign: 'middle', cellPadding: 2.2, fontSize: 9, overflow: 'linebreak' }, // Corrected vertical alignment
                         alternateRowStyles: { fillColor: '#f8f9ff' }
                     });
                     lastY = pdf.lastAutoTable.finalY;
@@ -2963,6 +2975,7 @@ a:hover {
   </script>
 </body>
 </html>
+
 
 
 
