@@ -2898,12 +2898,12 @@ a:hover {
                         // Create a styled semester header
                         pdf.setFillColor(249, 250, 251);
                         pdf.roundedRect(margin, yPos, contentWidth, 10, 2, 2, 'F');
-                        
+                      	
                         pdf.text(`${semesterName.toUpperCase()} (GPA: ${formatCGPA(semester.gpa)} | ${formatPercentage(semester.percentage)}%)`, 
                                  margin + 8, yPos + 6.5);
-                        
+                      	
                         yPos += 14; // Space after semester header
-                        
+                      	
                         // Calculate semester totals
                         const semesterMarks = activeCourses.reduce((sum, course) => sum + course.marks, 0);
                         const semesterMaxMarks = activeCourses.reduce((sum, course) => {
