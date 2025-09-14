@@ -2730,7 +2730,7 @@ a:hover {
         }
       }
       
-      // <<< START: FINAL, PROFESSIONAL HEADER BOX PDF GENERATION FUNCTION V11 >>>
+      // <<< START: FINAL, CENTER-ALIGNED NAME PDF GENERATION FUNCTION V12 >>>
       function generatePDF() {
         if (!processedData) {
             showToast('No data to download', 'error');
@@ -2781,21 +2781,23 @@ a:hover {
             // --- 2. Top Section (Professional Header Box) ---
             const boxY = lastY + 8;
             const boxHeight = 28;
+            const boxCenterX = pageWidth / 2;
+
             // Draw main container
             pdf.setFillColor(colors.fillLight);
             pdf.setDrawColor(colors.line);
             pdf.roundedRect(pageMargin, boxY, availableWidth, boxHeight, 3, 3, 'FD');
             
-            // Draw Student Info
+            // Draw Student Info (Center Aligned)
             pdf.setFont('helvetica', 'bold');
             pdf.setFontSize(12);
             pdf.setTextColor(colors.textDark);
-            pdf.text(processedData.studentInfo.name, pageMargin + 4, boxY + 8);
+            pdf.text(processedData.studentInfo.name, boxCenterX, boxY + 8, { align: 'center' });
 
             pdf.setFont('helvetica', 'normal');
             pdf.setFontSize(10);
             pdf.setTextColor(colors.textLight);
-            pdf.text(processedData.studentInfo.registration, pageMargin + 4, boxY + 14);
+            pdf.text(processedData.studentInfo.registration, boxCenterX, boxY + 14, { align: 'center' });
 
             // Draw horizontal separator line inside the box
             pdf.setDrawColor(colors.line);
@@ -2977,6 +2979,7 @@ a:hover {
   </script>
 </body>
 </html>
+
 
 
 
