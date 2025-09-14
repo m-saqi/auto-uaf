@@ -2730,7 +2730,7 @@ a:hover {
         }
       }
       
-      // <<< START: FINAL, MINIMALIST & PROFESSIONALLY STYLED PDF GENERATION FUNCTION V4 >>>
+      // <<< START: FINAL, TWO-COLUMN LAYOUT PDF GENERATION FUNCTION V5 >>>
       function generatePDF() {
         if (!processedData) {
             showToast('No data to download', 'error');
@@ -2777,54 +2777,70 @@ a:hover {
             
             drawFirstPageHeader();
 
-            // --- 2. Student Info (Clean, Left-Aligned Text) ---
-            pdf.setFontSize(12);
+            // --- 2. Two-Column Top Section (Manual Layout) ---
+            const topSectionY = lastY + 10;
+            const lineSpacing = 6;
+
+            // Left Column: Student Info
+            pdf.setFontSize(11);
             pdf.setFont('helvetica', 'bold');
             pdf.setTextColor(colors.textDark);
-            pdf.text(processedData.studentInfo.name, pageMargin, lastY + 10);
-            pdf.text(processedData.studentInfo.registration, pageMargin, lastY + 16); // Increased space
-            lastY += 16;
-            
-            // --- 3. Academic Summary Table ---
-            pdf.autoTable({
-                startY: lastY + 4,
-                theme: 'striped',
-                styles: { fontSize: 10, cellPadding: 2.5 },
-                body: [
-                    [{ content: 'Overall CGPA', styles: { fontStyle: 'bold' } }, `${formatNumber(cgpaData.cgpa, 4).toFixed(4)}`, { content: 'Total Credit Hours', styles: { fontStyle: 'bold' } }, `${cgpaData.totalCreditHours}`],
-                    [{ content: 'Overall Percentage', styles: { fontStyle: 'bold' } }, `${formatNumber(cgpaData.percentage, 2).toFixed(2)}%`, { content: 'Total Marks', styles: { fontStyle: 'bold' } }, `${cgpaData.totalMarksObtained.toFixed(0)} / ${cgpaData.totalMaxMarks}`]
-                ],
-            });
-            lastY = pdf.lastAutoTable.finalY;
+            pdf.text(processedData.studentInfo.name, pageMargin, topSectionY);
+            pdf.text(processedData.studentInfo.registration, pageMargin, topSectionY + lineSpacing);
 
-            // --- 4. Semesters Loop ---
+            // Right Column: Academic Summary
+            const rightColumnX = pageWidth - pageMargin;
+            pdf.setFontSize(9);
+            pdf.setFont('helvetica', 'bold');
+            pdf.setTextColor(colors.textLight);
+
+            const summaryPairs = {
+                "Overall CGPA:": formatNumber(cgpaData.cgpa, 4).toFixed(4),
+                "Total Credit Hours:": cgpaData.totalCreditHours.toString(),
+                "Overall Percentage:": `${formatNumber(cgpaData.percentage, 2).toFixed(2)}%`,
+                "Total Marks:": `${cgpaData.totalMarksObtained.toFixed(0)} / ${cgpaData.totalMaxMarks}`
+            };
+            
+            let i = 0;
+            for (const [label, value] of Object.entries(summaryPairs)) {
+                pdf.text(label, rightColumnX - 30, topSectionY + (i * lineSpacing * 0.8), { align: 'right' });
+                pdf.setTextColor(colors.textDark);
+                pdf.text(value, rightColumnX, topSectionY + (i * lineSpacing * 0.8), { align: 'right' });
+                pdf.setTextColor(colors.textLight);
+                i++;
+            }
+            lastY = topSectionY + (i * lineSpacing * 0.8);
+            
+            // --- 3. Semesters Loop ---
+            let semesterIndex = 0;
             Object.keys(processedData.semesters)
                 .sort((a, b) => processedData.semesters[a].sortKey.localeCompare(processedData.semesters[b].sortKey))
                 .forEach(semesterName => {
+                    semesterIndex++;
                     const semester = processedData.semesters[semesterName];
                     const activeCourses = semester.courses.filter(c => !c.isDeleted);
                     if (activeCourses.length === 0) return;
 
                     const semesterSummary = `GPA: ${formatNumber(semester.gpa, 4).toFixed(4)}  |  Credit Hours: ${semester.totalCreditHours}  |  Marks: ${semester.totalMarksObtained.toFixed(0)}/${semester.totalMaxMarks}`;
                     
-                    if (lastY + 30 > pageHeight) { // Check for page break before adding new semester
+                    if (lastY + 30 > pageHeight) { // Check for page break
                         pdf.addPage();
                         lastY = 20;
                     }
+                    const semesterHeaderY = lastY + 12;
 
-                    // Semester Name
+                    // Semester Header (Two-Column Text)
                     pdf.setFontSize(14);
                     pdf.setFont('helvetica', 'bold');
                     pdf.setTextColor(colors.primary);
-                    pdf.text(semesterName, pageMargin, lastY + 12);
-                    lastY += 14;
-                    
-                    // Semester Summary Text (Bold, single line)
+                    pdf.text(`${semesterIndex}. ${semesterName}`, pageMargin, semesterHeaderY);
+
                     pdf.setFontSize(9);
                     pdf.setFont('helvetica', 'bold');
                     pdf.setTextColor(colors.textDark);
-                    pdf.text(semesterSummary, pageMargin, lastY + 2);
-                    lastY += 4;
+                    pdf.text(semesterSummary, pageWidth - pageMargin, semesterHeaderY, { align: 'right' });
+                    
+                    lastY = semesterHeaderY + 2;
                     
                     // Course Table
                     const head = [['Course Code', 'Course Title', 'CH', 'Marks', 'Grade']];
@@ -2833,12 +2849,12 @@ a:hover {
                     pdf.autoTable({
                         head: head,
                         body: body,
-                        startY: lastY, // Tighter spacing
+                        startY: lastY,
                         margin: { left: pageMargin, right: pageMargin, bottom: 25 },
                         headStyles: { fillColor: colors.primary, textColor: '#ffffff', fontStyle: 'bold', halign: 'center' },
                         columnStyles: { 
                             0: { halign: 'left', cellWidth: availableWidth * 0.18 },
-                            1: { halign: 'left', cellWidth: availableWidth * 0.46, cellPadding: { left: 2 } }, // Corrected indent
+                            1: { halign: 'left', cellWidth: availableWidth * 0.46, cellPadding: { left: 2 } },
                             2: { halign: 'center', cellWidth: availableWidth * 0.12 },
                             3: { halign: 'center', cellWidth: availableWidth * 0.12 },
                             4: { halign: 'center', cellWidth: availableWidth * 0.12 }
@@ -2857,7 +2873,7 @@ a:hover {
                     }
                 });
             
-            // --- 5. Footer (Last Page Only) ---
+            // --- 4. Footer (Last Page Only) ---
             const totalPages = pdf.internal.getNumberOfPages();
             pdf.setPage(totalPages);
 
@@ -2872,7 +2888,7 @@ a:hover {
             pdf.setFontSize(8).setTextColor('#b0b0b0');
             pdf.text(`Page ${totalPages} of ${totalPages}`, pageWidth - pageMargin, pageHeight - 10, { align: 'right' });
             
-            // --- 6. Save the PDF ---
+            // --- 5. Save the PDF ---
             pdf.save(`UAF_Transcript_${processedData.studentInfo.registration}.pdf`);
             addStatusMessage('PDF report generated successfully', 'success');
             showToast('PDF downloaded!', 'success');
@@ -2947,6 +2963,7 @@ a:hover {
   </script>
 </body>
 </html>
+
 
 
 
