@@ -2730,7 +2730,7 @@ a:hover {
         }
       }
       
-      // <<< START: IMPROVED AND RESTYLED PDF GENERATION FUNCTION >>>
+      // <<< START: FINAL, PROFESSIONALLY STYLED PDF GENERATION FUNCTION >>>
       function generatePDF() {
         if (!processedData) {
             showToast('No data to download', 'error');
@@ -2743,30 +2743,43 @@ a:hover {
             const { jsPDF } = window.jspdf;
             const pdf = new jsPDF({ orientation: 'p', unit: 'mm', format: 'a4' });
             const cgpaData = calculateCGPA(processedData);
+
+            // --- Define Styles & Dimensions ---
             const pageMargin = 15;
             const pageWidth = pdf.internal.pageSize.getWidth();
             const pageHeight = pdf.internal.pageSize.getHeight();
-
-            // Reusable function to draw the main header on each page
-            const drawHeader = (data) => {
-                pdf.setFontSize(16);
-                pdf.setTextColor('#7a6ad8'); // Brand color
-                pdf.setFont(undefined, 'bold');
-                pdf.text("UNIVERSITY OF AGRICULTURE", pageWidth / 2, 20, { align: 'center' });
-                pdf.text("FAISALABAD", pageWidth / 2, 27, { align: 'center' });
-                pdf.setFontSize(12);
-                pdf.setTextColor('#4b5563'); // Muted text color
-                pdf.setFont(undefined, 'normal');
-                pdf.text("UNOFFICIAL ACADEMIC TRANSCRIPT", pageWidth / 2, 35, { align: 'center' });
-                pdf.setDrawColor('#7a6ad8');
-                pdf.setLineWidth(0.5);
-                pdf.line(pageMargin, 40, pageWidth - pageMargin, 40);
+            const availableWidth = pageWidth - (2 * pageMargin);
+            const colors = {
+                primary: '#7a6ad8',
+                textDark: '#1b1f24',
+                textLight: '#4b5563',
+                line: '#e0e0e0'
             };
+            let lastY = 0; // To keep track of the bottom of the last element drawn
 
-            // Main summary table with student info and overall results
+            // --- 1. Header (First Page Only) ---
+            const drawFirstPageHeader = () => {
+                pdf.setFontSize(18);
+                pdf.setTextColor(colors.primary);
+                pdf.setFont('helvetica', 'bold');
+                pdf.text("University of Agriculture, Faisalabad", pageWidth / 2, 20, { align: 'center' });
+                
+                pdf.setFontSize(12);
+                pdf.setTextColor(colors.textLight);
+                pdf.setFont('helvetica', 'normal');
+                pdf.text("Unofficial Academic Transcript", pageWidth / 2, 28, { align: 'center' });
+                
+                pdf.setDrawColor(colors.primary);
+                pdf.setLineWidth(0.5);
+                pdf.line(pageMargin, 35, pageWidth - pageMargin, 35);
+                lastY = 35; // Update lastY position
+            };
+            
+            drawFirstPageHeader();
+
+            // --- 2. Student & CGPA Summary Table ---
             pdf.autoTable({
-                startY: 50,
-                didDrawPage: drawHeader,
+                startY: lastY + 10,
                 theme: 'striped',
                 styles: { fontSize: 10, cellPadding: 2.5 },
                 body: [
@@ -2774,74 +2787,85 @@ a:hover {
                     [{ content: 'Overall CGPA', styles: { fontStyle: 'bold' } }, `${formatNumber(cgpaData.cgpa, 4).toFixed(4)}`, { content: 'Total Credit Hours', styles: { fontStyle: 'bold' } }, `${cgpaData.totalCreditHours}`],
                     [{ content: 'Overall Percentage', styles: { fontStyle: 'bold' } }, `${formatNumber(cgpaData.percentage, 2).toFixed(2)}%`, { content: 'Total Marks', styles: { fontStyle: 'bold' } }, `${cgpaData.totalMarksObtained.toFixed(0)} / ${cgpaData.totalMaxMarks}`]
                 ],
+                didDrawPage: (data) => {
+                    // This hook is only for the summary table. If it creates a new page, that new page will NOT have the header.
+                    if (data.pageNumber > 1) {
+                       lastY = data.cursor.y;
+                    }
+                }
             });
+            lastY = pdf.lastAutoTable.finalY;
 
-            // Iterate through semesters and create a title block and course table for each
+            // --- 3. Semesters Loop ---
             Object.keys(processedData.semesters)
                 .sort((a, b) => processedData.semesters[a].sortKey.localeCompare(processedData.semesters[b].sortKey))
-                .forEach(semesterName => {
+                .forEach((semesterName, index) => {
                     const semester = processedData.semesters[semesterName];
                     const activeCourses = semester.courses.filter(c => !c.isDeleted);
                     if (activeCourses.length === 0) return;
 
                     const semesterSummary = `GPA: ${formatNumber(semester.gpa, 4).toFixed(4)}  |  Credit Hours: ${semester.totalCreditHours}  |  Marks: ${semester.totalMarksObtained.toFixed(0)}/${semester.totalMaxMarks}`;
                     
-                    // Title block for semester name and summary - this prevents overlap and orphaned text
+                    // Semester Title Block
                     pdf.autoTable({
-                        startY: pdf.lastAutoTable.finalY + 8, // Space between sections
+                        startY: lastY + 10,
                         theme: 'plain',
-                        tableWidth: 'auto',
                         margin: { left: pageMargin },
-                        styles: { cellPadding: 0, lineWidth: 0 },
+                        styles: { cellPadding: 0 },
                         body: [
-                            [{ content: semesterName, styles: { font: 'helvetica', fontStyle: 'bold', fontSize: 12, textColor: '#1b1f24' } }],
-                            [{ content: semesterSummary, styles: { font: 'helvetica', fontStyle: 'normal', fontSize: 9, textColor: '#4b5563', cellPadding: { top: 1 } } }]
-                        ],
-                        didDrawPage: drawHeader // Handles page breaks before drawing
+                            [{ content: semesterName, styles: { font: 'helvetica', fontStyle: 'bold', fontSize: 12, textColor: colors.textDark } }],
+                            [{ content: semesterSummary, styles: { font: 'helvetica', fontStyle: 'normal', fontSize: 9, textColor: colors.textLight, cellPadding: { top: 1.5 } } }]
+                        ]
                     });
-
+                    lastY = pdf.lastAutoTable.finalY;
+                    
                     const head = [['Course Code', 'Course Title', 'CH', 'Marks', 'Grade']];
                     const body = activeCourses.map(c => [c.code, c.title, c.creditHoursDisplay, c.marks.toFixed(0), c.grade]);
 
-                    // Main course table for the semester
+                    // Semester Course Table
                     pdf.autoTable({
                         head: head,
                         body: body,
-                        startY: pdf.lastAutoTable.finalY + 2, // Position right after the title block
-                        margin: { top: 45, left: pageMargin, right: pageMargin, bottom: 25 },
-                        didDrawPage: drawHeader, // Redraw header on new pages if table spans
-                        headStyles: { fillColor: '#7a6ad8', textColor: '#ffffff', fontStyle: 'bold', halign: 'center' },
+                        startY: lastY + 2,
+                        margin: { left: pageMargin, right: pageMargin, bottom: 25 },
+                        headStyles: { fillColor: colors.primary, textColor: '#ffffff', fontStyle: 'bold', halign: 'center' },
                         columnStyles: { 
-                            0: { halign: 'left', cellWidth: 25 },
-                            1: { halign: 'left', cellWidth: 85 },
-                            2: { halign: 'center', cellWidth: 15 },
-                            3: { halign: 'center', cellWidth: 15 },
-                            4: { halign: 'center', cellWidth: 15 }
+                            0: { halign: 'left', cellWidth: availableWidth * 0.18 }, // 18%
+                            1: { halign: 'left', cellWidth: availableWidth * 0.46 }, // 46%
+                            2: { halign: 'center', cellWidth: availableWidth * 0.12 }, // 12%
+                            3: { halign: 'center', cellWidth: availableWidth * 0.12 }, // 12%
+                            4: { halign: 'center', cellWidth: availableWidth * 0.12 }  // 12%
                         },
-                        styles: { cellPadding: 2, fontSize: 9, overflow: 'linebreak' },
+                        styles: { cellPadding: 2.2, fontSize: 9, overflow: 'linebreak' },
                         alternateRowStyles: { fillColor: '#f8f9ff' }
                     });
+                    lastY = pdf.lastAutoTable.finalY;
+
+                    // Semester Separator Line
+                    if (lastY < pageHeight - 25) { // Only draw line if there's enough space before the bottom margin
+                         pdf.setDrawColor(colors.line);
+                         pdf.setLineWidth(0.3);
+                         pdf.line(pageMargin, lastY + 5, pageWidth - pageMargin, lastY + 5);
+                    }
                 });
             
-            // Add footer and page numbers after all tables are drawn
+            // --- 4. Footer (Last Page Only) ---
             const totalPages = pdf.internal.getNumberOfPages();
-            for (let i = 1; i <= totalPages; i++) {
-                pdf.setPage(i);
-                // Add page number to all pages
-                pdf.setFontSize(8).setTextColor(150);
-                pdf.text(`Page ${i} of ${totalPages}`, pageWidth - pageMargin, pageHeight - 10, { align: 'right' });
-                
-                // Add footer text ONLY on the last page
-                if (i === totalPages) {
-                    pdf.setFontSize(8);
-                    pdf.setTextColor(107, 114, 128);
-                    pdf.setFont(undefined, 'italic');
-                    const footerY = pageHeight - 15;
-                    pdf.text("Generated by UAF Tools CGPA Calculator (uaftools.vercel.app)", pageWidth / 2, footerY, { align: 'center' });
-                    pdf.text("This is an unofficial transcript and should be used for reference purposes only.", pageWidth / 2, footerY + 5, { align: 'center' });
-                }
-            }
+            pdf.setPage(totalPages); // Go to the last page
+
+            pdf.setFontSize(9);
+            pdf.setTextColor(colors.textLight);
+            pdf.setFont('helvetica', 'italic');
+            const footerY = pageHeight - 20;
             
+            pdf.text("Generated by UAF Tools CGPA Calculator (uaftools.vercel.app)", pageWidth / 2, footerY, { align: 'center' });
+            pdf.text("This is an unofficial transcript and should be used for reference purposes only.", pageWidth / 2, footerY + 5, { align: 'center' });
+            
+            // Page Number
+            pdf.setFontSize(8).setTextColor('#b0b0b0');
+            pdf.text(`Page ${totalPages} of ${totalPages}`, pageWidth - pageMargin, pageHeight - 10, { align: 'right' });
+            
+            // --- 5. Save the PDF ---
             pdf.save(`UAF_Transcript_${processedData.studentInfo.registration}.pdf`);
             addStatusMessage('PDF report generated successfully', 'success');
             showToast('PDF downloaded!', 'success');
@@ -2853,7 +2877,7 @@ a:hover {
             showLoadingStage(null);
         }
       }
-      // <<< END: IMPROVED AND RESTYLED PDF GENERATION FUNCTION >>>
+      // <<< END: FINAL PDF GENERATION FUNCTION >>>
 
       async function fetchResult() {
         const regNum = registrationNumber.value.trim();
@@ -2916,4 +2940,5 @@ a:hover {
   </script>
 </body>
 </html>
+
 
