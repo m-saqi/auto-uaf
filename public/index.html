@@ -2797,22 +2797,20 @@ a:hover {
             });
             const leftTableBottomY = pdf.lastAutoTable.finalY;
 
-            // Right Column: Academic Summary (Horizontal Layout)
+            // Academic Summary Table (Right Side)
             pdf.autoTable({
                 startY: topSectionY,
-                theme: 'plain',
-                margin: { left: pageMargin + availableWidth / 2 },
-                headStyles: { font: 'helvetica', fontStyle: 'bold', fontSize: 8, textColor: colors.textLight, halign: 'center' },
-                bodyStyles: { font: 'helvetica', fontStyle: 'bold', fontSize: 10, textColor: colors.textDark, halign: 'center' },
-                head: [['OVERALL CGPA', 'PERCENTAGE', 'TOTAL CREDITS', 'TOTAL MARKS']],
-                body: [[
-                    formatNumber(cgpaData.cgpa, 4).toFixed(4),
-                    `${formatNumber(cgpaData.percentage, 2).toFixed(2)}%`,
-                    cgpaData.totalCreditHours.toString(),
-                    `${cgpaData.totalMarksObtained.toFixed(0)}/${cgpaData.totalMaxMarks}`
-                ]]
+                theme: 'striped',
+                styles: { fontSize: 9.5, cellPadding: 2.2 },
+                margin: { left: pageMargin + cardWidth + 10 },
+                body: [
+                    [{ content: 'Overall CGPA', styles: { fontStyle: 'bold' } }, `${formatNumber(cgpaData.cgpa, 4).toFixed(4)}`],
+                    [{ content: 'Total Credit Hours', styles: { fontStyle: 'bold' } }, `${cgpaData.totalCreditHours}`],
+                    [{ content: 'Overall Percentage', styles: { fontStyle: 'bold' } }, `${formatNumber(cgpaData.percentage, 2).toFixed(2)}%`],
+                    [{ content: 'Total Marks', styles: { fontStyle: 'bold' } }, `${cgpaData.totalMarksObtained.toFixed(0)} / ${cgpaData.totalMaxMarks}`]
+                ],
             });
-            lastY = Math.max(leftTableBottomY, pdf.lastAutoTable.finalY);
+            lastY = Math.max(topSectionRightY, pdf.lastAutoTable.finalY);
 
             // --- 3. Semesters Loop ---
             let semesterIndex = 0;
@@ -2966,6 +2964,7 @@ a:hover {
   </script>
 </body>
 </html>
+
 
 
 
