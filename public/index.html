@@ -2730,7 +2730,7 @@ a:hover {
         }
       }
       
-      // <<< START: FINAL, POLISHED HEADER LAYOUT PDF GENERATION FUNCTION V10 >>>
+      // <<< START: FINAL, PROFESSIONAL HEADER BOX PDF GENERATION FUNCTION V11 >>>
       function generatePDF() {
         if (!processedData) {
             showToast('No data to download', 'error');
@@ -2754,6 +2754,7 @@ a:hover {
                 textDark: '#1b1f24',
                 textLight: '#4b5563',
                 line: '#e0e0e0',
+                fillLight: '#f8f9ff',
             };
             let lastY = 0;
 
@@ -2777,25 +2778,52 @@ a:hover {
             
             drawFirstPageHeader();
 
-            // --- 2. Top Section (Professional Table Layout) ---
-            pdf.autoTable({
-                startY: lastY + 8,
-                theme: 'plain',
-                styles: { cellPadding: { top: 0, bottom: 2, left: 0, right: 2 } },
-                columnStyles: {
-                    0: { font: 'helvetica', fontStyle: 'bold', textColor: colors.textLight, fontSize: 10, halign: 'right' },
-                    1: { font: 'helvetica', fontStyle: 'bold', textColor: colors.textDark, fontSize: 11, cellWidth: availableWidth * 0.35 },
-                    2: { font: 'helvetica', fontStyle: 'bold', textColor: colors.textLight, fontSize: 10, halign: 'right' },
-                    3: { font: 'helvetica', fontStyle: 'bold', textColor: colors.textDark, fontSize: 11, cellWidth: availableWidth * 0.15 }
-                },
-                body: [
-                    ['Name:', processedData.studentInfo.name, 'Overall CGPA:', formatNumber(cgpaData.cgpa, 4).toFixed(4)],
-                    ['Registration No:', processedData.studentInfo.registration, 'Percentage:', `${formatNumber(cgpaData.percentage, 2).toFixed(2)}%`],
-                    ['', '', 'Total Credits:', cgpaData.totalCreditHours.toString()],
-                    ['', '', 'Total Marks:', `${cgpaData.totalMarksObtained.toFixed(0)}/${cgpaData.totalMaxMarks}`]
-                ],
+            // --- 2. Top Section (Professional Header Box) ---
+            const boxY = lastY + 8;
+            const boxHeight = 28;
+            // Draw main container
+            pdf.setFillColor(colors.fillLight);
+            pdf.setDrawColor(colors.line);
+            pdf.roundedRect(pageMargin, boxY, availableWidth, boxHeight, 3, 3, 'FD');
+            
+            // Draw Student Info
+            pdf.setFont('helvetica', 'bold');
+            pdf.setFontSize(12);
+            pdf.setTextColor(colors.textDark);
+            pdf.text(processedData.studentInfo.name, pageMargin + 4, boxY + 8);
+
+            pdf.setFont('helvetica', 'normal');
+            pdf.setFontSize(10);
+            pdf.setTextColor(colors.textLight);
+            pdf.text(processedData.studentInfo.registration, pageMargin + 4, boxY + 14);
+
+            // Draw horizontal separator line inside the box
+            pdf.setDrawColor(colors.line);
+            pdf.line(pageMargin, boxY + 18, pageWidth - pageMargin, boxY + 18);
+
+            // Draw Academic Stats
+            const stats = [
+                { label: 'OVERALL CGPA', value: formatNumber(cgpaData.cgpa, 4).toFixed(4) },
+                { label: 'PERCENTAGE', value: `${formatNumber(cgpaData.percentage, 2).toFixed(2)}%` },
+                { label: 'TOTAL CREDITS', value: cgpaData.totalCreditHours.toString() },
+                { label: 'TOTAL MARKS', value: `${cgpaData.totalMarksObtained.toFixed(0)}/${cgpaData.totalMaxMarks}` }
+            ];
+            const statBoxWidth = availableWidth / 4;
+            stats.forEach((stat, i) => {
+                const statX = pageMargin + (i * statBoxWidth) + (statBoxWidth / 2);
+                
+                pdf.setFontSize(7);
+                pdf.setFont('helvetica', 'bold');
+                pdf.setTextColor(colors.textLight);
+                pdf.text(stat.label, statX, boxY + 22, { align: 'center' });
+                
+                pdf.setFontSize(10);
+                pdf.setFont('helvetica', 'bold');
+                pdf.setTextColor(colors.textDark);
+                pdf.text(stat.value, statX, boxY + 26, { align: 'center' });
             });
-            lastY = pdf.lastAutoTable.finalY;
+            lastY = boxY + boxHeight;
+
 
             // --- 3. Semesters Loop ---
             let semesterIndex = 0;
@@ -2949,6 +2977,7 @@ a:hover {
   </script>
 </body>
 </html>
+
 
 
 
