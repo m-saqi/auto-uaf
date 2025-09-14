@@ -2730,7 +2730,7 @@ a:hover {
         }
       }
       
-      // <<< START: FINAL, CREATIVE & PROFESSIONALLY STYLED PDF GENERATION FUNCTION V3 >>>
+      // <<< START: FINAL, MINIMALIST & PROFESSIONALLY STYLED PDF GENERATION FUNCTION V4 >>>
       function generatePDF() {
         if (!processedData) {
             showToast('No data to download', 'error');
@@ -2754,7 +2754,6 @@ a:hover {
                 textDark: '#1b1f24',
                 textLight: '#4b5563',
                 line: '#e0e0e0',
-                fillLight: '#f8f9ff',
             };
             let lastY = 0;
 
@@ -2778,53 +2777,27 @@ a:hover {
             
             drawFirstPageHeader();
 
-            // --- 2. Top Section: Student Info Card & Academic Summary ---
-            const topSectionY = lastY + 8;
-            
-            // Student Info "Card" (Left Side)
-            const cardWidth = availableWidth * 0.5 - 5; // Half width minus a gap
-            const cardHeight = 22;
-            pdf.setFillColor(colors.fillLight);
-            pdf.setDrawColor(colors.line);
-            pdf.roundedRect(pageMargin, topSectionY, cardWidth, cardHeight, 3, 3, 'FD');
-
-            pdf.setFontSize(8);
-            pdf.setTextColor(colors.textLight);
-            pdf.setFont('helvetica', 'normal');
-            pdf.text("STUDENT NAME", pageMargin + 4, topSectionY + 6);
-
-            pdf.setFontSize(11);
-            pdf.setTextColor(colors.textDark);
+            // --- 2. Student Info (Clean, Left-Aligned Text) ---
+            pdf.setFontSize(12);
             pdf.setFont('helvetica', 'bold');
-            pdf.text(processedData.studentInfo.name, pageMargin + 4, topSectionY + 11);
-
-            pdf.setFontSize(8);
-            pdf.setTextColor(colors.textLight);
-            pdf.text("REGISTRATION NO.", pageMargin + 4, topSectionY + 16);
-
-            pdf.setFontSize(10);
             pdf.setTextColor(colors.textDark);
-            pdf.setFont('helvetica', 'normal');
-            pdf.text(processedData.studentInfo.registration, pageMargin + 4, topSectionY + 20);
-
-            let topSectionRightY = topSectionY + cardHeight;
-
-            // Academic Summary Table (Right Side)
+            pdf.text(processedData.studentInfo.name, pageMargin, lastY + 10);
+            pdf.text(processedData.studentInfo.registration, pageMargin, lastY + 16); // Increased space
+            lastY += 16;
+            
+            // --- 3. Academic Summary Table ---
             pdf.autoTable({
-                startY: topSectionY,
+                startY: lastY + 4,
                 theme: 'striped',
-                styles: { fontSize: 9.5, cellPadding: 2.2 },
-                margin: { left: pageMargin + cardWidth + 10 },
+                styles: { fontSize: 10, cellPadding: 2.5 },
                 body: [
-                    [{ content: 'Overall CGPA', styles: { fontStyle: 'bold' } }, `${formatNumber(cgpaData.cgpa, 4).toFixed(4)}`],
-                    [{ content: 'Total Credit Hours', styles: { fontStyle: 'bold' } }, `${cgpaData.totalCreditHours}`],
-                    [{ content: 'Overall Percentage', styles: { fontStyle: 'bold' } }, `${formatNumber(cgpaData.percentage, 2).toFixed(2)}%`],
-                    [{ content: 'Total Marks', styles: { fontStyle: 'bold' } }, `${cgpaData.totalMarksObtained.toFixed(0)} / ${cgpaData.totalMaxMarks}`]
+                    [{ content: 'Overall CGPA', styles: { fontStyle: 'bold' } }, `${formatNumber(cgpaData.cgpa, 4).toFixed(4)}`, { content: 'Total Credit Hours', styles: { fontStyle: 'bold' } }, `${cgpaData.totalCreditHours}`],
+                    [{ content: 'Overall Percentage', styles: { fontStyle: 'bold' } }, `${formatNumber(cgpaData.percentage, 2).toFixed(2)}%`, { content: 'Total Marks', styles: { fontStyle: 'bold' } }, `${cgpaData.totalMarksObtained.toFixed(0)} / ${cgpaData.totalMaxMarks}`]
                 ],
             });
-            lastY = Math.max(topSectionRightY, pdf.lastAutoTable.finalY);
+            lastY = pdf.lastAutoTable.finalY;
 
-            // --- 3. Semesters Loop ---
+            // --- 4. Semesters Loop ---
             Object.keys(processedData.semesters)
                 .sort((a, b) => processedData.semesters[a].sortKey.localeCompare(processedData.semesters[b].sortKey))
                 .forEach(semesterName => {
@@ -2832,69 +2805,59 @@ a:hover {
                     const activeCourses = semester.courses.filter(c => !c.isDeleted);
                     if (activeCourses.length === 0) return;
 
-                    // Semester Name Header
-                    pdf.setFontSize(14);
-                    pdf.setFont('helvetica', 'bold');
-                    pdf.setTextColor(colors.primary);
-                    if (lastY + 20 > pageHeight) { // Check if we need a new page
+                    const semesterSummary = `GPA: ${formatNumber(semester.gpa, 4).toFixed(4)}  |  Credit Hours: ${semester.totalCreditHours}  |  Marks: ${semester.totalMarksObtained.toFixed(0)}/${semester.totalMaxMarks}`;
+                    
+                    if (lastY + 30 > pageHeight) { // Check for page break before adding new semester
                         pdf.addPage();
                         lastY = 20;
                     }
+
+                    // Semester Name
+                    pdf.setFontSize(14);
+                    pdf.setFont('helvetica', 'bold');
+                    pdf.setTextColor(colors.primary);
                     pdf.text(semesterName, pageMargin, lastY + 12);
-                    lastY += 15;
-
-                    // Creative Stat Badges
-                    const badgeY = lastY;
-                    const badgeWidth = availableWidth / 3 - 4;
-                    const badgeHeight = 14;
-                    const badgeData = [
-                        { label: 'SEMESTER GPA', value: formatNumber(semester.gpa, 4).toFixed(4) },
-                        { label: 'CREDIT HOURS', value: semester.totalCreditHours.toString() },
-                        { label: 'SEMESTER MARKS', value: `${semester.totalMarksObtained.toFixed(0)}/${semester.totalMaxMarks}` }
-                    ];
-
-                    badgeData.forEach((badge, i) => {
-                        const badgeX = pageMargin + i * (badgeWidth + 6);
-                        pdf.setFillColor(colors.fillLight);
-                        pdf.setDrawColor(colors.line);
-                        pdf.roundedRect(badgeX, badgeY, badgeWidth, badgeHeight, 3, 3, 'FD');
-
-                        pdf.setFontSize(7);
-                        pdf.setTextColor(colors.textLight);
-                        pdf.setFont('helvetica', 'bold');
-                        pdf.text(badge.label, badgeX + badgeWidth / 2, badgeY + 5, { align: 'center' });
-
-                        pdf.setFontSize(11);
-                        pdf.setTextColor(colors.textDark);
-                        pdf.setFont('helvetica', 'bold');
-                        pdf.text(badge.value, badgeX + badgeWidth / 2, badgeY + 11, { align: 'center' });
-                    });
-                    lastY = badgeY + badgeHeight;
-
-                    // Semester Course Table
+                    lastY += 14;
+                    
+                    // Semester Summary Text (Bold, single line)
+                    pdf.setFontSize(9);
+                    pdf.setFont('helvetica', 'bold');
+                    pdf.setTextColor(colors.textDark);
+                    pdf.text(semesterSummary, pageMargin, lastY + 2);
+                    lastY += 4;
+                    
+                    // Course Table
                     const head = [['Course Code', 'Course Title', 'CH', 'Marks', 'Grade']];
                     const body = activeCourses.map(c => [c.code, c.title, c.creditHoursDisplay, c.marks.toFixed(0), c.grade]);
                     
                     pdf.autoTable({
                         head: head,
                         body: body,
-                        startY: lastY + 3, // Reduced space
+                        startY: lastY, // Tighter spacing
                         margin: { left: pageMargin, right: pageMargin, bottom: 25 },
                         headStyles: { fillColor: colors.primary, textColor: '#ffffff', fontStyle: 'bold', halign: 'center' },
                         columnStyles: { 
                             0: { halign: 'left', cellWidth: availableWidth * 0.18 },
-                            1: { halign: 'left', cellWidth: availableWidth * 0.46, cellPadding: { left: 2.5 } }, // Corrected indent
+                            1: { halign: 'left', cellWidth: availableWidth * 0.46, cellPadding: { left: 2 } }, // Corrected indent
                             2: { halign: 'center', cellWidth: availableWidth * 0.12 },
                             3: { halign: 'center', cellWidth: availableWidth * 0.12 },
                             4: { halign: 'center', cellWidth: availableWidth * 0.12 }
                         },
                         styles: { cellPadding: 2.2, fontSize: 9, overflow: 'linebreak' },
-                        alternateRowStyles: { fillColor: colors.fillLight }
+                        alternateRowStyles: { fillColor: '#f8f9ff' }
                     });
                     lastY = pdf.lastAutoTable.finalY;
+
+                    // Semester Separator Line
+                    if (lastY < pageHeight - 30) {
+                         pdf.setDrawColor(colors.line);
+                         pdf.setLineWidth(0.3);
+                         pdf.line(pageMargin, lastY + 6, pageWidth - pageMargin, lastY + 6);
+                         lastY += 6;
+                    }
                 });
             
-            // --- 4. Footer (Last Page Only) ---
+            // --- 5. Footer (Last Page Only) ---
             const totalPages = pdf.internal.getNumberOfPages();
             pdf.setPage(totalPages);
 
@@ -2909,7 +2872,7 @@ a:hover {
             pdf.setFontSize(8).setTextColor('#b0b0b0');
             pdf.text(`Page ${totalPages} of ${totalPages}`, pageWidth - pageMargin, pageHeight - 10, { align: 'right' });
             
-            // --- 5. Save the PDF ---
+            // --- 6. Save the PDF ---
             pdf.save(`UAF_Transcript_${processedData.studentInfo.registration}.pdf`);
             addStatusMessage('PDF report generated successfully', 'success');
             showToast('PDF downloaded!', 'success');
@@ -2984,6 +2947,7 @@ a:hover {
   </script>
 </body>
 </html>
+
 
 
 
