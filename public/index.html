@@ -2730,7 +2730,7 @@ a:hover {
         }
       }
       
-      // <<< START: CORRECTED PDF GENERATION FUNCTION >>>
+      // <<< START: IMPROVED AND RESTYLED PDF GENERATION FUNCTION >>>
       function generatePDF() {
         if (!processedData) {
             showToast('No data to download', 'error');
@@ -2776,7 +2776,7 @@ a:hover {
                 ],
             });
 
-            // Iterate through semesters and create a table for each
+            // Iterate through semesters and create a title block and course table for each
             Object.keys(processedData.semesters)
                 .sort((a, b) => processedData.semesters[a].sortKey.localeCompare(processedData.semesters[b].sortKey))
                 .forEach(semesterName => {
@@ -2784,26 +2784,41 @@ a:hover {
                     const activeCourses = semester.courses.filter(c => !c.isDeleted);
                     if (activeCourses.length === 0) return;
 
-                    const semesterSummary = `GPA: ${formatNumber(semester.gpa, 4).toFixed(4)}  |  Credit Hours: ${semester.totalCreditHours}  |  Marks: ${semester.totalMarksObtained.toFixed(0)} / ${semester.totalMaxMarks}`;
+                    const semesterSummary = `GPA: ${formatNumber(semester.gpa, 4).toFixed(4)}  |  Credit Hours: ${semester.totalCreditHours}  |  Marks: ${semester.totalMarksObtained.toFixed(0)}/${semester.totalMaxMarks}`;
+                    
+                    // Title block for semester name and summary - this prevents overlap and orphaned text
+                    pdf.autoTable({
+                        startY: pdf.lastAutoTable.finalY + 8, // Space between sections
+                        theme: 'plain',
+                        tableWidth: 'auto',
+                        margin: { left: pageMargin },
+                        styles: { cellPadding: 0, lineWidth: 0 },
+                        body: [
+                            [{ content: semesterName, styles: { font: 'helvetica', fontStyle: 'bold', fontSize: 12, textColor: '#1b1f24' } }],
+                            [{ content: semesterSummary, styles: { font: 'helvetica', fontStyle: 'normal', fontSize: 9, textColor: '#4b5563', cellPadding: { top: 1 } } }]
+                        ],
+                        didDrawPage: drawHeader // Handles page breaks before drawing
+                    });
+
                     const head = [['Course Code', 'Course Title', 'CH', 'Marks', 'Grade']];
                     const body = activeCourses.map(c => [c.code, c.title, c.creditHoursDisplay, c.marks.toFixed(0), c.grade]);
 
+                    // Main course table for the semester
                     pdf.autoTable({
                         head: head,
                         body: body,
-                        startY: pdf.lastAutoTable.finalY + 13, // Add space for titles
+                        startY: pdf.lastAutoTable.finalY + 2, // Position right after the title block
                         margin: { top: 45, left: pageMargin, right: pageMargin, bottom: 25 },
-                        didDrawPage: (data) => {
-                            drawHeader(data); // Redraw main header on new pages
-                            // Draw semester title
-                            pdf.setFontSize(12).setFont(undefined, 'bold').setTextColor('#1b1f24');
-                            pdf.text(semesterName, pageMargin, data.cursor.y - 9);
-                            // Draw semester summary line
-                            pdf.setFontSize(9).setFont(undefined, 'normal').setTextColor('#4b5563');
-                            pdf.text(semesterSummary, pageMargin, data.cursor.y - 4);
+                        didDrawPage: drawHeader, // Redraw header on new pages if table spans
+                        headStyles: { fillColor: '#7a6ad8', textColor: '#ffffff', fontStyle: 'bold', halign: 'center' },
+                        columnStyles: { 
+                            0: { halign: 'left', cellWidth: 25 },
+                            1: { halign: 'left', cellWidth: 85 },
+                            2: { halign: 'center', cellWidth: 15 },
+                            3: { halign: 'center', cellWidth: 15 },
+                            4: { halign: 'center', cellWidth: 15 }
                         },
-                        headStyles: { fillColor: '#7a6ad8', textColor: '#ffffff', fontStyle: 'bold' },
-                        columnStyles: { 1: { cellWidth: 80 } }, // More width for Course Title
+                        styles: { cellPadding: 2, fontSize: 9, overflow: 'linebreak' },
                         alternateRowStyles: { fillColor: '#f8f9ff' }
                     });
                 });
@@ -2828,7 +2843,7 @@ a:hover {
             }
             
             pdf.save(`UAF_Transcript_${processedData.studentInfo.registration}.pdf`);
-            addStatusMessage('PDF report generated', 'success');
+            addStatusMessage('PDF report generated successfully', 'success');
             showToast('PDF downloaded!', 'success');
         } catch (e) {
             addStatusMessage(`Error generating PDF: ${e.message}`, 'error');
@@ -2838,7 +2853,7 @@ a:hover {
             showLoadingStage(null);
         }
       }
-      // <<< END: CORRECTED PDF GENERATION FUNCTION >>>
+      // <<< END: IMPROVED AND RESTYLED PDF GENERATION FUNCTION >>>
 
       async function fetchResult() {
         const regNum = registrationNumber.value.trim();
@@ -2901,3 +2916,4 @@ a:hover {
   </script>
 </body>
 </html>
+
