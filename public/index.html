@@ -2730,7 +2730,7 @@ a:hover {
         }
       }
       
-      // <<< START: FINAL, POLISHED LAYOUT PDF GENERATION FUNCTION V6 >>>
+      // <<< START: FINAL, REFINED LAYOUT PDF GENERATION FUNCTION V7 >>>
       function generatePDF() {
         if (!processedData) {
             showToast('No data to download', 'error');
@@ -2754,7 +2754,6 @@ a:hover {
                 textDark: '#1b1f24',
                 textLight: '#4b5563',
                 line: '#e0e0e0',
-                fillLight: '#f8f9ff',
             };
             let lastY = 0;
 
@@ -2781,47 +2780,39 @@ a:hover {
             // --- 2. Two-Column Top Section ---
             const topSectionY = lastY + 10;
             
-            // Left Column: Student Info
-            pdf.setFontSize(11);
-            pdf.setFont('helvetica', 'bold');
-            pdf.setTextColor(colors.textDark);
-            pdf.text(processedData.studentInfo.name, pageMargin, topSectionY + 2);
-            pdf.text(processedData.studentInfo.registration, pageMargin, topSectionY + 8);
-            const studentInfoBottomY = topSectionY + 8;
-
-            // Right Column: Academic Summary "Badges" in a 2x2 Grid
-            const badgeWidth = (availableWidth / 2) - 25;
-            const badgeHeight = 14;
-            const badgeGap = 4;
-            const rightColumnX = pageWidth - pageMargin - (badgeWidth * 2 + badgeGap);
-            
-            const summaryBadges = [
-                { label: 'OVERALL CGPA', value: formatNumber(cgpaData.cgpa, 4).toFixed(4) },
-                { label: 'OVERALL PERCENTAGE', value: `${formatNumber(cgpaData.percentage, 2).toFixed(2)}%` },
-                { label: 'TOTAL CREDITS', value: cgpaData.totalCreditHours.toString() },
-                { label: 'TOTAL MARKS', value: `${cgpaData.totalMarksObtained.toFixed(0)}/${cgpaData.totalMaxMarks}` }
-            ];
-
-            summaryBadges.forEach((badge, i) => {
-                const badgeX = rightColumnX + (i % 2) * (badgeWidth + badgeGap);
-                const badgeY = topSectionY - 2 + Math.floor(i / 2) * (badgeHeight + badgeGap);
-                
-                pdf.setFillColor(colors.fillLight);
-                pdf.setDrawColor(colors.line);
-                pdf.roundedRect(badgeX, badgeY, badgeWidth, badgeHeight, 3, 3, 'FD');
-
-                pdf.setFontSize(7);
-                pdf.setTextColor(colors.textLight);
-                pdf.setFont('helvetica', 'bold');
-                pdf.text(badge.label, badgeX + badgeWidth / 2, badgeY + 5, { align: 'center' });
-
-                pdf.setFontSize(11);
-                pdf.setTextColor(colors.textDark);
-                pdf.setFont('helvetica', 'bold');
-                pdf.text(badge.value, badgeX + badgeWidth / 2, badgeY + 11, { align: 'center' });
+            // Left Column: Student Info with Labels
+            pdf.autoTable({
+                startY: topSectionY,
+                theme: 'plain',
+                margin: { left: pageMargin },
+                styles: { cellPadding: { top: 0, bottom: 1, left: 0, right: 2 } },
+                columnStyles: {
+                    0: { font: 'helvetica', fontStyle: 'bold', textColor: colors.textLight, fontSize: 10 },
+                    1: { font: 'helvetica', fontStyle: 'bold', textColor: colors.textDark, fontSize: 11 }
+                },
+                body: [
+                    ['Name:', processedData.studentInfo.name],
+                    ['Registration No:', processedData.studentInfo.registration]
+                ],
             });
-            const summaryBadgesBottomY = topSectionY - 2 + 2 * (badgeHeight + badgeGap) - badgeGap;
-            lastY = Math.max(studentInfoBottomY, summaryBadgesBottomY);
+            const leftTableBottomY = pdf.lastAutoTable.finalY;
+
+            // Right Column: Academic Summary (Horizontal Layout)
+            pdf.autoTable({
+                startY: topSectionY,
+                theme: 'plain',
+                margin: { left: pageMargin + availableWidth / 2 },
+                headStyles: { font: 'helvetica', fontStyle: 'bold', fontSize: 8, textColor: colors.textLight, halign: 'center' },
+                bodyStyles: { font: 'helvetica', fontStyle: 'bold', fontSize: 10, textColor: colors.textDark, halign: 'center' },
+                head: [['OVERALL CGPA', 'PERCENTAGE', 'TOTAL CREDITS', 'TOTAL MARKS']],
+                body: [[
+                    formatNumber(cgpaData.cgpa, 4).toFixed(4),
+                    `${formatNumber(cgpaData.percentage, 2).toFixed(2)}%`,
+                    cgpaData.totalCreditHours.toString(),
+                    `${cgpaData.totalMarksObtained.toFixed(0)}/${cgpaData.totalMaxMarks}`
+                ]]
+            });
+            lastY = Math.max(leftTableBottomY, pdf.lastAutoTable.finalY);
 
             // --- 3. Semesters Loop ---
             let semesterIndex = 0;
@@ -2871,7 +2862,7 @@ a:hover {
                             3: { halign: 'center', cellWidth: availableWidth * 0.12 },
                             4: { halign: 'center', cellWidth: availableWidth * 0.12 }
                         },
-                        styles: { valign: 'middle', cellPadding: 2.2, fontSize: 9, overflow: 'linebreak' }, // Corrected vertical alignment
+                        styles: { valign: 'middle', cellPadding: 2.2, fontSize: 9, overflow: 'linebreak' },
                         alternateRowStyles: { fillColor: '#f8f9ff' }
                     });
                     lastY = pdf.lastAutoTable.finalY;
@@ -2975,6 +2966,7 @@ a:hover {
   </script>
 </body>
 </html>
+
 
 
 
