@@ -2730,7 +2730,7 @@ a:hover {
         }
       }
       
-      // RESTORED: Professional PDF Generation
+      // <<< START: CORRECTED PDF GENERATION FUNCTION >>>
       function generatePDF() {
         if (!processedData) {
             showToast('No data to download', 'error');
@@ -2738,69 +2738,94 @@ a:hover {
         }
         addStatusMessage('Generating professional PDF report...', 'info');
         showLoadingStage('processing');
+
         try {
             const { jsPDF } = window.jspdf;
             const pdf = new jsPDF({ orientation: 'p', unit: 'mm', format: 'a4' });
             const cgpaData = calculateCGPA(processedData);
+            const pageMargin = 15;
+            const pageWidth = pdf.internal.pageSize.getWidth();
+            const pageHeight = pdf.internal.pageSize.getHeight();
 
+            // Reusable function to draw the main header on each page
+            const drawHeader = (data) => {
+                pdf.setFontSize(16);
+                pdf.setTextColor('#7a6ad8'); // Brand color
+                pdf.setFont(undefined, 'bold');
+                pdf.text("UNIVERSITY OF AGRICULTURE", pageWidth / 2, 20, { align: 'center' });
+                pdf.text("FAISALABAD", pageWidth / 2, 27, { align: 'center' });
+                pdf.setFontSize(12);
+                pdf.setTextColor('#4b5563'); // Muted text color
+                pdf.setFont(undefined, 'normal');
+                pdf.text("UNOFFICIAL ACADEMIC TRANSCRIPT", pageWidth / 2, 35, { align: 'center' });
+                pdf.setDrawColor('#7a6ad8');
+                pdf.setLineWidth(0.5);
+                pdf.line(pageMargin, 40, pageWidth - pageMargin, 40);
+            };
+
+            // Main summary table with student info and overall results
             pdf.autoTable({
-                didDrawPage: function(data) {
-                    // Header
-                    pdf.setFontSize(16);
-                    pdf.setTextColor(122, 106, 216);
-                    pdf.setFont(undefined, 'bold');
-                    pdf.text("UNIVERSITY OF AGRICULTURE", data.settings.pageWidth / 2, 20, { align: 'center' });
-                    pdf.text("FAISALABAD", data.settings.pageWidth / 2, 27, { align: 'center' });
-                    pdf.setFontSize(12);
-                    pdf.setTextColor(75, 85, 99);
-                    pdf.setFont(undefined, 'normal');
-                    pdf.text("UNOFFICIAL ACADEMIC TRANSCRIPT", data.settings.pageWidth / 2, 35, { align: 'center' });
-                    pdf.setDrawColor(122, 106, 216);
-                    pdf.setLineWidth(0.5);
-                    pdf.line(data.settings.margin.left, 40, data.settings.pageWidth - data.settings.margin.right, 40);
+                startY: 50,
+                didDrawPage: drawHeader,
+                theme: 'striped',
+                styles: { fontSize: 10, cellPadding: 2.5 },
+                body: [
+                    [{ content: 'Student Name', styles: { fontStyle: 'bold' } }, processedData.studentInfo.name, { content: 'Registration No.', styles: { fontStyle: 'bold' } }, processedData.studentInfo.registration],
+                    [{ content: 'Overall CGPA', styles: { fontStyle: 'bold' } }, `${formatNumber(cgpaData.cgpa, 4).toFixed(4)}`, { content: 'Total Credit Hours', styles: { fontStyle: 'bold' } }, `${cgpaData.totalCreditHours}`],
+                    [{ content: 'Overall Percentage', styles: { fontStyle: 'bold' } }, `${formatNumber(cgpaData.percentage, 2).toFixed(2)}%`, { content: 'Total Marks', styles: { fontStyle: 'bold' } }, `${cgpaData.totalMarksObtained.toFixed(0)} / ${cgpaData.totalMaxMarks}`]
+                ],
+            });
 
-                    // Footer
+            // Iterate through semesters and create a table for each
+            Object.keys(processedData.semesters)
+                .sort((a, b) => processedData.semesters[a].sortKey.localeCompare(processedData.semesters[b].sortKey))
+                .forEach(semesterName => {
+                    const semester = processedData.semesters[semesterName];
+                    const activeCourses = semester.courses.filter(c => !c.isDeleted);
+                    if (activeCourses.length === 0) return;
+
+                    const semesterSummary = `GPA: ${formatNumber(semester.gpa, 4).toFixed(4)}  |  Credit Hours: ${semester.totalCreditHours}  |  Marks: ${semester.totalMarksObtained.toFixed(0)} / ${semester.totalMaxMarks}`;
+                    const head = [['Course Code', 'Course Title', 'CH', 'Marks', 'Grade']];
+                    const body = activeCourses.map(c => [c.code, c.title, c.creditHoursDisplay, c.marks.toFixed(0), c.grade]);
+
+                    pdf.autoTable({
+                        head: head,
+                        body: body,
+                        startY: pdf.lastAutoTable.finalY + 13, // Add space for titles
+                        margin: { top: 45, left: pageMargin, right: pageMargin, bottom: 25 },
+                        didDrawPage: (data) => {
+                            drawHeader(data); // Redraw main header on new pages
+                            // Draw semester title
+                            pdf.setFontSize(12).setFont(undefined, 'bold').setTextColor('#1b1f24');
+                            pdf.text(semesterName, pageMargin, data.cursor.y - 9);
+                            // Draw semester summary line
+                            pdf.setFontSize(9).setFont(undefined, 'normal').setTextColor('#4b5563');
+                            pdf.text(semesterSummary, pageMargin, data.cursor.y - 4);
+                        },
+                        headStyles: { fillColor: '#7a6ad8', textColor: '#ffffff', fontStyle: 'bold' },
+                        columnStyles: { 1: { cellWidth: 80 } }, // More width for Course Title
+                        alternateRowStyles: { fillColor: '#f8f9ff' }
+                    });
+                });
+            
+            // Add footer and page numbers after all tables are drawn
+            const totalPages = pdf.internal.getNumberOfPages();
+            for (let i = 1; i <= totalPages; i++) {
+                pdf.setPage(i);
+                // Add page number to all pages
+                pdf.setFontSize(8).setTextColor(150);
+                pdf.text(`Page ${i} of ${totalPages}`, pageWidth - pageMargin, pageHeight - 10, { align: 'right' });
+                
+                // Add footer text ONLY on the last page
+                if (i === totalPages) {
                     pdf.setFontSize(8);
                     pdf.setTextColor(107, 114, 128);
                     pdf.setFont(undefined, 'italic');
-                    pdf.text("Generated by UAF CGPA Calculator", data.settings.pageWidth / 2, pdf.internal.pageSize.height - 15, { align: 'center' });
-                    pdf.text("This is an unofficial transcript.", data.settings.pageWidth / 2, pdf.internal.pageSize.height - 10, { align: 'center' });
-                    pdf.text(`Page ${data.pageNumber}`, data.settings.pageWidth - data.settings.margin.right, pdf.internal.pageSize.height - 10, { align: 'right' });
-                },
-                body: [
-                    [{ content: `Name: ${processedData.studentInfo.name}`, colSpan: 2, styles: { fontStyle: 'bold' } }, { content: `Reg. No: ${processedData.studentInfo.registration}`, colSpan: 2, styles: { fontStyle: 'bold' } }],
-                    [{ content: `CGPA: ${formatNumber(cgpaData.cgpa, 4).toFixed(4)}`, colSpan: 1 }, { content: `Percentage: ${formatNumber(cgpaData.percentage, 2).toFixed(2)}%`, colSpan: 1 }, { content: `Total Credits: ${cgpaData.totalCreditHours}`, colSpan: 1 }, { content: `Marks: ${cgpaData.totalMarksObtained.toFixed(0)}/${cgpaData.totalMaxMarks}`, colSpan: 1 }]
-                ],
-                startY: 50,
-                theme: 'plain'
-            });
-
-            Object.keys(processedData.semesters).sort((a,b) => processedData.semesters[a].sortKey.localeCompare(processedData.semesters[b].sortKey)).forEach(semesterName => {
-                const semester = processedData.semesters[semesterName];
-                const activeCourses = semester.courses.filter(c => !c.isDeleted);
-                if (activeCourses.length === 0) return;
-
-                const head = [['Course Code', 'Course Title', 'CH', 'Marks', 'Grade']];
-                const body = activeCourses.map(c => [c.code, c.title, c.creditHoursDisplay, c.marks, c.grade]);
-                
-                pdf.autoTable({
-                    head: head,
-                    body: body,
-                    startY: pdf.lastAutoTable.finalY + 2,
-                    didParseCell: function(data) {
-                        if (data.section === 'head') {
-                            data.cell.styles.fillColor = '#7a6ad8';
-                            data.cell.styles.textColor = '#ffffff';
-                        }
-                    },
-                    columnStyles: { 1: { cellWidth: 85 } },
-                    tableWidth: 'auto',
-                    margin: { left: 15, right: 15 },
-                    didDrawPage: (data) => {
-                      pdf.setFontSize(11).setFont(undefined, 'bold').setTextColor('#1b1f24').text(`${semesterName} (GPA: ${formatNumber(semester.gpa, 4).toFixed(4)})`, data.settings.margin.left, data.cursor.y - 5);
-                    }
-                });
-            });
+                    const footerY = pageHeight - 15;
+                    pdf.text("Generated by UAF Tools CGPA Calculator (uaftools.vercel.app)", pageWidth / 2, footerY, { align: 'center' });
+                    pdf.text("This is an unofficial transcript and should be used for reference purposes only.", pageWidth / 2, footerY + 5, { align: 'center' });
+                }
+            }
             
             pdf.save(`UAF_Transcript_${processedData.studentInfo.registration}.pdf`);
             addStatusMessage('PDF report generated', 'success');
@@ -2808,11 +2833,13 @@ a:hover {
         } catch (e) {
             addStatusMessage(`Error generating PDF: ${e.message}`, 'error');
             showToast('Error generating PDF', 'error');
+            console.error("PDF generation error: ", e);
         } finally {
             showLoadingStage(null);
         }
       }
-      
+      // <<< END: CORRECTED PDF GENERATION FUNCTION >>>
+
       async function fetchResult() {
         const regNum = registrationNumber.value.trim();
         if (!regNum) { showToast('Please enter a registration number', 'error'); return; }
@@ -2874,4 +2901,3 @@ a:hover {
   </script>
 </body>
 </html>
-
