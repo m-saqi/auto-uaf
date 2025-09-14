@@ -2730,7 +2730,7 @@ a:hover {
         }
       }
       
-      // <<< START: FINAL, REFINED LAYOUT PDF GENERATION FUNCTION V7 >>>
+      // <<< START: FINAL, TWO-COLUMN LAYOUT PDF GENERATION FUNCTION V5 >>>
       function generatePDF() {
         if (!processedData) {
             showToast('No data to download', 'error');
@@ -2777,41 +2777,40 @@ a:hover {
             
             drawFirstPageHeader();
 
-            // --- 2. Two-Column Top Section ---
+            // --- 2. Two-Column Top Section (Manual Layout) ---
             const topSectionY = lastY + 10;
+            const lineSpacing = 6;
+
+            // Left Column: Student Info
+            pdf.setFontSize(11);
+            pdf.setFont('helvetica', 'bold');
+            pdf.setTextColor(colors.textDark);
+            pdf.text(processedData.studentInfo.name, pageMargin, topSectionY);
+            pdf.text(processedData.studentInfo.registration, pageMargin, topSectionY + lineSpacing);
+
+            // Right Column: Academic Summary
+            const rightColumnX = pageWidth - pageMargin;
+            pdf.setFontSize(9);
+            pdf.setFont('helvetica', 'bold');
+            pdf.setTextColor(colors.textLight);
+
+            const summaryPairs = {
+                "Overall CGPA:": formatNumber(cgpaData.cgpa, 4).toFixed(4),
+                "Total Credit Hours:": cgpaData.totalCreditHours.toString(),
+                "Overall Percentage:": `${formatNumber(cgpaData.percentage, 2).toFixed(2)}%`,
+                "Total Marks:": `${cgpaData.totalMarksObtained.toFixed(0)} / ${cgpaData.totalMaxMarks}`
+            };
             
-            // Left Column: Student Info with Labels
-            pdf.autoTable({
-                startY: topSectionY,
-                theme: 'plain',
-                margin: { left: pageMargin },
-                styles: { cellPadding: { top: 0, bottom: 1, left: 0, right: 2 } },
-                columnStyles: {
-                    0: { font: 'helvetica', fontStyle: 'bold', textColor: colors.textLight, fontSize: 10 },
-                    1: { font: 'helvetica', fontStyle: 'bold', textColor: colors.textDark, fontSize: 11 }
-                },
-                body: [
-                    ['Name:', processedData.studentInfo.name],
-                    ['Registration No:', processedData.studentInfo.registration]
-                ],
-            });
-            const leftTableBottomY = pdf.lastAutoTable.finalY;
-
-            // Academic Summary Table (Right Side)
-            pdf.autoTable({
-                startY: topSectionY,
-                theme: 'striped',
-                styles: { fontSize: 9.5, cellPadding: 2.2 },
-                margin: { left: pageMargin + cardWidth + 10 },
-                body: [
-                    [{ content: 'Overall CGPA', styles: { fontStyle: 'bold' } }, `${formatNumber(cgpaData.cgpa, 4).toFixed(4)}`],
-                    [{ content: 'Total Credit Hours', styles: { fontStyle: 'bold' } }, `${cgpaData.totalCreditHours}`],
-                    [{ content: 'Overall Percentage', styles: { fontStyle: 'bold' } }, `${formatNumber(cgpaData.percentage, 2).toFixed(2)}%`],
-                    [{ content: 'Total Marks', styles: { fontStyle: 'bold' } }, `${cgpaData.totalMarksObtained.toFixed(0)} / ${cgpaData.totalMaxMarks}`]
-                ],
-            });
-            lastY = Math.max(topSectionRightY, pdf.lastAutoTable.finalY);
-
+            let i = 0;
+            for (const [label, value] of Object.entries(summaryPairs)) {
+                pdf.text(label, rightColumnX - 30, topSectionY + (i * lineSpacing * 0.8), { align: 'right' });
+                pdf.setTextColor(colors.textDark);
+                pdf.text(value, rightColumnX, topSectionY + (i * lineSpacing * 0.8), { align: 'right' });
+                pdf.setTextColor(colors.textLight);
+                i++;
+            }
+            lastY = topSectionY + (i * lineSpacing * 0.8);
+            
             // --- 3. Semesters Loop ---
             let semesterIndex = 0;
             Object.keys(processedData.semesters)
@@ -2852,7 +2851,7 @@ a:hover {
                         body: body,
                         startY: lastY,
                         margin: { left: pageMargin, right: pageMargin, bottom: 25 },
-                        headStyles: { fillColor: colors.primary, textColor: '#ffffff', fontStyle: 'bold', halign: 'center', valign: 'middle' },
+                        headStyles: { fillColor: colors.primary, textColor: '#ffffff', fontStyle: 'bold', halign: 'center' },
                         columnStyles: { 
                             0: { halign: 'left', cellWidth: availableWidth * 0.18 },
                             1: { halign: 'left', cellWidth: availableWidth * 0.46, cellPadding: { left: 2 } },
@@ -2860,7 +2859,7 @@ a:hover {
                             3: { halign: 'center', cellWidth: availableWidth * 0.12 },
                             4: { halign: 'center', cellWidth: availableWidth * 0.12 }
                         },
-                        styles: { valign: 'middle', cellPadding: 2.2, fontSize: 9, overflow: 'linebreak' },
+                        styles: { cellPadding: 2.2, fontSize: 9, overflow: 'linebreak' },
                         alternateRowStyles: { fillColor: '#f8f9ff' }
                     });
                     lastY = pdf.lastAutoTable.finalY;
@@ -2964,6 +2963,7 @@ a:hover {
   </script>
 </body>
 </html>
+
 
 
 
