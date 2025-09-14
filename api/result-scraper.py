@@ -13,6 +13,10 @@ import uuid
 from datetime import datetime, timedelta
 import sqlite3
 import hashlib
+import urllib3
+
+# Suppress InsecureRequestWarning for requests made with verify=False
+urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 # Set up logging
 logging.basicConfig(level=logging.INFO)
@@ -142,7 +146,8 @@ class handler(BaseHTTPRequestHandler):
             
             for test_url in test_urls:
                 try:
-                    response = requests.get(test_url, timeout=10, headers={'User-Agent': random.choice(USER_AGENTS)}, verify=True)
+                    # CORRECTED: Changed verify=True to verify=False to match the working scraper logic.
+                    response = requests.get(test_url, timeout=10, headers={'User-Agent': random.choice(USER_AGENTS)}, verify=False)
                     if response.status_code < 500:
                         success = True
                         message = f"Connection to UAF LMS successful (Status: {response.status_code})"
