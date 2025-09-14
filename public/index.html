@@ -2730,7 +2730,7 @@ a:hover {
         }
       }
       
-      // <<< START: FINAL, PROFESSIONALLY STYLED PDF GENERATION FUNCTION >>>
+      // <<< START: FINAL, PROFESSIONALLY STYLED PDF GENERATION FUNCTION V2 >>>
       function generatePDF() {
         if (!processedData) {
             showToast('No data to download', 'error');
@@ -2777,44 +2777,58 @@ a:hover {
             
             drawFirstPageHeader();
 
-            // --- 2. Student & CGPA Summary Table ---
+            // --- 2. Student Info (Separate & Styled) ---
             pdf.autoTable({
-                startY: lastY + 10,
-                theme: 'striped',
-                styles: { fontSize: 10, cellPadding: 2.5 },
+                startY: lastY + 8,
+                theme: 'plain',
+                tableWidth: availableWidth / 1.5, // Make this table centered but not full-width
+                margin: { left: pageMargin + (availableWidth / 4) },
+                styles: { cellPadding: { top: 0, bottom: 0, left: 2, right: 2 } },
                 body: [
-                    [{ content: 'Student Name', styles: { fontStyle: 'bold' } }, processedData.studentInfo.name, { content: 'Registration No.', styles: { fontStyle: 'bold' } }, processedData.studentInfo.registration],
-                    [{ content: 'Overall CGPA', styles: { fontStyle: 'bold' } }, `${formatNumber(cgpaData.cgpa, 4).toFixed(4)}`, { content: 'Total Credit Hours', styles: { fontStyle: 'bold' } }, `${cgpaData.totalCreditHours}`],
-                    [{ content: 'Overall Percentage', styles: { fontStyle: 'bold' } }, `${formatNumber(cgpaData.percentage, 2).toFixed(2)}%`, { content: 'Total Marks', styles: { fontStyle: 'bold' } }, `${cgpaData.totalMarksObtained.toFixed(0)} / ${cgpaData.totalMaxMarks}`]
+                    [{ content: 'Student Name:', styles: { font: 'helvetica', fontStyle: 'bold', fontSize: 10, textColor: colors.textLight, halign: 'right' } },
+                     { content: processedData.studentInfo.name, styles: { font: 'helvetica', fontStyle: 'bold', fontSize: 12, textColor: colors.textDark } }],
+                    [{ content: 'Registration No:', styles: { font: 'helvetica', fontStyle: 'bold', fontSize: 10, textColor: colors.textLight, halign: 'right' } },
+                     { content: processedData.studentInfo.registration, styles: { font: 'helvetica', fontStyle: 'bold', fontSize: 12, textColor: colors.textDark } }]
                 ],
-                didDrawPage: (data) => {
-                    // This hook is only for the summary table. If it creates a new page, that new page will NOT have the header.
-                    if (data.pageNumber > 1) {
-                       lastY = data.cursor.y;
-                    }
-                }
             });
             lastY = pdf.lastAutoTable.finalY;
 
-            // --- 3. Semesters Loop ---
+            // --- 3. Academic Summary ---
+            pdf.autoTable({
+                startY: lastY + 2,
+                theme: 'striped',
+                styles: { fontSize: 10, cellPadding: 2.5 },
+                body: [
+                    [{ content: 'Overall CGPA', styles: { fontStyle: 'bold' } }, `${formatNumber(cgpaData.cgpa, 4).toFixed(4)}`, { content: 'Total Credit Hours', styles: { fontStyle: 'bold' } }, `${cgpaData.totalCreditHours}`],
+                    [{ content: 'Overall Percentage', styles: { fontStyle: 'bold' } }, `${formatNumber(cgpaData.percentage, 2).toFixed(2)}%`, { content: 'Total Marks', styles: { fontStyle: 'bold' } }, `${cgpaData.totalMarksObtained.toFixed(0)} / ${cgpaData.totalMaxMarks}`]
+                ],
+            });
+            lastY = pdf.lastAutoTable.finalY;
+
+            // --- 4. Semesters Loop ---
             Object.keys(processedData.semesters)
                 .sort((a, b) => processedData.semesters[a].sortKey.localeCompare(processedData.semesters[b].sortKey))
-                .forEach((semesterName, index) => {
+                .forEach(semesterName => {
                     const semester = processedData.semesters[semesterName];
                     const activeCourses = semester.courses.filter(c => !c.isDeleted);
                     if (activeCourses.length === 0) return;
 
                     const semesterSummary = `GPA: ${formatNumber(semester.gpa, 4).toFixed(4)}  |  Credit Hours: ${semester.totalCreditHours}  |  Marks: ${semester.totalMarksObtained.toFixed(0)}/${semester.totalMaxMarks}`;
                     
-                    // Semester Title Block
+                    // Styled Semester Title & Summary Block
                     pdf.autoTable({
                         startY: lastY + 10,
                         theme: 'plain',
                         margin: { left: pageMargin },
-                        styles: { cellPadding: 0 },
                         body: [
-                            [{ content: semesterName, styles: { font: 'helvetica', fontStyle: 'bold', fontSize: 12, textColor: colors.textDark } }],
-                            [{ content: semesterSummary, styles: { font: 'helvetica', fontStyle: 'normal', fontSize: 9, textColor: colors.textLight, cellPadding: { top: 1.5 } } }]
+                            // Row 1: Semester Name (Styled)
+                            [{ content: semesterName, colSpan: 3, styles: { font: 'helvetica', fontStyle: 'bold', fontSize: 13, textColor: colors.primary, cellPadding: { bottom: 2 } } }],
+                            // Row 2: Modern Summary (3 columns)
+                            [
+                                { content: `GPA: ${formatNumber(semester.gpa, 4).toFixed(4)}`, styles: { font: 'helvetica', fontStyle: 'bold', fontSize: 9, textColor: colors.textDark } },
+                                { content: `Credits: ${semester.totalCreditHours}`, styles: { font: 'helvetica', fontStyle: 'bold', fontSize: 9, textColor: colors.textDark } },
+                                { content: `Marks: ${semester.totalMarksObtained.toFixed(0)}/${semester.totalMaxMarks}`, styles: { font: 'helvetica', fontStyle: 'bold', fontSize: 9, textColor: colors.textDark } }
+                            ]
                         ]
                     });
                     lastY = pdf.lastAutoTable.finalY;
@@ -2826,15 +2840,15 @@ a:hover {
                     pdf.autoTable({
                         head: head,
                         body: body,
-                        startY: lastY + 2,
+                        startY: lastY + 3,
                         margin: { left: pageMargin, right: pageMargin, bottom: 25 },
                         headStyles: { fillColor: colors.primary, textColor: '#ffffff', fontStyle: 'bold', halign: 'center' },
                         columnStyles: { 
-                            0: { halign: 'left', cellWidth: availableWidth * 0.18 }, // 18%
-                            1: { halign: 'left', cellWidth: availableWidth * 0.46 }, // 46%
-                            2: { halign: 'center', cellWidth: availableWidth * 0.12 }, // 12%
-                            3: { halign: 'center', cellWidth: availableWidth * 0.12 }, // 12%
-                            4: { halign: 'center', cellWidth: availableWidth * 0.12 }  // 12%
+                            0: { halign: 'left', cellWidth: availableWidth * 0.18 },
+                            1: { halign: 'left', cellWidth: availableWidth * 0.46, cellPadding: { left: 4 } }, // Added left margin here
+                            2: { halign: 'center', cellWidth: availableWidth * 0.12 },
+                            3: { halign: 'center', cellWidth: availableWidth * 0.12 },
+                            4: { halign: 'center', cellWidth: availableWidth * 0.12 }
                         },
                         styles: { cellPadding: 2.2, fontSize: 9, overflow: 'linebreak' },
                         alternateRowStyles: { fillColor: '#f8f9ff' }
@@ -2842,14 +2856,14 @@ a:hover {
                     lastY = pdf.lastAutoTable.finalY;
 
                     // Semester Separator Line
-                    if (lastY < pageHeight - 25) { // Only draw line if there's enough space before the bottom margin
+                    if (lastY < pageHeight - 30) { 
                          pdf.setDrawColor(colors.line);
                          pdf.setLineWidth(0.3);
-                         pdf.line(pageMargin, lastY + 5, pageWidth - pageMargin, lastY + 5);
+                         pdf.line(pageMargin, lastY + 6, pageWidth - pageMargin, lastY + 6);
                     }
                 });
             
-            // --- 4. Footer (Last Page Only) ---
+            // --- 5. Footer (Last Page Only) ---
             const totalPages = pdf.internal.getNumberOfPages();
             pdf.setPage(totalPages); // Go to the last page
 
@@ -2865,7 +2879,7 @@ a:hover {
             pdf.setFontSize(8).setTextColor('#b0b0b0');
             pdf.text(`Page ${totalPages} of ${totalPages}`, pageWidth - pageMargin, pageHeight - 10, { align: 'right' });
             
-            // --- 5. Save the PDF ---
+            // --- 6. Save the PDF ---
             pdf.save(`UAF_Transcript_${processedData.studentInfo.registration}.pdf`);
             addStatusMessage('PDF report generated successfully', 'success');
             showToast('PDF downloaded!', 'success');
@@ -2940,5 +2954,6 @@ a:hover {
   </script>
 </body>
 </html>
+
 
 
