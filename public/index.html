@@ -2174,7 +2174,8 @@ a:hover {
           const originalSemester = course.Semester || 'Unknown Semester';
           const semesterName = processSemesterName(originalSemester);
           const courseCode = course.CourseCode || '';
-          
+          const historyKey = courseCode.toUpperCase(); // Case-insensitive key for logic
+
           if (!semesters[semesterName]) {
             semesters[semesterName] = { originalName: originalSemester, sortKey: getSemesterOrderKey(originalSemester), courses: [] };
           }
@@ -2183,13 +2184,21 @@ a:hover {
           const creditHours = parseInt(creditHoursStr.match(/\d+/)?.[0] || '0');
           const marks = parseFloat(course.Total || '0');
           
+          // Calculate quality points initially
+          let qualityPoints = calculateQualityPoints(marks, creditHours);
+          
+          // **BUG FIX**: If grade is 'F', quality points must be 0
+          if (course.Grade === 'F') {
+            qualityPoints = 0;
+          }
+
           const courseData = {
-            code: courseCode,
+            code: courseCode, // Keep original casing for display
             title: course.CourseTitle || '',
             creditHours: creditHours,
             creditHoursDisplay: creditHoursStr,
             marks: marks,
-            qualityPoints: calculateQualityPoints(marks, creditHours),
+            qualityPoints: qualityPoints, // Use the corrected quality points
             grade: course.Grade || '',
             teacher: course.TeacherName || '',
             mid: course.Mid || '0',
@@ -2203,8 +2212,11 @@ a:hover {
             isCustom: false
           };
           
-          if (!courseHistory[courseCode]) courseHistory[courseCode] = [];
-          courseHistory[courseCode].push({ semester: semesterName, semesterSortKey: getSemesterOrderKey(originalSemester), marks: marks, data: courseData });
+          // **IMPROVEMENT**: Use case-insensitive key for course history
+          if (!courseHistory[historyKey]) {
+            courseHistory[historyKey] = [];
+          }
+          courseHistory[historyKey].push({ semester: semesterName, semesterSortKey: getSemesterOrderKey(originalSemester), marks: marks, data: courseData });
           semesters[semesterName].courses.push(courseData);
         });
         
