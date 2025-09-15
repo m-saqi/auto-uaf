@@ -56,7 +56,7 @@ html, body {
 }
 
 body {
-  background: linear-gradient(180deg, #f8f9ff 0%, #ffffff 70%);
+  background-color: var(--light-bg); /* UPDATED: Solid background color */
   min-height: 100vh;
   margin: 0;
   padding: 0;
@@ -370,71 +370,6 @@ label {
   animation-delay: 0.4s;
 }
 
-.loading-fetching {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
-.loading-fetching .book {
-  width: 40px;
-  height: 30px;
-  background: var(--brand);
-  border-radius: 5px;
-  position: relative;
-  animation: bookFlip 2s infinite ease-in-out;
-  transform-style: preserve-3d;
-}
-
-.loading-fetching .book:before {
-  content: '';
-  position: absolute;
-  width: 100%;
-  height: 100%;
-  background: var(--brand-600);
-  border-radius: 5px;
-  transform: rotateY(180deg);
-}
-
-.loading-processing {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
-.loading-processing .calculator {
-  width: 40px;
-  height: 50px;
-  background: var(--brand);
-  border-radius: 5px;
-  position: relative;
-}
-
-.loading-processing .calculator:before {
-  content: '';
-  position: absolute;
-  top: 10px;
-  left: 5px;
-  width: 30px;
-  height: 5px;
-  background: rgba(255, 255, 255, 0.7);
-  border-radius: 2px;
-  box-shadow: 0 10px 0 rgba(255, 255, 255, 0.7), 0 20px 0 rgba(255, 255, 255, 0.7);
-}
-
-.loading-processing .calculator:after {
-  content: '';
-  position: absolute;
-  bottom: 5px;
-  right: 5px;
-  width: 10px;
-  height: 10px;
-  border-radius: 50%;
-  border: 2px solid rgba(255, 255, 255, 0.7);
-  border-top-color: transparent;
-  animation: spin 1s infinite linear;
-}
-
 .loading-complete .checkmark {
   width: 80px;
   height: 80px;
@@ -459,16 +394,6 @@ label {
 @keyframes bounce {
   0%, 100% { transform: translateY(0); }
   50% { transform: translateY(-15px); }
-}
-
-@keyframes bookFlip {
-  0%, 100% { transform: rotateY(0deg); }
-  50% { transform: rotateY(180deg); }
-}
-
-@keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
 }
 
 @keyframes checkmark {
@@ -529,8 +454,7 @@ status-warning { color: #fd7e14; }
 
 .footer {
   color: #9ca3af;
-  background: rgba(255, 255, 255, 0.8);
-  backdrop-filter: blur(10px);
+  background-color: var(--light-bg); /* UPDATED: Solid background color */
 }
 
 a {
@@ -1090,6 +1014,13 @@ a:hover {
   }
 }
 
+/* UPDATED: Narrow calculator container on desktop */
+@media (min-width: 992px) {
+  #Auto-Calculator .col-md-10 {
+    width: 70%;
+  }
+}
+
 @media (min-width: 992px) {
   .navbar-expand-lg .navbar-nav .nav-link {
     padding-right: var(--bs-navbar-nav-link-padding-x);
@@ -1180,8 +1111,8 @@ a:hover {
   
   .scraping-section .center-buttons .btn,
   .log-section .center-buttons .btn {
-    width: 100%;
-    max-width: 300px;
+    width: auto; /* UPDATED: Smaller button width */
+    min-width: 180px; /* Ensure a decent tap target size */
   }
 }
 
@@ -1228,10 +1159,12 @@ a:hover {
   
   .action-buttons {
     flex-direction: column;
+    align-items: center; /* UPDATED: Center button vertically */
   }
   
   .action-buttons .btn {
-    width: 100%;
+    width: auto; /* UPDATED: Smaller button width */
+    min-width: 200px; /* Ensure a decent tap target size */
   }
 }
 
@@ -1634,7 +1567,7 @@ a:hover {
 /* Why Choose Section */
 .why-choose-section {
   padding: 5rem 0;
-  background-color: var(--light-bg);
+  /* background-color is inherited from body */
 }
 
 .why-choose-section .text-center {
@@ -1697,7 +1630,7 @@ a:hover {
 
 /* Dark mode for Why Choose section */
 [data-theme="dark"] .why-choose-section {
-  background: linear-gradient(180deg, #0b0e13 0%, #0f1320 70%);
+  background: transparent; /* Inherit from body gradient */
 }
 
 [data-theme="dark"] .feature-card {
@@ -1707,8 +1640,12 @@ a:hover {
 [data-theme="dark"] .feature-card h5 {
   color: #ffffff;
 }
-[data-theme="dark"] .feature-card p {
-    color: var(--muted);
+/* UPDATED: Fix for text visibility in dark mode */
+[data-theme="dark"] .feature-card p.text-muted {
+    color: var(--muted) !important;
+}
+[data-theme="dark"] .why-choose-section .lead.text-muted {
+    color: var(--text-light) !important;
 }
 
 
@@ -1937,8 +1874,8 @@ a:hover {
               </form>
               <div class="loading-container" id="loadingContainer">
                 <div class="loading-stage" id="connectingStage"><div class="loading-animation loading-connecting"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div><p class="loading-text">Connecting to UAF LMS</p><p class="loading-subtext">Establishing secure connection to university servers</p></div>
-                <div class="loading-stage" id="fetchingStage"><div class="loading-animation loading-fetching"><div class="book"></div></div><p class="loading-text">Fetching Your Results</p><p class="loading-subtext">Retrieving your academic records from the database</p></div>
-                <div class="loading-stage" id="processingStage"><div class="loading-animation loading-processing"><div class="calculator"></div></div><p class="loading-text">Processing Data</p><p class="loading-subtext">Analyzing your grades and calculating CGPA</p></div>
+                <div class="loading-stage" id="fetchingStage"><div class="loading-animation loading-connecting"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div><p class="loading-text">Fetching Your Results</p><p class="loading-subtext">Retrieving your academic records from the database</p></div>
+                <div class="loading-stage" id="processingStage"><div class="loading-animation loading-connecting"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div><p class="loading-text">Processing Data</p><p class="loading-subtext">Analyzing your grades and calculating CGPA</p></div>
                 <div class="loading-stage" id="completeStage"><div class="loading-animation loading-complete"><div class="checkmark"></div></div><p class="loading-text">Results Ready!</p><p class="loading-subtext">Your CGPA has been calculated successfully</p></div>
               </div>
             </div>
@@ -1955,10 +1892,10 @@ a:hover {
                     <div class="cgpa-metric cgpa-metric-right"><p class="mb-0 cgpa-metric-label">Marks</p><div class="cgpa-metric-value-container"><p class="mb-0 cgpa-metric-value" id="totalMarksObtained">0</p><p class="mb-0 cgpa-metric-subvalue" id="totalMaxMarks">/ 0</p></div></div>
                   </div>
                 </div>
-                <div class="action-buttons">
-                  <button id="downloadPdfBtn" class="btn btn-pdf-download rounded-pill"><i class="fa-solid fa-file-pdf me-2"></i>Download PDF</button>
-                </div>
               </div>
+            </div>
+            <div class="action-buttons">
+              <button id="downloadPdfBtn" class="btn btn-pdf-download rounded-pill"><i class="fa-solid fa-file-pdf me-2"></i>Download PDF</button>
             </div>
             <div class="semester-results-container">
               <div id="semesterResults" class="semester-grid"></div>
@@ -1966,7 +1903,7 @@ a:hover {
           </div>
           
           <div class="card card-modern mt-4">
-            <div class="card-header p-4"><h4 class="mb-0"><i class="fa-solid fa-terminal me-2"></i>Status Log</h4></div>
+            <div class="card-header p-4"><h4 class="mb-0 text-start"><i class="fa-solid fa-terminal me-2"></i>Status Log</h4></div>
             <div class="card-body p-4">
               <div class="status-log" id="statusLog"><div class="status-line status-info">Ready to fetch your results. Enter your registration number and click "Fetch Result".</div></div>
               <div class="log-section center-buttons mt-3">
@@ -2723,9 +2660,21 @@ a:hover {
             throw new Error(data.message || "No result found for this registration number.");
           }
         } catch (error) {
-          addStatusMessage(`LMS Fetch Failed: ${error.message}`, 'error');
-          showToast('UAF LMS seems to be offline or unavailable.', 'warning');
-          showLoadingStage(null);
+            // UPDATED: Better error handling
+            console.error("Fetch Error:", error); // For debugging
+            let userMessage, logMessage;
+            
+            if (error instanceof TypeError && error.message.includes('Failed to fetch')) {
+                userMessage = 'Network error. Please check your internet connection.';
+                logMessage = 'Failed to fetch due to a network error. Ensure you are connected to the internet.';
+            } else {
+                userMessage = 'Could not retrieve results. The UAF LMS may be offline or the registration number is incorrect.';
+                logMessage = `API/LMS Error: ${error.message}`;
+            }
+            
+            addStatusMessage(logMessage, 'error');
+            showToast(userMessage, 'error');
+            showLoadingStage(null);
         }
       }
       
