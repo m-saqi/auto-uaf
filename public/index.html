@@ -279,6 +279,7 @@ body {
 .card-modern .card-header h4 {
   font-weight: 700;
   color: var(--text);
+  text-align: center; /* Center header text */
 }
 
 .form-select, .form-control {
@@ -800,62 +801,7 @@ a:hover {
   display: none;
 }
 
-/* Saved Results Section */
-.saved-results-container {
-  display: none;
-  margin-top: 2rem;
-  max-width: 900px;
-  margin-left: auto;
-  margin-right: auto;
-}
-
-.saved-result-card {
-  background: rgba(255, 255, 255, 0.8);
-  border-radius: var(--radius);
-  padding: 1.5rem;
-  box-shadow: 0 5px 15px rgba(17, 24, 39, 0.1);
-  margin-bottom: 1rem;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  backdrop-filter: blur(10px);
-}
-
-.saved-result-card:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 8px 25px rgba(17, 24, 39, 0.15);
-  background: rgba(255, 255, 255, 0.95);
-}
-
-.saved-result-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 0.5rem;
-}
-
-.saved-result-date {
-  font-size: 0.8rem;
-  color: var(--muted);
-}
-
-.saved-result-actions {
-  display: flex;
-  gap: 0.5rem;
-}
-
-.saved-result-action-btn {
-  background: none;
-  border: none;
-  cursor: pointer;
-  color: var(--muted);
-  font-size: 0.9rem;
-  transition: all 0.3s ease;
-}
-
-.saved-result-action-btn:hover {
-  color: var(--brand);
-  transform: scale(1.1);
-}
+/* Saved Results Section (REMOVED) */
 
 /* Add Course Form */
 .add-course-form {
@@ -877,13 +823,6 @@ a:hover {
 .form-group {
   flex: 1;
   min-width: 200px;
-}
-
-/* Save to Web Button */
-.save-to-web-btn {
-  margin-top: 1rem;
-  display: none;
-  text-align: center;
 }
 
 /* ----------- DARK MODE IMPROVED ----------- */
@@ -991,10 +930,6 @@ a:hover {
 
 [data-theme="dark"] .course-table th {
   background: rgba(122, 106, 216, 0.1);
-}
-
-[data-theme="dark"] .saved-result-card {
-  background: rgba(26, 32, 48, 0.8);
 }
 
 [data-theme="dark"] .add-course-form {
@@ -1278,7 +1213,7 @@ a:hover {
   gap: 1rem;
   margin-top: 1.5rem;
   flex-wrap: wrap;
-  justify-content: center;
+  justify-content: center; /* UPDATED: Center the buttons */
 }
 
 @media (max-width: 768px) {
@@ -1344,20 +1279,7 @@ a:hover {
   color: var(--brand);
 }
 
-/* Test connection button style */
-.test-connection-btn {
-  background: rgba(248, 249, 250, 0.8);
-  color: var(--muted);
-  border: 1px solid rgba(233, 236, 239, 0.5);
-  transition: all 0.3s ease;
-  backdrop-filter: blur(10px);
-}
-
-.test-connection-btn:hover {
-  background: rgba(233, 236, 239, 0.8);
-  color: var(--text);
-  transform: translateY(-1px);
-}
+/* Test connection button style (REMOVED) */
 
 /* Desktop-specific smaller text for semester sections */
 @media (min-width: 992px) {
@@ -1835,7 +1757,7 @@ a:hover {
 /* Action buttons container */
 .action-buttons {
   display: flex;
-  justify-content: space-between;
+  justify-content: center; /* Center the single button */
   align-items: center;
   margin-top: 1.5rem;
   flex-wrap: wrap;
@@ -1852,6 +1774,17 @@ a:hover {
     width: 100%;
   }
 }
+
+/* Center Registration Number Input */
+.scraping-section .mb-3 {
+    text-align: center;
+}
+.scraping-section #registrationNumber {
+    max-width: 350px;
+    margin: 0 auto;
+    text-align: center;
+}
+
   </style>
 </head>
 <body>
@@ -1984,21 +1917,6 @@ a:hover {
     </div>
   </section>
 
-  <section class="why-choose-section">
-    <div class="container">
-      <div class="text-center mb-5">
-        <h2 class="fw-bold">Why Choose Our <span class="gradient-text">CGPA Calculator</span></h2>
-        <p class="lead text-muted">The most advanced tool for UAF students</p>
-      </div>
-      <div class="row g-4">
-        <div class="col-md-6 col-lg-3"><div class="feature-card"><div class="feature-icon"><i class="fas fa-bolt"></i></div><h5>Lightning Fast</h5><p class="text-muted">Get your results in seconds with our optimized algorithm</p></div></div>
-        <div class="col-md-6 col-lg-3"><div class="feature-card"><div class="feature-icon"><i class="fas fa-lock"></i></div><h5>Secure</h5><p class="text-muted">Your data is safe with us. We don't store personal information</p></div></div>
-        <div class="col-md-6 col-lg-3"><div class="feature-card"><div class="feature-icon"><i class="fas fa-chart-line"></i></div><h5>Accurate</h5><p class="text-muted">Precise calculations based on UAF's official grading system</p></div></div>
-        <div class="col-md-6 col-lg-3"><div class="feature-card"><div class="feature-icon"><i class="fas fa-mobile-alt"></i></div><h5>Responsive</h5><p class="text-muted">Works perfectly on all devices - desktop, tablet, and mobile</p></div></div>
-      </div>
-    </div>
-  </section>
-
   <section class="py-5" id="Auto-Calculator">
     <div class="container">
       <div class="row justify-content-center">
@@ -2012,11 +1930,9 @@ a:hover {
                 <div class="mb-3">
                   <label for="registrationNumber" class="form-label">Registration Number</label>
                   <input type="text" class="form-control" id="registrationNumber" placeholder="e.g., 2020-ag-1234" required>
-                  <div class="form-text">Enter your UAF registration number</div>
                 </div>
                 <div class="center-buttons">
                   <button type="submit" class="btn btn-primary-action rounded-pill"><i class="fa-solid fa-cloud-arrow-down me-2"></i>Fetch Result</button>
-                  <button id="testConnectionBtn" type="button" class="btn test-connection-btn rounded-pill"><i class="fa-solid fa-vial me-2"></i>Test Connection</button>
                 </div>
               </form>
               <div class="loading-container" id="loadingContainer">
@@ -2027,8 +1943,6 @@ a:hover {
               </div>
             </div>
           </div>
-
-          <div id="savedResultsContainer" class="saved-results-container"></div>
           
           <div id="resultContainer" class="result-container">
             <div class="gpa-result-card">
@@ -2042,7 +1956,6 @@ a:hover {
                   </div>
                 </div>
                 <div class="action-buttons">
-                  <button id="saveToWebBtn" class="btn btn-primary-action rounded-pill save-to-web-btn"><i class="fa-solid fa-cloud-arrow-up me-2"></i>Save to Web</button>
                   <button id="downloadPdfBtn" class="btn btn-pdf-download rounded-pill"><i class="fa-solid fa-file-pdf me-2"></i>Download PDF</button>
                 </div>
               </div>
@@ -2067,6 +1980,21 @@ a:hover {
     </div>
   </section>
 
+  <section class="why-choose-section">
+    <div class="container">
+      <div class="text-center mb-5">
+        <h2 class="fw-bold">Why Choose Our <span class="gradient-text">CGPA Calculator</span></h2>
+        <p class="lead text-muted">The most advanced tool for UAF students</p>
+      </div>
+      <div class="row g-4">
+        <div class="col-md-6 col-lg-3"><div class="feature-card"><div class="feature-icon"><i class="fas fa-bolt"></i></div><h5>Lightning Fast</h5><p class="text-muted">Get your results in seconds with our optimized algorithm</p></div></div>
+        <div class="col-md-6 col-lg-3"><div class="feature-card"><div class="feature-icon"><i class="fas fa-lock"></i></div><h5>Secure</h5><p class="text-muted">Your data is safe with us. We don't store personal information</p></div></div>
+        <div class="col-md-6 col-lg-3"><div class="feature-card"><div class="feature-icon"><i class="fas fa-chart-line"></i></div><h5>Accurate</h5><p class="text-muted">Precise calculations based on UAF's official grading system</p></div></div>
+        <div class="col-md-6 col-lg-3"><div class="feature-card"><div class="feature-icon"><i class="fas fa-mobile-alt"></i></div><h5>Responsive</h5><p class="text-muted">Works perfectly on all devices - desktop, tablet, and mobile</p></div></div>
+      </div>
+    </div>
+  </section>
+  
   <section class="py-5" id="contact-us">
     <div class="container">
       <div class="row g-4">
@@ -2119,7 +2047,6 @@ a:hover {
       const resultForm = document.getElementById('resultForm');
       const registrationNumber = document.getElementById('registrationNumber');
       const resultContainer = document.getElementById('resultContainer');
-      const testConnectionBtn = document.getElementById('testConnectionBtn');
       const statusLog = document.getElementById('statusLog');
       const themeToggle = document.getElementById('themeToggle');
       const cursorDot = document.getElementById('cursorDot');
@@ -2133,9 +2060,7 @@ a:hover {
       const totalPercentage = document.getElementById('totalPercentage');
       const totalMarksObtained = document.getElementById('totalMarksObtained');
       const totalMaxMarks = document.getElementById('totalMaxMarks');
-      const saveToWebBtn = document.getElementById('saveToWebBtn');
       const downloadPdfBtn = document.getElementById('downloadPdfBtn');
-      const savedResultsContainer = document.getElementById('savedResultsContainer');
       const courseDetailsModal = new bootstrap.Modal(document.getElementById('courseDetailsModal'));
       const addCourseModal = new bootstrap.Modal(document.getElementById('addCourseModal'));
       const saveCourseBtn = document.getElementById('saveCourseBtn');
@@ -2145,18 +2070,11 @@ a:hover {
       
       // State
       let allLogs = [];
-      let testInProgress = false;
       let processedData = null;
       let deletedSemesters = {};
       
       // API Endpoints
-      const API_ENDPOINTS = {
-        scrape: `/api/result-scraper?action=scrape_single`,
-        test: `/api/result-scraper?action=test`,
-        save: `/api/result-scraper?action=save_result`,
-        load: `/api/result-scraper?action=load_result`,
-        delete: `/api/result-scraper?action=delete_result`
-      };
+      const API_ENDPOINT = `/api/result-scraper?action=scrape_single`;
       
       function init() {
         initCustomCursor();
@@ -2288,33 +2206,6 @@ a:hover {
         showToast('Log cleared', 'info');
       }
       
-      async function testConnection() {
-        if (testInProgress) return;
-        testInProgress = true;
-        testConnectionBtn.disabled = true;
-        addStatusMessage('Testing connection to UAF LMS server...', 'info');
-        showLoadingStage('connecting');
-        try {
-          const response = await fetch(API_ENDPOINTS.test);
-          const data = await response.json();
-          if (data.success) {
-            addStatusMessage('Connection test successful - UAF LMS is accessible', 'success');
-            showToast('Connection test successful!', 'success');
-            showLoadingStage('complete');
-            setTimeout(() => showLoadingStage(null), 2000);
-          } else {
-            throw new Error(data.message);
-          }
-        } catch (error) {
-          addStatusMessage(`Connection test failed: ${error.message}`, 'error');
-          showToast('Connection test failed!', 'error');
-          showLoadingStage(null);
-        } finally {
-          testInProgress = false;
-          testConnectionBtn.disabled = false;
-        }
-      }
-      
       function processSemesterName(semester) {
           if (!semester) return 'Unknown Semester';
           if (semester.includes('Winter')) {
@@ -2405,7 +2296,6 @@ a:hover {
         return { studentInfo, semesters, courseHistory };
       }
       
-      // RESTORED: Accurate Quality Points Calculation
       function calculateQualityPoints(marks, creditHours) {
         marks = parseFloat(marks);
         creditHours = parseInt(creditHours);
@@ -2448,7 +2338,6 @@ a:hover {
         return 'F';
       }
       
-      // RESTORED: Accurate CGPA Calculation
       function calculateCGPA(data) {
         if (!data) return null;
         let totalQualityPoints = 0, totalCreditHours = 0, totalMarksObtained = 0, totalMaxMarks = 0;
@@ -2487,8 +2376,6 @@ a:hover {
       function displayCGPAResults(data, cgpaData) {
         processedData = data;
         resultContainer.style.display = 'block';
-        saveToWebBtn.style.display = 'block';
-        downloadPdfBtn.style.display = 'block';
         
         studentName.innerHTML = `<i class="fa-solid fa-user-graduate me-2"></i>${data.studentInfo.name}`;
         studentReg.textContent = data.studentInfo.registration;
@@ -2634,103 +2521,6 @@ a:hover {
         displayCGPAResults(processedData, cgpaData);
       }
       
-      async function saveToWeb() {
-        if (!processedData) return;
-        const fileName = prompt("Enter a name for this result:", "My Result - " + new Date().toLocaleDateString());
-        if (!fileName) return;
-        addStatusMessage(`Saving result as "${fileName}"...`, 'info');
-        showLoadingStage('processing');
-        try {
-          const response = await fetch(API_ENDPOINTS.save, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ registrationNumber: processedData.studentInfo.registration, studentData: processedData, fileName: fileName.trim(), timestamp: new Date().toISOString() })
-          });
-          const result = await response.json();
-          if (!result.success) throw new Error(result.message);
-          addStatusMessage(`Result saved successfully`, 'success');
-          showToast('Result saved!', 'success');
-          checkSavedResults();
-        } catch (error) {
-          addStatusMessage(`Error saving result: ${error.message}`, 'error');
-          showToast('Error saving result', 'error');
-        } finally {
-          showLoadingStage(null);
-        }
-      }
-      
-      async function checkSavedResults() {
-        const regNum = registrationNumber.value.trim();
-        if (!regNum) {
-            savedResultsContainer.innerHTML = '';
-            savedResultsContainer.style.display = 'none';
-            return null;
-        }
-        try {
-          const response = await fetch(`${API_ENDPOINTS.load}&registrationNumber=${encodeURIComponent(regNum)}`);
-          const result = await response.json();
-          if (result.success && result.savedResults && result.savedResults.length > 0) {
-            displaySavedResults(result.savedResults);
-            return result.savedResults;
-          } else {
-            savedResultsContainer.innerHTML = '';
-            savedResultsContainer.style.display = 'none';
-            return null;
-          }
-        } catch (error) {
-          console.error('Error checking saved results:', error);
-          savedResultsContainer.innerHTML = '';
-          savedResultsContainer.style.display = 'none';
-          return null;
-        }
-      }
-      
-      function displaySavedResults(savedResults) {
-        savedResultsContainer.innerHTML = `<div class="card card-modern"><div class="card-header p-4"><h4 class="mb-0"><i class="fa-solid fa-floppy-disk me-2"></i>Saved Results</h4></div><div class="card-body p-4" id="savedResultsList"></div></div>`;
-        const listEl = document.getElementById('savedResultsList');
-        listEl.innerHTML = ''; 
-        savedResults.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp)).forEach(result => {
-          const ts = new Date(result.timestamp);
-          const date = ts.toLocaleDateString();
-          const time = ts.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-          const resultCard = document.createElement('div');
-          resultCard.className = 'saved-result-card';
-          resultCard.innerHTML = `<div class="saved-result-header"><div class="saved-result-info"><strong class="saved-result-filename">${result.fileName}</strong><div class="saved-result-date">Saved on: ${date} at ${time}</div></div><div class="saved-result-actions"><button class="saved-result-action-btn" title="Show this result"><i class="fa-solid fa-eye"></i></button><button class="saved-result-action-btn" title="Delete this result"><i class="fa-solid fa-trash"></i></button></div></div>`;
-          resultCard.querySelector('.fa-eye').parentElement.onclick = () => loadSavedResult(result);
-          resultCard.querySelector('.fa-trash').parentElement.onclick = () => deleteSavedResult(result.id);
-          listEl.appendChild(resultCard);
-        });
-        savedResultsContainer.style.display = 'block';
-      }
-      
-      function loadSavedResult(savedResult) {
-        addStatusMessage(`Loading saved result: "${savedResult.fileName}"`, 'info');
-        const dataToLoad = savedResult.student_data || savedResult.studentData;
-        const cgpaData = calculateCGPA(dataToLoad);
-        displayCGPAResults(dataToLoad, cgpaData);
-        showToast(`Loaded "${savedResult.fileName}"`, 'success');
-        window.scrollTo({ top: resultContainer.offsetTop - 80, behavior: 'smooth' });
-      }
-      
-      async function deleteSavedResult(resultId) {
-        if (!confirm("Are you sure you want to delete this saved result? This cannot be undone.")) return;
-        try {
-          const response = await fetch(API_ENDPOINTS.delete, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ id: resultId })
-          });
-          const result = await response.json();
-          if (!result.success) throw new Error(result.message);
-          showToast('Saved result deleted', 'success');
-          addStatusMessage('Deleted a saved result', 'info');
-          checkSavedResults();
-        } catch (error) {
-          showToast(`Error deleting result: ${error.message}`, 'error');
-        }
-      }
-      
-      // <<< START: FINAL, CENTER-ALIGNED NAME PDF GENERATION FUNCTION V12 >>>
       function generatePDF() {
         if (!processedData) {
             showToast('No data to download', 'error');
@@ -2744,7 +2534,6 @@ a:hover {
             const pdf = new jsPDF({ orientation: 'p', unit: 'mm', format: 'a4' });
             const cgpaData = calculateCGPA(processedData);
 
-            // --- Define Styles & Dimensions ---
             const pageMargin = 15;
             const pageWidth = pdf.internal.pageSize.getWidth();
             const pageHeight = pdf.internal.pageSize.getHeight();
@@ -2758,7 +2547,6 @@ a:hover {
             };
             let lastY = 0;
 
-            // --- 1. Header (First Page Only) ---
             const drawFirstPageHeader = () => {
                 pdf.setFontSize(18);
                 pdf.setTextColor(colors.primary);
@@ -2778,17 +2566,14 @@ a:hover {
             
             drawFirstPageHeader();
 
-            // --- 2. Top Section (Professional Header Box) ---
             const boxY = lastY + 8;
             const boxHeight = 28;
             const boxCenterX = pageWidth / 2;
 
-            // Draw main container
             pdf.setFillColor(colors.fillLight);
             pdf.setDrawColor(colors.line);
             pdf.roundedRect(pageMargin, boxY, availableWidth, boxHeight, 3, 3, 'FD');
             
-            // Draw Student Info (Center Aligned)
             pdf.setFont('helvetica', 'bold');
             pdf.setFontSize(12);
             pdf.setTextColor(colors.textDark);
@@ -2799,11 +2584,9 @@ a:hover {
             pdf.setTextColor(colors.textLight);
             pdf.text(processedData.studentInfo.registration, boxCenterX, boxY + 14, { align: 'center' });
 
-            // Draw horizontal separator line inside the box
             pdf.setDrawColor(colors.line);
             pdf.line(pageMargin, boxY + 18, pageWidth - pageMargin, boxY + 18);
 
-            // Draw Academic Stats
             const stats = [
                 { label: 'OVERALL CGPA', value: formatNumber(cgpaData.cgpa, 4).toFixed(4) },
                 { label: 'PERCENTAGE', value: `${formatNumber(cgpaData.percentage, 2).toFixed(2)}%` },
@@ -2826,8 +2609,6 @@ a:hover {
             });
             lastY = boxY + boxHeight;
 
-
-            // --- 3. Semesters Loop ---
             let semesterIndex = 0;
             Object.keys(processedData.semesters)
                 .sort((a, b) => processedData.semesters[a].sortKey.localeCompare(processedData.semesters[b].sortKey))
@@ -2839,13 +2620,12 @@ a:hover {
 
                     const semesterSummary = `GPA: ${formatNumber(semester.gpa, 4).toFixed(4)}  |  Credit Hours: ${semester.totalCreditHours}  |  Marks: ${semester.totalMarksObtained.toFixed(0)}/${semester.totalMaxMarks}`;
                     
-                    if (lastY + 30 > pageHeight) { // Check for page break
+                    if (lastY + 30 > pageHeight) {
                         pdf.addPage();
                         lastY = 20;
                     }
                     const semesterHeaderY = lastY + 12;
 
-                    // Semester Header (Two-Column Text)
                     pdf.setFontSize(14);
                     pdf.setFont('helvetica', 'bold');
                     pdf.setTextColor(colors.primary);
@@ -2858,7 +2638,6 @@ a:hover {
                     
                     lastY = semesterHeaderY + 2;
                     
-                    // Course Table
                     const head = [['Course Code', 'Course Title', 'CH', 'Marks', 'Grade']];
                     const body = activeCourses.map(c => [c.code, c.title, c.creditHoursDisplay, c.marks.toFixed(0), c.grade]);
                     
@@ -2880,7 +2659,6 @@ a:hover {
                     });
                     lastY = pdf.lastAutoTable.finalY;
 
-                    // Semester Separator Line
                     if (lastY < pageHeight - 30) {
                          pdf.setDrawColor(colors.line);
                          pdf.setLineWidth(0.3);
@@ -2889,7 +2667,6 @@ a:hover {
                     }
                 });
             
-            // --- 4. Footer (Last Page Only) ---
             const totalPages = pdf.internal.getNumberOfPages();
             pdf.setPage(totalPages);
 
@@ -2904,7 +2681,6 @@ a:hover {
             pdf.setFontSize(8).setTextColor('#b0b0b0');
             pdf.text(`Page ${totalPages} of ${totalPages}`, pageWidth - pageMargin, pageHeight - 10, { align: 'right' });
             
-            // --- 5. Save the PDF ---
             pdf.save(`UAF_Transcript_${processedData.studentInfo.registration}.pdf`);
             addStatusMessage('PDF report generated successfully', 'success');
             showToast('PDF downloaded!', 'success');
@@ -2916,7 +2692,6 @@ a:hover {
             showLoadingStage(null);
         }
       }
-      // <<< END: FINAL PDF GENERATION FUNCTION >>>
 
       async function fetchResult() {
         const regNum = registrationNumber.value.trim();
@@ -2927,7 +2702,7 @@ a:hover {
         addStatusMessage(`Fetching result for: ${regNum}`, 'info');
 
         try {
-          const response = await fetch(`${API_ENDPOINTS.scrape}&registrationNumber=${encodeURIComponent(regNum)}`);
+          const response = await fetch(`${API_ENDPOINT}&registrationNumber=${encodeURIComponent(regNum)}`);
           if (!response.ok) throw new Error(`Server responded with status ${response.status}`);
           showLoadingStage('fetching');
           const data = await response.json();
@@ -2941,7 +2716,6 @@ a:hover {
             showLoadingStage('complete');
             setTimeout(() => {
               displayCGPAResults(processed, cgpaData);
-              checkSavedResults();
               showLoadingStage(null);
               showToast('Result fetched successfully!', 'success');
             }, 1000);
@@ -2951,46 +2725,19 @@ a:hover {
         } catch (error) {
           addStatusMessage(`LMS Fetch Failed: ${error.message}`, 'error');
           showToast('UAF LMS seems to be offline or unavailable.', 'warning');
-          addStatusMessage('Checking for previously saved results...', 'info');
-          const savedResults = await checkSavedResults();
-          if (savedResults && savedResults.length > 0) {
-              addStatusMessage(`Found saved result(s). Please choose one to view.`, 'success');
-              showToast('Showing saved results instead.', 'info');
-          } else {
-              addStatusMessage('No saved results found for this registration number.', 'error');
-              showToast('No saved results found.', 'error');
-          }
           showLoadingStage(null);
         }
       }
       
       // Event Listeners
       resultForm.addEventListener('submit', (e) => { e.preventDefault(); fetchResult(); });
-      testConnectionBtn.addEventListener('click', testConnection);
       downloadLogBtn.addEventListener('click', downloadLog);
       clearLogBtn.addEventListener('click', clearLog);
-      saveToWebBtn.addEventListener('click', saveToWeb);
       downloadPdfBtn.addEventListener('click', generatePDF);
       saveCourseBtn.addEventListener('click', addCustomCourse);
-      registrationNumber.addEventListener('input', () => checkSavedResults());
       
       init();
     });
   </script>
 </body>
 </html>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
