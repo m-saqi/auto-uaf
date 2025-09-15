@@ -610,9 +610,7 @@ a:hover {
   box-shadow: var(--shadow);
   margin-bottom: 2rem;
   margin-top: 2rem;
-  max-width: 900px;
-  margin-left: auto;
-  margin-right: auto;
+  width: 100%; /* UPDATED: Full width of parent */
   backdrop-filter: blur(10px);
   transition: all 0.3s ease;
 }
@@ -1143,8 +1141,9 @@ a:hover {
   display: flex;
   gap: 1rem;
   margin-top: 1.5rem;
+  margin-bottom: 2rem; /* ADDED */
   flex-wrap: wrap;
-  justify-content: center; /* UPDATED: Center the buttons */
+  justify-content: center;
 }
 
 @media (max-width: 768px) {
@@ -1159,12 +1158,11 @@ a:hover {
   
   .action-buttons {
     flex-direction: column;
-    align-items: center; /* UPDATED: Center button vertically */
+    align-items: center;
   }
   
   .action-buttons .btn {
-    width: auto; /* UPDATED: Smaller button width */
-    min-width: 200px; /* Ensure a decent tap target size */
+    width: auto; /* Let the button size itself based on padding */
   }
 }
 
@@ -1234,16 +1232,17 @@ a:hover {
   width: 100%;
 }
 
+/* UPDATED: Semester grid layout */
 .semester-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
+  grid-template-columns: 1fr; /* Default to 1 column */
   gap: 1.5rem;
   width: 100%;
 }
 
-@media (max-width: 992px) {
+@media (min-width: 992px) {
   .semester-grid {
-    grid-template-columns: 1fr;
+    grid-template-columns: repeat(2, 1fr); /* 2 columns on desktop */
   }
 }
 
@@ -1689,27 +1688,6 @@ a:hover {
   color: white;
   transform: translateY(-2px);
   box-shadow: 0 10px 25px rgba(231, 76, 60, 0.3);
-}
-
-/* Action buttons container */
-.action-buttons {
-  display: flex;
-  justify-content: center; /* Center the single button */
-  align-items: center;
-  margin-top: 1.5rem;
-  flex-wrap: wrap;
-  gap: 1rem;
-}
-
-@media (max-width: 576px) {
-  .action-buttons {
-    flex-direction: column;
-    align-items: stretch;
-  }
-  
-  .action-buttons .btn {
-    width: 100%;
-  }
 }
 
 /* Center Registration Number Input */
