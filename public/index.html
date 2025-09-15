@@ -1711,6 +1711,25 @@ a:hover {
     text-align: center;
 }
 
+/* Drag and Drop Styles (Desktop Only) */
+@media (min-width: 992px) {
+  .course-table tbody tr {
+    cursor: grab;
+  }
+  .course-table tbody tr.dragging {
+    opacity: 0.5;
+    background: #e9e6f8;
+  }
+  .semester-card.drag-over {
+    border: 2px dashed var(--brand);
+    transform: scale(1.02);
+    background-color: rgba(122, 106, 216, 0.1);
+  }
+  [data-theme="dark"] .semester-card.drag-over {
+    background-color: rgba(122, 106, 216, 0.2);
+  }
+}
+
   </style>
 </head>
 <body>
@@ -2340,8 +2359,10 @@ a:hover {
             </div>
             <button class="custom-course-btn" data-semester="${semesterName}"><i class="fa-solid fa-plus"></i> Custom Course</button>
             <div class="table-responsive"><table class="course-table"><thead><tr><th>Course</th><th>Hrs</th><th>Marks</th><th>Grade</th><th>Action</th></tr></thead>
-                <tbody>${semester.courses.map(course => `
-                    <tr class="${course.isExtraEnrolled ? 'table-warning' : ''} ${course.isDeleted ? 'table-danger text-decoration-line-through' : ''} ${course.isCustom ? 'table-info' : ''}">
+                <tbody>${semester.courses.map((course, index) => {
+                    const courseIdentifier = `${semesterName}-${course.code}-${course.total}-${index}`;
+                    return `
+                    <tr data-course-identifier="${courseIdentifier}" draggable="true" class="${course.isExtraEnrolled ? 'table-warning' : ''} ${course.isDeleted ? 'table-danger text-decoration-line-through' : ''} ${course.isCustom ? 'table-info' : ''}">
                       <td><div class="course-code-container">
                           <span class="fw-medium course-code clickable-info" data-course='${JSON.stringify(course).replace(/'/g, "&#39;")}'>${course.code}${course.isExtraEnrolled ? '<span class="extra-enrolled">Rep.</span>' : ''}</span>
                           <i class="fa-solid fa-info-circle ms-2 clickable-info small" data-course='${JSON.stringify(course).replace(/'/g, "&#39;")}' title="${course.title}"></i>
@@ -2350,7 +2371,8 @@ a:hover {
                       <td>${course.creditHoursDisplay || course.creditHours}</td><td>${course.marks}</td>
                       <td><span class="grade-badge grade-${course.grade}">${course.grade}</span></td>
                       <td class="course-actions">${course.isDeleted ? `<i class="fa-solid fa-rotate-left restore-course" data-course='${JSON.stringify(course).replace(/'/g, "&#39;")}' data-semester="${semesterName}" title="Restore"></i>` : `<i class="fa-solid fa-trash delete-course" data-course='${JSON.stringify(course).replace(/'/g, "&#39;")}' data-semester="${semesterName}" title="Delete"></i>`}</td>
-                    </tr>`).join('')}</tbody>
+                    </tr>`;
+                }).join('')}</tbody>
             </table></div>`;
           semesterResults.appendChild(semesterCard);
         });
@@ -2369,6 +2391,78 @@ a:hover {
           const course = JSON.parse(btn.dataset.course.replace(/&#39;/g, "'"));
           btn.onclick = () => modifyCourseState(course, btn.dataset.semester, false);
         });
+
+        if (window.innerWidth >= 992) {
+          initDragAndDrop();
+        }
+      }
+
+      function initDragAndDrop() {
+          const draggables = document.querySelectorAll('.course-table tr[draggable="true"]');
+          const droppables = document.querySelectorAll('.semester-card');
+
+          draggables.forEach(draggable => {
+              draggable.addEventListener('dragstart', e => {
+                  e.target.classList.add('dragging');
+                  const sourceSemester = e.target.closest('.semester-card').dataset.semester;
+                  const courseIdentifier = e.target.dataset.courseIdentifier;
+                  e.dataTransfer.setData('text/plain', JSON.stringify({ courseIdentifier, sourceSemester }));
+              });
+
+              draggable.addEventListener('dragend', e => {
+                  e.target.classList.remove('dragging');
+              });
+          });
+
+          droppables.forEach(droppable => {
+              droppable.addEventListener('dragover', e => {
+                  e.preventDefault();
+                  e.currentTarget.classList.add('drag-over');
+              });
+
+              droppable.addEventListener('dragleave', e => {
+                  e.currentTarget.classList.remove('drag-over');
+              });
+
+              droppable.addEventListener('drop', e => {
+                  e.preventDefault();
+                  e.currentTarget.classList.remove('drag-over');
+
+                  const data = JSON.parse(e.dataTransfer.getData('text/plain'));
+                  const targetSemester = e.currentTarget.dataset.semester;
+
+                  if (data.sourceSemester === targetSemester) {
+                      return; // Dropped in the same semester
+                  }
+                  
+                  let courseToMove = null;
+                  let courseIndex = -1;
+                  
+                  const identifierParts = data.courseIdentifier.split('-');
+                  const originalIndex = parseInt(identifierParts[identifierParts.length - 1], 10);
+                  
+                  const sourceCourses = processedData.semesters[data.sourceSemester]?.courses;
+                  if (sourceCourses && sourceCourses[originalIndex]) {
+                      const potentialCourse = sourceCourses[originalIndex];
+                      const expectedIdentifier = `${data.sourceSemester}-${potentialCourse.code}-${potentialCourse.total}-${originalIndex}`;
+                      if (data.courseIdentifier === expectedIdentifier) {
+                          courseToMove = potentialCourse;
+                          courseIndex = originalIndex;
+                      }
+                  }
+
+                  if (courseToMove && courseIndex > -1) {
+                      sourceCourses.splice(courseIndex, 1);
+                      processedData.semesters[targetSemester].courses.push(courseToMove);
+                      recalculateAndDisplay();
+                      showToast(`Moved ${courseToMove.code} to ${targetSemester}`, 'success');
+                      addStatusMessage(`Moved course ${courseToMove.code} from ${data.sourceSemester} to ${targetSemester}`, 'info');
+                  } else {
+                      showToast('Could not move course.', 'error');
+                      console.error('Course mismatch or not found. Identifier:', data.courseIdentifier);
+                  }
+              });
+          });
       }
       
       function showCourseDetails(course) {
