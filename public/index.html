@@ -611,8 +611,8 @@ a:hover {
   margin-bottom: 2rem;
   margin-top: 2rem;
   width: 100%; /* UPDATED: Full width */
-  margin-left: 0; /* UPDATED */
-  margin-right: 0; /* UPDATED */
+  margin-left: 0;
+  margin-right: 0;
   backdrop-filter: blur(10px);
   transition: all 0.3s ease;
 }
@@ -724,8 +724,6 @@ a:hover {
   margin-top: 1rem;
   display: none;
 }
-
-/* Saved Results Section (REMOVED) */
 
 /* Add Course Form */
 .add-course-form {
@@ -1111,8 +1109,8 @@ a:hover {
   
   .scraping-section .center-buttons .btn,
   .log-section .center-buttons .btn {
-    width: auto; /* UPDATED: Smaller button width */
-    min-width: 180px; /* Ensure a decent tap target size */
+    width: auto; 
+    min-width: 180px; 
   }
 }
 
@@ -1144,7 +1142,7 @@ a:hover {
   gap: 1rem;
   margin-top: 1.5rem;
   flex-wrap: wrap;
-  justify-content: center; /* UPDATED: Center the buttons */
+  justify-content: center;
 }
 
 @media (max-width: 768px) {
@@ -1159,12 +1157,12 @@ a:hover {
   
   .action-buttons {
     flex-direction: column;
-    align-items: center; /* UPDATED: Center button vertically */
+    align-items: center; 
   }
   
   .action-buttons .btn {
-    width: auto; /* UPDATED: Smaller button width */
-    min-width: 200px; /* Ensure a decent tap target size */
+    width: auto; 
+    min-width: 200px;
   }
 }
 
@@ -1212,8 +1210,6 @@ a:hover {
   color: var(--brand);
 }
 
-/* Test connection button style (REMOVED) */
-
 /* Desktop-specific smaller text for semester sections */
 @media (min-width: 992px) {
   .semester-card {
@@ -1236,12 +1232,12 @@ a:hover {
 
 .semester-grid {
   display: grid;
-  grid-template-columns: 1fr; /* UPDATED: Mobile first */
+  grid-template-columns: 1fr; /* CORRECTED: Mobile-first, single column */
   gap: 1.5rem;
   width: 100%;
 }
 
-@media (min-width: 992px) { /* UPDATED: Two columns for desktop */
+@media (min-width: 992px) { /* CORRECTED: Two-column layout for desktops */
   .semester-grid {
     grid-template-columns: repeat(2, 1fr);
   }
@@ -1567,7 +1563,6 @@ a:hover {
 /* Why Choose Section */
 .why-choose-section {
   padding: 5rem 0;
-  /* background-color is inherited from body */
 }
 
 .why-choose-section .text-center {
@@ -1640,7 +1635,7 @@ a:hover {
 [data-theme="dark"] .feature-card h5 {
   color: #ffffff;
 }
-/* UPDATED: Fix for text visibility in dark mode */
+
 [data-theme="dark"] .feature-card p.text-muted {
     color: var(--muted) !important;
 }
@@ -1700,8 +1695,6 @@ a:hover {
   flex-wrap: wrap;
   gap: 1rem;
 }
-
-/* REMOVED REDUNDANT/CONFLICTING RULE FOR .action-buttons at 576px */
 
 /* Center Registration Number Input */
 .scraping-section .mb-3 {
