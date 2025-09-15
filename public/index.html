@@ -602,7 +602,7 @@ a:hover {
   to { transform: scaleX(0); }
 }
 
-/* GPA Result Display - UPDATED WIDTH */
+/* GPA Result Display */
 .gpa-result-card {
   background: rgba(255, 255, 255, 0.8);
   border-radius: var(--radius);
@@ -610,9 +610,9 @@ a:hover {
   box-shadow: var(--shadow);
   margin-bottom: 2rem;
   margin-top: 2rem;
-  width: 100%; /* UPDATED: Full width */
-  margin-left: 0;
-  margin-right: 0;
+  width: 70%; /* CORRECTED: As per user request */
+  margin-left: auto; /* CORRECTED: As per user request */
+  margin-right: auto; /* CORRECTED: As per user request */
   backdrop-filter: blur(10px);
   transition: all 0.3s ease;
 }
@@ -1015,7 +1015,7 @@ a:hover {
 /* UPDATED: Narrow calculator container on desktop */
 @media (min-width: 992px) {
   #Auto-Calculator .col-md-10 {
-    width: 70%;
+    width: 100%; /* CORRECTED: As per user request */
   }
 }
 
@@ -1045,6 +1045,10 @@ a:hover {
   .course-table {
     white-space: nowrap;
     font-size: 11px;
+  }
+  
+  .gpa-result-card {
+    width: 95%; /* Adjust for mobile */
   }
   
   /* Make repeated course indicator appear below course code on mobile */
@@ -1141,6 +1145,7 @@ a:hover {
   display: flex;
   gap: 1rem;
   margin-top: 1.5rem;
+  margin-bottom: 1.5rem; /* CORRECTED: As per user request */
   flex-wrap: wrap;
   justify-content: center;
 }
@@ -1232,12 +1237,12 @@ a:hover {
 
 .semester-grid {
   display: grid;
-  grid-template-columns: 1fr; /* CORRECTED: Mobile-first, single column */
+  grid-template-columns: 1fr;
   gap: 1.5rem;
   width: 100%;
 }
 
-@media (min-width: 992px) { /* CORRECTED: Two-column layout for desktops */
+@media (min-width: 992px) {
   .semester-grid {
     grid-template-columns: repeat(2, 1fr);
   }
