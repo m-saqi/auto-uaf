@@ -56,7 +56,7 @@ html, body {
 }
 
 body {
-  background: linear-gradient(180deg, #f8f9ff 0%, #ffffff 70%);
+  background-color: var(--light-bg);
   min-height: 100vh;
   margin: 0;
   padding: 0;
@@ -396,6 +396,11 @@ label {
   50% { transform: translateY(-15px); }
 }
 
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
 @keyframes checkmark {
   0% { opacity: 0; transform: translate(-50%, -60%) rotate(-45deg) scale(0); }
   50% { opacity: 1; transform: translate(-50%, -60%) rotate(-45deg) scale(1.2); }
@@ -426,6 +431,7 @@ label {
   font-size: 0.875rem;
   margin-bottom: 1rem;
   backdrop-filter: blur(10px);
+  text-align: left;
 }
 
 .status-line {
@@ -820,7 +826,7 @@ a:hover {
 
 [data-theme="dark"] .footer {
   color: #9ca3af;
-  background: #0b0e13;
+  background: rgba(17, 24, 39, 0.8);
 }
 
 [data-theme="dark"] a {
@@ -1025,7 +1031,6 @@ a:hover {
   .col-md-10 {
     flex: 0 0 auto;
     width: 100%;
-    max-width: 720px; /* MODIFIED: Set max width for calculator container */
   }
 }
 
@@ -1105,8 +1110,8 @@ a:hover {
   
   .scraping-section .center-buttons .btn,
   .log-section .center-buttons .btn {
-    width: 100%;
-    max-width: 280px; /* MODIFIED: Reduced max-width for smaller button */
+    width: auto;
+    max-width: 300px;
   }
 }
 
@@ -1138,7 +1143,7 @@ a:hover {
   gap: 1rem;
   margin-top: 1.5rem;
   flex-wrap: wrap;
-  justify-content: center; /* UPDATED: Center the buttons */
+  justify-content: center;
 }
 
 @media (max-width: 768px) {
@@ -1153,13 +1158,11 @@ a:hover {
   
   .action-buttons {
     flex-direction: column;
-    align-items: center; /* MODIFIED: Center button on mobile */
+    align-items: center;
   }
   
   .action-buttons .btn {
-    width: auto; /* MODIFIED: Auto width for smaller button */
-    padding-left: 1.5rem;
-    padding-right: 1.5rem;
+    width: auto;
   }
 }
 
@@ -1636,7 +1639,7 @@ a:hover {
   color: #ffffff;
 }
 [data-theme="dark"] .feature-card p {
-    color: var(--muted); /* MODIFIED: Corrected text color for dark mode */
+    color: var(--muted);
 }
 
 
@@ -1680,6 +1683,27 @@ a:hover {
   color: white;
   transform: translateY(-2px);
   box-shadow: 0 10px 25px rgba(231, 76, 60, 0.3);
+}
+
+/* Action buttons container */
+.action-buttons {
+  display: flex;
+  justify-content: center; /* Center the single button */
+  align-items: center;
+  margin-top: 1.5rem;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+@media (max-width: 576px) {
+  .action-buttons {
+    flex-direction: column;
+    align-items: center;
+  }
+  
+  .action-buttons .btn {
+    width: auto;
+  }
 }
 
 /* Center Registration Number Input */
@@ -1827,7 +1851,7 @@ a:hover {
   <section class="py-5" id="Auto-Calculator">
     <div class="container">
       <div class="row justify-content-center">
-        <div class="col-md-10">
+        <div class="col-lg-8">
           <div class="card card-modern mb-4">
             <div class="card-header p-4">
               <h4 class="mb-0"><i class="fa-solid fa-bolt me-2"></i>UAF CGPA Calculator</h4>
@@ -1843,7 +1867,7 @@ a:hover {
                 </div>
               </form>
               <div class="loading-container" id="loadingContainer">
-                <div class="loading-stage" id="connectingStage"><div class="loading-animation loading-connecting"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div><p class="loading-text">Connecting & Fetching...</p><p class="loading-subtext">Establishing a secure connection and retrieving your records. Please wait.</p></div>
+                <div class="loading-stage" id="connectingStage"><div class="loading-animation loading-connecting"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div><p class="loading-text">Connecting to UAF LMS</p><p class="loading-subtext">Establishing secure connection to university servers</p></div>
                 <div class="loading-stage" id="completeStage"><div class="loading-animation loading-complete"><div class="checkmark"></div></div><p class="loading-text">Results Ready!</p><p class="loading-subtext">Your CGPA has been calculated successfully</p></div>
               </div>
             </div>
@@ -1862,10 +1886,12 @@ a:hover {
                 </div>
               </div>
             </div>
+
             <div class="action-buttons">
               <button id="downloadPdfBtn" class="btn btn-pdf-download rounded-pill"><i class="fa-solid fa-file-pdf me-2"></i>Download PDF</button>
             </div>
-            <div class="semester-results-container mt-4">
+
+            <div class="semester-results-container">
               <div id="semesterResults" class="semester-grid"></div>
             </div>
           </div>
@@ -1889,18 +1915,18 @@ a:hover {
     <div class="container">
       <div class="text-center mb-5">
         <h2 class="fw-bold">Why Choose Our <span class="gradient-text">CGPA Calculator</span></h2>
-        <p class="lead text-muted">The most advanced tool for UAF students</p>
+        <p class="lead">The most advanced tool for UAF students</p>
       </div>
       <div class="row g-4">
-        <div class="col-md-6 col-lg-3"><div class="feature-card"><div class="feature-icon"><i class="fas fa-bolt"></i></div><h5>Lightning Fast</h5><p class="text-muted">Get your results in seconds with our optimized algorithm</p></div></div>
-        <div class="col-md-6 col-lg-3"><div class="feature-card"><div class="feature-icon"><i class="fas fa-lock"></i></div><h5>Secure</h5><p class="text-muted">Your data is safe with us. We don't store personal information</p></div></div>
-        <div class="col-md-6 col-lg-3"><div class="feature-card"><div class="feature-icon"><i class="fas fa-chart-line"></i></div><h5>Accurate</h5><p class="text-muted">Precise calculations based on UAF's official grading system</p></div></div>
-        <div class="col-md-6 col-lg-3"><div class="feature-card"><div class="feature-icon"><i class="fas fa-mobile-alt"></i></div><h5>Responsive</h5><p class="text-muted">Works perfectly on all devices - desktop, tablet, and mobile</p></div></div>
+        <div class="col-md-6 col-lg-3"><div class="feature-card"><div class="feature-icon"><i class="fas fa-bolt"></i></div><h5>Lightning Fast</h5><p>Get your results in seconds with our optimized algorithm</p></div></div>
+        <div class="col-md-6 col-lg-3"><div class="feature-card"><div class="feature-icon"><i class="fas fa-lock"></i></div><h5>Secure</h5><p>Your data is safe with us. We don't store personal information</p></div></div>
+        <div class="col-md-6 col-lg-3"><div class="feature-card"><div class="feature-icon"><i class="fas fa-chart-line"></i></div><h5>Accurate</h5><p>Precise calculations based on UAF's official grading system</p></div></div>
+        <div class="col-md-6 col-lg-3"><div class="feature-card"><div class="feature-icon"><i class="fas fa-mobile-alt"></i></div><h5>Responsive</h5><p>Works perfectly on all devices - desktop, tablet, and mobile</p></div></div>
       </div>
     </div>
   </section>
   
-  <section class="py-5" id="contact-us" style="background-color: var(--light-bg);">
+  <section class="py-5" id="contact-us">
     <div class="container">
       <div class="row g-4">
         <div class="col-lg-6">
@@ -2432,7 +2458,8 @@ a:hover {
             return;
         }
         addStatusMessage('Generating professional PDF report...', 'info');
-        
+        showLoadingStage('processing');
+
         try {
             const { jsPDF } = window.jspdf;
             const pdf = new jsPDF({ orientation: 'p', unit: 'mm', format: 'a4' });
@@ -2572,20 +2599,18 @@ a:hover {
                 });
             
             const totalPages = pdf.internal.getNumberOfPages();
-            for (let i = 1; i <= totalPages; i++) {
-                pdf.setPage(i);
-                pdf.setFontSize(8).setTextColor('#b0b0b0');
-                pdf.text(`Page ${i} of ${totalPages}`, pageWidth - pageMargin, pageHeight - 10, { align: 'right' });
+            pdf.setPage(totalPages);
 
-                if (i === totalPages) {
-                    pdf.setFontSize(9);
-                    pdf.setTextColor(colors.textLight);
-                    pdf.setFont('helvetica', 'italic');
-                    const footerY = pageHeight - 20;
-                    pdf.text("Generated by UAF Tools CGPA Calculator (uaftools.vercel.app)", pageWidth / 2, footerY, { align: 'center' });
-                    pdf.text("This is an unofficial transcript and should be used for reference purposes only.", pageWidth / 2, footerY + 5, { align: 'center' });
-                }
-            }
+            pdf.setFontSize(9);
+            pdf.setTextColor(colors.textLight);
+            pdf.setFont('helvetica', 'italic');
+            const footerY = pageHeight - 20;
+            
+            pdf.text("Generated by UAF Tools CGPA Calculator (uaftools.vercel.app)", pageWidth / 2, footerY, { align: 'center' });
+            pdf.text("This is an unofficial transcript and should be used for reference purposes only.", pageWidth / 2, footerY + 5, { align: 'center' });
+            
+            pdf.setFontSize(8).setTextColor('#b0b0b0');
+            pdf.text(`Page ${totalPages} of ${totalPages}`, pageWidth - pageMargin, pageHeight - 10, { align: 'right' });
             
             pdf.save(`UAF_Transcript_${processedData.studentInfo.registration}.pdf`);
             addStatusMessage('PDF report generated successfully', 'success');
@@ -2594,6 +2619,8 @@ a:hover {
             addStatusMessage(`Error generating PDF: ${e.message}`, 'error');
             showToast('Error generating PDF', 'error');
             console.error("PDF generation error: ", e);
+        } finally {
+            showLoadingStage(null);
         }
       }
 
@@ -2608,7 +2635,6 @@ a:hover {
         try {
           const response = await fetch(`${API_ENDPOINT}&registrationNumber=${encodeURIComponent(regNum)}`);
           if (!response.ok) throw new Error(`Server responded with status ${response.status}`);
-          
           const data = await response.json();
           
           if (data.success && data.resultData && data.resultData.length > 0) {
@@ -2626,15 +2652,23 @@ a:hover {
             throw new Error(data.message || "No result found for this registration number.");
           }
         } catch (error) {
-          showLoadingStage(null);
-          // MODIFIED: Improved error handling for network vs server issues
-          if (error instanceof TypeError && error.message.includes('Failed to fetch')) {
-              addStatusMessage('Network Error: Could not connect. Please check your internet connection.', 'error');
-              showToast('Network error. Check connection.', 'error');
+          let userMessage = 'An unexpected error occurred. Please try again later.';
+          let logMessage = `Fetch Failed: ${error.message}`;
+          
+          if (error.message.toLowerCase().includes('failed to fetch')) {
+              userMessage = 'Network error. Please check your internet connection.';
+              logMessage = 'Network error: Failed to connect to the server.';
+          } else if (error.message.includes('No result found')) {
+              userMessage = 'No result found for this registration number. Please check and try again.';
+              logMessage = `Info: ${error.message}`;
           } else {
-              addStatusMessage(`Fetch Failed: ${error.message}`, 'error');
-              showToast(error.message || 'An unknown error occurred.', 'warning');
+              userMessage = 'The result server seems to be offline or unavailable at the moment.';
+              logMessage = `LMS Fetch Failed: ${error.message}`;
           }
+          
+          addStatusMessage(logMessage, 'error');
+          showToast(userMessage, 'error');
+          showLoadingStage(null);
         }
       }
       
