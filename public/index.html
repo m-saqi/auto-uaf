@@ -56,7 +56,7 @@ html, body {
 }
 
 body {
-  background-color: var(--light-bg);
+  background: linear-gradient(180deg, #f8f9ff 0%, #ffffff 70%);
   min-height: 100vh;
   margin: 0;
   padding: 0;
@@ -370,6 +370,71 @@ label {
   animation-delay: 0.4s;
 }
 
+.loading-fetching {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.loading-fetching .book {
+  width: 40px;
+  height: 30px;
+  background: var(--brand);
+  border-radius: 5px;
+  position: relative;
+  animation: bookFlip 2s infinite ease-in-out;
+  transform-style: preserve-3d;
+}
+
+.loading-fetching .book:before {
+  content: '';
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  background: var(--brand-600);
+  border-radius: 5px;
+  transform: rotateY(180deg);
+}
+
+.loading-processing {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.loading-processing .calculator {
+  width: 40px;
+  height: 50px;
+  background: var(--brand);
+  border-radius: 5px;
+  position: relative;
+}
+
+.loading-processing .calculator:before {
+  content: '';
+  position: absolute;
+  top: 10px;
+  left: 5px;
+  width: 30px;
+  height: 5px;
+  background: rgba(255, 255, 255, 0.7);
+  border-radius: 2px;
+  box-shadow: 0 10px 0 rgba(255, 255, 255, 0.7), 0 20px 0 rgba(255, 255, 255, 0.7);
+}
+
+.loading-processing .calculator:after {
+  content: '';
+  position: absolute;
+  bottom: 5px;
+  right: 5px;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  border: 2px solid rgba(255, 255, 255, 0.7);
+  border-top-color: transparent;
+  animation: spin 1s infinite linear;
+}
+
 .loading-complete .checkmark {
   width: 80px;
   height: 80px;
@@ -394,6 +459,11 @@ label {
 @keyframes bounce {
   0%, 100% { transform: translateY(0); }
   50% { transform: translateY(-15px); }
+}
+
+@keyframes bookFlip {
+  0%, 100% { transform: rotateY(0deg); }
+  50% { transform: rotateY(180deg); }
 }
 
 @keyframes spin {
@@ -431,7 +501,6 @@ label {
   font-size: 0.875rem;
   margin-bottom: 1rem;
   backdrop-filter: blur(10px);
-  text-align: left;
 }
 
 .status-line {
@@ -460,7 +529,8 @@ status-warning { color: #fd7e14; }
 
 .footer {
   color: #9ca3af;
-  background-color: var(--light-bg);
+  background: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(10px);
 }
 
 a {
@@ -1110,7 +1180,7 @@ a:hover {
   
   .scraping-section .center-buttons .btn,
   .log-section .center-buttons .btn {
-    width: auto;
+    width: 100%;
     max-width: 300px;
   }
 }
@@ -1143,7 +1213,7 @@ a:hover {
   gap: 1rem;
   margin-top: 1.5rem;
   flex-wrap: wrap;
-  justify-content: center;
+  justify-content: center; /* UPDATED: Center the buttons */
 }
 
 @media (max-width: 768px) {
@@ -1158,11 +1228,10 @@ a:hover {
   
   .action-buttons {
     flex-direction: column;
-    align-items: center;
   }
   
   .action-buttons .btn {
-    width: auto;
+    width: 100%;
   }
 }
 
@@ -1698,11 +1767,11 @@ a:hover {
 @media (max-width: 576px) {
   .action-buttons {
     flex-direction: column;
-    align-items: center;
+    align-items: stretch;
   }
   
   .action-buttons .btn {
-    width: auto;
+    width: 100%;
   }
 }
 
@@ -1851,7 +1920,7 @@ a:hover {
   <section class="py-5" id="Auto-Calculator">
     <div class="container">
       <div class="row justify-content-center">
-        <div class="col-lg-8">
+        <div class="col-md-10">
           <div class="card card-modern mb-4">
             <div class="card-header p-4">
               <h4 class="mb-0"><i class="fa-solid fa-bolt me-2"></i>UAF CGPA Calculator</h4>
@@ -1868,6 +1937,8 @@ a:hover {
               </form>
               <div class="loading-container" id="loadingContainer">
                 <div class="loading-stage" id="connectingStage"><div class="loading-animation loading-connecting"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div><p class="loading-text">Connecting to UAF LMS</p><p class="loading-subtext">Establishing secure connection to university servers</p></div>
+                <div class="loading-stage" id="fetchingStage"><div class="loading-animation loading-fetching"><div class="book"></div></div><p class="loading-text">Fetching Your Results</p><p class="loading-subtext">Retrieving your academic records from the database</p></div>
+                <div class="loading-stage" id="processingStage"><div class="loading-animation loading-processing"><div class="calculator"></div></div><p class="loading-text">Processing Data</p><p class="loading-subtext">Analyzing your grades and calculating CGPA</p></div>
                 <div class="loading-stage" id="completeStage"><div class="loading-animation loading-complete"><div class="checkmark"></div></div><p class="loading-text">Results Ready!</p><p class="loading-subtext">Your CGPA has been calculated successfully</p></div>
               </div>
             </div>
@@ -1884,13 +1955,11 @@ a:hover {
                     <div class="cgpa-metric cgpa-metric-right"><p class="mb-0 cgpa-metric-label">Marks</p><div class="cgpa-metric-value-container"><p class="mb-0 cgpa-metric-value" id="totalMarksObtained">0</p><p class="mb-0 cgpa-metric-subvalue" id="totalMaxMarks">/ 0</p></div></div>
                   </div>
                 </div>
+                <div class="action-buttons">
+                  <button id="downloadPdfBtn" class="btn btn-pdf-download rounded-pill"><i class="fa-solid fa-file-pdf me-2"></i>Download PDF</button>
+                </div>
               </div>
             </div>
-
-            <div class="action-buttons">
-              <button id="downloadPdfBtn" class="btn btn-pdf-download rounded-pill"><i class="fa-solid fa-file-pdf me-2"></i>Download PDF</button>
-            </div>
-
             <div class="semester-results-container">
               <div id="semesterResults" class="semester-grid"></div>
             </div>
@@ -1915,13 +1984,13 @@ a:hover {
     <div class="container">
       <div class="text-center mb-5">
         <h2 class="fw-bold">Why Choose Our <span class="gradient-text">CGPA Calculator</span></h2>
-        <p class="lead">The most advanced tool for UAF students</p>
+        <p class="lead text-muted">The most advanced tool for UAF students</p>
       </div>
       <div class="row g-4">
-        <div class="col-md-6 col-lg-3"><div class="feature-card"><div class="feature-icon"><i class="fas fa-bolt"></i></div><h5>Lightning Fast</h5><p>Get your results in seconds with our optimized algorithm</p></div></div>
-        <div class="col-md-6 col-lg-3"><div class="feature-card"><div class="feature-icon"><i class="fas fa-lock"></i></div><h5>Secure</h5><p>Your data is safe with us. We don't store personal information</p></div></div>
-        <div class="col-md-6 col-lg-3"><div class="feature-card"><div class="feature-icon"><i class="fas fa-chart-line"></i></div><h5>Accurate</h5><p>Precise calculations based on UAF's official grading system</p></div></div>
-        <div class="col-md-6 col-lg-3"><div class="feature-card"><div class="feature-icon"><i class="fas fa-mobile-alt"></i></div><h5>Responsive</h5><p>Works perfectly on all devices - desktop, tablet, and mobile</p></div></div>
+        <div class="col-md-6 col-lg-3"><div class="feature-card"><div class="feature-icon"><i class="fas fa-bolt"></i></div><h5>Lightning Fast</h5><p class="text-muted">Get your results in seconds with our optimized algorithm</p></div></div>
+        <div class="col-md-6 col-lg-3"><div class="feature-card"><div class="feature-icon"><i class="fas fa-lock"></i></div><h5>Secure</h5><p class="text-muted">Your data is safe with us. We don't store personal information</p></div></div>
+        <div class="col-md-6 col-lg-3"><div class="feature-card"><div class="feature-icon"><i class="fas fa-chart-line"></i></div><h5>Accurate</h5><p class="text-muted">Precise calculations based on UAF's official grading system</p></div></div>
+        <div class="col-md-6 col-lg-3"><div class="feature-card"><div class="feature-icon"><i class="fas fa-mobile-alt"></i></div><h5>Responsive</h5><p class="text-muted">Works perfectly on all devices - desktop, tablet, and mobile</p></div></div>
       </div>
     </div>
   </section>
@@ -2102,7 +2171,7 @@ a:hover {
       }
       
       function showLoadingStage(stage) {
-        ['connecting', 'complete'].forEach(s => {
+        ['connecting', 'fetching', 'processing', 'complete'].forEach(s => {
           const el = document.getElementById(`${s}Stage`);
           if (el) el.style.display = 'none';
         });
@@ -2635,7 +2704,9 @@ a:hover {
         try {
           const response = await fetch(`${API_ENDPOINT}&registrationNumber=${encodeURIComponent(regNum)}`);
           if (!response.ok) throw new Error(`Server responded with status ${response.status}`);
+          showLoadingStage('fetching');
           const data = await response.json();
+          showLoadingStage('processing');
           
           if (data.success && data.resultData && data.resultData.length > 0) {
             addStatusMessage('Result fetched successfully from UAF LMS', 'success');
@@ -2652,22 +2723,8 @@ a:hover {
             throw new Error(data.message || "No result found for this registration number.");
           }
         } catch (error) {
-          let userMessage = 'An unexpected error occurred. Please try again later.';
-          let logMessage = `Fetch Failed: ${error.message}`;
-          
-          if (error.message.toLowerCase().includes('failed to fetch')) {
-              userMessage = 'Network error. Please check your internet connection.';
-              logMessage = 'Network error: Failed to connect to the server.';
-          } else if (error.message.includes('No result found')) {
-              userMessage = 'No result found for this registration number. Please check and try again.';
-              logMessage = `Info: ${error.message}`;
-          } else {
-              userMessage = 'The result server seems to be offline or unavailable at the moment.';
-              logMessage = `LMS Fetch Failed: ${error.message}`;
-          }
-          
-          addStatusMessage(logMessage, 'error');
-          showToast(userMessage, 'error');
+          addStatusMessage(`LMS Fetch Failed: ${error.message}`, 'error');
+          showToast('UAF LMS seems to be offline or unavailable.', 'warning');
           showLoadingStage(null);
         }
       }
