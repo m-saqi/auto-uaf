@@ -1,9 +1,6 @@
 - Working with LMS UAF
+- Accurate CGPA and Percentage Calculations
+- PDF Download enabled
 - Best Interface (Desktop + Phone)
-- Best Notifications
+- Proper Notifications
 - Best Log Handeling
-
-
-deepseek chat link
-https://chat.deepseek.com/a/chat/s/ea303642-2fbc-4bf3-8414-e3f7a9893899
-
