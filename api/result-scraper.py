@@ -2,31 +2,16 @@ from http.server import BaseHTTPRequestHandler
 import json
 import requests
 from bs4 import BeautifulSoup
-import os
 import re
 import random
 import logging
-import sqlite3
-import hashlib
 import urllib3
-from concurrent.futures import ThreadPoolExecutor
 
-# Suppress InsecureRequestWarning for requests made with verify=False
+# --- Basic Setup ---
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
-
-# Set up logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-# Use /tmp directory for writable storage in Vercel
-DATA_DIR = "/tmp/uaftools_data"
-if not os.path.exists(DATA_DIR):
-    os.makedirs(DATA_DIR)
-
-# Database path
-DB_PATH = os.path.join(DATA_DIR, "saved_results.db")
-
-# User agents
 USER_AGENTS = [
     'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
     'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:109.0) Gecko/20100101 Firefox/121.0',
@@ -50,95 +35,84 @@ class handler(BaseHTTPRequestHandler):
     def do_POST(self):
         self.handle_request()
 
-    def send_error_response(self, status_code, message):
+    def send_json_response(self, status_code, data):
         self.send_response(status_code)
         self._set_cors_headers()
         self.send_header('Content-Type', 'application/json')
         self.end_headers()
-        response = {'success': False, 'message': message}
-        self.wfile.write(json.dumps(response).encode())
-
-    def send_success_response(self, data):
-        self.send_response(200)
-        self._set_cors_headers()
-        self.send_header('Content-Type', 'application/json')
-        self.end_headers()
-        self.wfile.write(json.dumps(data).encode())
+        self.wfile.write(json.dumps(data).encode('utf-8'))
 
     def handle_request(self):
+        logger.info(f"--- Handling new request ---")
         try:
             registration_number = None
-            if self.command == 'GET':
-                parts = self.path.split('?')
-                if len(parts) > 1:
-                    params = dict(param.split('=') for param in parts[1].split('&'))
-                    registration_number = params.get('registrationNumber')
-            elif self.command == 'POST':
-                content_length = int(self.headers['Content-Length'])
-                post_data = self.rfile.read(content_length)
-                data = json.loads(post_data)
-                registration_number = data.get('registrationNumber')
+            if 'registrationNumber' in self.path:
+                params = dict(p.split('=') for p in self.path.split('?')[1].split('&'))
+                registration_number = params.get('registrationNumber')
+            else: # POST
+                content_length = int(self.headers.get('Content-Length', 0))
+                if content_length > 0:
+                    body = self.rfile.read(content_length)
+                    data = json.loads(body)
+                    registration_number = data.get('registrationNumber')
             
             if not registration_number:
-                self.send_error_response(400, 'No registration number provided')
+                self.send_json_response(400, {'success': False, 'message': 'Registration number is required.'})
                 return
-            
-            success, message, result_data = self.scrape_and_combine_results(registration_number)
-            response = {'success': success, 'message': message, 'resultData': result_data}
-            self.send_success_response(response)
+
+            success, message, result_data = self.scrape_and_combine(registration_number)
+            response_data = {'success': success, 'message': message, 'resultData': result_data}
+            self.send_json_response(200, response_data)
+
         except Exception as e:
-            logger.error(f"Request handling failed: {e}")
-            self.send_error_response(500, f"A server error occurred: {e}")
+            logger.error(f"CRITICAL ERROR in handle_request: {e}", exc_info=True)
+            self.send_json_response(500, {'success': False, 'message': f'A fatal server error occurred: {e}'})
 
-    def scrape_and_combine_results(self, registration_number):
-        logger.info(f"Starting robust parallel scrape for {registration_number}")
+    def scrape_and_combine(self, registration_number):
+        logger.info(f"--- 1. Starting scrape for {registration_number} ---")
 
-        # To prevent timeouts, fetch from both sites at the same time.
-        with ThreadPoolExecutor(max_workers=2) as executor:
-            future_lms = executor.submit(self.scrape_uaf_results, registration_number)
-            future_att = executor.submit(self.scrape_attendance_system_results, registration_number)
-            
-            # Safely get results, preventing a crash if one scraper fails.
-            try:
-                lms_success, lms_message, lms_data = future_lms.result()
-            except Exception as e:
-                lms_success, lms_message, lms_data = False, f"LMS scraper function crashed: {e}", None
+        # --- STEP 1: Fetch from UAF LMS (Primary Source) ---
+        logger.info("--- 2. Fetching from UAF LMS... ---")
+        lms_success, lms_message, lms_data = self.scrape_uaf_lms(registration_number)
+        logger.info(f"--- 3. UAF LMS Result: Success={lms_success}, Courses Found={len(lms_data) if lms_data else 0} ---")
 
-            try:
-                att_success, att_message, att_data = future_att.result()
-            except Exception as e:
-                att_success, att_message, att_data = False, f"Attendance scraper function crashed: {e}", None
+        # --- STEP 2: Fetch from Attendance System (Secondary Source) ---
+        logger.info("--- 4. Fetching from Attendance System... ---")
+        att_success, att_message, att_data = self.scrape_attendance_system(registration_number)
+        logger.info(f"--- 5. Attendance System Result: Success={att_success}, Courses Found={len(att_data) if att_data else 0} ---")
 
-        messages = [f"LMS Status: {lms_message}", f"Attendance System Status: {att_message}"]
-
-        # The UAF LMS data is the primary source. It is never modified.
+        # --- STEP 3: Combine the results according to your logic ---
+        logger.info("--- 6. Combining results... ---")
+        
+        # The LMS data is the base. It is not changed.
         final_results = lms_data if lms_data else []
         student_name = final_results[0].get('StudentName', '') if final_results else ""
-        processed_course_codes = {course['CourseCode'].upper().strip() for course in final_results}
+        
+        # Create a set of course codes from the LMS data for easy checking.
+        lms_course_codes = {course['CourseCode'].upper().strip() for course in final_results}
 
-        # Now, process the attendance data according to your rules.
+        # Check attendance data against the LMS data.
         if att_success and att_data:
             unique_courses_added = 0
             for att_course in att_data:
                 course_code = att_course.get('CourseCode', '').upper().strip()
                 
-                # Condition: Only add the course if it's NOT already in the primary LMS list.
-                if course_code and course_code not in processed_course_codes:
+                # The crucial condition: Add only if the course is not in the LMS list.
+                if course_code and course_code not in lms_course_codes:
                     att_course['StudentName'] = student_name
                     final_results.append(att_course)
-                    processed_course_codes.add(course_code)
                     unique_courses_added += 1
             
-            if unique_courses_added > 0:
-                messages.append(f"Success: Merged {unique_courses_added} unique course(s) from attendance system.")
+            logger.info(f"--- 7. Added {unique_courses_added} unique courses from the attendance system. ---")
 
         if not final_results:
-            return False, " | ".join(messages), None
-            
-        return True, " | ".join(messages), final_results
+            return False, "Failed to fetch results from any source.", None
+        
+        return True, "Scraping complete.", final_results
 
-    def scrape_uaf_results(self, registration_number):
+    def scrape_uaf_lms(self, registration_number):
         try:
+            # This function contains the logic from your original result-scraper.py
             session = requests.Session()
             session.headers.update({'User-Agent': random.choice(USER_AGENTS)})
             login_url = "https://lms.uaf.edu.pk/login/index.php"
@@ -146,19 +120,45 @@ class handler(BaseHTTPRequestHandler):
             response.raise_for_status()
             
             token_match = re.search(r"document\.getElementById\('token'\)\.value\s*=\s*'([^']+)'", response.text)
-            if not token_match:
-                return False, "Could not find security token.", None
+            if not token_match: return False, "LMS token not found.", None
             
             result_url = "https://lms.uaf.edu.pk/course/uaf_student_result.php"
             form_data = {'token': token_match.group(1), 'Register': registration_number}
             response = session.post(result_url, data=form_data, timeout=20, verify=False)
             response.raise_for_status()
             
-            return self.parse_uaf_results(response.text, registration_number)
+            # Parsing logic for LMS
+            soup = BeautifulSoup(response.text, 'html.parser')
+            if "no result" in soup.get_text().lower(): return False, "No results found on LMS.", []
+            
+            student_info = {}
+            info_table = soup.find('table')
+            if info_table:
+                for row in info_table.find_all('tr'):
+                    cols = row.find_all('td')
+                    if len(cols) == 2:
+                        key = cols[0].text.strip().replace(':', '').replace('#', '').replace(' ', '')
+                        student_info[key] = cols[1].text.strip()
+            
+            student_results = []
+            result_table = soup.find('table', {'border': '1', 'width': '100%'})
+            if result_table:
+                for row in result_table.find_all('tr')[1:]:
+                    cols = [c.text.strip() for c in row.find_all('td')]
+                    if len(cols) >= 12:
+                        student_results.append({
+                            'RegistrationNo': student_info.get('Registration', registration_number),
+                            'StudentName': student_info.get('StudentFullName', ''), 'Semester': cols[1],
+                            'TeacherName': cols[2], 'CourseCode': cols[3], 'CourseTitle': cols[4],
+                            'CreditHours': cols[5], 'Mid': cols[6], 'Assignment': cols[7],
+                            'Final': cols[8], 'Practical': cols[9], 'Total': cols[10], 'Grade': cols[11]
+                        })
+            return True, "LMS scrape successful.", student_results
         except Exception as e:
-            return False, f"LMS request failed: {e}", None
+            logger.error(f"LMS Scraper Failed: {e}")
+            return False, f"LMS scrape failed: {e}", None
 
-    def scrape_attendance_system_results(self, registration_number):
+    def scrape_attendance_system(self, registration_number):
         try:
             session = requests.Session()
             session.headers.update({'User-Agent': random.choice(USER_AGENTS)})
@@ -179,50 +179,13 @@ class handler(BaseHTTPRequestHandler):
             response = session.post(base_url, data=form_data, timeout=20)
             response.raise_for_status()
 
-            if "StudentDetail.aspx" in response.url:
-                return self.parse_attendance_system_results(response.content, registration_number)
-            return False, "No results found.", None
-        except Exception as e:
-            return False, f"Attendance system request failed: {e}", None
+            if "StudentDetail.aspx" not in response.url:
+                return False, "No results found on attendance system.", []
 
-    def parse_uaf_results(self, html_content, registration_number):
-        try:
-            soup = BeautifulSoup(html_content, 'html.parser')
-            if "no result" in soup.get_text().lower():
-                return False, "No result data found.", None
-            
-            student_info = {}
-            info_table = soup.find('table')
-            if info_table:
-                for row in info_table.find_all('tr'):
-                    cols = row.find_all('td')
-                    if len(cols) == 2:
-                        key = cols[0].text.strip().replace(':', '').replace('#', '').replace(' ', '')
-                        student_info[key] = cols[1].text.strip()
-
-            student_results = []
-            result_table = soup.find('table', {'border': '1', 'width': '100%'})
-            if result_table:
-                for row in result_table.find_all('tr')[1:]:
-                    cols = [c.text.strip() for c in row.find_all('td')]
-                    if len(cols) >= 12:
-                        student_results.append({
-                            'RegistrationNo': student_info.get('Registration', registration_number),
-                            'StudentName': student_info.get('StudentFullName', ''), 'Semester': cols[1],
-                            'TeacherName': cols[2], 'CourseCode': cols[3], 'CourseTitle': cols[4],
-                            'CreditHours': cols[5], 'Mid': cols[6], 'Assignment': cols[7],
-                            'Final': cols[8], 'Practical': cols[9], 'Total': cols[10], 'Grade': cols[11]
-                        })
-            return True, f"Extracted {len(student_results)} records.", student_results
-        except Exception as e:
-            return False, f"Error parsing LMS HTML.", None
-
-    def parse_attendance_system_results(self, html_content, registration_number):
-        try:
-            soup = BeautifulSoup(html_content, 'html.parser')
+            # Parsing logic for Attendance System
+            soup = BeautifulSoup(response.content, 'html.parser')
             result_table = soup.find('table', {'id': 'ctl00_Main_TabContainer1_tbResultInformation_gvResultInformation'})
-            if not result_table:
-                return False, "Result table not found.", None
+            if not result_table: return False, "Result table not found.", []
 
             student_results = []
             for row in result_table.find_all('tr')[1:]:
@@ -234,11 +197,12 @@ class handler(BaseHTTPRequestHandler):
                     
                     student_results.append({
                         'RegistrationNo': registration_number, 'StudentName': "",
-                        'Semester': 'Attendance based Courses', # Set semester name as requested
+                        'Semester': 'Attendance based Courses', # This creates the separate section
                         'TeacherName': cols[4], 'CourseCode': course_code, 'CourseTitle': cols[6],
                         'CreditHours': f"{ch_val}({ch_val}-0)", 'Mid': cols[8], 'Assignment': cols[9],
                         'Final': cols[10], 'Practical': cols[11], 'Total': cols[12], 'Grade': cols[13]
                     })
-            return True, f"Extracted {len(student_results)} records.", student_results
+            return True, "Attendance system scrape successful.", student_results
         except Exception as e:
-            return False, f"Error parsing attendance HTML.", None
+            logger.error(f"Attendance System Scraper Failed: {e}")
+            return False, f"Attendance system scrape failed: {e}", None
