@@ -76,6 +76,7 @@ class handler(BaseHTTPRequestHandler):
                 self._set_cors_headers()
                 self.end_headers()
         except Exception as e:
+            logger.error(f"GET request error: {e}")
             self.send_error_response(500, f"Server error: {str(e)}")
 
     def do_POST(self):
@@ -89,6 +90,7 @@ class handler(BaseHTTPRequestHandler):
                 self._set_cors_headers()
                 self.end_headers()
         except Exception as e:
+            logger.error(f"POST request error: {e}")
             self.send_error_response(500, f"Server error: {str(e)}")
             
     def do_DELETE(self):
@@ -100,6 +102,7 @@ class handler(BaseHTTPRequestHandler):
                 self._set_cors_headers()
                 self.end_headers()
         except Exception as e:
+            logger.error(f"DELETE request error: {e}")
             self.send_error_response(500, f"Server error: {str(e)}")
 
     def send_error_response(self, status_code, message):
@@ -142,11 +145,9 @@ class handler(BaseHTTPRequestHandler):
             self.send_error_response(500, f"Error processing scrape request: {str(e)}")
             
     def handle_save_result(self):
-        # This function and others (load, delete) remain the same as your original code
-        # ... (code for save, load, delete is unchanged) ...
+        # This function and others (load, delete) remain the same
         pass # Placeholder for brevity
 
-    # Orchestrator function to scrape from both sources in parallel and merge
     def scrape_and_combine_results(self, registration_number):
         logger.info(f"Starting combined scrape for {registration_number}")
         
@@ -162,7 +163,7 @@ class handler(BaseHTTPRequestHandler):
         if not lms_success and not att_success:
             return False, " | ".join(messages), None
             
-        # Prioritize LMS data as the source of truth
+        # LMS data is the primary source of truth
         combined_data = lms_data if lms_data else []
         student_name = combined_data[0].get('StudentName', '') if combined_data else ""
         
@@ -177,7 +178,7 @@ class handler(BaseHTTPRequestHandler):
                     if student_name:
                         att_course['StudentName'] = student_name # Ensure consistent student name
                     combined_data.append(att_course)
-                    lms_course_codes.add(course_code) # Add to set to prevent duplicates
+                    lms_course_codes.add(course_code)
                     unique_att_courses_added += 1
             
             if unique_att_courses_added > 0:
@@ -190,7 +191,6 @@ class handler(BaseHTTPRequestHandler):
         logger.info(f"Combined scrape for {registration_number} successful.")
         return True, final_message, combined_data
 
-    # Scraper for UAF LMS (Original logic, improved error handling)
     def scrape_uaf_results(self, registration_number):
         try:
             session = requests.Session()
@@ -210,11 +210,10 @@ class handler(BaseHTTPRequestHandler):
             
             return self.parse_uaf_results(response.text, registration_number)
         except requests.exceptions.RequestException as e:
-            return False, f"LMS network error: {e}", None
+            return False, f"LMS network error ({e.__class__.__name__})", None
         except Exception as e:
             return False, f"LMS scraping error: {e}", None
 
-    # Scraper for Attendance System (Original logic, improved error handling)
     def scrape_attendance_system_results(self, registration_number):
         try:
             session = requests.Session()
@@ -248,11 +247,10 @@ class handler(BaseHTTPRequestHandler):
             else:
                 return False, "No results found (invalid registration number?).", None
         except requests.exceptions.RequestException as e:
-            return False, f"Attendance system network error: {e}", None
+            return False, f"Attendance system network error ({e.__class__.__name__})", None
         except Exception as e:
             return False, f"Attendance system scraping error: {e}", None
 
-    # Parser for UAF LMS (Original, with added safety checks)
     def parse_uaf_results(self, html_content, registration_number):
         try:
             soup = BeautifulSoup(html_content, 'html.parser')
@@ -271,24 +269,22 @@ class handler(BaseHTTPRequestHandler):
             student_results = []
             result_table = soup.find('table', {'border': '1', 'width': '100%'})
             if result_table:
-                for row in result_table.find_all('tr')[1:]: # Skip header
+                for row in result_table.find_all('tr')[1:]:
                     cols = [col.text.strip() for col in row.find_all('td')]
                     if len(cols) >= 12:
                         student_results.append({
                             'RegistrationNo': student_info.get('Registration', registration_number),
                             'StudentName': student_info.get('StudentFullName', ''),
-                            'Semester': cols[1], 'TeacherName': cols[2],
-                            'CourseCode': cols[3], 'CourseTitle': cols[4],
-                            'CreditHours': cols[5], 'Mid': cols[6],
-                            'Assignment': cols[7], 'Final': cols[8],
-                            'Practical': cols[9], 'Total': cols[10], 'Grade': cols[11]
+                            'Semester': cols[1], 'TeacherName': cols[2], 'CourseCode': cols[3],
+                            'CourseTitle': cols[4], 'CreditHours': cols[5], 'Mid': cols[6],
+                            'Assignment': cols[7], 'Final': cols[8], 'Practical': cols[9],
+                            'Total': cols[10], 'Grade': cols[11]
                         })
             
             return True, f"Extracted {len(student_results)} records.", student_results
         except Exception as e:
             return False, f"Error parsing LMS HTML: {e}", None
             
-    # CORRECTED: Parser for Attendance System
     def parse_attendance_system_results(self, html_content, registration_number):
         try:
             soup = BeautifulSoup(html_content, 'html.parser')
@@ -297,11 +293,10 @@ class handler(BaseHTTPRequestHandler):
                 return False, "Result table not found on attendance page.", None
 
             student_results = []
-            for row in result_table.find_all('tr')[1:]: # Skip header
+            for row in result_table.find_all('tr')[1:]:
                 cols = [col.text.strip() for col in row.find_all('td')]
                 if len(cols) >= 16:
                     course_code = cols[5]
-                    # Infer Credit Hours from course code, defaulting to 3
                     ch_match = re.search(r'-(\d)', course_code)
                     credit_hours_value = ch_match.group(1) if ch_match else '3'
                     credit_hours_str = f"{credit_hours_value}({credit_hours_value}-0)"
@@ -309,11 +304,12 @@ class handler(BaseHTTPRequestHandler):
                     student_results.append({
                         'RegistrationNo': registration_number,
                         'StudentName': "", # Will be filled in during the merge process
-                        'Semester': cols[3], 'TeacherName': cols[4],
-                        'CourseCode': course_code, 'CourseTitle': cols[6],
+                        # **CORRECTED**: Hardcode semester name for separate sectioning
+                        'Semester': 'Attendance based Courses',
+                        'TeacherName': cols[4], 'CourseCode': course_code, 'CourseTitle': cols[6],
                         'CreditHours': credit_hours_str, # Inferred and formatted
                         'Mid': cols[8], 'Assignment': cols[9], 'Final': cols[10],
-                        'Practical': cols[11], 'Total': cols[12], 'Grade': cols[13] # Corrected Grade
+                        'Practical': cols[11], 'Total': cols[12], 'Grade': cols[13]
                     })
             
             return True, f"Extracted {len(student_results)} records.", student_results
