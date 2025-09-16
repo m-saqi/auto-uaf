@@ -11,7 +11,6 @@ import logging
 import sqlite3
 import hashlib
 import urllib3
-from concurrent.futures import ThreadPoolExecutor
 
 # Suppress InsecureRequestWarning for requests made with verify=False
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
@@ -138,45 +137,46 @@ class handler(BaseHTTPRequestHandler):
                 self.send_error_response(400, 'No registration number provided')
                 return
             
-            success, message, result_data = self.scrape_and_combine_results(registration_number)
+            success, message, result_data = self.scrape_and_combine_results_sequentially(registration_number)
             response = {'success': success, 'message': message, 'resultData': result_data}
             self.send_success_response(response)
         except Exception as e:
             self.send_error_response(500, f"Error processing scrape request: {str(e)}")
             
     def handle_save_result(self):
-        # This function and others (load, delete) remain the same
+        # This function and other handlers remain the same.
         pass # Placeholder for brevity
 
-    def scrape_and_combine_results(self, registration_number):
-        logger.info(f"Starting combined scrape for {registration_number}")
-        
-        with ThreadPoolExecutor(max_workers=2) as executor:
-            future_lms = executor.submit(self.scrape_uaf_results, registration_number)
-            future_att = executor.submit(self.scrape_attendance_system_results, registration_number)
-            
-            lms_success, lms_message, lms_data = future_lms.result()
-            att_success, att_message, att_data = future_att.result()
+    # CORRECTED: Orchestrator function to scrape sequentially as requested
+    def scrape_and_combine_results_sequentially(self, registration_number):
+        logger.info(f"Starting sequential scrape for {registration_number}")
 
+        # Step 1: Fetch from UAF LMS first
+        lms_success, lms_message, lms_data = self.scrape_uaf_results(registration_number)
+        
+        # Step 2: Then, fetch from Attendance System
+        att_success, att_message, att_data = self.scrape_attendance_system_results(registration_number)
+        
         messages = [f"LMS: {lms_message}", f"Attendance System: {att_message}"]
         
         if not lms_success and not att_success:
             return False, " | ".join(messages), None
             
-        # LMS data is the primary source of truth
+        # Step 3: Check for unique courses and merge
         combined_data = lms_data if lms_data else []
         student_name = combined_data[0].get('StudentName', '') if combined_data else ""
         
-        # Create a set for efficient deduplication based on course code
+        # Create a set of LMS course codes for efficient checking
         lms_course_codes = {course['CourseCode'].upper().strip() for course in combined_data}
 
         if att_success and att_data:
             unique_att_courses_added = 0
             for att_course in att_data:
                 course_code = att_course.get('CourseCode', '').upper().strip()
+                # Check if course from attendance system is NOT in LMS data
                 if course_code and course_code not in lms_course_codes:
                     if student_name:
-                        att_course['StudentName'] = student_name # Ensure consistent student name
+                        att_course['StudentName'] = student_name # Use consistent name
                     combined_data.append(att_course)
                     lms_course_codes.add(course_code)
                     unique_att_courses_added += 1
@@ -188,7 +188,7 @@ class handler(BaseHTTPRequestHandler):
             return False, "No results found from any source.", None
             
         final_message = " | ".join(messages)
-        logger.info(f"Combined scrape for {registration_number} successful.")
+        logger.info(f"Sequential scrape for {registration_number} successful.")
         return True, final_message, combined_data
 
     def scrape_uaf_results(self, registration_number):
@@ -196,7 +196,7 @@ class handler(BaseHTTPRequestHandler):
             session = requests.Session()
             session.headers.update({'User-Agent': random.choice(USER_AGENTS)})
             login_url = "https://lms.uaf.edu.pk/login/index.php"
-            response = session.get(login_url, timeout=10, verify=False)
+            response = session.get(login_url, timeout=15, verify=False)
             response.raise_for_status()
             
             token = re.search(r"document\.getElementById\('token'\)\.value\s*=\s*'([^']+)'", response.text)
@@ -205,7 +205,7 @@ class handler(BaseHTTPRequestHandler):
             
             result_url = "https://lms.uaf.edu.pk/course/uaf_student_result.php"
             form_data = {'token': token.group(1), 'Register': registration_number}
-            response = session.post(result_url, data=form_data, timeout=15, verify=False)
+            response = session.post(result_url, data=form_data, timeout=20, verify=False)
             response.raise_for_status()
             
             return self.parse_uaf_results(response.text, registration_number)
@@ -220,7 +220,7 @@ class handler(BaseHTTPRequestHandler):
             session.headers.update({'User-Agent': random.choice(USER_AGENTS)})
             base_url = "http://121.52.152.24/"
             
-            response = session.get(base_url, timeout=10)
+            response = session.get(base_url, timeout=15)
             response.raise_for_status()
             
             soup = BeautifulSoup(response.content, 'html.parser')
@@ -239,7 +239,7 @@ class handler(BaseHTTPRequestHandler):
                 'ctl00$Main$btnShow': 'Access To Student Information'
             }
             
-            response = session.post(base_url, data=form_data, timeout=15)
+            response = session.post(base_url, data=form_data, timeout=20)
             response.raise_for_status()
 
             if "StudentDetail.aspx" in response.url:
