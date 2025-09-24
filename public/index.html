@@ -13,12 +13,6 @@
   <meta name="author" content="Muhammad Saqlain" />
   
   <link rel="canonical" href="https://uafcgpacalculator.vercel.app" />
-  <!-- <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
-<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
-<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
-<link rel="manifest" href="/site.webmanifest">
-<link rel="shortcut icon" href="/favicon.ico"> -->
-
   <meta property="og:type" content="website" />
   <meta property="og:url" content="https://uafcgpacalculator.vercel.app/" />
   <meta property="og:title" content="UAF CGPA Calculator | Automatic & Accurate" />
@@ -99,6 +93,7 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js" defer></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js" defer></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js" defer></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
   <style>
     :root {
@@ -1808,6 +1803,30 @@ a:hover {
   }
 }
 
+/* NEW: Scroll Animation Styles */
+.fade-in-on-scroll {
+  opacity: 0;
+  transform: translateY(30px);
+  transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+}
+.fade-in-on-scroll.is-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* NEW: Forecast/Info Button Style */
+.btn-info-action {
+  background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+  color: white;
+  border: 0;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+.btn-info-action:hover {
+  background: linear-gradient(135deg, #5dade2 0%, #3498db 100%);
+  color: white;
+  transform: translateY(-2px);
+}
   </style>
 </head>
 <body>
@@ -1918,7 +1937,7 @@ a:hover {
           </div>
         </div>
         <div class="col-lg-5">
-          <div class="card card-modern">
+          <div class="card card-modern fade-in-on-scroll">
             <div class="card-body p-4">
               <div class="d-flex align-items-center gap-3">
                 <div class="display-6 robot-icon-gradient"><i class="fa-solid fa-robot"></i></div>
@@ -1944,7 +1963,7 @@ a:hover {
     <div class="container">
       <div class="row justify-content-center">
         <div class="col-md-10">
-          <div class="card card-modern mb-4">
+          <div class="card card-modern mb-4 fade-in-on-scroll">
             <div class="card-header p-4">
               <h4 class="mb-0"><i class="fa-solid fa-bolt me-2"></i>UAF CGPA Calculator</h4>
             </div>
@@ -1956,6 +1975,7 @@ a:hover {
                 </div>
                 <div class="center-buttons">
                   <button type="submit" class="btn btn-primary-action rounded-pill"><i class="fa-solid fa-cloud-arrow-down me-2"></i>Fetch Result</button>
+                  <button type="button" id="clearSessionBtn" class="btn btn-secondary-action rounded-pill" style="display: none;"><i class="fa-solid fa-eraser me-2"></i>New Search</button>
                 </div>
               </form>
               <div class="loading-container" id="loadingContainer">
@@ -1968,7 +1988,7 @@ a:hover {
           </div>
           
           <div id="resultContainer" class="result-container">
-            <div class="gpa-result-card">
+            <div class="gpa-result-card fade-in-on-scroll">
               <div class="card-body p-0">
                 <div class="cgpa-display-container">
                   <div class="cgpa-main-info"><h2 class="mb-1 fw-bold" id="studentName"><i class="fa-solid fa-user-graduate me-2"></i>Student Name</h2><p class="mb-0 text-body-secondary" id="studentReg">Registration Number</p></div>
@@ -1980,15 +2000,23 @@ a:hover {
                 </div>
               </div>
             </div>
-            <div class="action-buttons">
+            
+            <div class="card card-modern mt-4 fade-in-on-scroll" id="gpaChartContainer" style="display: none;">
+              <div class="card-header"><h4 class="mb-0"><i class="fa-solid fa-chart-line me-2"></i>GPA Trend</h4></div>
+              <div class="card-body"><canvas id="gpaTrendChart"></canvas></div>
+            </div>
+
+            <div class="action-buttons fade-in-on-scroll">
               <button id="downloadPdfBtn" class="btn btn-pdf-download rounded-pill"><i class="fa-solid fa-file-pdf me-2"></i>Download PDF</button>
+              <button id="copyDetailsBtn" class="btn btn-success-action rounded-pill"><i class="fa-solid fa-clipboard me-2"></i>Copy Details</button>
+              <button id="addForecastSemesterBtn" class="btn btn-info-action rounded-pill"><i class="fa-solid fa-wand-magic-sparkles me-2"></i>Forecast Semester</button>
             </div>
             <div class="semester-results-container">
               <div id="semesterResults" class="semester-grid"></div>
             </div>
           </div>
           
-          <div class="card card-modern mt-4">
+          <div class="card card-modern mt-4 fade-in-on-scroll">
             <div class="card-header p-4"><h4 class="mb-0 text-start"><i class="fa-solid fa-terminal me-2"></i>Status Log</h4></div>
             <div class="card-body p-4">
               <div class="status-log" id="statusLog"><div class="status-line status-info">Ready to fetch your results. Enter your registration number and click "Fetch Result".</div></div>
@@ -2005,34 +2033,34 @@ a:hover {
 
   <section class="why-choose-section">
     <div class="container">
-      <div class="text-center mb-5">
+      <div class="text-center mb-5 fade-in-on-scroll">
         <h2 class="fw-bold">Why Choose Our <span class="gradient-text">CGPA Calculator</span></h2>
         <p class="lead text-muted">The most advanced and feature-rich tool for UAF students</p>
       </div>
       <div class="row g-4">
         <div class="col-md-6 col-lg-3">
-          <div class="feature-card">
+          <div class="feature-card fade-in-on-scroll">
             <div class="feature-icon"><i class="fas fa-robot"></i></div>
             <h5>Instant & Automatic</h5>
             <p class="text-muted">Fetches your complete academic record directly from the UAF LMS in seconds. No manual data entry required.</p>
           </div>
         </div>
         <div class="col-md-6 col-lg-3">
-          <div class="feature-card">
+          <div class="feature-card fade-in-on-scroll">
             <div class="feature-icon"><i class="fas fa-edit"></i></div>
             <h5>Fully Editable</h5>
             <p class="text-muted">Add custom courses, delete semesters, or drag-and-drop subjects to accurately forecast your CGPA.</p>
           </div>
         </div>
         <div class="col-md-6 col-lg-3">
-          <div class="feature-card">
+          <div class="feature-card fade-in-on-scroll">
             <div class="feature-icon"><i class="fas fa-file-pdf"></i></div>
             <h5>Professional Export</h5>
             <p class="text-muted">Calculates with official UAF accuracy and lets you download a professional, transcript-style PDF of your results.</p>
           </div>
         </div>
         <div class="col-md-6 col-lg-3">
-          <div class="feature-card">
+          <div class="feature-card fade-in-on-scroll">
             <div class="feature-icon"><i class="fas fa-shield-alt"></i></div>
             <h5>Secure & Modern</h5>
             <p class="text-muted">Your data is never stored. Enjoy a clean, responsive interface with dark mode, accessible without needing your password.</p>
@@ -2046,14 +2074,14 @@ a:hover {
   <main>
     <section class="py-5" id="faq">
       <div class="container">
-        <div class="text-center mb-5">
+        <div class="text-center mb-5 fade-in-on-scroll">
           <h2 class="fw-bold">Frequently Asked Questions</h2>
           <p class="lead text-muted">Answers to common questions about the UAF CGPA Calculator.</p>
         </div>
         <div class="row justify-content-center">
           <div class="col-lg-8">
             <div class="accordion" id="faqAccordion">
-              <div class="accordion-item card-modern mb-3">
+              <div class="accordion-item card-modern mb-3 fade-in-on-scroll">
                 <h2 class="accordion-header" id="headingOne">
                   <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="false" aria-controls="collapseOne">
                     How does the UAF CGPA Calculator work?
@@ -2065,7 +2093,7 @@ a:hover {
                   </div>
                 </div>
               </div>
-              <div class="accordion-item card-modern mb-3">
+              <div class="accordion-item card-modern mb-3 fade-in-on-scroll">
                 <h2 class="accordion-header" id="headingTwo">
                   <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
                     Is it safe to use my registration number?
@@ -2077,7 +2105,7 @@ a:hover {
                   </div>
                 </div>
               </div>
-              <div class="accordion-item card-modern mb-3">
+              <div class="accordion-item card-modern mb-3 fade-in-on-scroll">
                 <h2 class="accordion-header" id="headingThree">
                   <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseThree" aria-expanded="false" aria-controls="collapseThree">
                     Can I use this calculator for other universities?
@@ -2100,7 +2128,7 @@ a:hover {
   <section class="py-5" id="contact-us">
     <div class="container">
       <div class="row g-4">
-        <div class="col-lg-6">
+        <div class="col-lg-6 fade-in-on-scroll">
           <h3 class="fw-bold mb-2">Contact</h3>
           <p class="text-body-secondary">Questions or suggestions? Send a message.</p>
           <form id="contact-form" action="https://formspree.io/f/xblrolwp" method="post" class="needs-validation" novalidate>
@@ -2113,7 +2141,7 @@ a:hover {
             </div>
           </form>
         </div>
-        <div class="col-lg-6">
+        <div class="col-lg-6 fade-in-on-scroll">
           <div class="h-100 p-4 p-lg-5 rounded-4" style="background:linear-gradient(180deg, rgba(122,106,216,.15), rgba(122,106,216,.05));">
             <h5 class="fw-bold">Developer</h5>
             <div class="d-flex align-items-center gap-3 mt-2">
@@ -2170,11 +2198,17 @@ a:hover {
       const addCourseForm = document.getElementById('addCourseForm');
       const loadingContainer = document.getElementById('loadingContainer');
       const backToTopButton = document.getElementById('backToTop');
+      const clearSessionBtn = document.getElementById('clearSessionBtn'); // New
+      const addForecastSemesterBtn = document.getElementById('addForecastSemesterBtn'); // New
+      const copyDetailsBtn = document.getElementById('copyDetailsBtn'); // New
+      const gpaChartContainer = document.getElementById('gpaChartContainer'); // New
+      const gpaTrendChartCanvas = document.getElementById('gpaTrendChart').getContext('2d'); // New
       
       // State
       let allLogs = [];
       let processedData = null;
       let deletedSemesters = {};
+      let gpaChart = null; // New
       
       // API Endpoints
       const API_ENDPOINT = `/api/result-scraper?action=scrape_single`;
@@ -2185,6 +2219,48 @@ a:hover {
         initContactForm();
         createToastContainer();
         initBackToTop();
+        initScrollAnimations(); // New
+        loadFromSession(); // New
+      }
+
+      function initScrollAnimations() {
+        const observer = new IntersectionObserver((entries) => {
+          entries.forEach(entry => {
+            if (entry.isIntersecting) {
+              entry.target.classList.add('is-visible');
+              observer.unobserve(entry.target);
+            }
+          });
+        }, { threshold: 0.1 });
+        document.querySelectorAll('.fade-in-on-scroll').forEach(el => observer.observe(el));
+      }
+
+      function loadFromSession() {
+        const savedData = localStorage.getItem('uafCalculatorResult');
+        if (savedData) {
+          try {
+            processedData = JSON.parse(savedData);
+            const cgpaData = calculateCGPA(processedData);
+            displayCGPAResults(processedData, cgpaData);
+            
+            // Update UI
+            registrationNumber.value = processedData.studentInfo.registration;
+            document.querySelector('#resultForm label').style.display = 'none';
+            clearSessionBtn.style.display = 'inline-block';
+            
+            showToast('Loaded previous results from session.', 'info');
+            addStatusMessage('Loaded results from local session.', 'info');
+          } catch (e) {
+            console.error("Failed to parse saved data:", e);
+            localStorage.removeItem('uafCalculatorResult');
+          }
+        }
+      }
+
+      function clearSession() {
+          localStorage.removeItem('uafCalculatorResult');
+          showToast('Cleared saved data. You can start a new search.', 'success');
+          location.reload();
       }
       
       function initBackToTop() {
@@ -2330,6 +2406,10 @@ a:hover {
       
       function getSemesterOrderKey(semesterName) {
         if (!semesterName) return '9999-9';
+        if (semesterName.toLowerCase().startsWith('forecast')) {
+            const num = parseInt(semesterName.split(' ')[1] || '1');
+            return `3000-${num}`;
+        }
         let year = '9999';
         let seasonOrder = 9;
         const yearMatch = semesterName.match(/\b(20\d{2})\b/);
@@ -2503,7 +2583,7 @@ a:hover {
         Object.keys(data.semesters).sort((a,b) => data.semesters[a].sortKey.localeCompare(data.semesters[b].sortKey)).forEach(semesterName => {
           const semester = data.semesters[semesterName];
           const semesterCard = document.createElement('div');
-          semesterCard.className = 'semester-card';
+          semesterCard.className = 'semester-card fade-in-on-scroll';
           semesterCard.dataset.semester = semesterName;
           semesterCard.innerHTML = `
             <i class="fa-solid fa-trash delete-semester" title="Delete this semester" data-semester="${semesterName}"></i>
@@ -2535,6 +2615,83 @@ a:hover {
           semesterResults.appendChild(semesterCard);
         });
         attachResultEventListeners();
+        renderGpaChart(); // New
+      }
+
+      function renderGpaChart() {
+          if (!processedData || Object.keys(processedData.semesters).length === 0) {
+              gpaChartContainer.style.display = 'none';
+              return;
+          }
+
+          if (gpaChart) {
+              gpaChart.destroy();
+          }
+
+          const sortedSemesters = Object.entries(processedData.semesters)
+              .sort(([, a], [, b]) => a.sortKey.localeCompare(b.sortKey));
+
+          const labels = sortedSemesters.map(([name]) => name);
+          const gpaData = sortedSemesters.map(([, semester]) => formatNumber(semester.gpa, 4));
+
+          const isDarkMode = document.documentElement.getAttribute('data-theme') === 'dark';
+          const gridColor = isDarkMode ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)';
+          const fontColor = isDarkMode ? '#e5e7eb' : '#4b5563';
+
+          gpaChart = new Chart(gpaTrendChartCanvas, {
+              type: 'line',
+              data: {
+                  labels: labels,
+                  datasets: [{
+                      label: 'Semester GPA',
+                      data: gpaData,
+                      fill: true,
+                      backgroundColor: 'rgba(122, 106, 216, 0.2)',
+                      borderColor: 'rgba(122, 106, 216, 1)',
+                      tension: 0.3,
+                      pointBackgroundColor: 'rgba(122, 106, 216, 1)',
+                      pointBorderColor: '#fff',
+                      pointHoverRadius: 7,
+                      pointHoverBackgroundColor: '#fff',
+                      pointHoverBorderColor: 'rgba(122, 106, 216, 1)'
+                  }]
+              },
+              options: {
+                  responsive: true,
+                  maintainAspectRatio: false,
+                  scales: {
+                      y: {
+                          beginAtZero: true,
+                          suggestedMax: 4.0,
+                          ticks: { color: fontColor },
+                          grid: { color: gridColor }
+                      },
+                      x: {
+                          ticks: { color: fontColor },
+                          grid: { color: gridColor }
+                      }
+                  },
+                  plugins: {
+                      legend: { display: false },
+                      tooltip: {
+                          backgroundColor: isDarkMode ? '#1b1f24' : '#fff',
+                          titleColor: isDarkMode ? '#fff' : '#1b1f24',
+                          bodyColor: isDarkMode ? '#d1d5db' : '#4b5563',
+                          borderColor: 'rgba(122, 106, 216, 0.5)',
+                          borderWidth: 1,
+                          padding: 10,
+                          callbacks: {
+                              label: context => `GPA: ${context.parsed.y.toFixed(4)}`
+                          }
+                      }
+                  },
+                  animation: {
+                      duration: 1000,
+                      easing: 'easeInOutQuart'
+                  }
+              }
+          });
+          gpaChartContainer.style.display = 'block';
       }
 
       function attachResultEventListeners() {
@@ -2548,6 +2705,17 @@ a:hover {
         document.querySelectorAll('.restore-course').forEach(btn => {
           const course = JSON.parse(btn.dataset.course.replace(/&#39;/g, "'"));
           btn.onclick = () => modifyCourseState(course, btn.dataset.semester, false);
+        });
+
+        // Add scroll animations to newly added semester cards
+        document.querySelectorAll('.semester-card.fade-in-on-scroll:not(.is-visible)').forEach(el => {
+            const observer = new IntersectionObserver(entries => {
+                if (entries[0].isIntersecting) {
+                    entries[0].target.classList.add('is-visible');
+                    observer.unobserve(entries[0].target);
+                }
+            }, { threshold: 0.1 });
+            observer.observe(el);
         });
 
         if (window.innerWidth >= 992) {
@@ -2709,6 +2877,35 @@ a:hover {
       function recalculateAndDisplay() {
         const cgpaData = calculateCGPA(processedData);
         displayCGPAResults(processedData, cgpaData);
+        // Also save the updated data to session
+        localStorage.setItem('uafCalculatorResult', JSON.stringify(processedData));
+      }
+
+      function addForecastSemester() {
+        let forecastCount = 1;
+        while (`Forecast ${forecastCount}` in processedData.semesters) {
+            forecastCount++;
+        }
+        const newSemesterName = `Forecast ${forecastCount}`;
+        processedData.semesters[newSemesterName] = {
+            originalName: newSemesterName,
+            sortKey: getSemesterOrderKey(newSemesterName),
+            courses: []
+        };
+        recalculateAndDisplay();
+        showToast(`Added "${newSemesterName}"`, 'success');
+        addStatusMessage(`Added forecast semester: ${newSemesterName}`, 'info');
+      }
+      
+      function copyDetailsToClipboard() {
+          if (!processedData) return;
+          const textToCopy = `Name: ${processedData.studentInfo.name}\nRegistration: ${processedData.studentInfo.registration}\nCGPA: ${totalCgpa.textContent}\nPercentage: ${totalPercentage.textContent}`;
+          navigator.clipboard.writeText(textToCopy).then(() => {
+              showToast('Details copied to clipboard!', 'success');
+          }, (err) => {
+              showToast('Failed to copy details.', 'error');
+              console.error('Clipboard copy failed: ', err);
+          });
       }
       
       function generatePDF() {
@@ -2890,6 +3087,9 @@ a:hover {
         resultContainer.style.display = 'none';
         showLoadingStage('connecting');
         addStatusMessage(`Fetching result for: ${regNum}`, 'info');
+        // Clear previous results from view
+        semesterResults.innerHTML = '';
+        gpaChartContainer.style.display = 'none';
 
         try {
           const response = await fetch(`${API_ENDPOINT}&registrationNumber=${encodeURIComponent(regNum)}`);
@@ -2903,11 +3103,17 @@ a:hover {
             const processed = processScrapedData(data);
             const cgpaData = calculateCGPA(processed);
             
+            // NEW: Save to session on successful fetch
+            localStorage.setItem('uafCalculatorResult', JSON.stringify(processed));
+
             showLoadingStage('complete');
             setTimeout(() => {
               displayCGPAResults(processed, cgpaData);
               showLoadingStage(null);
               showToast('Result fetched successfully!', 'success');
+              // NEW: Update UI for session persistence
+              document.querySelector('#resultForm label').style.display = 'none';
+              clearSessionBtn.style.display = 'inline-block';
             }, 1000);
           } else {
             throw new Error(data.message || "No result found for this registration number.");
@@ -2937,6 +3143,9 @@ a:hover {
       clearLogBtn.addEventListener('click', clearLog);
       downloadPdfBtn.addEventListener('click', generatePDF);
       saveCourseBtn.addEventListener('click', addCustomCourse);
+      clearSessionBtn.addEventListener('click', clearSession); // New
+      addForecastSemesterBtn.addEventListener('click', addForecastSemester); // New
+      copyDetailsBtn.addEventListener('click', copyDetailsToClipboard); // New
       
       init();
     });
@@ -2944,12 +3153,3 @@ a:hover {
   <script defer src="/_vercel/speed-insights/script.js"></script> <script defer src="/_vercel/analytics/script.js"></script>
 </body>
 </html>
-
-
-
-
-
-
-
-
-
