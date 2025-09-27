@@ -129,6 +129,8 @@ body {
   margin: 0;
   padding: 0;
   color: var(--text); /* Added base text color */
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
 }
 
 /* Improved navbar with glassmorphism effect */
@@ -1073,21 +1075,17 @@ a:hover {
 }
 
     @media (max-width: 768px) {
-  /*
-    Targeted override for stubborn mobile browsers.
-    This forces the font size of specific elements to be exactly what you define.
-  */
   .hero h1 {
     font-size: 2.5rem;
   }
 
   .btn {
     /* Using pixels can sometimes prevent auto-sizing more effectively */
-    font-size: 15px !important; 
+    font-size: 15px; 
   }
 
   .lead {
-    font-size: 1.15rem !important;
+    font-size: 1.15rem;
   }
 }
     
@@ -3251,6 +3249,7 @@ a:hover {
   </script>
 </body>
 </html>
+
 
 
 
