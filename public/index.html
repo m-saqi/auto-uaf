@@ -121,9 +121,6 @@
 html, body {
   font-family: "Poppins", system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, "Helvetica Neue", Arial, "Noto Sans", sans-serif;
   scroll-behavior: smooth;
-  /* ADD THESE LINES TO PREVENT FONT INFLATION ON MOBILE */
-  -webkit-text-size-adjust: 100%;
-  text-size-adjust: 100%;
 }
 
 body {
@@ -132,11 +129,6 @@ body {
   margin: 0;
   padding: 0;
   color: var(--text); /* Added base text color */
-  /* Forceful Override for Chrome Text Autosizing */
-  -webkit-text-size-adjust: 100% !important;
-  text-size-adjust: 100% !important;
-  /* Add this fallback as well */
-  max-height: 999999px;
 }
 
 /* Improved navbar with glassmorphism effect */
@@ -3239,6 +3231,7 @@ a:hover {
   </script>
 </body>
 </html>
+
 
 
 
