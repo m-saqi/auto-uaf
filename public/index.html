@@ -121,6 +121,9 @@
 html, body {
   font-family: "Poppins", system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, "Helvetica Neue", Arial, "Noto Sans", sans-serif;
   scroll-behavior: smooth;
+  /* ADD THESE LINES TO PREVENT FONT INFLATION ON MOBILE */
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
 }
 
 body {
@@ -3231,4 +3234,5 @@ a:hover {
   </script>
 </body>
 </html>
+
 
