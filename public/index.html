@@ -1,1900 +1,320 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="light">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   
   <title>UAF CGPA Calculator | Automatic & Accurate | University of Agriculture Faisalabad</title>
   
-  <meta name="description" content="The best UAF CGPA Calculator. Automatically fetches results from the UAF LMS to calculate your exact CGPA and percentage. Fast, accurate, and easy to use for all UAF students." />
-  
-  <meta name="keywords" content="uaf cgpa calculator, university of agriculture faisalabad, uaf lms results, uaf gpa calculator, uaf percentage calculator, calculate cgpa uaf" />
-  
+  <meta name="description" content="The #1 UAF CGPA Calculator. Automatically fetches results from the UAF LMS, offers powerful editing, forecasting, and professional PDF exports. Fast, accurate, and secure for all UAF students." />
+  <meta name="keywords" content="uaf cgpa calculator, university of agriculture faisalabad, uaf lms results, uaf gpa calculator, cgpa forecast, calculate cgpa uaf" />
   <meta name="author" content="Muhammad Saqlain" />
-  
   <link rel="canonical" href="https://uafcgpacalculator.vercel.app" />
   <meta property="og:type" content="website" />
   <meta property="og:url" content="https://uafcgpacalculator.vercel.app/" />
-  <meta property="og:title" content="UAF CGPA Calculator | Automatic & Accurate" />
-  <meta property="og:description" content="The best UAF CGPA Calculator. Automatically fetches results from the UAF LMS to calculate your exact CGPA and percentage." />
-  <meta property="og:image" content="https://uafcgpacalculator.vercel.app/uafcgpacalculator.png" />
+  <meta property="og:title" content="The Ultimate UAF CGPA Calculator | Automatic & Accurate" />
+  <meta property="og:description" content="Automatically fetch results, forecast your CGPA, edit courses with drag-and-drop, and download professional PDF transcripts." />
+  <meta property="og:image" content="https://uafcgpacalculator.vercel.app/og-image.png" />
   <meta property="og:site_name" content="UAF CGPA Calculator" />
-
   <meta property="twitter:card" content="summary_large_image" />
-  <meta property="twitter:url" content="https://uafcgpacalculator.vercel.app/" />
-  <meta property="twitter:title" content="UAF CGPA Calculator | Automatic & Accurate" />
-  <meta property="twitter:description" content="The best UAF CGPA Calculator. Automatically fetches results from the UAF LMS to calculate your exact CGPA and percentage." />
-  <meta property="twitter:image" content="https://uafcgpacalculator.vercel.app/uafcgpacalculator.png" />
 
-  <script type="application/ld+json">
-  {
-    "@context": "https://schema.org",
-    "@type": "WebApplication",
-    "name": "UAF CGPA Calculator",
-    "url": "https://uafcgpacalculator.vercel.app/",
-    "applicationCategory": "EducationalApplication",
-    "description": "An automatic CGPA calculator for students of the University of Agriculture Faisalabad (UAF) that fetches results directly from the university's LMS.",
-    "operatingSystem": "All",
-    "browserRequirements": "Requires a modern web browser with JavaScript enabled.",
-    "offers": {
-      "@type": "Offer",
-      "price": "0",
-      "priceCurrency": "PKR"
-    },
-    "creator": {
-      "@type": "Person",
-      "name": "Muhammad Saqlain"
-    },
-    "mainEntity": {
-      "@type": "FAQPage",
-      "mainEntity": [
-        {
-          "@type": "Question",
-          "name": "How does the UAF CGPA Calculator work?",
-          "acceptedAnswer": {
-            "@type": "Answer",
-            "text": "The UAF CGPA Calculator securely connects to the public UAF LMS portal using your registration number. It fetches your official results, processes the grades and credit hours according to the official UAF grading formula, and instantly calculates your precise Semester GPA and Cumulative GPA (CGPA)."
-          }
-        },
-        {
-          "@type": "Question",
-          "name": "Is it safe to use my registration number?",
-          "acceptedAnswer": {
-            "@type": "Answer",
-            "text": "Yes, it is completely safe. The calculator only requires your registration number, not your password. Your information is used only for fetching your result for the current session and is never stored or shared. The connection is secure and private."
-          }
-        },
-        {
-          "@type": "Question",
-          "name": "Can I use this calculator for other universities?",
-          "acceptedAnswer": {
-            "@type": "Answer",
-            "text": "This calculator is specifically designed for the students of the University of Agriculture, Faisalabad (UAF). It uses UAF's unique grading system and connects directly to the UAF LMS, so it will not work for other universities."
-          }
-        }
-      ]
-    }
-  }
-  </script>
-  
-  <link rel="icon" type="image/x-icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🎓</text></svg>">
-  
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://cdnjs.cloudflare.com">
-  <link rel="preconnect" href="https://cdn.jsdelivr.net">
-  <link rel="dns-prefetch" href="https://fonts.googleapis.com">
-  <link rel="dns-prefetch" href="https://cdnjs.cloudflare.com">
-  <link rel="dns-prefetch" href="https://cdn.jsdelivr.net">
-
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🎓</text></svg>">
+  
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
-  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" rel="stylesheet" crossorigin="anonymous" referrerpolicy="no-referrer" />
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" integrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2TkcmfRyVX3pBnMFcV7oQPJkl9QevSCWr3W6A==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+
+  <style>
+    /* --- 1. Root Variables & Basic Setup --- */
+    :root {
+      --brand-primary: #7a6ad8;
+      --brand-secondary: #6b5fca;
+      --brand-gradient: linear-gradient(135deg, var(--brand-primary) 0%, var(--brand-secondary) 100%);
+      --brand-gradient-hover: linear-gradient(135deg, #8a7ce8 0%, #7b6fda 100%);
+      --accent: #ff6b6b;
+      --text-dark: #1b1f24;
+      --text-light: #4b5563;
+      --muted: #6b7280;
+      --light-bg: #f8f9ff;
+      --card-bg: #ffffff;
+      --success: #10ac84;
+      --danger: #e74c3c;
+      --info: #3498db;
+      --warning: #f39c12;
+      --radius: 1.25rem;
+      --shadow: 0 10px 30px rgba(17, 24, 39, 0.08);
+      --shadow-hover: 0 15px 40px rgba(17, 24, 39, 0.12);
+    }
+
+    html, body {
+      font-family: "Poppins", system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, sans-serif;
+      scroll-behavior: smooth;
+      color: var(--text-dark);
+      background-color: var(--light-bg);
+    }
+
+    body {
+      min-height: 100vh;
+      margin: 0;
+      padding: 0;
+    }
+
+    /* Custom Scrollbar */
+    ::-webkit-scrollbar { width: 8px; }
+    ::-webkit-scrollbar-track { background: rgba(122, 106, 216, 0.1); }
+    ::-webkit-scrollbar-thumb { background: var(--brand-primary); border-radius: 10px; }
+    ::-webkit-scrollbar-thumb:hover { background: var(--brand-secondary); }
+
+    /* --- 2. Animations & Transitions --- */
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+    @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.03); } 100% { transform: scale(1); } }
+    @keyframes float { 0% { transform: translateY(0px); } 50% { transform: translateY(-10px); } 100% { translateY(0px); } }
+    @keyframes gradient-text { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
+
+    .fade-in-on-scroll { opacity: 0; transform: translateY(30px); transition: opacity 0.6s ease-out, transform 0.6s ease-out; }
+    .fade-in-on-scroll.is-visible { opacity: 1; transform: translateY(0); }
+    .pulse { animation: pulse 2s infinite ease-in-out; }
+    .float { animation: float 3.5s ease-in-out infinite; }
+    .gradient-text, .hero-text-gradient, .robot-icon-gradient {
+      background: linear-gradient(90deg, var(--brand-primary), var(--brand-secondary), var(--accent), var(--brand-primary));
+      background-size: 300% 300%;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      animation: gradient-text 4s ease infinite;
+    }
+
+    /* --- 3. Reusable Components (Buttons, Cards, Forms) --- */
+
+    /* Buttons */
+    .btn { transition: all 0.3s ease; }
+    .btn-primary-action { background: var(--brand-gradient); color: white; border: 0; box-shadow: 0 6px 18px rgba(122, 106, 216, 0.2); }
+    .btn-primary-action:hover { background: var(--brand-gradient-hover); color: white; transform: translateY(-2px); box-shadow: 0 10px 25px rgba(122, 106, 216, 0.3); }
+    .btn-secondary-action { background: #fff; color: var(--brand-primary); border: 1px solid rgba(122, 106, 216, 0.15); }
+    .btn-secondary-action:hover { background: #f8f9ff; transform: translateY(-1px); box-shadow: 0 5px 15px rgba(122, 106, 216, 0.1); }
+    .btn-soft { background: rgba(122, 106, 216, 0.1); color: var(--brand-primary); }
+    .btn-soft:hover { background: rgba(122, 106, 216, 0.2); }
+    .btn-danger-action { background-color: var(--danger); color: white; border:0; }
+    .btn-danger-action:hover { background-color: #c0392b; color: white; transform: translateY(-2px); }
+    .btn-success-action { background-color: var(--success); color: white; border:0; }
+    .btn-success-action:hover { background-color: #0d916b; color: white; transform: translateY(-2px); }
+    .btn-info-action { background-color: var(--info); color: white; border:0; }
+    .btn-info-action:hover { background-color: #2980b9; color: white; transform: translateY(-2px); }
+    .btn-pdf-download { background-color: var(--danger); color: white; border: 0; }
+    .btn-pdf-download:hover { background-color: #c0392b; color: white; transform: translateY(-2px); }
+
+    /* Badges */
+    .badge-brand { background: var(--brand-gradient); color: white; }
+
+    /* Cards */
+    .card-modern {
+      border: 0;
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(12px);
+      background: rgba(255, 255, 255, 0.85);
+      transition: all 0.3s ease;
+      overflow: hidden;
+    }
+    .card-modern:hover { transform: translateY(-5px); box-shadow: var(--shadow-hover); }
+    .card-modern .card-header {
+      border: 0;
+      background: linear-gradient(135deg, rgba(122, 106, 216, 0.15), rgba(122, 106, 216, 0.05));
+      padding: 1.5rem 2rem;
+    }
+    .card-modern .card-header h4 { font-weight: 700; color: var(--text-dark); }
+
+    /* Forms */
+    .form-select, .form-control {
+      border-radius: .85rem;
+      border: 1px solid rgba(122, 106, 216, 0.2);
+      padding: 0.75rem 1.25rem;
+      transition: all 0.3s ease;
+      background-color: rgba(255, 255, 255, 0.9);
+    }
+    .form-select:focus, .form-control:focus {
+      border-color: var(--brand-primary);
+      box-shadow: 0 0 0 0.25rem rgba(122, 106, 216, 0.25);
+      transform: translateY(-1px);
+    }
+    .scraping-section #registrationNumber { max-width: 400px; margin: 0 auto; text-align: center; }
+
+    /* --- 4. Page Sections --- */
+
+    /* Navbar */
+    .navbar {
+      backdrop-filter: saturate(180%) blur(12px);
+      background-color: rgba(255, 255, 255, 0.8);
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+      transition: background-color 0.3s ease;
+    }
+    .navbar-brand { font-weight: 800; }
+    .nav-link { font-weight: 500; position: relative; }
+    .nav-link::after { content: ''; position: absolute; bottom: 0; left: 0; width: 0; height: 2px; background: var(--brand-gradient); transition: width 0.3s ease; }
+    .nav-link:hover::after, .nav-link.active::after { width: 100%; }
+
+    /* Hero Section */
+    .hero { padding: 5rem 0 4rem; position: relative; overflow: hidden; }
+    .hero::before, .hero::after { content: ''; position: absolute; border-radius: 50%; z-index: -1; }
+    .hero::before { top: -100px; right: -100px; width: 300px; height: 300px; background: rgba(122, 106, 216, 0.1); }
+    .hero::after { bottom: -50px; left: -50px; width: 200px; height: 200px; background: rgba(255, 107, 107, 0.1); }
+    .hero h1 { font-weight: 800; line-height: 1.1; font-size: 3.5rem; }
+    .hero .lead { color: var(--text-light); font-size: 1.25rem; max-width: 600px; }
+
+    /* Why Choose / Features Section */
+    .why-choose-section { padding: 5rem 0; }
+    .feature-card { background: rgba(255, 255, 255, 0.8); border-radius: var(--radius); padding: 2rem; height: 100%; text-align: center; transition: all 0.3s ease; backdrop-filter: blur(10px); box-shadow: var(--shadow); }
+    .feature-card:hover { transform: translateY(-10px); box-shadow: var(--shadow-hover); }
+    .feature-icon { width: 70px; height: 70px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1.5rem; background: var(--brand-gradient); color: white; font-size: 1.5rem; transition: all 0.3s ease; }
+    .feature-card:hover .feature-icon { transform: scale(1.1) rotate(5deg); }
+
+    /* --- 5. App-Specific UI --- */
+
+    /* Loading Indicator */
+    .loading-container { display: none; margin-top: 1.5rem; text-align: center; padding: 3rem 2rem; border-radius: var(--radius); background: linear-gradient(135deg, rgba(122, 106, 216, 0.1), rgba(122, 106, 216, 0.05)); }
+    .loading-stage { display: none; }
+    .loading-dots span { display: inline-block; width: 12px; height: 12px; border-radius: 50%; background: var(--brand-primary); margin: 0 4px; animation: bounce 1.4s infinite ease-in-out; }
+    .loading-dots span:nth-child(2) { animation-delay: 0.2s; }
+    .loading-dots span:nth-child(3) { animation-delay: 0.4s; }
+    @keyframes bounce { 0%, 80%, 100% { transform: scale(0); } 40% { transform: scale(1); } }
+    .loading-text { font-weight: 600; color: var(--brand-primary); margin-top: 1rem; }
+    .loading-subtext { color: var(--muted); font-size: 0.9rem; }
+
+    /* Status Log */
+    .status-log { max-height: 300px; overflow-y: auto; background: rgba(248, 249, 250, 0.7); border-radius: 0.5rem; padding: 1rem; font-family: monospace; font-size: 0.875rem; }
+    .status-line { margin-bottom: 0.5rem; padding-bottom: 0.5rem; border-bottom: 1px solid rgba(233, 236, 239, 0.5); }
+    .status-success { color: var(--success); } .status-error { color: var(--danger); }
+    .status-warning { color: var(--warning); } .status-info { color: var(--info); }
+
+    /* CGPA Result Display */
+    .gpa-result-card { border-radius: var(--radius); padding: 2.5rem; box-shadow: var(--shadow); margin: 2rem auto; width: 100%; max-width: 800px; backdrop-filter: blur(10px); background: rgba(255, 255, 255, 0.8); }
+    .cgpa-display-container { display: flex; flex-direction: column; align-items: center; gap: 1.5rem; }
+    .cgpa-main-info { text-align: center; width: 100%; padding-bottom: 1rem; border-bottom: 1px solid rgba(122, 106, 216, 0.2); }
+    .cgpa-metrics-row { display: flex; justify-content: space-around; width: 100%; gap: 1rem; }
+    .cgpa-metric { display: flex; flex-direction: column; align-items: center; flex: 1; }
+    .cgpa-metric-label { font-size: 1rem; font-weight: 500; color: var(--muted); margin-bottom: 0.25rem; }
+    .cgpa-metric-value { font-size: 2.25rem; font-weight: 700; line-height: 1.1; background: var(--brand-gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+    .cgpa-metric-subvalue { font-size: 0.9rem; color: var(--muted); }
+
+    /* Action Buttons */
+    .action-buttons { display: flex; justify-content: center; align-items: center; margin-top: 1.5rem; flex-wrap: wrap; gap: 1rem; }
+
+    /* Semester Cards & Course Table */
+    .section-title { margin-bottom: 1.5rem; padding-bottom: 0.5rem; border-bottom: 2px solid rgba(122, 106, 216, 0.2); position: relative; }
+    .section-title::after { content: ''; position: absolute; bottom: -2px; left: 0; width: 60px; height: 2px; background: var(--brand-gradient); }
+    .semester-grid { display: grid; grid-template-columns: 1fr; gap: 1.5rem; }
+    @media (min-width: 992px) { .semester-grid { grid-template-columns: repeat(2, 1fr); } }
+    .semester-card { background: rgba(255, 255, 255, 0.7); border-radius: var(--radius); padding: 1.5rem; box-shadow: var(--shadow); position: relative; backdrop-filter: blur(10px); transition: all 0.3s ease; }
+    .semester-card:hover { transform: translateY(-3px); box-shadow: var(--shadow-hover); }
+    .semester-actions { position: absolute; top: 1rem; right: 1rem; display: flex; gap: 0.5rem; font-size: 1.1rem; }
+    .semester-actions i { cursor: pointer; transition: all 0.2s ease; padding: 0.25rem; }
+    .semester-actions i:hover { transform: scale(1.2); }
+    .delete-semester { color: var(--danger); }
+    .add-course { color: var(--brand-primary); }
+    .course-table { width: 100%; border-collapse: collapse; margin-top: 1rem; }
+    .course-table th, .course-table td { padding: 0.75rem; text-align: left; border-bottom: 1px solid rgba(229, 231, 235, 0.7); }
+    .course-table th { font-weight: 600; color: var(--muted); background: rgba(122, 106, 216, 0.05); }
+    .grade-badge { padding: 0.25rem 0.5rem; border-radius: 0.375rem; font-weight: 600; font-size: 0.75rem; }
+    .grade-A { background-color: rgba(220, 252, 231, 0.7); color: #166534; } .grade-B { background-color: rgba(219, 234, 254, 0.7); color: #1e40af; }
+    .grade-C { background-color: rgba(254, 243, 199, 0.7); color: #92400e; } .grade-D { background-color: rgba(254, 226, 226, 0.7); color: #991b1b; }
+    .grade-F { background-color: rgba(243, 244, 246, 0.7); color: #374151; }
+    .extra-enrolled-badge { background-color: rgba(255, 193, 7, 0.3); color: #856404; font-size: 0.65rem; padding: 2px 4px; border-radius: 4px; margin-left: 4px; font-weight: bold; }
+    .course-actions i { cursor: pointer; font-size: 14px; padding: 4px; border-radius: 4px; transition: all 0.2s ease; }
+    .delete-course { color: var(--danger); } .delete-course:hover { background-color: rgba(220, 53, 69, 0.1); }
+    .restore-course { color: var(--success); } .restore-course:hover { background-color: rgba(16, 172, 132, 0.1); }
+    .clickable-info { cursor: pointer; color: var(--brand-primary); transition: opacity 0.2s; }
+    .clickable-info:hover { opacity: 0.7; }
+
+    /* Drag and Drop Styles */
+    .course-table tr[draggable="true"] { cursor: grab; }
+    .course-table tr.dragging { opacity: 0.4; background: #e9e6f8; }
+    .semester-card.drag-over { border: 2px dashed var(--brand-primary); transform: scale(1.02); background-color: rgba(122, 106, 216, 0.1); }
+
+    /* --- 6. Global & Utility Classes --- */
+
+    /* Toasts / Notifications */
+    #toast-container { position: fixed; top: 80px; right: 20px; z-index: 9999; display: flex; flex-direction: column; gap: 10px; }
+    .toast-notification { background: white; border-radius: 12px; padding: 16px 20px; box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15); display: flex; align-items: center; min-width: 320px; transform: translateX(110%); opacity: 0; transition: all 0.4s cubic-bezier(0.68, -0.55, 0.27, 1.55); position: relative; overflow: hidden; border-left: 4px solid; backdrop-filter: blur(10px); background: rgba(255, 255, 255, 0.95); }
+    .toast-notification.show { transform: translateX(0); opacity: 1; }
+    .toast-notification.success { border-left-color: var(--success); } .toast-notification.error { border-left-color: var(--danger); }
+    .toast-notification.warning { border-left-color: var(--warning); } .toast-notification.info { border-left-color: var(--info); }
+    .toast-icon { margin-right: 12px; font-size: 20px; }
+    .toast-notification.success .toast-icon { color: var(--success); } .toast-notification.error .toast-icon { color: var(--danger); }
+    .toast-notification.warning .toast-icon { color: var(--warning); } .toast-notification.info .toast-icon { color: var(--info); }
+    .toast-message { font-weight: 500; font-size: 15px; color: #2d3748; }
+
+    /* Undo Notification */
+    #undo-container { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); z-index: 10000; }
+    .undo-notification { background-color: rgba(30, 30, 30, 0.95); color: white; padding: 12px 20px; border-radius: 8px; display: flex; align-items: center; gap: 15px; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2); backdrop-filter: blur(10px); animation: fadeIn 0.3s ease; }
+    .undo-btn { background: var(--brand-gradient); color: white; border: none; padding: 5px 12px; border-radius: 5px; cursor: pointer; font-weight: 600; }
+
+    /* Back to Top & Cursor */
+    #backToTop { position: fixed; bottom: 30px; right: 30px; width: 50px; height: 50px; border-radius: 50%; background: var(--brand-gradient); color: white; display: flex; align-items: center; justify-content: center; cursor: pointer; opacity: 0; visibility: hidden; transition: all 0.3s ease; z-index: 1000; }
+    #backToTop.visible { opacity: 1; visibility: visible; }
+    #backToTop:hover { transform: translateY(-5px); }
+    .cursor-dot { display: none; position: fixed; width: 10px; height: 10px; border-radius: 50%; background: var(--brand-primary); pointer-events: none; transform: translate(-50%, -50%); opacity: .7; mix-blend-mode: multiply; z-index: 9999; transition: width 0.2s, height 0.2s; }
+    @media (min-width: 992px) { .cursor-dot { display: block; } }
+
+    /* --- 7. Dark Mode --- */
+    [data-theme="dark"] {
+      --text-dark: #e5e7eb; --text-light: #d1d5db; --muted: #9ca3af;
+      --light-bg: #0f1320; --card-bg: #1a2030;
+    }
+    [data-theme="dark"] body { background: linear-gradient(180deg, #0b0e13 0%, #0f1320 70%); color: #f1f5f9; }
+    [data-theme="dark"] .navbar, [data-theme="dark"] .card-modern, [data-theme="dark"] .feature-card, [data-theme="dark"] .gpa-result-card, [data-theme="dark"] .semester-card { background: rgba(20, 25, 40, 0.8); }
+    [data-theme="dark"] .card-modern .card-header { background: linear-gradient(135deg, rgba(122, 106, 216, 0.2), rgba(122, 106, 216, 0.1)); }
+    [data-theme="dark"] .form-control, [data-theme="dark"] .form-select { background: rgba(11, 16, 32, 0.8); color: #f1f5f9; border-color: rgba(122, 106, 216, 0.3); }
+    [data-theme="dark"] .status-log { background: rgba(26, 32, 48, 0.8); }
+    [data-theme="dark"] .course-table th, [data-theme="dark"] .course-table td { border-bottom-color: rgba(45, 55, 72, 0.5); }
+    [data-theme="dark"] .toast-notification { background: rgba(30, 35, 50, 0.95); }
+    [data-theme="dark"] .toast-message { color: #e5e7eb; }
+    [data-theme="dark"] .modal-content { background-color: #1a2030; color: #e5e7eb; }
+    [data-theme="dark"] .btn-close { filter: invert(1); }
+    [data-theme="dark"] .cursor-dot { mix-blend-mode: screen; }
+    [data-theme="dark"] .grade-A { background-color: rgba(21, 128, 61, 0.3); color: #86efac; }
+    [data-theme="dark"] .grade-B { background-color: rgba(30, 64, 175, 0.3); color: #93c5fd; }
+    [data-theme="dark"] .grade-C { background-color: rgba(146, 64, 14, 0.3); color: #fed7aa; }
+    [data-theme="dark"] .grade-D { background-color: rgba(153, 27, 27, 0.3); color: #fecaca; }
+    [data-theme="dark"] .grade-F { background-color: rgba(55, 65, 81, 0.3); color: #d1d5db; }
+
+    /* --- 8. Responsive Design --- */
+    @media (max-width: 768px) {
+      .hero h1 { font-size: 2.5rem; }
+      .cgpa-metrics-row { flex-direction: column; gap: 1.5rem; }
+      .cgpa-metric { flex-direction: row; justify-content: space-between; align-items: center; width: 100%; padding: 0.5rem 0; border-bottom: 1px solid rgba(122, 106, 216, 0.1); }
+      .cgpa-metric:last-child { border-bottom: none; }
+      .cgpa-metric-label { margin-bottom: 0; }
+      .cgpa-metric-value { font-size: 1.75rem; }
+      .gpa-result-card { padding: 1.5rem; }
+      .semester-card { padding: 1.5rem; }
+      .action-buttons { flex-direction: column; }
+      .action-buttons .btn { width: 100%; max-width: 300px; }
+      .why-choose-section { display: none; } /* Hide complex section on mobile for simplicity */
+    }
+
+    @media (max-width: 576px) {
+      #toast-container { right: 10px; top: 70px; }
+      .toast-notification { min-width: calc(100vw - 20px); }
+      .undo-notification { flex-direction: column; text-align: center; }
+      #undo-container { width: calc(100% - 40px); }
+    }
+  </style>
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js" defer></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js" defer></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js" defer></script>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.2/dist/chart.umd.min.js" defer></script>
 
-  <style>
-    :root {
-  --brand: #7a6ad8;
-  --brand-600: #6b5fca;
-  --brand-700: #5d52b8;
-  --brand-gradient: linear-gradient(135deg, #7a6ad8 0%, #6b5fca 50%, #5d52b8 100%);
-  --brand-gradient-hover: linear-gradient(135deg, #8a7ce8 0%, #7b6fda 50%, #6d62c8 100%);
-  --accent: #ff6b6b;
-  --accent-gradient: linear-gradient(135deg, #ff6b6b 0%, #ff8e8e 100%);
-  --text: #1b1f24;
-  --text-light: #4b5563;
-  --muted: #6b7280;
-  --light-bg: #f8f9ff;
-  --card-bg: #ffffff;
-  --radius: 1.25rem;
-  --shadow: 0 10px 30px rgba(17, 24, 39, 0.1);
-  --shadow-hover: 0 15px 40px rgba(17, 24, 39, 0.15);
-  
-  /* New gradient variables */
-  --brand-primary: #7a6ad8;
-  --brand-secondary: #6b5fca;
-}
-
-html, body {
-  font-family: "Poppins", system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, "Helvetica Neue", Arial, "Noto Sans", sans-serif;
-  scroll-behavior: smooth;
-}
-
-body {
-  background-color: var(--light-bg); /* UPDATED: Solid background color */
-  min-height: 100vh;
-  margin: 0;
-  padding: 0;
-  color: var(--text); /* Added base text color */
-}
-
-/* Improved navbar with glassmorphism effect */
-.navbar {
-  backdrop-filter: saturate(180%) blur(12px);
-  background-color: rgba(255, 255, 255, 0.8);
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
-  transition: all 0.3s ease;
-}
-
-.navbar .navbar-brand {
-  font-weight: 800;
-  letter-spacing: .3px;
-  color: var(--brand);
-  transition: all 0.3s ease;
-}
-
-.navbar .navbar-brand:hover {
-  transform: translateY(-1px);
-}
-
-.navbar .nav-link {
-  position: relative;
-  font-weight: 500;
-  transition: all 0.3s ease;
-  color: var(--text);
-}
-
-.navbar .nav-link::after {
-  content: '';
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  width: 0;
-  height: 2px;
-  background: var(--brand-gradient);
-  transition: width 0.3s ease;
-}
-
-.navbar .nav-link:hover::after {
-  width: 100%;
-}
-
-/* Improved buttons */
-.btn-brand {
-  background: var(--brand-gradient);
-  border: none;
-  color: white;
-  transition: all 0.3s ease;
-  box-shadow: var(--shadow);
-}
-
-.btn-brand:hover {
-  background: var(--brand-gradient-hover);
-  transform: translateY(-2px);
-  box-shadow: var(--shadow-hover);
-  color: white;
-}
-
-.btn-soft {
-  background: rgba(122, 106, 216, 0.1);
-  color: var(--brand);
-  transition: all 0.3s ease;
-}
-
-.btn-soft:hover {
-  background: rgba(122, 106, 216, 0.2);
-  transform: translateY(-1px);
-}
-
-.badge-brand {
-  background: var(--brand-gradient);
-  color: white;
-}
-
-.btn-primary-action {
-  background: var(--brand-gradient);
-  color: #fff;
-  border: 0;
-  box-shadow: 0 6px 18px rgba(122, 106, 216, 0.2);
-  cursor: pointer;
-  transition: all 0.3s ease;
-}
-
-.btn-primary-action:hover {
-  background: var(--brand-gradient-hover);
-  color: #fff;
-  transform: translateY(-2px);
-  box-shadow: 0 10px 25px rgba(122, 106, 216, 0.3);
-}
-
-.btn-secondary-action {
-  background: #fff;
-  color: var(--brand);
-  border: 1px solid rgba(122, 106, 216, 0.15);
-  cursor: pointer;
-  transition: all 0.3s ease;
-}
-
-.btn-secondary-action:hover {
-  background: #f8f9ff;
-  color: var(--brand);
-  transform: translateY(-1px);
-  box-shadow: 0 5px 15px rgba(122, 106, 216, 0.1);
-}
-
-.btn-danger-action {
-  background: var(--accent-gradient);
-  color: white;
-  border: 0;
-  cursor: pointer;
-  transition: all 0.3s ease;
-}
-
-.btn-danger-action:hover {
-  background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
-  color: white;
-  transform: translateY(-2px);
-}
-
-.btn-success-action {
-  background: linear-gradient(135deg, #10ac84 0%, #0d916b 100%);
-  color: white;
-  border: 0;
-  cursor: pointer;
-  transition: all 0.3s ease;
-}
-
-.btn-success-action:hover {
-  background: linear-gradient(135deg, #12c29a 0%, #0fa57c 100%);
-  color: white;
-  transform: translateY(-2px);
-}
-
-/* Improved hero section */
-.hero {
-  padding: 5rem 0 4rem;
-  position: relative;
-  overflow: hidden;
-}
-
-.hero::before {
-  content: '';
-  position: absolute;
-  top: -100px;
-  right: -100px;
-  width: 300px;
-  height: 300px;
-  border-radius: 50%;
-  background: rgba(122, 106, 216, 0.1);
-  z-index: -1;
-}
-
-.hero::after {
-  content: '';
-  position: absolute;
-  bottom: -50px;
-  left: -50px;
-  width: 200px;
-  height: 200px;
-  border-radius: 50%;
-  background: rgba(255, 107, 107, 0.1);
-  z-index: -1;
-}
-
-.hero h1 {
-  font-weight: 800;
-  line-height: 1.05;
-  font-size: 3.5rem;
-  margin-bottom: 1.5rem;
-  background: linear-gradient(135deg, var(--brand) 0%, var(--text) 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-}
-
-.hero .lead {
-  color: var(--text-light);
-  font-size: 1.25rem;
-  margin-bottom: 2rem;
-}
-
-.mt-3 {
-  margin-top: 1rem !important;
-  display: flex;
-  justify-content: center;
-  flex-wrap: wrap;
-  gap: 0.5rem;
-}
-
-/* Improved cards with glassmorphism effect */
-.card-modern {
-  border: 0;
-  border-radius: var(--radius);
-  box-shadow: var(--shadow);
-  backdrop-filter: blur(10px);
-  background: rgba(255, 255, 255, 0.8);
-  transition: all 0.3s ease;
-  overflow: hidden;
-  color: var(--text);
-}
-
-.card-modern:hover {
-  transform: translateY(-5px);
-  box-shadow: var(--shadow-hover);
-}
-
-.card-modern .card-header {
-  border: 0;
-  border-top-left-radius: var(--radius);
-  border-top-right-radius: var(--radius);
-  background: linear-gradient(135deg, rgba(122, 106, 216, 0.2), rgba(122, 106, 216, 0.1));
-  padding: 1.5rem 2rem;
-}
-
-.card-modern .card-header h4 {
-  font-weight: 700;
-  color: var(--text);
-  text-align: center; /* Center header text */
-}
-
-.form-select, .form-control {
-  border-radius: .85rem;
-  border: 1px solid rgba(122, 106, 216, 0.2);
-  padding: 0.75rem 1rem;
-  transition: all 0.3s ease;
-  color: var(--text);
-  background-color: rgba(255, 255, 255, 0.9);
-}
-
-.form-select:focus, .form-control:focus {
-  border-color: var(--brand);
-  box-shadow: 0 0 0 0.25rem rgba(122, 106, 216, 0.25);
-}
-
-label {
-  font-weight: 600;
-  color: var(--text);
-  margin-bottom: 0.5rem;
-}
-
-.subject-row {
-  border: 1px dashed rgba(122, 106, 216, 0.3);
-  border-radius: 1rem;
-  padding: 1.5rem;
-  background: rgba(255, 255, 255, 0.5);
-  transition: all 0.3s ease;
-}
-
-.subject-row:hover {
-  border-color: var(--brand);
-  background: rgba(255, 255, 255, 0.8);
-}
-
-.result-display {
-  font-size: 1.75rem;
-  font-weight: 800;
-  color: var(--brand);
-  background: linear-gradient(135deg, var(--brand) 0%, var(--text) 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-}
-
-/* Improved loading animations */
-.loading-container {
-  margin-top: 1.5rem;
-  text-align: center;
-  padding: 3rem 2rem;
-  border-radius: var(--radius);
-  background: linear-gradient(135deg, rgba(122, 106, 216, 0.1), rgba(122, 106, 216, 0.05));
-  display: none;
-  backdrop-filter: blur(10px);
-}
-
-.loading-stage {
-  display: none;
-}
-
-.loading-animation {
-  width: 80px;
-  height: 80px;
-  margin: 0 auto 1.5rem;
-  position: relative;
-}
-
-.loading-connecting {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
-.loading-connecting .dot {
-  width: 12px;
-  height: 12px;
-  border-radius: 50%;
-  background: var(--brand);
-  margin: 0 5px;
-  animation: bounce 1.5s infinite ease-in-out;
-}
-
-.loading-connecting .dot:nth-child(2) {
-  animation-delay: 0.2s;
-}
-
-.loading-connecting .dot:nth-child(3) {
-  animation-delay: 0.4s;
-}
-
-.loading-complete .checkmark {
-  width: 80px;
-  height: 80px;
-  margin: 0 auto;
-  position: relative;
-}
-
-.loading-complete .checkmark:before {
-  content: '';
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  width: 40px;
-  height: 20px;
-  border: 6px solid var(--brand);
-  border-top: none;
-  border-right: none;
-  transform: translate(-50%, -60%) rotate(-45deg);
-  animation: checkmark 0.6s ease-in-out;
-}
-
-@keyframes bounce {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-15px); }
-}
-
-@keyframes checkmark {
-  0% { opacity: 0; transform: translate(-50%, -60%) rotate(-45deg) scale(0); }
-  50% { opacity: 1; transform: translate(-50%, -60%) rotate(-45deg) scale(1.2); }
-  100% { opacity: 1; transform: translate(-50%, -60%) rotate(-45deg) scale(1); }
-}
-
-.loading-text {
-  font-weight: 600;
-  color: var(--brand);
-  margin-bottom: 0.5rem;
-  font-size: 1.1rem;
-}
-
-.loading-subtext {
-  color: var(--muted);
-  font-size: 0.9rem;
-  max-width: 400px;
-  margin: 0 auto;
-}
-
-.status-log {
-  max-height: 300px;
-  overflow-y: auto;
-  background: rgba(248, 249, 250, 0.7);
-  border-radius: 0.5rem;
-  padding: 1rem;
-  font-family: monospace;
-  font-size: 0.875rem;
-  margin-bottom: 1rem;
-  backdrop-filter: blur(10px);
-}
-
-.status-line {
-  margin-bottom: 0.5rem;
-  padding-bottom: 0.5rem;
-  border-bottom: 1px solid rgba(233, 236, 239, 0.5);
-  cursor: pointer;
-  transition: all 0.3s ease;
-}
-
-.status-line:hover {
-  background: rgba(255, 255, 255, 0.5);
-  border-radius: 0.25rem;
-  padding-left: 0.5rem;
-}
-
-.status-line:last-child {
-  margin-bottom: 0;
-  border-bottom: none;
-}
-
-.status-success { color: #28a745; }
-.status-error { color: #dc3545; }
-status-warning { color: #fd7e14; }
-.status-info { color: var(--brand); }
-
-.footer {
-  color: #9ca3af;
-  background-color: var(--light-bg); /* UPDATED: Solid background color */
-}
-
-a {
-  color: var(--brand);
-  text-decoration: none;
-  cursor: pointer;
-  transition: all 0.3s ease;
-}
-
-a:hover {
-  color: var(--brand-600);
-}
-
-/* Loading spinner styles */
-.loading {
-  display: none;
-  text-align: center;
-  padding: 20px;
-}
-
-.loading p {
-  margin-top: 10px;
-}
-
-/* Result container styles */
-.result-container {
-  display: none;
-}
-
-/* Toast notifications */
-#toast-container {
-  position: fixed;
-  top: 65px;
-  right: 10px;
-  z-index: 9999;
-  display: flex;
-  flex-direction: column-reverse;
-  gap: 10px;
-}
-
-.toast {
-  background: white;
-  border-radius: 12px;
-  padding: 16px 20px;
-  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
-  display: flex;
-  align-items: center;
-  min-width: 300px;
-  max-width: 400px;
-  transform: translateX(100%);
-  opacity: 0;
-  transition: transform 0.3s ease, opacity 0.3s ease;
-  position: relative;
-  overflow: hidden;
-  border-left: 4px solid var(--brand);
-  backdrop-filter: blur(10px);
-  background: rgba(255, 255, 255, 0.95);
-}
-
-.toast.show {
-  transform: translateX(0);
-  opacity: 1;
-}
-
-.toast-success {
-  border-left-color: #10ac84;
-}
-
-.toast-error {
-  border-left-color: #e74c3c;
-}
-
-.toast-warning {
-  border-left-color: #f39c12;
-}
-
-.toast-info {
-  border-left-color: #3498db;
-}
-
-.toast-content {
-  display: flex;
-  align-items: center;
-  width: 100%;
-}
-
-.toast-icon {
-  margin-right: 12px;
-  font-size: 20px;
-}
-
-.toast-success .toast-icon {
-  color: #10ac84;
-}
-
-.toast-error .toast-icon {
-  color: #e74c3c;
-}
-
-.toast-warning .toast-icon {
-  color: #f39c12;
-}
-
-.toast-info .toast-icon {
-  color: #3498db;
-}
-
-.toast-message {
-  flex: 1;
-  font-weight: 500;
-  font-size: 14px;
-  color: #2d3748;
-}
-
-.toast-progress {
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  height: 3px;
-  width: 100%;
-  background: rgba(0, 0, 0, 0.1);
-  transform: scaleX(1);
-  transform-origin: left;
-  animation: toastProgress 3s linear forwards;
-}
-
-.toast-success .toast-progress {
-  background: linear-gradient(to right, #10ac84, #0d916b);
-}
-
-.toast-error .toast-progress {
-  background: linear-gradient(to right, #e74c3c, #c0392b);
-}
-
-.toast-warning .toast-progress {
-  background: linear-gradient(to right, #f39c12, #e67e22);
-}
-
-.toast-info .toast-progress {
-  background: linear-gradient(to right, #3498db, #2980b9);
-}
-
-@keyframes toastProgress {
-  from { transform: scaleX(1); }
-  to { transform: scaleX(0); }
-}
-
-/* GPA Result Display */
-.gpa-result-card {
-  background: rgba(255, 255, 255, 0.8);
-  border-radius: var(--radius);
-  padding: 2rem;
-  box-shadow: var(--shadow);
-  margin-bottom: 2rem;
-  margin-top: 2rem;
-  width: 70%; /* CORRECTED: As per user request */
-  margin-left: auto; /* CORRECTED: As per user request */
-  margin-right: auto; /* CORRECTED: As per user request */
-  backdrop-filter: blur(10px);
-  transition: all 0.3s ease;
-}
-
-.gpa-result-card:hover {
-  transform: translateY(-5px);
-  box-shadow: var(--shadow-hover);
-}
-
-.semester-card {
-  background: rgba(255, 255, 255, 0.8);
-  border-radius: var(--radius);
-  padding: 2rem;
-  box-shadow: var(--shadow);
-  margin-bottom: 1.5rem;
-  position: relative;
-  backdrop-filter: blur(10px);
-  transition: all 0.3s ease;
-}
-
-.semester-card:hover {
-  transform: translateY(-3px);
-  box-shadow: var(--shadow-hover);
-}
-
-.delete-semester {
-  position: absolute;
-  top: 1rem;
-  right: 1rem;
-  cursor: pointer;
-  color: #dc3545;
-  font-size: 1.2rem;
-  z-index: 10;
-  transition: all 0.3s ease;
-}
-
-.delete-semester:hover {
-  transform: scale(1.2);
-}
-
-.add-course-btn {
-  position: absolute;
-  top: 1rem;
-  right: 3rem;
-  cursor: pointer;
-  color: var(--brand);
-  font-size: 1.2rem;
-  z-index: 10;
-  transition: all 0.3s ease;
-}
-
-.add-course-btn:hover {
-  transform: scale(1.2);
-}
-
-.course-table {
-  width: 100%;
-  border-collapse: collapse;
-  margin-top: 1rem;
-}
-
-.course-table th, .course-table td {
-  padding: 0.75rem;
-  text-align: left;
-  border-bottom: 1px solid rgba(229, 231, 235, 0.5);
-}
-
-.course-table th {
-  font-weight: 600;
-  color: var(--muted);
-  background: rgba(122, 106, 216, 0.05);
-}
-
-.grade-badge {
-  padding: 0.25rem 0.5rem;
-  border-radius: 0.375rem;
-  font-weight: 600;
-  font-size: 0.75rem;
-}
-
-.grade-A { background-color: rgba(220, 252, 231, 0.7); color: #166534; }
-.grade-B { background-color: rgba(219, 234, 254, 0.7); color: #1e40af; }
-.grade-C { background-color: rgba(254, 243, 199, 0.7); color: #92400e; }
-.grade-D { background-color: rgba(254, 226, 226, 0.7); color: #991b1b; }
-.grade-F { background-color: rgba(243, 244, 246, 0.7); color: #374151; }
-
-.extra-enrolled {
-  background-color: rgba(255, 193, 7, 0.2);
-  color: #856404;
-  padding: 0.15rem 0.35rem;
-  border-radius: 0.25rem;
-  font-size: 0.7rem;
-  margin-left: 0.5rem;
-}
-
-.course-details-modal .modal-content {
-  border-radius: var(--radius);
-  backdrop-filter: blur(10px);
-  background: rgba(255, 255, 255, 0.95);
-}
-
-.course-details-modal .modal-header {
-  background: linear-gradient(135deg, rgba(122, 106, 216, 0.2), rgba(122, 106, 216, 0.1));
-  border-top-left-radius: var(--radius);
-  border-top-right-radius: var(--radius);
-}
-
-.calculate-cgpa-btn {
-  margin-top: 1rem;
-  display: none;
-}
-
-/* Add Course Form */
-.add-course-form {
-  background: rgba(248, 249, 250, 0.7);
-  border-radius: 0.5rem;
-  padding: 1.5rem;
-  margin-top: 1rem;
-  display: none;
-  backdrop-filter: blur(10px);
-}
-
-.form-row {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 1rem;
-  margin-bottom: 1rem;
-}
-
-.form-group {
-  flex: 1;
-  min-width: 200px;
-}
-
-/* ----------- DARK MODE IMPROVED ----------- */
-[data-theme="dark"] {
-  --text: #e5e7eb;
-  --text-light: #d1d5db;
-  --muted: #9ca3af;
-}
-
-[data-theme="dark"] body {
-  background: linear-gradient(180deg, #0b0e13 0%, #0f1320 70%);
-  color: #f1f5f9;
-}
-
-[data-theme="dark"] .navbar {
-  background-color: rgba(17, 24, 39, 0.8);
-}
-
-[data-theme="dark"] .navbar .nav-link {
-  color: #d1d5db;
-}
-
-[data-theme="dark"] .navbar .nav-link:hover {
-  color: #fff;
-}
-
-[data-theme="dark"] .card-modern {
-  background: rgba(15, 20, 34, 0.8);
-  color: #e5e7eb;
-}
-
-[data-theme="dark"] .card-modern .card-header {
-  background: linear-gradient(135deg, rgba(122, 106, 216, 0.3), rgba(122, 106, 216, 0.15));
-}
-
-[data-theme="dark"] h1, [data-theme="dark"] h2, [data-theme="dark"] h3, [data-theme="dark"] h4, [data-theme="dark"] h5 {
-  color: #ffffff;
-}
-
-[data-theme="dark"] .lead {
-  color: #9ca3af;
-}
-
-[data-theme="dark"] .subject-row {
-  background: rgba(26, 31, 46, 0.8);
-  border-color: rgba(122, 106, 216, 0.3);
-}
-
-[data-theme="dark"] label {
-  color: #e5e7eb;
-}
-
-[data-theme="dark"] .form-control, [data-theme="dark"] .form-select {
-  background: rgba(11, 16, 32, 0.8);
-  color: #f1f5f9;
-  border-color: rgba(122, 106, 216, 0.3);
-}
-
-[data-theme="dark"] .form-control::placeholder {
-  color: #9ca3af;
-}
-
-[data-theme="dark"] .form-text {
-  color: var(--muted);
-}
-
-[data-theme="dark"] .input-group-text {
-  background: rgba(31, 41, 55, 0.8);
-  color: #e5e7eb;
-}
-
-[data-theme="dark"] .footer {
-  color: #9ca3af;
-  background: rgba(17, 24, 39, 0.8);
-}
-
-[data-theme="dark"] a {
-  color: rgb(158, 141, 240);
-}
-
-[data-theme="dark"] a:hover {
-  color: #9f8df0;
-}
-
-[data-theme="dark"] .status-log {
-  background: rgba(26, 32, 48, 0.8);
-}
-
-[data-theme="dark"] .status-line {
-  border-bottom-color: rgba(45, 55, 72, 0.5);
-}
-
-[data-theme="dark"] .gpa-result-card {
-  background: rgba(26, 32, 48, 0.8);
-}
-
-[data-theme="dark"] .semester-card {
-  background: rgba(26, 32, 48, 0.8);
-}
-
-[data-theme="dark"] .course-table th, 
-[data-theme="dark"] .course-table td {
-  border-bottom-color: rgba(45, 55, 72, 0.5);
-}
-
-[data-theme="dark"] .course-table th {
-  background: rgba(122, 106, 216, 0.1);
-}
-
-[data-theme="dark"] .add-course-form {
-  background: rgba(26, 31, 46, 0.8);
-}
-
-[data-theme="dark"] .loading-container {
-  background: linear-gradient(135deg, rgba(122, 106, 216, 0.15), rgba(122, 106, 216, 0.08));
-}
-
-[data-theme="dark"] .grade-A { background-color: rgba(21, 128, 61, 0.3); color: #86efac; }
-[data-theme="dark"] .grade-B { background-color: rgba(30, 64, 175, 0.3); color: #93c5fd; }
-[data-theme="dark"] .grade-C { background-color: rgba(146, 64, 14, 0.3); color: #fed7aa; }
-[data-theme="dark"] .grade-D { background-color: rgba(153, 27, 27, 0.3); color: #fecaca; }
-[data-theme="dark"] .grade-F { background-color: rgba(55, 65, 81, 0.3); color: #d1d5db; }
-
-/* Dark mode for modals */
-[data-theme="dark"] .course-details-modal .modal-content,
-[data-theme="dark"] #addCourseModal .modal-content {
-  background: rgba(26, 32, 48, 0.95);
-  color: #e5e7eb;
-}
-
-[data-theme="dark"] .course-details-modal .modal-header,
-[data-theme="dark"] #addCourseModal .modal-header {
-  background: linear-gradient(135deg, rgba(122, 106, 216, 0.3), rgba(122, 106, 216, 0.15));
-  border-bottom-color: rgba(45, 55, 72, 0.5);
-}
-
-[data-theme="dark"] .course-details-modal .modal-header .btn-close,
-[data-theme="dark"] #addCourseModal .modal-header .btn-close {
-  filter: invert(1);
-}
-
-[data-theme="dark"] .course-details-modal .alert-info {
-  background-color: rgba(23, 162, 184, 0.2);
-  border-color: rgba(23, 162, 184, 0.3);
-  color: #71d4f0;
-}
-
-[data-theme="dark"] .course-details-modal .alert-warning {
-  background-color: rgba(255, 193, 7, 0.2);
-  border-color: rgba(255, 193, 7, 0.3);
-  color: #ffd351;
-}
-
-/* Dark mode contrast improvements */
-[data-theme="dark"] .text-body-secondary {
-  color: #d1d5db !important;
-}
-
-[data-theme="dark"] .btn-primary-action {
-  color: #ffffff !important;
-}
-
-.cursor-dot {
-  position: fixed;
-  width: 10px;
-  height: 10px;
-  border-radius: 50%;
-  background: var(--brand);
-  pointer-events: none;
-  transform: translate(-50%, -50%);
-  opacity: .7;
-  mix-blend-mode: multiply;
-  z-index: 9999;
-  transition: all 0.1s ease;
-}
-
-[data-theme="dark"] .cursor-dot {
-  mix-blend-mode: screen;
-}
-
-/* Course action buttons */
-.course-actions i {
-  cursor: pointer;
-  font-size: 14px;
-  padding: 4px;
-  border-radius: 4px;
-  transition: all 0.3s ease;
-}
-
-.delete-course {
-  color: #dc3545;
-}
-
-.delete-course:hover {
-  background-color: rgba(220, 53, 69, 0.1);
-  transform: scale(1.2);
-}
-
-.restore-course {
-  color: #10ac84;
-}
-
-.restore-course:hover {
-  background-color: rgba(16, 172, 132, 0.1);
-  transform: scale(1.2);
-}
-
-/* Clickable info icon */
-.clickable-info {
-  cursor: pointer;
-  color: var(--brand);
-  transition: all 0.3s ease;
-}
-
-.clickable-info:hover {
-  opacity: 0.8;
-  transform: scale(1.1);
-}
-
-.course-code-container .fa-info-circle {
-    margin-left: 0.3rem !important;
-}
-
-/* Mobile responsive adjustments */
-@media (max-width: 575.98px) {
-  .hero {
-    padding: 2rem 0 2rem;
-  }
-  
-  .hero h1 {
-    font-size: 2.5rem !important;
-  }
-  
-  .d-flex.gap-2 .btn {
-    width: 100%;
-    max-width: 300px;
-    margin-bottom: 0.5rem;
-  }
-  
-  /* Mobile notification text size */
-  .toast {
-    min-width: 250px;
-    max-width: 300px;
-    padding: 12px 16px;
-  }
-  
-  .toast-message {
-    font-size: 12px;
-  }
-  
-  .card-modern .card-header {
-    padding: 1rem;
-  }
-  
-  .gpa-result-card, .semester-card {
-    padding: 1.5rem;
-  }
-}
-    
-
-/* Ensure subject columns are 2-up on very small screens: change from col-12 col-md-6 -> col-6 col-md-6 */
-@media (max-width: 420px) {
-  .subject-row .col-6 {
-    padding-right: .4rem;
-    padding-left: .4rem;
-  }
-}
-
-/* UPDATED: Narrow calculator container on desktop */
-@media (min-width: 992px) {
-  #Auto-Calculator .col-md-10 {
-    width: 100%; /* CORRECTED: As per user request */
-  }
-}
-
-@media (min-width: 992px) {
-  .navbar-expand-lg .navbar-nav .nav-link {
-    padding-right: var(--bs-navbar-nav-link-padding-x);
-    margin-right: 20px;
-  }
-}
-
-@media (min-width: 768px) {
-  .col-md-10 {
-    flex: 0 0 auto;
-    width: 100%;
-  }
-}
-
-@media (min-width: 768px) {
-  .col-md-4 {
-    flex: 0 0 auto;
-    width: 48.3%;
-  }
-}
-
-/* Mobile responsive table */
-@media screen and (max-width: 768px) {
-  .course-table {
-    white-space: nowrap;
-    font-size: 11px;
-  }
-  
-  .gpa-result-card {
-    width: 95%; /* Adjust for mobile */
-  }
-  
-  /* Make repeated course indicator appear below course code on mobile */
-  .course-code-container {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-  }
-  .course-code-container .fa-info-circle {
-    display: none;
-  }
-  
-  .extra-enrolled {
-    margin-left: 0;
-    margin-top: 0.25rem;
-  }
-  
-  /* Adjust spacing for mobile */
-  .semester-card {
-    padding: 1.5rem;
-    max-width: 420px;
-  }
-  
-  .gpa-result-card {
-    padding: 1.5rem;
-  }
-  
-  /* Make buttons more touch-friendly */
-  .btn {
-    padding: 0.75rem 1rem;
-  }
-  
-  /* Adjust loading animations for mobile */
-  .loading-animation {
-    width: 60px;
-    height: 60px;
-  }
-  
-  .loading-text {
-    font-size: 1rem;
-  }
-  
-  .loading-subtext {
-    font-size: 0.8rem;
-  }
-}
-
-/* Center buttons only in specific sections */
-.scraping-section .center-buttons,
-.log-section .center-buttons {
-  display: flex;
-  justify-content: center;
-  flex-wrap: wrap;
-  gap: 0.5rem;
-}
-
-@media (max-width: 576px) {
-  .scraping-section .center-buttons,
-  .log-section .center-buttons {
-    flex-direction: column;
-    align-items: center;
-  }
-  
-  .scraping-section .center-buttons .btn,
-  .log-section .center-buttons .btn {
-    width: auto; 
-    min-width: 180px; 
-  }
-}
-
-/* New layout improvements */
-.results-section {
-  margin-top: 2rem;
-}
-
-.student-info-section {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 1.5rem;
-  margin-bottom: 2rem;
-}
-
-.student-details {
-  flex: 1;
-  min-width: 300px;
-}
-
-.cgpa-display {
-  flex: 0 0 auto;
-  text-align: right;
-  min-width: 200px;
-}
-
-.action-buttons {
-  display: flex;
-  gap: 1rem;
-  margin-top: 1.5rem;
-  margin-bottom: 1.5rem; /* CORRECTED: As per user request */
-  flex-wrap: wrap;
-  justify-content: center;
-}
-
-@media (max-width: 768px) {
-  .student-info-section {
-    flex-direction: column;
-  }
-  
-  .cgpa-display {
-    text-align: left;
-    margin-top: 1rem;
-  }
-  
-  .action-buttons {
-    flex-direction: column;
-    align-items: center; 
-  }
-  
-  .action-buttons .btn {
-    width: auto; 
-    min-width: 200px;
-  }
-}
-
-/* Section separators */
-.section-container {
-  margin-bottom: 2rem;
-}
-
-.section-title {
-  margin-bottom: 1.5rem;
-  padding-bottom: 0.5rem;
-  border-bottom: 2px solid rgba(122, 106, 216, 0.3);
-  position: relative;
-}
-
-.section-title::after {
-  content: '';
-  position: absolute;
-  bottom: -2px;
-  left: 0;
-  width: 60px;
-  height: 2px;
-  background: var(--brand-gradient);
-}
-
-/* Student info logo style */
-.student-info-logo {
-  background: linear-gradient(135deg, rgba(122, 106, 216, 0.2), rgba(122, 106, 216, 0.1));
-  border-radius: 50%;
-  width: 60px;
-  height: 60px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin-right: 1rem;
-  transition: all 0.3s ease;
-}
-
-.student-info-logo:hover {
-  transform: rotate(15deg);
-}
-
-.student-info-logo i {
-  font-size: 1.5rem;
-  color: var(--brand);
-}
-
-/* Desktop-specific smaller text for semester sections */
-@media (min-width: 992px) {
-  .semester-card {
-    font-size: 0.95rem;
-  }
-  
-  .semester-card h5 {
-    font-size: 1.15rem;
-  }
-  
-  .course-table {
-    font-size: 0.9rem;
-  }
-}
-
-/* Semester section layout improvements */
-.semester-results-container {
-  width: 100%;
-}
-
-.semester-grid {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 1.5rem;
-  width: 100%;
-}
-
-@media (min-width: 992px) {
-  .semester-grid {
-    grid-template-columns: repeat(2, 1fr);
-  }
-}
-
-/* NEW STYLES FOR UPDATES */
-.repeated-badge {
-  position: absolute;
-  top: 5px;
-  right: 5px;
-  background-color: #ffc107;
-  color: #856404;
-  font-size: 8px;
-  padding: 2px 4px;
-  border-radius: 3px;
-  font-weight: bold;
-}
-
-.custom-course-btn {
-  background: var(--brand-gradient);
-  color: white;
-  border: none;
-  border-radius: 8px;
-  padding: 8px 12px;
-  font-size: 0.9rem;
-  margin-top: 10px;
-  display: flex;
-  align-items: center;
-  gap: 5px;
-  cursor: pointer;
-  transition: all 0.3s ease;
-}
-
-.custom-course-btn:hover {
-  background: var(--brand-gradient-hover);
-  transform: translateY(-2px);
-}
-
-.undo-notification {
-  position: fixed;
-  bottom: 20px;
-  left: 50%;
-  transform: translateX(-50%);
-  background-color: rgba(51, 51, 51, 0.9);
-  color: white;
-  padding: 12px 20px;
-  border-radius: 8px;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  z-index: 10000;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
-  backdrop-filter: blur(10px);
-  width: calc(100% - 40px);
-  max-width: 400px;
-  justify-content: space-between;
-}
-
-.undo-btn {
-  background: var(--brand-gradient);
-  color: white;
-  border: none;
-  padding: 5px 10px;
-  border-radius: 4px;
-  cursor: pointer;
-  transition: all 0.3s ease;
-}
-
-.undo-btn:hover {
-  background: var(--brand-gradient-hover);
-  transform: translateY(-1px);
-}
-@media (max-width: 576px) {
-  .undo-notification {
-    bottom: 70px; /* Raise it above mobile browser UI */
-    padding: 10px 15px;
-    font-size: 0.9rem;
-    flex-direction: column;
-    gap: 8px;
-    text-align: center;
-  }
-  .undo-btn {
-    width: 100%;
-    padding: 6px 10px;
-  }
-}
-
-
-/* Updated CGPA Display Layout */
-.cgpa-display-container {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 1.5rem;
-}
-
-.cgpa-main-info {
-  text-align: center;
-  width: 100%;
-  padding-bottom: 1rem;
-  border-bottom: 1px solid rgba(122, 106, 216, 0.3);
-}
-
-.cgpa-metrics-row {
-  display: flex;
-  justify-content: space-between;
-  width: 100%;
-  gap: 1rem;
-}
-
-.cgpa-metric {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  flex: 1;
-}
-
-.cgpa-metric-left {
-  align-items: flex-start;
-}
-
-.cgpa-metric-center {
-  align-items: center;
-}
-
-.cgpa-metric-right {
-  align-items: flex-end;
-}
-
-.cgpa-metric-label {
-  font-size: 1rem;
-  font-weight: 600;
-  color: var(--muted);
-  margin-bottom: 0.5rem;
-}
-
-.cgpa-metric-value {
-  font-size: 1.75rem;
-  font-weight: 650;
-  color: var(--brand);
-  line-height: 1.2;
-  background: var(--brand-gradient);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-}
-
-.cgpa-metric-subvalue {
-  font-size: 0.9rem;
-  color: var(--muted);
-}
-
-/* Mobile responsive adjustments */
-@media (max-width: 768px) {
-  .cgpa-metrics-row {
-    flex-direction: column;
-    gap: 1.5rem;
-  }
-  
-  .cgpa-metric {
-    flex-direction: row;
-    justify-content: space-between;
-    align-items: center;
-    width: 100%;
-    padding: 0.5rem 0;
-    border-bottom: 1px solid rgba(122, 106, 216, 0.1);
-  }
-  
-  .cgpa-metric:last-child {
-    border-bottom: none;
-  }
-  
-  .cgpa-metric-left,
-  .cgpa-metric-center,
-  .cgpa-metric-right {
-    align-items: center;
-  }
-  
-  .cgpa-metric-label {
-    margin-bottom: 0;
-    min-width: 100px;
-    text-align: left;
-  }
-  
-  .cgpa-metric-value-container {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-end;
-  }
-  
-  .cgpa-metric-value {
-    font-size: 1.5rem;
-  }
-  
-  .cgpa-main-info h2 {
-    font-size: 1.5rem;
-  }
-
-  .semester-grid {
-    display: block;
-}
-  }
-
-/* Contact form improvements */
-#contact-form {
-  background: rgba(255, 255, 255, 0.5);
-  padding: 2rem;
-  border-radius: var(--radius);
-  backdrop-filter: blur(10px);
-}
-
-[data-theme="dark"] #contact-form {
-  background: rgba(26, 32, 48, 0.5);
-}
-
-/* Animation for form elements */
-.form-control, .form-select {
-  transition: all 0.3s ease;
-}
-
-.form-control:focus, .form-select:focus {
-  transform: translateY(-2px);
-}
-
-/* Pulse animation for important elements */
-@keyframes pulse {
-  0% { transform: scale(1); }
-  50% { transform: scale(1.05); }
-  100% { transform: scale(1); }
-}
-
-.pulse {
-  animation: pulse 2s infinite;
-}
-
-/* Floating animation */
-@keyframes float {
-  0% { transform: translateY(0px); }
-  50% { transform: translateY(-10px); }
-  100% { transform: translateY(0px); }
-}
-
-.float {
-  animation: float 3s ease-in-out infinite;
-}
-
-/* Improved scrollbar */
-::-webkit-scrollbar {
-  width: 8px;
-}
-
-::-webkit-scrollbar-track {
-  background: rgba(122, 106, 216, 0.1);
-  border-radius: 10px;
-}
-
-::-webkit-scrollbar-thumb {
-  background: var(--brand);
-  border-radius: 10px;
-}
-
-::-webkit-scrollbar-thumb:hover {
-  background: var(--brand-600);
-}
-
-[data-theme="dark"] ::-webkit-scrollbar-track {
-  background: rgba(122, 106, 216, 0.2);
-}
-
-[data-theme="dark"] ::-webkit-scrollbar-thumb {
-  background: var(--brand-600);
-}
-
-[data-theme="dark"] ::-webkit-scrollbar-thumb:hover {
-  background: var(--brand);
-}
-
-/* NEW STYLES FOR ADDED FEATURES */
-
-/* Back to Top Button */
-#backToTop {
-  position: fixed;
-  bottom: 30px;
-  right: 30px;
-  width: 50px;
-  height: 50px;
-  border-radius: 50%;
-  background: var(--brand-gradient);
-  color: white;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  opacity: 0;
-  visibility: hidden;
-  transition: all 0.3s ease;
-  box-shadow: 0 5px 15px rgba(122, 106, 216, 0.3);
-  z-index: 1000;
-}
-
-#backToTop.visible {
-  opacity: 1;
-  visibility: visible;
-}
-
-#backToTop:hover {
-  background: var(--brand-gradient-hover);
-  transform: translateY(-5px);
-  box-shadow: 0 8px 20px rgba(122, 106, 216, 0.4);
-}
-
-/* Gradient Text Animation */
-.gradient-text {
-  background: linear-gradient(90deg, var(--brand-primary), var(--brand-secondary), var(--accent), var(--brand-primary));
-  background-size: 300% 300%;
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  animation: gradient-text 3s ease infinite;
-}
-
-@keyframes gradient-text {
-  0% { background-position: 0% 50%; }
-  50% { background-position: 100% 50%; }
-  100% { background-position: 0% 50%; }
-}
-
-/* Why Choose Section */
-.why-choose-section {
-  padding: 5rem 0;
-}
-
-.why-choose-section .text-center {
-  margin-bottom: 4rem;
-}
-
-.why-choose-section h2 {
-  font-weight: 800;
-  margin-bottom: 1rem;
-}
-
-.why-choose-section .lead {
-  color: var(--text-light);
-  font-size: 1.25rem;
-}
-
-.feature-card {
-  background: rgba(255, 255, 255, 0.8);
-  border-radius: var(--radius);
-  padding: 2rem;
-  height: 100%;
-  text-align: center;
-  transition: all 0.3s ease;
-  backdrop-filter: blur(10px);
-  box-shadow: var(--shadow);
-}
-
-.feature-card:hover {
-  transform: translateY(-10px);
-  box-shadow: var(--shadow-hover);
-}
-
-.feature-icon {
-  width: 70px;
-  height: 70px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin: 0 auto 1.5rem;
-  background: var(--brand-gradient);
-  color: white;
-  font-size: 1.5rem;
-  transition: all 0.3s ease;
-}
-
-.feature-card:hover .feature-icon {
-  transform: scale(1.1) rotate(5deg);
-}
-
-.feature-card h5 {
-  font-weight: 700;
-  margin-bottom: 1rem;
-  color: var(--text);
-}
-
-.feature-card p {
-  color: var(--text-light);
-}
-
-/* Dark mode for Why Choose section */
-[data-theme="dark"] .why-choose-section {
-  background: transparent; /* Inherit from body gradient */
-}
-
-[data-theme="dark"] .feature-card {
-  background: rgba(15, 20, 34, 0.8);
-}
-
-[data-theme="dark"] .feature-card h5 {
-  color: #ffffff;
-}
-
-[data-theme="dark"] .feature-card p.text-muted {
-    color: var(--muted) !important;
-}
-[data-theme="dark"] .why-choose-section .lead.text-muted {
-    color: var(--text-light) !important;
-}
-
-
-/* Hide Why Choose section on mobile */
-@media (max-width: 991.98px) {
-  .why-choose-section {
-    display: none;
-  }
-}
-
-/* Animation for hero text */
-.hero-text-gradient {
-  background: linear-gradient(90deg, var(--brand-primary), var(--brand-secondary), var(--accent), var(--brand-primary));
-  background-size: 300% 300%;
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  animation: gradient-text 3s ease infinite;
-}
-
-/* Animation for robot icon */
-.robot-icon-gradient {
-  background: linear-gradient(90deg, var(--brand-primary), var(--brand-secondary), var(--accent), var(--brand-primary));
-  background-size: 300% 300%;
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  animation: gradient-text 3s ease infinite;
-}
-
-/* PDF Download Button */
-.btn-pdf-download {
-  background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
-  color: white;
-  border: 0;
-  box-shadow: 0 6px 18px rgba(231, 76, 60, 0.2);
-  cursor: pointer;
-  transition: all 0.3s ease;
-}
-
-.btn-pdf-download:hover {
-  background: linear-gradient(135deg, #ff6b6b 0%, #e74c3c 100%);
-  color: white;
-  transform: translateY(-2px);
-  box-shadow: 0 10px 25px rgba(231, 76, 60, 0.3);
-}
-
-/* Action buttons container */
-.action-buttons {
-  display: flex;
-  justify-content: center; /* Center the single button */
-  align-items: center;
-  margin-top: 1.5rem;
-  flex-wrap: wrap;
-  gap: 1rem;
-}
-
-/* Center Registration Number Input */
-.scraping-section .mb-3 {
-    text-align: center;
-}
-.scraping-section #registrationNumber {
-    max-width: 350px;
-    margin: 0 auto;
-    text-align: center;
-}
-
-/* Drag and Drop Styles (Desktop Only) */
-@media (min-width: 992px) {
-  .course-table tbody tr {
-    cursor: grab;
-  }
-  .course-table tbody tr.dragging {
-    opacity: 0.5;
-    background: #e9e6f8;
-  }
-  .semester-card.drag-over {
-    border: 2px dashed var(--brand);
-    transform: scale(1.02);
-    background-color: rgba(122, 106, 216, 0.1);
-  }
-  [data-theme="dark"] .semester-card.drag-over {
-    background-color: rgba(122, 106, 216, 0.2);
-  }
-}
-
-/* NEW: Scroll Animation Styles */
-.fade-in-on-scroll {
-  opacity: 0;
-  transform: translateY(30px);
-  transition: opacity 0.6s ease-out, transform 0.6s ease-out;
-}
-.fade-in-on-scroll.is-visible {
-  opacity: 1;
-  transform: translateY(0);
-}
-
-/* NEW: Forecast/Info Button Style */
-.btn-info-action {
-  background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
-  color: white;
-  border: 0;
-  cursor: pointer;
-  transition: all 0.3s ease;
-}
-.btn-info-action:hover {
-  background: linear-gradient(135deg, #5dade2 0%, #3498db 100%);
-  color: white;
-  transform: translateY(-2px);
-}
-  </style>
 </head>
 <body>
   <div class="cursor-dot" id="cursorDot"></div>
 
-  <div id="backToTop">
-    <i class="fas fa-arrow-up"></i>
-  </div>
-
-  <div class="modal fade course-details-modal" id="courseDetailsModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title" id="courseDetailsModalTitle">Course Details</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-        </div>
-        <div class="modal-body" id="courseDetailsModalBody"></div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-secondary-action rounded-pill" data-bs-dismiss="modal">Close</button>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <div class="modal fade" id="addCourseModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title"><i class="fa-solid fa-plus-circle me-2"></i>Add Custom Course</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-        </div>
-        <div class="modal-body">
-          <form id="addCourseForm">
-            <input type="hidden" id="addCourseSemester" value="">
-            <div class="mb-3">
-              <label for="courseCode" class="form-label">Course Code</label>
-              <input type="text" class="form-control" id="courseCode" placeholder="e.g., CHEM-101" required>
-            </div>
-            <div class="mb-3">
-              <label for="courseTitle" class="form-label">Course Title</label>
-              <input type="text" class="form-control" id="courseTitle" placeholder="e.g., Inorganic Chemistry" required>
-            </div>
-            <div class="row">
-              <div class="col-6 mb-3">
-                <label for="creditHours" class="form-label">Credit Hours</label>
-                <select class="form-select" id="creditHours" required>
-                  <option value="1">1</option>
-                  <option value="2">2</option>
-                  <option value="3" selected>3</option>
-                  <option value="4">4</option>
-                  <option value="5">5</option>
-                </select>
-              </div>
-              <div class="col-6 mb-3">
-                <label for="courseMarks" class="form-label">Marks Obtained</label>
-                <input type="number" class="form-control" id="courseMarks" min="0" max="100" placeholder="e.g., 75" required>
-              </div>
-            </div>
-          </form>
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-secondary-action rounded-pill" data-bs-dismiss="modal">Cancel</button>
-          <button type="button" class="btn btn-primary-action rounded-pill" id="saveCourseBtn">Add Course</button>
-        </div>
-      </div>
-    </div>
-  </div>
+  <a id="backToTop" class="shadow-lg"><i class="fas fa-arrow-up"></i></a>
+  
+  <div id="toast-container"></div>
+  
+  <div id="undo-container"></div>
 
   <nav class="navbar navbar-expand-lg sticky-top border-bottom">
     <div class="container">
@@ -1903,7 +323,7 @@ a:hover {
         <span class="gradient-text">CGPA Calculator</span>
       </a>
       <div class="d-flex align-items-center gap-2 order-lg-2">
-        <button id="themeToggle" class="btn btn-sm btn-soft rounded-pill" type="button" aria-label="Toggle dark mode" style="margin-bottom: 0.01rem;">
+        <button id="themeToggle" class="btn btn-sm btn-soft rounded-pill" type="button" aria-label="Toggle dark mode">
           <i class="fa-solid fa-moon"></i>
         </button>
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNav">
@@ -1912,9 +332,9 @@ a:hover {
       </div>
       <div class="collapse navbar-collapse" id="mainNav">
         <ul class="navbar-nav ms-auto align-items-lg-center">
-          <li class="nav-item"><a class="nav-link" href="index.html#Home">Home</a></li>
-          <li class="nav-item"><a class="nav-link" href="index.html#CGPA-Calculator">Manual Calculator</a></li>
-          <li class="nav-item"><a class="nav-link" href="uaf-results.html">UAF Results</a></li>
+          <li class="nav-item"><a class="nav-link active" href="#Home">Home</a></li>
+          <li class="nav-item"><a class="nav-link" href="#Auto-Calculator">Calculator</a></li>
+          <li class="nav-item"><a class="nav-link" href="#Features">Features</a></li>
           <li class="nav-item"><a class="nav-link" href="#contact-us">Contact</a></li>
         </ul>
       </div>
@@ -1923,35 +343,35 @@ a:hover {
 
   <section class="hero" id="Home">
     <div class="container">
-      <div class="row align-items-center g-4">
+      <div class="row align-items-center g-5">
         <div class="col-lg-7">
           <span class="badge rounded-pill badge-brand mb-3">University of Agriculture Faisalabad</span>
-          <h1 class="display-5 mb-3">Calculate Your <span class="hero-text-gradient">CGPA Automatically</span><br/>from <span class="hero-text-gradient">UAF LMS</span></h1>
-          <p class="lead mb-4">Enter your <strong>registration number</strong> to fetch your results directly from UAF LMS. The calculator will automatically compute your CGPA and Percentage based on UAF grading system.</p>
+          <h1 class="display-5 mb-3">The Ultimate <span class="hero-text-gradient">CGPA Calculator</span><br/> for <span class="hero-text-gradient">UAF Students</span></h1>
+          <p class="lead mb-4">Instantly fetch your results from the UAF LMS. Edit, forecast, and download a professional transcript. Your complete academic toolkit, built for accuracy and power.</p>
           <div class="d-flex gap-2">
-            <a href="#Auto-Calculator" class="btn btn-primary-action btn-lg rounded-pill" style="font-size: 1.05rem; padding: 0.9rem;">
-              <i class="fa-solid fa-bolt me-2"></i>Try It Now
+            <a href="#Auto-Calculator" class="btn btn-primary-action btn-lg rounded-pill pulse">
+              <i class="fa-solid fa-bolt me-2"></i>Get Started
             </a>
-            <a href="index.html#CGPA-Calculator" class="btn btn-secondary-action rounded-pill" style="display:block; padding:14px">
-              <i class="fa-solid fa-calculator me-2"></i>Manual Calc.
+            <a href="#Features" class="btn btn-secondary-action btn-lg rounded-pill">
+              <i class="fa-solid fa-star me-2"></i>View Features
             </a>
           </div>
         </div>
         <div class="col-lg-5">
-          <div class="card card-modern fade-in-on-scroll">
+          <div class="card card-modern fade-in-on-scroll float">
             <div class="card-body p-4">
               <div class="d-flex align-items-center gap-3">
                 <div class="display-6 robot-icon-gradient"><i class="fa-solid fa-robot"></i></div>
                 <div>
-                  <h5 class="mb-1 fw-bold">Automatic CGPA Calculation</h5>
-                  <p class="mb-0 text-body-secondary">No manual inputs needed. Just enter your registration number.</p>
+                  <h5 class="mb-1 fw-bold">Automatic Result Fetching</h5>
+                  <p class="mb-0 text-body-secondary">Enter your registration number once. Let us handle the rest.</p>
                 </div>
               </div>
-              <hr class="my-4" />
+              <hr class="my-3" />
               <ul class="list-unstyled m-0">
-                <li class="d-flex align-items-center gap-2 mb-2"><i class="fa-solid fa-check text-success"></i> Fetches results directly from UAF LMS</li>
-                <li class="d-flex align-items-center gap-2 mb-2"><i class="fa-solid fa-check text-success"></i> Automatic CGPA calculation</li>
-                <li class="d-flex align-items-center gap-2"><i class="fa-solid fa-check text-success"></i> Same accurate UAF grading system</li>
+                <li class="d-flex align-items-center gap-2 mb-2"><i class="fa-solid fa-check text-success"></i>Directly from UAF LMS</li>
+                <li class="d-flex align-items-center gap-2 mb-2"><i class="fa-solid fa-check text-success"></i>100% Accurate UAF Grading</li>
+                <li class="d-flex align-items-center gap-2"><i class="fa-solid fa-check text-success"></i>Password Not Required</li>
               </ul>
             </div>
           </div>
@@ -1960,13 +380,14 @@ a:hover {
     </div>
   </section>
 
-  <section class="py-5" id="Auto-Calculator">
+  <main class="py-5" id="Auto-Calculator">
     <div class="container">
       <div class="row justify-content-center">
-        <div class="col-md-10">
+        <div class="col-xl-10">
+          
           <div class="card card-modern mb-4 fade-in-on-scroll">
             <div class="card-header p-4">
-              <h4 class="mb-0"><i class="fa-solid fa-bolt me-2"></i>UAF CGPA Calculator</h4>
+              <h4 class="mb-0"><i class="fa-solid fa-bolt me-2"></i>Automatic CGPA Calculator</h4>
             </div>
             <div class="card-body p-4 scraping-section">
               <form id="resultForm">
@@ -1977,10 +398,9 @@ a:hover {
                     <button class="btn btn-outline-danger" type="button" id="deleteProfileBtn" title="Delete Selected Profile"><i class="fa-solid fa-trash-can"></i></button>
                   </div>
                 </div>
-                
                 <div class="mb-3">
-                  <label for="registrationNumber" class="form-label">Registration Number</label>
-                  <input type="text" class="form-control" id="registrationNumber" placeholder="e.g., 2020-ag-1234" required>
+                  <label for="registrationNumber" class="form-label visually-hidden">Registration Number</label>
+                  <input type="text" class="form-control form-control-lg" id="registrationNumber" placeholder="e.g., 2020-ag-1234" required>
                 </div>
                 <div class="center-buttons">
                   <button type="submit" class="btn btn-primary-action rounded-pill"><i class="fa-solid fa-cloud-arrow-down me-2"></i>Fetch Result</button>
@@ -1988,47 +408,48 @@ a:hover {
                 </div>
               </form>
               <div class="loading-container" id="loadingContainer">
-                <div class="loading-stage" id="connectingStage"><div class="loading-animation loading-connecting"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div><p class="loading-text">Connecting to UAF LMS</p><p class="loading-subtext">Establishing secure connection to university servers</p></div>
-                <div class="loading-stage" id="fetchingStage"><div class="loading-animation loading-connecting"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div><p class="loading-text">Fetching Your Results</p><p class="loading-subtext">Retrieving your academic records from the database</p></div>
-                <div class="loading-stage" id="processingStage"><div class="loading-animation loading-connecting"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div><p class="loading-text">Processing Data</p><p class="loading-subtext">Analyzing your grades and calculating CGPA</p></div>
-                <div class="loading-stage" id="completeStage"><div class="loading-animation loading-complete"><div class="checkmark"></div></div><p class="loading-text">Results Ready!</p><p class="loading-subtext">Your CGPA has been calculated successfully</p></div>
-              </div>
+                 </div>
             </div>
           </div>
           
-          <div id="resultContainer" class="result-container">
+          <div id="resultContainer" class="result-container" style="display: none;">
             <div class="gpa-result-card fade-in-on-scroll">
               <div class="card-body p-0">
                 <div class="cgpa-display-container">
-                  <div class="cgpa-main-info"><h2 class="mb-1 fw-bold" id="studentName"><i class="fa-solid fa-user-graduate me-2"></i>Student Name</h2><p class="mb-0 text-body-secondary" id="studentReg">Registration Number</p></div>
+                  <div class="cgpa-main-info"><h2 class="mb-1 fw-bold" id="studentName"></h2><p class="mb-0 text-body-secondary" id="studentReg"></p></div>
                   <div class="cgpa-metrics-row">
-                    <div class="cgpa-metric cgpa-metric-left"><p class="mb-0 cgpa-metric-label">CGPA</p><p class="mb-0 cgpa-metric-value" id="totalCgpa">0.0000</p></div>
-                    <div class="cgpa-metric cgpa-metric-center"><p class="mb-0 cgpa-metric-label">Percentage</p><p class="mb-0 cgpa-metric-value" id="totalPercentage">0.0000%</p></div>
+                    <div class="cgpa-metric cgpa-metric-left"><p class="mb-0 cgpa-metric-label">CGPA</p><p class="mb-0 cgpa-metric-value" id="totalCgpa">0.00</p></div>
+                    <div class="cgpa-metric cgpa-metric-center"><p class="mb-0 cgpa-metric-label">Percentage</p><p class="mb-0 cgpa-metric-value" id="totalPercentage">0.00%</p></div>
                     <div class="cgpa-metric cgpa-metric-right"><p class="mb-0 cgpa-metric-label">Marks</p><div class="cgpa-metric-value-container"><p class="mb-0 cgpa-metric-value" id="totalMarksObtained">0</p><p class="mb-0 cgpa-metric-subvalue" id="totalMaxMarks">/ 0</p></div></div>
                   </div>
                 </div>
               </div>
             </div>
             
-            <div class="card card-modern mt-4 fade-in-on-scroll" id="gpaChartContainer" style="display: none;">
+            <div class="action-buttons fade-in-on-scroll">
+              <button id="downloadPdfBtn" class="btn btn-pdf-download rounded-pill"><i class="fa-solid fa-file-pdf me-2"></i>Download PDF</button>
+              <button id="copyDetailsBtn" class="btn btn-success-action rounded-pill"><i class="fa-solid fa-clipboard me-2"></i>Copy Details</button>
+              <button id="forecastBtn" class="btn btn-info-action rounded-pill" data-bs-toggle="modal" data-bs-target="#forecastModal"><i class="fa-solid fa-wand-magic-sparkles me-2"></i>Forecast CGPA</button>
+            </div>
+
+            <div class="card card-modern my-4 fade-in-on-scroll" id="gpaChartContainer" style="display: none;">
               <div class="card-header"><h4 class="mb-0"><i class="fa-solid fa-chart-line me-2"></i>GPA Trend</h4></div>
               <div class="card-body"><canvas id="gpaTrendChart"></canvas></div>
             </div>
 
-            <div class="action-buttons fade-in-on-scroll">
-              <button id="downloadPdfBtn" class="btn btn-pdf-download rounded-pill"><i class="fa-solid fa-file-pdf me-2"></i>Download PDF</button>
-              <button id="copyDetailsBtn" class="btn btn-success-action rounded-pill"><i class="fa-solid fa-clipboard me-2"></i>Copy Details</button>
-              <button id="addForecastSemesterBtn" class="btn btn-info-action rounded-pill"><i class="fa-solid fa-wand-magic-sparkles me-2"></i>Forecast Semester</button>
-            </div>
             <div class="semester-results-container">
-              <div id="semesterResults" class="semester-grid"></div>
+                <h4 class="section-title mt-5">Academic Record</h4>
+                <div class="d-flex justify-content-end mb-3">
+                    <button id="addForecastSemesterBtn" class="btn btn-soft rounded-pill"><i class="fa-solid fa-plus me-2"></i>Add Custom Semester</button>
+                </div>
+                <div id="semesterResults" class="semester-grid"></div>
             </div>
           </div>
           
           <div class="card card-modern mt-4 fade-in-on-scroll">
             <div class="card-header p-4"><h4 class="mb-0 text-start"><i class="fa-solid fa-terminal me-2"></i>Status Log</h4></div>
             <div class="card-body p-4">
-              <div class="status-log" id="statusLog"><div class="status-line status-info">Ready to fetch your results. Enter your registration number and click "Fetch Result".</div></div>
+              <div class="status-log" id="statusLog"></div>
               <div class="log-section center-buttons mt-3">
                 <button id="downloadLogBtn" class="btn btn-secondary-action rounded-pill"><i class="fa-solid fa-file-lines me-2"></i>Download Log</button>
                 <button id="clearLogBtn" class="btn btn-danger-action rounded-pill"><i class="fa-solid fa-trash me-2"></i>Clear Log</button>
@@ -2038,1198 +459,710 @@ a:hover {
         </div>
       </div>
     </div>
-  </section>
+  </main>
 
-  <section class="why-choose-section">
+  <section class="why-choose-section" id="Features">
     <div class="container">
       <div class="text-center mb-5 fade-in-on-scroll">
-        <h2 class="fw-bold">Why Choose Our <span class="gradient-text">CGPA Calculator</span></h2>
-        <p class="lead text-muted">The most advanced and feature-rich tool for UAF students</p>
+        <h2 class="fw-bold">The Most <span class="gradient-text">Powerful Features</span></h2>
+        <p class="lead text-muted">A toolkit designed to give you complete control over your academic progress.</p>
       </div>
       <div class="row g-4">
-        <div class="col-md-6 col-lg-3">
-          <div class="feature-card fade-in-on-scroll">
-            <div class="feature-icon"><i class="fas fa-robot"></i></div>
-            <h5>Instant & Automatic</h5>
-            <p class="text-muted">Fetches your complete academic record directly from the UAF LMS in seconds. No manual data entry required.</p>
-          </div>
-        </div>
-        <div class="col-md-6 col-lg-3">
-          <div class="feature-card fade-in-on-scroll">
-            <div class="feature-icon"><i class="fas fa-edit"></i></div>
-            <h5>Fully Editable</h5>
-            <p class="text-muted">Add custom courses, delete semesters, or drag-and-drop subjects to accurately forecast your CGPA.</p>
-          </div>
-        </div>
-        <div class="col-md-6 col-lg-3">
-          <div class="feature-card fade-in-on-scroll">
-            <div class="feature-icon"><i class="fas fa-file-pdf"></i></div>
-            <h5>Professional Export</h5>
-            <p class="text-muted">Calculates with official UAF accuracy and lets you download a professional, transcript-style PDF of your results.</p>
-          </div>
-        </div>
-        <div class="col-md-6 col-lg-3">
-          <div class="feature-card fade-in-on-scroll">
-            <div class="feature-icon"><i class="fas fa-shield-alt"></i></div>
-            <h5>Secure & Modern</h5>
-            <p class="text-muted">Your data is never stored. Enjoy a clean, responsive interface with dark mode, accessible without needing your password.</p>
-          </div>
-        </div>
+        <div class="col-md-6 col-lg-3"><div class="feature-card fade-in-on-scroll"><div class="feature-icon"><i class="fas fa-robot"></i></div><h5>Instant & Automatic</h5><p class="text-muted">Fetches your complete academic record from the UAF LMS in seconds. No manual data entry required.</p></div></div>
+        <div class="col-md-6 col-lg-3"><div class="feature-card fade-in-on-scroll"><div class="feature-icon"><i class="fas fa-arrows-up-down-left-right"></i></div><h5>Drag & Drop Editor</h5><p class="text-muted">Move courses between semesters to simulate different scenarios and see their impact on your GPA instantly.</p></div></div>
+        <div class="col-md-6 col-lg-3"><div class="feature-card fade-in-on-scroll"><div class="feature-icon"><i class="fas fa-bullseye"></i></div><h5>CGPA Forecasting</h5><p class="text-muted">Set a target CGPA and our calculator will tell you the average marks you need in future courses to achieve it.</p></div></div>
+        <div class="col-md-6 col-lg-3"><div class="feature-card fade-in-on-scroll"><div class="feature-icon"><i class="fas fa-file-pdf"></i></div><h5>Professional PDF Export</h5><p class="text-muted">Download a beautifully formatted, transcript-style PDF of your results, perfect for records or applications.</p></div></div>
       </div>
     </div>
   </section>
 
-
-  <main>
-    <section class="py-5" id="faq">
-      <div class="container">
-        <div class="text-center mb-5 fade-in-on-scroll">
-          <h2 class="fw-bold">Frequently Asked Questions</h2>
-          <p class="lead text-muted">Answers to common questions about the UAF CGPA Calculator.</p>
-        </div>
-        <div class="row justify-content-center">
-          <div class="col-lg-8">
-            <div class="accordion" id="faqAccordion">
-              <div class="accordion-item card-modern mb-3 fade-in-on-scroll">
-                <h2 class="accordion-header" id="headingOne">
-                  <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="false" aria-controls="collapseOne">
-                    How does the UAF CGPA Calculator work?
-                  </button>
-                </h2>
-                <div id="collapseOne" class="accordion-collapse collapse" aria-labelledby="headingOne" data-bs-parent="#faqAccordion">
-                  <div class="accordion-body">
-                    The UAF CGPA Calculator securely connects to the public UAF LMS portal using your registration number. It fetches your official results, processes the grades and credit hours according to the official UAF grading formula, and instantly calculates your precise Semester GPA and Cumulative GPA (CGPA).
-                  </div>
-                </div>
-              </div>
-              <div class="accordion-item card-modern mb-3 fade-in-on-scroll">
-                <h2 class="accordion-header" id="headingTwo">
-                  <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
-                    Is it safe to use my registration number?
-                  </button>
-                </h2>
-                <div id="collapseTwo" class="accordion-collapse collapse" aria-labelledby="headingTwo" data-bs-parent="#faqAccordion">
-                  <div class="accordion-body">
-                    <strong>Yes, it is completely safe.</strong> The calculator only requires your registration number, not your password. Your information is used only for fetching your result for the current session and is never stored or shared. The connection is secure and private.
-                  </div>
-                </div>
-              </div>
-              <div class="accordion-item card-modern mb-3 fade-in-on-scroll">
-                <h2 class="accordion-header" id="headingThree">
-                  <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseThree" aria-expanded="false" aria-controls="collapseThree">
-                    Can I use this calculator for other universities?
-                  </button>
-                </h2>
-                <div id="collapseThree" class="accordion-collapse collapse" aria-labelledby="headingThree" data-bs-parent="#faqAccordion">
-                  <div class="accordion-body">
-                    This calculator is specifically designed for the students of the <strong>University of Agriculture, Faisalabad (UAF)</strong>. It uses UAF's unique grading system and connects directly to the UAF LMS, so it will not work for other universities.
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-  </main>
-  
-  
   <section class="py-5" id="contact-us">
-    <div class="container">
-      <div class="row g-4">
-        <div class="col-lg-6 fade-in-on-scroll">
-          <h3 class="fw-bold mb-2">Contact</h3>
-          <p class="text-body-secondary">Questions or suggestions? Send a message.</p>
-          <form id="contact-form" action="https://formspree.io/f/xblrolwp" method="post" class="needs-validation" novalidate>
-            <div class="row g-3">
-              <div class="col-md-6"><label class="form-label" for="name">Your Name</label><input class="form-control" id="name" name="name" placeholder="e.g., Ali Raza" required /><div class="invalid-feedback">Please enter your name.</div></div>
-              <div class="col-md-6"><label class="form-label" for="email">Email</label><input type="email" class="form-control" id="email" name="email" placeholder="you@example.com" required /><div class="invalid-feedback">Enter a valid email.</div></div>
-              <div class="col-12"><label class="form-label" for="message">Message</label><textarea class="form-control" id="message" name="message" rows="4" placeholder="Write your message..." required></textarea><div class="invalid-feedback">Please write a message.</div></div>
-              <div class="col-12"><button class="btn btn-primary-action rounded-pill" type="submit"><i class="fa-solid fa-paper-plane me-2"></i>Send</button></div>
-              <div id="contact-form-status" class="mt-2 small"></div>
-            </div>
-          </form>
-        </div>
-        <div class="col-lg-6 fade-in-on-scroll">
-          <div class="h-100 p-4 p-lg-5 rounded-4" style="background:linear-gradient(180deg, rgba(122,106,216,.15), rgba(122,106,216,.05));">
-            <h5 class="fw-bold">Developer</h5>
-            <div class="d-flex align-items-center gap-3 mt-2">
-              <img src="assets/images/member-01.png" alt="Muhammad Saqlain" class="rounded-circle" width="56" height="56" />
-              <div>
-                <div class="fw-semibold">Muhammad Saqlain</div><div class="text-body-secondary small">BS Chemistry (2020–2024)</div>
-                <div class="d-flex gap-3 mt-2">
-                  <a class="text-decoration-none" href="https://www.facebook.com/UAFChemist.Rustam" target="_blank"><i class="fa-brands fa-facebook"></i></a>
-                  <a class="text-decoration-none" href="https://x.com/M_Saqlain_Akbar" target="_blank"><i class="fa-brands fa-x-twitter"></i></a>
-                  <a class="text-decoration-none" href="https://www.linkedin.com/in/muhammad-saqlain-akbar/" target="_blank"><i class="fa-brands fa-linkedin"></i></a>
-                </div>
-              </div>
-            </div>
-            <hr class="my-4" /><p class="mb-0 small text-body-secondary">Share this tool with your friends to support the project. ♥</p>
+      <div class="container">
+          <div class="text-center mb-5 fade-in-on-scroll">
+              <h2 class="fw-bold">Get in Touch</h2>
+              <p class="lead text-muted">Have a question, suggestion, or just want to say hi?</p>
           </div>
-        </div>
+          <div class="row justify-content-center">
+              <div class="col-lg-8">
+                  <div class="card card-modern p-4 p-md-5">
+                    <form id="contact-form" action="https://formspree.io/f/xblrolwp" method="post" class="needs-validation" novalidate>
+                        <div class="row g-3">
+                          <div class="col-md-6"><label class="form-label" for="name">Your Name</label><input class="form-control" id="name" name="name" placeholder="e.g., Ali Raza" required /><div class="invalid-feedback">Please enter your name.</div></div>
+                          <div class="col-md-6"><label class="form-label" for="email">Email</label><input type="email" class="form-control" id="email" name="email" placeholder="you@example.com" required /><div class="invalid-feedback">Enter a valid email.</div></div>
+                          <div class="col-12"><label class="form-label" for="message">Message</label><textarea class="form-control" id="message" name="message" rows="4" placeholder="Write your message..." required></textarea><div class="invalid-feedback">Please write a message.</div></div>
+                          <div class="col-12"><button class="btn btn-primary-action rounded-pill" type="submit"><i class="fa-solid fa-paper-plane me-2"></i>Send Message</button></div>
+                          <div id="contact-form-status" class="mt-2 small"></div>
+                        </div>
+                      </form>
+                  </div>
+              </div>
+          </div>
       </div>
-    </div>
   </section>
 
   <footer class="border-top py-4">
     <div class="container text-center footer">
-      <p class="mb-1">UAF CGPA Calculator - A project by <a href="#contact-us">Muhammad Saqlain</a>.</p>
-      <p class="mb-0">© 2025 UAFTools. All rights reserved.</p>
+      <p class="mb-1 text-muted">UAF CGPA Calculator - A project by Muhammad Saqlain.</p>
+      <p class="mb-0 text-muted">&copy; 2025 UAFTools. All rights reserved.</p>
     </div>
   </footer>
 
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js"></script>
-  
-  <script>
-    document.addEventListener('DOMContentLoaded', function() {
-      // Elements
-      const resultForm = document.getElementById('resultForm');
-      const registrationNumber = document.getElementById('registrationNumber');
-      const resultContainer = document.getElementById('resultContainer');
-      const statusLog = document.getElementById('statusLog');
-      const themeToggle = document.getElementById('themeToggle');
-      const cursorDot = document.getElementById('cursorDot');
-      const contactForm = document.getElementById('contact-form');
-      const downloadLogBtn = document.getElementById('downloadLogBtn');
-      const clearLogBtn = document.getElementById('clearLogBtn');
-      const semesterResults = document.getElementById('semesterResults');
-      const studentName = document.getElementById('studentName');
-      const studentReg = document.getElementById('studentReg');
-      const totalCgpa = document.getElementById('totalCgpa');
-      const totalPercentage = document.getElementById('totalPercentage');
-      const totalMarksObtained = document.getElementById('totalMarksObtained');
-      const totalMaxMarks = document.getElementById('totalMaxMarks');
-      const downloadPdfBtn = document.getElementById('downloadPdfBtn');
-      const courseDetailsModal = new bootstrap.Modal(document.getElementById('courseDetailsModal'));
-      const addCourseModal = new bootstrap.Modal(document.getElementById('addCourseModal'));
-      const saveCourseBtn = document.getElementById('saveCourseBtn');
-      const addCourseForm = document.getElementById('addCourseForm');
-      const loadingContainer = document.getElementById('loadingContainer');
-      const backToTopButton = document.getElementById('backToTop');
-      const startNewSearchBtn = document.getElementById('startNewSearchBtn'); 
-      const addForecastSemesterBtn = document.getElementById('addForecastSemesterBtn');
-      const copyDetailsBtn = document.getElementById('copyDetailsBtn');
-      const gpaChartContainer = document.getElementById('gpaChartContainer');
-      const gpaTrendChartCanvas = document.getElementById('gpaTrendChart').getContext('2d'); 
-      // NEW: Profile Management Elements
-      const profileManagementDiv = document.getElementById('profileManagement');
-      const profileSwitcher = document.getElementById('profileSwitcher');
-      const deleteProfileBtn = document.getElementById('deleteProfileBtn');
-      
-      // State
-      let allLogs = [];
-      let processedData = null;
-      let deletedSemesters = {};
-      let gpaChart = null; 
-      
-      // API Endpoints
-      const API_ENDPOINT = `/api/result-scraper?action=scrape_single`;
-      
-      function init() {
-        initCustomCursor();
-        initTheme();
-        initContactForm();
-        createToastContainer();
-        initBackToTop();
-        initScrollAnimations(); 
-        loadProfiles(); // Updated from loadFromSession
-      }
+  <div class="modal fade course-details-modal" id="courseDetailsModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content"><div class="modal-header"><h5 class="modal-title" id="courseDetailsModalTitle"></h5><button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button></div><div class="modal-body" id="courseDetailsModalBody"></div><div class="modal-footer"><button type="button" class="btn btn-secondary-action rounded-pill" data-bs-dismiss="modal">Close</button></div></div>
+    </div>
+  </div>
 
-      function initScrollAnimations() {
-        const observer = new IntersectionObserver((entries) => {
-          entries.forEach(entry => {
-            if (entry.isIntersecting) {
-              entry.target.classList.add('is-visible');
-              observer.unobserve(entry.target);
-            }
-          });
-        }, { threshold: 0.1 });
-        document.querySelectorAll('.fade-in-on-scroll').forEach(el => observer.observe(el));
-      }
+  <div class="modal fade" id="addCourseModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content"><div class="modal-header"><h5 class="modal-title"><i class="fa-solid fa-plus-circle me-2"></i>Add Custom Course</h5><button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button></div><div class="modal-body"><form id="addCourseForm"><input type="hidden" id="addCourseSemester" value=""><div class="mb-3"><label for="courseCode" class="form-label">Course Code</label><input type="text" class="form-control" id="courseCode" placeholder="e.g., CHEM-101" required></div><div class="mb-3"><label for="courseTitle" class="form-label">Course Title</label><input type="text" class="form-control" id="courseTitle" placeholder="e.g., Inorganic Chemistry" required></div><div class="row"><div class="col-6 mb-3"><label for="creditHours" class="form-label">Credit Hours</label><select class="form-select" id="creditHours" required><option value="1">1</option><option value="2">2</option><option value="3" selected>3</option><option value="4">4</option><option value="5">5</option></select></div><div class="col-6 mb-3"><label for="courseMarks" class="form-label">Marks</label><input type="number" class="form-control" id="courseMarks" min="0" max="100" placeholder="e.g., 75" required></div></div></form></div><div class="modal-footer"><button type="button" class="btn btn-secondary-action rounded-pill" data-bs-dismiss="modal">Cancel</button><button type="button" class="btn btn-primary-action rounded-pill" id="saveCourseBtn">Add Course</button></div></div>
+    </div>
+  </div>
 
-      // NEW: Load all profiles and the active one
-      function loadProfiles() {
-        const profiles = JSON.parse(localStorage.getItem('uafCalculatorProfiles') || '{}');
-        const activeProfileReg = localStorage.getItem('uafCalculatorActiveProfile');
-        
-        updateProfileSwitcher(profiles, activeProfileReg);
-
-        if (activeProfileReg && profiles[activeProfileReg]) {
-          loadProfile(activeProfileReg);
-          addStatusMessage('Loaded active profile from session.', 'info');
-        }
-      }
-
-      // NEW: Update the profile dropdown UI
-      function updateProfileSwitcher(profiles, activeProfileReg) {
-        const profileKeys = Object.keys(profiles);
-        if (profileKeys.length > 0) {
-          profileSwitcher.innerHTML = '<option value="">Select a saved profile...</option>';
-          profileKeys.forEach(regNum => {
-            const option = document.createElement('option');
-            option.value = regNum;
-            option.textContent = `${profiles[regNum].studentInfo.name} (${regNum})`;
-            if (regNum === activeProfileReg) {
-              option.selected = true;
-            }
-            profileSwitcher.appendChild(option);
-          });
-          profileManagementDiv.style.display = 'block';
-        } else {
-          profileManagementDiv.style.display = 'none';
-        }
-      }
-
-      // NEW: Load a specific profile by registration number
-      function loadProfile(regNum) {
-        const profiles = JSON.parse(localStorage.getItem('uafCalculatorProfiles') || '{}');
-        if (profiles[regNum]) {
-          processedData = profiles[regNum];
-          const cgpaData = calculateCGPA(processedData);
-          displayCGPAResults(processedData, cgpaData);
-          registrationNumber.value = regNum;
-          localStorage.setItem('uafCalculatorActiveProfile', regNum);
-          updateProfileSwitcher(profiles, regNum);
-        }
-      }
-
-      // NEW: Switch profile from dropdown
-      function switchProfile(event) {
-        const regNum = event.target.value;
-        if (regNum) {
-          loadProfile(regNum);
-          showToast(`Switched to profile: ${regNum}`, 'info');
-        }
-      }
-
-      // NEW: Delete the currently active profile
-      function deleteCurrentProfile() {
-        const activeProfileReg = localStorage.getItem('uafCalculatorActiveProfile');
-        if (!activeProfileReg) {
-          showToast('No active profile to delete.', 'warning');
-          return;
-        }
-
-        if (confirm(`Are you sure you want to delete the profile for ${activeProfileReg}? This cannot be undone.`)) {
-          const profiles = JSON.parse(localStorage.getItem('uafCalculatorProfiles') || '{}');
-          delete profiles[activeProfileReg];
-          localStorage.setItem('uafCalculatorProfiles', JSON.stringify(profiles));
-          localStorage.removeItem('uafCalculatorActiveProfile');
-          
-          showToast(`Profile for ${activeProfileReg} deleted.`, 'success');
-          addStatusMessage(`Deleted profile: ${activeProfileReg}`, 'info');
-          
-          // Reset the view
-          setTimeout(() => location.reload(), 500);
-        }
-      }
-
-      function startNewSearch() {
-          showToast('Ready for a new search.', 'info');
-          location.reload();
-      }
-      
-      function initBackToTop() {
-        window.addEventListener('scroll', () => backToTopButton.classList.toggle('visible', window.pageYOffset > 300));
-        backToTopButton.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
-      }
-      
-      function createToastContainer() {
-        if (!document.getElementById('toast-container')) {
-          const toastContainer = document.createElement('div');
-          toastContainer.id = 'toast-container';
-          document.body.appendChild(toastContainer);
-        }
-      }
-      
-      function showToast(message, type = 'success') {
-        const toastContainer = document.getElementById('toast-container');
-        const toast = document.createElement('div');
-        toast.className = `toast toast-${type}`;
-        const icons = { success: 'fa-circle-check', error: 'fa-circle-exclamation', warning: 'fa-triangle-exclamation', info: 'fa-circle-info' };
-        toast.innerHTML = `<div class="toast-content"><i class="toast-icon fa-solid ${icons[type]}"></i><span class="toast-message">${message}</span></div><div class="toast-progress"></div>`;
-        toastContainer.appendChild(toast);
-        setTimeout(() => toast.classList.add('show'), 10);
-        setTimeout(() => {
-          toast.classList.remove('show');
-          setTimeout(() => toast.remove(), 300);
-        }, 3000);
-      }
-      
-      function initCustomCursor() {
-        document.addEventListener('mousemove', (e) => {
-          cursorDot.style.display = window.innerWidth > 768 ? 'block' : 'none';
-          cursorDot.style.left = `${e.clientX}px`;
-          cursorDot.style.top = `${e.clientY}px`;
-        });
-      }
-      
-      function initTheme() {
-        const THEME_KEY = 'uaf-theme';
-        const applyTheme = (theme) => {
-          document.documentElement.setAttribute('data-theme', theme);
-          localStorage.setItem(THEME_KEY, theme);
-          themeToggle.innerHTML = theme === 'dark' ? '<i class="fa-solid fa-sun"></i>' : '<i class="fa-solid fa-moon"></i>';
-        };
-        const currentTheme = localStorage.getItem(THEME_KEY) || 'light';
-        applyTheme(currentTheme);
-        themeToggle.addEventListener('click', () => applyTheme(document.documentElement.getAttribute('data-theme') === 'light' ? 'dark' : 'light'));
-      }
-      
-      function initContactForm() {
-        contactForm.addEventListener('submit', async (e) => {
-          e.preventDefault();
-          if (!contactForm.checkValidity()) {
-            e.stopPropagation();
-            contactForm.classList.add('was-validated');
-            return;
-          }
-          const data = new FormData(contactForm);
-          const statusEl = document.getElementById('contact-form-status');
-          try {
-            const res = await fetch(contactForm.action, { method: 'POST', body: data, headers: { 'Accept': 'application/json' } });
-            if (res.ok) {
-              statusEl.textContent = "Thanks! We'll get back to you soon.";
-              statusEl.className = "text-success small";
-              contactForm.reset();
-              contactForm.classList.remove('was-validated');
-              showToast('Message sent successfully!', 'success');
-            } else {
-              throw new Error('Form submission failed');
-            }
-          } catch {
-            statusEl.textContent = "Oops! There was a problem. Please try again.";
-            statusEl.className = "text-danger small";
-            showToast('Failed to send message.', 'error');
-          }
-        });
-      }
-      
-      function addStatusMessage(message, type = 'info') {
-        const timestamp = new Date().toLocaleTimeString();
-        allLogs.push({ timestamp, message, type });
-        const messageEl = document.createElement('div');
-        messageEl.className = `status-line status-${type}`;
-        messageEl.textContent = `[${timestamp}] ${message}`;
-        statusLog.prepend(messageEl);
-        statusLog.scrollTop = 0;
-      }
-      
-      function showLoadingStage(stage) {
-        ['connecting', 'fetching', 'processing', 'complete'].forEach(s => {
-          const el = document.getElementById(`${s}Stage`);
-          if (el) el.style.display = 'none';
-        });
-        if (stage) {
-            const el = document.getElementById(`${stage}Stage`);
-            if (el) el.style.display = 'block';
-        }
-        loadingContainer.style.display = stage ? 'block' : 'none';
-      }
-      
-      function downloadLog() {
-        addStatusMessage('Preparing log file for download...', 'info');
-        let logContent = "UAF CGPA Calculator - Activity Log\n============================================\n\n";
-        allLogs.forEach(log => logContent += `[${log.timestamp}] ${log.message}\n`);
-        const blob = new Blob([logContent], { type: 'text/plain' });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = `cgpa_calculator_log_${new Date().toISOString().replace(/[:.]/g, '-')}.txt`;
-        document.body.appendChild(a);
-        a.click();
-        a.remove();
-        URL.revokeObjectURL(url);
-        addStatusMessage('Log file downloaded successfully', 'success');
-        showToast('Log file downloaded!', 'success');
-      }
-      
-      function clearLog() {
-        statusLog.innerHTML = '';
-        allLogs = [];
-        addStatusMessage('Log cleared', 'info');
-        showToast('Log cleared', 'info');
-      }
-      
-      function processSemesterName(semester) {
-          if (!semester) return 'Unknown Semester';
-          if (semester.includes('Winter')) {
-              const yearMatch = semester.match(/(\d{4})/);
-              if (yearMatch) return `Winter ${yearMatch[1]}`;
-          } else if (semester.includes('Spring')) {
-              const yearMatch = semester.match(/(\d{4})-(\d{2,4})/);
-              if (yearMatch && yearMatch[2].length === 4) return `Spring ${yearMatch[2]}`;
-              if (yearMatch && yearMatch[2].length === 2) return `Spring 20${yearMatch[2]}`;
-          } else if (semester.includes('Summer')) {
-              const yearMatch = semester.match(/(\d{4})/);
-              if (yearMatch) return `Summer ${yearMatch[1]}`;
-          } else if (semester.includes('Fall')) {
-              const yearMatch = semester.match(/(\d{4})/);
-              if (yearMatch) return `Fall ${yearMatch[1]}`;
-          }
-          return semester;
-      }
-      
-      function getSemesterOrderKey(semesterName) {
-        if (!semesterName) return '9999-9';
-        if (semesterName.toLowerCase().startsWith('forecast')) {
-            const num = parseInt(semesterName.split(' ')[1] || '1');
-            return `3000-${num}`;
-        }
-        let year = '9999';
-        let seasonOrder = 9;
-        const yearMatch = semesterName.match(/\b(20\d{2})\b/);
-        if (yearMatch) year = yearMatch[1];
-        if (semesterName.toLowerCase().includes('winter')) seasonOrder = 1;
-        else if (semesterName.toLowerCase().includes('spring')) seasonOrder = 2;
-        else if (semesterName.toLowerCase().includes('summer')) seasonOrder = 3;
-        else if (semesterName.toLowerCase().includes('fall')) seasonOrder = 4;
-        return `${year}-${seasonOrder}`;
-      }
-      
-      function processScrapedData(data) {
-        if (!data || !data.resultData) return null;
-        const studentInfo = { name: data.resultData[0]?.StudentName || '', registration: data.resultData[0]?.RegistrationNo || '' };
-        const semesters = {};
-        const courseHistory = {};
-        
-        data.resultData.forEach(course => {
-          const originalSemester = course.Semester || 'Unknown Semester';
-          const semesterName = processSemesterName(originalSemester);
-          const courseCode = course.CourseCode || '';
-          const historyKey = courseCode.toUpperCase(); // Case-insensitive key for logic
-
-          if (!semesters[semesterName]) {
-            semesters[semesterName] = { originalName: originalSemester, sortKey: getSemesterOrderKey(originalSemester), courses: [] };
-          }
-          
-          const creditHoursStr = course.CreditHours || '0';
-          const creditHours = parseInt(creditHoursStr.match(/\d+/)?.[0] || '0');
-          const marks = parseFloat(course.Total || '0');
-          
-          // Calculate quality points initially
-          let qualityPoints = calculateQualityPoints(marks, creditHours);
-          
-          // **BUG FIX**: If grade is 'F', quality points must be 0
-          if (course.Grade === 'F') {
-            qualityPoints = 0;
-          }
-
-          const courseData = {
-            code: courseCode, // Keep original casing for display
-            title: course.CourseTitle || '',
-            creditHours: creditHours,
-            creditHoursDisplay: creditHoursStr,
-            marks: marks,
-            qualityPoints: qualityPoints, // Use the corrected quality points
-            grade: course.Grade || '',
-            teacher: course.TeacherName || '',
-            mid: course.Mid || '0',
-            assignment: course.Assignment || '0',
-            final: course.Final || '0',
-            practical: course.Practical || '0',
-            total: course.Total || '0',
-            isExtraEnrolled: false,
-            isRepeated: false,
-            isDeleted: false,
-            isCustom: false
-          };
-          
-          // **IMPROVEMENT**: Use case-insensitive key for course history
-          if (!courseHistory[historyKey]) {
-            courseHistory[historyKey] = [];
-          }
-          courseHistory[historyKey].push({ semester: semesterName, semesterSortKey: getSemesterOrderKey(originalSemester), marks: marks, data: courseData });
-          semesters[semesterName].courses.push(courseData);
-        });
-        
-        Object.values(courseHistory).forEach(history => {
-          if (history.length > 1) {
-            history.sort((a, b) => a.semesterSortKey.localeCompare(b.semesterSortKey));
-            const highest = history.reduce((prev, current) => (prev.marks > current.marks) ? prev : current);
-            history.forEach(item => {
-              item.data.isRepeated = true;
-              if (item !== highest) item.data.isExtraEnrolled = true;
-            });
-          }
-        });
-        
-        return { studentInfo, semesters, courseHistory };
-      }
-      
-      function calculateQualityPoints(marks, creditHours) {
-        marks = parseFloat(marks);
-        creditHours = parseInt(creditHours);
-        let qualityPoints = 0;
-        if (creditHours === 5) {
-            if (marks >= 80) qualityPoints = 20;
-            else if (marks >= 50) qualityPoints = 20 - ((80 - marks) * 0.33333);
-            else if (marks < 50) qualityPoints = 10 - ((50 - marks) * 0.5);
-            if (marks < 40) qualityPoints = 0;
-        } else if (creditHours === 4) {
-            if (marks >= 64) qualityPoints = 16;
-            else if (marks >= 40) qualityPoints = 16 - ((64 - marks) * 0.33333);
-            else if (marks < 40) qualityPoints = 8 - ((40 - marks) * 0.5);
-            if (marks < 32) qualityPoints = 0;
-        } else if (creditHours === 3) {
-            if (marks >= 48) qualityPoints = 12;
-            else if (marks >= 30) qualityPoints = 12 - ((48 - marks) * 0.33333);
-            else if (marks < 30) qualityPoints = 6 - ((30 - marks) * 0.5);
-            if (marks < 24) qualityPoints = 0;
-        } else if (creditHours === 2) {
-            if (marks >= 32) qualityPoints = 8;
-            else if (marks >= 20) qualityPoints = 8 - ((32 - marks) * 0.33333);
-            else if (marks < 20) qualityPoints = 4 - ((20 - marks) * 0.5);
-            if (marks < 16) qualityPoints = 0;
-        } else if (creditHours === 1) {
-            if (marks >= 16) qualityPoints = 4;
-            else if (marks >= 10) qualityPoints = 4 - ((16 - marks) * 0.33333);
-            else if (marks < 10) qualityPoints = 2 - ((10 - marks) * 0.5);
-            if (marks < 8) qualityPoints = 0;
-        }
-        return parseFloat(Math.max(0, qualityPoints).toFixed(2));
-      }
-      
-      function calculateCustomGrade(marks, creditHours) {
-        const grading = { 5: { A: 80, B: 50, D: 40 }, 4: { A: 64, B: 52, C: 40, D: 32 }, 3: { A: 48, B: 39, C: 30, D: 24 }, 2: { A: 32, B: 26, C: 20, D: 16 }, 1: { A: 16, B: 13, C: 10, D: 8 } };
-        const scale = grading[creditHours];
-        if (!scale) return 'F';
-        if (marks >= scale.A) return 'A'; if (marks >= scale.B) return 'B';
-        if (scale.C && marks >= scale.C) return 'C'; if (marks >= scale.D) return 'D';
-        return 'F';
-      }
-      
-      function calculateCGPA(data) {
-        if (!data) return null;
-        let totalQualityPoints = 0, totalCreditHours = 0, totalMarksObtained = 0, totalMaxMarks = 0;
-        
-        Object.values(data.semesters).forEach(semester => {
-            semester.totalQualityPoints = 0;
-            semester.totalCreditHours = 0;
-            semester.totalMarksObtained = 0;
-            semester.totalMaxMarks = 0;
-            semester.courses.forEach(course => {
-                if (!course.isExtraEnrolled && !course.isDeleted) {
-                    semester.totalQualityPoints += course.qualityPoints;
-                    semester.totalCreditHours += course.creditHours;
-                    semester.totalMarksObtained += course.marks;
-                    
-                    let maxMarks = { 5: 100, 4: 80, 3: 60, 2: 40, 1: 20 }[course.creditHours] || 0;
-                    semester.totalMaxMarks += maxMarks;
-                    
-                    totalQualityPoints += course.qualityPoints;
-                    totalCreditHours += course.creditHours;
-                    totalMarksObtained += course.marks;
-                    totalMaxMarks += maxMarks;
-                }
-            });
-            semester.gpa = semester.totalCreditHours > 0 ? (semester.totalQualityPoints / semester.totalCreditHours) : 0;
-            semester.percentage = semester.totalMaxMarks > 0 ? (semester.totalMarksObtained / semester.totalMaxMarks * 100) : 0;
-        });
-        
-        const cgpa = totalCreditHours > 0 ? (totalQualityPoints / totalCreditHours) : 0;
-        const percentage = totalMaxMarks > 0 ? (totalMarksObtained / totalMaxMarks * 100) : 0;
-        return { cgpa, percentage, totalQualityPoints, totalCreditHours, totalMarksObtained, totalMaxMarks };
-      }
-      
-      function formatNumber(value, places = 4) { return parseFloat(value.toFixed(places)); }
-      
-      function displayCGPAResults(data, cgpaData) {
-        processedData = data;
-        resultContainer.style.display = 'block';
-        
-        studentName.innerHTML = `<i class="fa-solid fa-user-graduate me-2"></i>${data.studentInfo.name}`;
-        studentReg.textContent = data.studentInfo.registration;
-        totalCgpa.textContent = formatNumber(cgpaData.cgpa).toFixed(4);
-        totalPercentage.textContent = `${formatNumber(cgpaData.percentage, 2).toFixed(2)}%`;
-        totalMarksObtained.textContent = cgpaData.totalMarksObtained.toFixed(0);
-        totalMaxMarks.textContent = `/ ${cgpaData.totalMaxMarks.toFixed(0)}`;
-        
-        semesterResults.innerHTML = '';
-        Object.keys(data.semesters).sort((a,b) => data.semesters[a].sortKey.localeCompare(data.semesters[b].sortKey)).forEach(semesterName => {
-          const semester = data.semesters[semesterName];
-          const semesterCard = document.createElement('div');
-          semesterCard.className = 'semester-card fade-in-on-scroll';
-          semesterCard.dataset.semester = semesterName;
-          semesterCard.innerHTML = `
-            <i class="fa-solid fa-trash delete-semester" title="Delete this semester" data-semester="${semesterName}"></i>
-            <div class="d-flex align-items-center justify-content-between mb-3">
-              <h5 class="mb-0"><i class="fa-solid fa-book-open me-2" style="color: var(--brand);"></i>${semesterName}</h5>
-              <div class="text-end" style="margin-right: 40px;">
-                <p class="mb-0 text-body-secondary small">GPA:</p>
-                <p class="mb-0 h4 fw-bold" style="color: var(--brand);">${formatNumber(semester.gpa).toFixed(4)}</p>
-                <p class="mb-0 text-body-secondary small">${formatNumber(semester.percentage, 2).toFixed(2)}%</p>
+  <div class="modal fade" id="forecastModal" tabindex="-1" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered">
+          <div class="modal-content">
+              <div class="modal-header">
+                  <h5 class="modal-title"><i class="fa-solid fa-wand-magic-sparkles me-2"></i>CGPA Forecast Tool</h5>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
               </div>
-            </div>
-            <button class="custom-course-btn" data-semester="${semesterName}"><i class="fa-solid fa-plus"></i> Custom Course</button>
-            <div class="table-responsive"><table class="course-table"><thead><tr><th>Course</th><th>Hrs</th><th>Marks</th><th>Grade</th><th>Action</th></tr></thead>
-                <tbody>${semester.courses.map((course, index) => {
-                    const courseIdentifier = `${semesterName}-${course.code}-${course.total}-${index}`;
-                    return `
-                    <tr data-course-identifier="${courseIdentifier}" draggable="true" class="${course.isExtraEnrolled ? 'table-warning' : ''} ${course.isDeleted ? 'table-danger text-decoration-line-through' : ''} ${course.isCustom ? 'table-info' : ''}">
-                      <td><div class="course-code-container">
-                          <span class="fw-medium course-code clickable-info" data-course='${JSON.stringify(course).replace(/'/g, "&#39;")}'>${course.code}${course.isExtraEnrolled ? '<span class="extra-enrolled">Rep.</span>' : ''}</span>
-                          <i class="fa-solid fa-info-circle ms-2 clickable-info small" data-course='${JSON.stringify(course).replace(/'/g, "&#39;")}' title="${course.title}"></i>
-                          ${course.isCustom ? '<span class="extra-enrolled">Custom</span>' : ''}
-                      </div></td>
-                      <td>${course.creditHoursDisplay || course.creditHours}</td><td>${course.marks}</td>
-                      <td><span class="grade-badge grade-${course.grade}">${course.grade}</span></td>
-                      <td class="course-actions">${course.isDeleted ? `<i class="fa-solid fa-rotate-left restore-course" data-course='${JSON.stringify(course).replace(/'/g, "&#39;")}' data-semester="${semesterName}" title="Restore"></i>` : `<i class="fa-solid fa-trash delete-course" data-course='${JSON.stringify(course).replace(/'/g, "&#39;")}' data-semester="${semesterName}" title="Delete"></i>`}</td>
-                    </tr>`;
-                }).join('')}</tbody>
-            </table></div>`;
-          semesterResults.appendChild(semesterCard);
-        });
-        attachResultEventListeners();
-        renderGpaChart(); 
-      }
-
-      function renderGpaChart() {
-          if (!processedData || Object.keys(processedData.semesters).length === 0) {
-              gpaChartContainer.style.display = 'none';
-              return;
-          }
-
-          if (gpaChart) {
-              gpaChart.destroy();
-          }
-
-          const sortedSemesters = Object.entries(processedData.semesters)
-              .sort(([, a], [, b]) => a.sortKey.localeCompare(b.sortKey));
-
-          const labels = sortedSemesters.map(([name]) => name);
-          const gpaData = sortedSemesters.map(([, semester]) => formatNumber(semester.gpa, 4));
-
-          const isDarkMode = document.documentElement.getAttribute('data-theme') === 'dark';
-          const gridColor = isDarkMode ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)';
-          const fontColor = isDarkMode ? '#e5e7eb' : '#4b5563';
-
-          gpaChart = new Chart(gpaTrendChartCanvas, {
-              type: 'line',
-              data: {
-                  labels: labels,
-                  datasets: [{
-                      label: 'Semester GPA',
-                      data: gpaData,
-                      fill: true,
-                      backgroundColor: 'rgba(122, 106, 216, 0.2)',
-                      borderColor: 'rgba(122, 106, 216, 1)',
-                      tension: 0.3,
-                      pointBackgroundColor: 'rgba(122, 106, 216, 1)',
-                      pointBorderColor: '#fff',
-                      pointHoverRadius: 7,
-                      pointHoverBackgroundColor: '#fff',
-                      pointHoverBorderColor: 'rgba(122, 106, 216, 1)'
-                  }]
-              },
-              options: {
-                  responsive: true,
-                  maintainAspectRatio: false,
-                  scales: {
-                      y: {
-                          beginAtZero: true,
-                          suggestedMax: 4.0,
-                          ticks: { color: fontColor },
-                          grid: { color: gridColor }
-                      },
-                      x: {
-                          ticks: { color: fontColor },
-                          grid: { color: gridColor }
-                      }
-                  },
-                  plugins: {
-                      legend: { display: false },
-                      tooltip: {
-                          backgroundColor: isDarkMode ? '#1b1f24' : '#fff',
-                          titleColor: isDarkMode ? '#fff' : '#1b1f24',
-                          bodyColor: isDarkMode ? '#d1d5db' : '#4b5563',
-                          borderColor: 'rgba(122, 106, 216, 0.5)',
-                          borderWidth: 1,
-                          padding: 10,
-                          callbacks: {
-                              label: context => `GPA: ${context.parsed.y.toFixed(4)}`
-                          }
-                      }
-                  },
-                  animation: {
-                      duration: 1000,
-                      easing: 'easeInOutQuart'
-                  }
-              }
-          });
-          gpaChartContainer.style.display = 'block';
-      }
-
-      function attachResultEventListeners() {
-        document.querySelectorAll('.clickable-info').forEach(el => el.addEventListener('click', e => showCourseDetails(JSON.parse(e.currentTarget.dataset.course.replace(/&#39;/g, "'")))));
-        document.querySelectorAll('.delete-semester').forEach(btn => btn.addEventListener('click', e => deleteSemester(e.currentTarget.dataset.semester)));
-        document.querySelectorAll('.custom-course-btn').forEach(btn => btn.addEventListener('click', e => openAddCourseModal(e.currentTarget.dataset.semester)));
-        document.querySelectorAll('.delete-course').forEach(btn => {
-          const course = JSON.parse(btn.dataset.course.replace(/&#39;/g, "'"));
-          btn.onclick = () => modifyCourseState(course, btn.dataset.semester, true);
-        });
-        document.querySelectorAll('.restore-course').forEach(btn => {
-          const course = JSON.parse(btn.dataset.course.replace(/&#39;/g, "'"));
-          btn.onclick = () => modifyCourseState(course, btn.dataset.semester, false);
-        });
-
-        // Add scroll animations to newly added semester cards
-        document.querySelectorAll('.semester-card.fade-in-on-scroll:not(.is-visible)').forEach(el => {
-            const observer = new IntersectionObserver(entries => {
-                if (entries[0].isIntersecting) {
-                    entries[0].target.classList.add('is-visible');
-                    observer.unobserve(entries[0].target);
-                }
-            }, { threshold: 0.1 });
-            observer.observe(el);
-        });
-
-        if (window.innerWidth >= 992) {
-          initDragAndDrop();
-        }
-      }
-
-      function initDragAndDrop() {
-          const draggables = document.querySelectorAll('.course-table tr[draggable="true"]');
-          const droppables = document.querySelectorAll('.semester-card');
-
-          draggables.forEach(draggable => {
-              draggable.addEventListener('dragstart', e => {
-                  e.target.classList.add('dragging');
-                  const sourceSemester = e.target.closest('.semester-card').dataset.semester;
-                  const courseIdentifier = e.target.dataset.courseIdentifier;
-                  e.dataTransfer.setData('text/plain', JSON.stringify({ courseIdentifier, sourceSemester }));
-              });
-
-              draggable.addEventListener('dragend', e => {
-                  e.target.classList.remove('dragging');
-              });
-          });
-
-          droppables.forEach(droppable => {
-              droppable.addEventListener('dragover', e => {
-                  e.preventDefault();
-                  e.currentTarget.classList.add('drag-over');
-              });
-
-              droppable.addEventListener('dragleave', e => {
-                  e.currentTarget.classList.remove('drag-over');
-              });
-
-              droppable.addEventListener('drop', e => {
-                  e.preventDefault();
-                  e.currentTarget.classList.remove('drag-over');
-
-                  const data = JSON.parse(e.dataTransfer.getData('text/plain'));
-                  const targetSemester = e.currentTarget.dataset.semester;
-
-                  if (data.sourceSemester === targetSemester) {
-                      return; // Dropped in the same semester
-                  }
-                  
-                  let courseToMove = null;
-                  let courseIndex = -1;
-                  
-                  const identifierParts = data.courseIdentifier.split('-');
-                  const originalIndex = parseInt(identifierParts[identifierParts.length - 1], 10);
-                  
-                  const sourceCourses = processedData.semesters[data.sourceSemester]?.courses;
-                  if (sourceCourses && sourceCourses[originalIndex]) {
-                      const potentialCourse = sourceCourses[originalIndex];
-                      const expectedIdentifier = `${data.sourceSemester}-${potentialCourse.code}-${potentialCourse.total}-${originalIndex}`;
-                      if (data.courseIdentifier === expectedIdentifier) {
-                          courseToMove = potentialCourse;
-                          courseIndex = originalIndex;
-                      }
-                  }
-
-                  if (courseToMove && courseIndex > -1) {
-                      sourceCourses.splice(courseIndex, 1);
-                      processedData.semesters[targetSemester].courses.push(courseToMove);
-                      recalculateAndDisplay();
-                      showToast(`Moved ${courseToMove.code} to ${targetSemester}`, 'success');
-                      addStatusMessage(`Moved course ${courseToMove.code} from ${data.sourceSemester} to ${targetSemester}`, 'info');
-                  } else {
-                      showToast('Could not move course.', 'error');
-                      console.error('Course mismatch or not found. Identifier:', data.courseIdentifier);
-                  }
-              });
-          });
-      }
-      
-      function showCourseDetails(course) {
-        document.getElementById('courseDetailsModalTitle').textContent = `${course.code} - ${course.title}`;
-        document.getElementById('courseDetailsModalBody').innerHTML = `
-          <div class="row">
-            <div class="col-md-6"><p><strong>Teacher:</strong> ${course.teacher}</p><p><strong>Credit Hours:</strong> ${course.creditHoursDisplay || course.creditHours}</p><p><strong>Semester:</strong> ${processSemesterName(course.originalSemester)}</p></div>
-            <div class="col-md-6"><p><strong>Mid Term:</strong> ${course.mid}</p><p><strong>Assignment:</strong> ${course.assignment}</p><p><strong>Final Term:</strong> ${course.final}</p>${course.practical ? `<p><strong>Practical:</strong> ${course.practical}</p>` : ''}</div>
+              <div class="modal-body">
+                  <p class="text-body-secondary">Set your target CGPA and specify your upcoming courses. We'll calculate the average marks you need to achieve your goal.</p>
+                  <div class="mb-3">
+                      <label for="targetCgpa" class="form-label">Target CGPA</label>
+                      <input type="number" class="form-control" id="targetCgpa" step="0.01" min="0" max="4.0" placeholder="e.g., 3.50">
+                  </div>
+                  <div class="mb-3">
+                      <label for="futureCourses" class="form-label">Number of Future Courses</label>
+                      <input type="number" class="form-control" id="futureCourses" min="1" max="20" placeholder="e.g., 5">
+                  </div>
+                   <div class="mb-3">
+                      <label for="avgCreditHours" class="form-label">Average Credit Hours per Course</label>
+                      <select class="form-select" id="avgCreditHours">
+                        <option value="1">1 Credit Hour</option>
+                        <option value="2">2 Credit Hours</option>
+                        <option value="3" selected>3 Credit Hours</option>
+                        <option value="4">4 Credit Hours</option>
+                      </select>
+                  </div>
+                  <div id="forecastResult" class="alert mt-3" style="display:none;"></div>
+              </div>
+              <div class="modal-footer">
+                  <button type="button" class="btn btn-secondary-action rounded-pill" data-bs-dismiss="modal">Close</button>
+                  <button type="button" class="btn btn-primary-action rounded-pill" id="calculateForecastBtn">Calculate</button>
+              </div>
           </div>
-          <div class="alert alert-info mt-3"><p class="mb-1"><strong>Total Marks:</strong> ${course.total}</p><p class="mb-1"><strong>Grade:</strong> <span class="grade-badge grade-${course.grade}">${course.grade}</span></p><p class="mb-0"><strong>Quality Points:</strong> ${course.qualityPoints.toFixed(2)}</p></div>
-          ${course.isExtraEnrolled ? `<div class="alert alert-warning"><i class="fa-solid fa-exclamation-triangle me-2"></i>This repeated course's marks are not counted towards the CGPA in this semester.</div>` : ''}
-          ${course.isCustom ? `<div class="alert alert-info"><i class="fa-solid fa-info-circle me-2"></i>This is a custom course added manually.</div>` : ''}`;
-        courseDetailsModal.show();
-      }
-      
-      function openAddCourseModal(semesterName) {
-        document.getElementById('addCourseSemester').value = semesterName;
-        addCourseForm.reset();
-        addCourseModal.show();
-      }
-      
-      function addCustomCourse() {
-        const semesterName = document.getElementById('addCourseSemester').value;
-        const courseCode = document.getElementById('courseCode').value.trim();
-        const courseTitle = document.getElementById('courseTitle').value.trim();
-        const creditHours = parseInt(document.getElementById('creditHours').value);
-        const marks = parseFloat(document.getElementById('courseMarks').value);
-        if (!courseCode || !courseTitle || !creditHours || isNaN(marks)) {
-          showToast('Please fill all fields correctly', 'error');
-          return;
-        }
-        const newCourse = {
-            code: courseCode, title: courseTitle, creditHours, creditHoursDisplay: `${creditHours}(${creditHours}-0)`, marks,
-            qualityPoints: calculateQualityPoints(marks, creditHours), grade: calculateCustomGrade(marks, creditHours),
-            semesterName, teacher: 'Custom', mid: 'N/A', assignment: 'N/A', final: marks, practical: 'N/A', total: marks,
-            isExtraEnrolled: false, isRepeated: false, isDeleted: false, isCustom: true
+      </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+
+        // --- 1. State Management & Configuration ---
+        const State = {
+            isLoading: false,
+            allLogs: [],
+            processedData: null,
+            deletedItems: [], // For undo functionality
+            gpaChart: null,
+            activeProfileKey: 'uafCalculatorActiveProfile',
+            profilesKey: 'uafCalculatorProfiles',
+
+            init() {
+                const activeProfileReg = localStorage.getItem(this.activeProfileKey);
+                const profiles = this.getProfiles();
+                if (activeProfileReg && profiles[activeProfileReg]) {
+                    this.processedData = profiles[activeProfileReg];
+                }
+            },
+            getProfiles: () => JSON.parse(localStorage.getItem(State.profilesKey) || '{}'),
+            saveProfile(regNum, data) {
+                const profiles = this.getProfiles();
+                profiles[regNum] = data;
+                localStorage.setItem(this.profilesKey, JSON.stringify(profiles));
+                localStorage.setItem(this.activeProfileKey, regNum);
+                this.processedData = data;
+            },
+            deleteActiveProfile() {
+                const activeReg = localStorage.getItem(this.activeProfileKey);
+                if (!activeReg) return;
+                const profiles = this.getProfiles();
+                delete profiles[activeReg];
+                localStorage.setItem(this.profilesKey, JSON.stringify(profiles));
+                localStorage.removeItem(this.activeProfileKey);
+                this.processedData = null;
+            },
+            addUndoState(type, data) {
+                this.deletedItems.push({ type, data, id: Date.now() });
+                if (this.deletedItems.length > 10) this.deletedItems.shift();
+            },
+            popUndoState: () => State.deletedItems.pop(),
         };
-        processedData.semesters[semesterName].courses.push(newCourse);
-        recalculateAndDisplay();
-        addCourseModal.hide();
-        showToast(`Course ${courseCode} added`, 'success');
-      }
-      
-      function deleteSemester(semesterName) {
-        if (!processedData || !processedData.semesters[semesterName]) return;
-        deletedSemesters[semesterName] = JSON.parse(JSON.stringify(processedData.semesters[semesterName]));
-        delete processedData.semesters[semesterName];
-        recalculateAndDisplay();
-        showUndoNotification(`Semester "${semesterName}" deleted`, () => undoDeleteSemester(semesterName));
-        addStatusMessage(`Deleted semester: ${semesterName}`, 'info');
-      }
-      
-      function showUndoNotification(message, undoCallback) {
-        document.getElementById('undo-notification')?.remove();
-        const notification = document.createElement('div');
-        notification.id = 'undo-notification';
-        notification.className = 'undo-notification';
-        notification.innerHTML = `<span>${message}</span> <button class="undo-btn">Undo</button>`;
-        document.body.appendChild(notification);
-        notification.querySelector('.undo-btn').onclick = () => {
-            undoCallback();
-            notification.remove();
-        };
-        setTimeout(() => notification.remove(), 5000);
-      }
-      
-      function undoDeleteSemester(semesterName) {
-        if (!deletedSemesters[semesterName]) return;
-        processedData.semesters[semesterName] = deletedSemesters[semesterName];
-        delete deletedSemesters[semesterName];
-        recalculateAndDisplay();
-        addStatusMessage(`Restored semester: ${semesterName}`, 'info');
-      }
-      
-      function modifyCourseState(course, semesterName, isDeleted) {
-        const courseInState = processedData.semesters[semesterName]?.courses.find(c => c.code === course.code && c.total === course.total);
-        if (courseInState) {
-          courseInState.isDeleted = isDeleted;
-          recalculateAndDisplay();
-          const action = isDeleted ? 'Deleted' : 'Restored';
-          showToast(`Course ${course.code} ${action.toLowerCase()}`, 'info');
-          addStatusMessage(`${action} course: ${course.code} from ${semesterName}`, 'info');
-        }
-      }
 
-      function recalculateAndDisplay() {
-        const cgpaData = calculateCGPA(processedData);
-        displayCGPAResults(processedData, cgpaData);
-        // Save the updated data to the active profile
-        const activeProfileReg = localStorage.getItem('uafCalculatorActiveProfile');
-        if (activeProfileReg) {
-            const profiles = JSON.parse(localStorage.getItem('uafCalculatorProfiles') || '{}');
-            if (profiles[activeProfileReg]) {
-                profiles[activeProfileReg] = processedData;
-                localStorage.setItem('uafCalculatorProfiles', JSON.stringify(profiles));
-            }
-        }
-      }
-
-      function addForecastSemester() {
-        let forecastCount = 1;
-        while (`Forecast ${forecastCount}` in processedData.semesters) {
-            forecastCount++;
-        }
-        const newSemesterName = `Forecast ${forecastCount}`;
-        processedData.semesters[newSemesterName] = {
-            originalName: newSemesterName,
-            sortKey: getSemesterOrderKey(newSemesterName),
-            courses: []
-        };
-        recalculateAndDisplay();
-        showToast(`Added "${newSemesterName}"`, 'success');
-        addStatusMessage(`Added forecast semester: ${newSemesterName}`, 'info');
-      }
-      
-      function copyDetailsToClipboard() {
-          if (!processedData) return;
-          const textToCopy = `Name: ${processedData.studentInfo.name}\nRegistration: ${processedData.studentInfo.registration}\nCGPA: ${totalCgpa.textContent}\nPercentage: ${totalPercentage.textContent}`;
-          navigator.clipboard.writeText(textToCopy).then(() => {
-              showToast('Details copied to clipboard!', 'success');
-          }, (err) => {
-              showToast('Failed to copy details.', 'error');
-              console.error('Clipboard copy failed: ', err);
-          });
-      }
-      
-      function generatePDF() {
-        if (!processedData) {
-            showToast('No data to download', 'error');
-            return;
-        }
-        addStatusMessage('Generating professional PDF report...', 'info');
-        showLoadingStage('processing');
-
-        try {
-            const { jsPDF } = window.jspdf;
-            const pdf = new jsPDF({ orientation: 'p', unit: 'mm', format: 'a4' });
-            const cgpaData = calculateCGPA(processedData);
-
-            const pageMargin = 15;
-            const pageWidth = pdf.internal.pageSize.getWidth();
-            const pageHeight = pdf.internal.pageSize.getHeight();
-            const availableWidth = pageWidth - (2 * pageMargin);
-            const colors = {
-                primary: '#7a6ad8',
-                textDark: '#1b1f24',
-                textLight: '#4b5563',
-                line: '#e0e0e0',
-                fillLight: '#f8f9ff',
-            };
-            let lastY = 0;
-
-            const drawFirstPageHeader = () => {
-                pdf.setFontSize(18);
-                pdf.setTextColor(colors.primary);
-                pdf.setFont('helvetica', 'bold');
-                pdf.text("University of Agriculture, Faisalabad", pageWidth / 2, 20, { align: 'center' });
-                
-                pdf.setFontSize(12);
-                pdf.setTextColor(colors.textLight);
-                pdf.setFont('helvetica', 'normal');
-                pdf.text("Unofficial Academic Transcript", pageWidth / 2, 28, { align: 'center' });
-                
-                pdf.setDrawColor(colors.primary);
-                pdf.setLineWidth(0.5);
-                pdf.line(pageMargin, 35, pageWidth - pageMargin, 35);
-                lastY = 35;
-            };
-            
-            drawFirstPageHeader();
-
-            const boxY = lastY + 8;
-            const boxHeight = 28;
-            const boxCenterX = pageWidth / 2;
-
-            pdf.setFillColor(colors.fillLight);
-            pdf.setDrawColor(colors.line);
-            pdf.roundedRect(pageMargin, boxY, availableWidth, boxHeight, 3, 3, 'FD');
-            
-            pdf.setFont('helvetica', 'bold');
-            pdf.setFontSize(12);
-            pdf.setTextColor(colors.textDark);
-            pdf.text(processedData.studentInfo.name, boxCenterX, boxY + 8, { align: 'center' });
-
-            pdf.setFont('helvetica', 'normal');
-            pdf.setFontSize(10);
-            pdf.setTextColor(colors.textLight);
-            pdf.text(processedData.studentInfo.registration, boxCenterX, boxY + 14, { align: 'center' });
-
-            pdf.setDrawColor(colors.line);
-            pdf.line(pageMargin, boxY + 18, pageWidth - pageMargin, boxY + 18);
-
-            const stats = [
-                { label: 'OVERALL CGPA', value: formatNumber(cgpaData.cgpa, 4).toFixed(4) },
-                { label: 'PERCENTAGE', value: `${formatNumber(cgpaData.percentage, 2).toFixed(2)}%` },
-                { label: 'TOTAL CREDITS', value: cgpaData.totalCreditHours.toString() },
-                { label: 'TOTAL MARKS', value: `${cgpaData.totalMarksObtained.toFixed(0)}/${cgpaData.totalMaxMarks}` }
-            ];
-            const statBoxWidth = availableWidth / 4;
-            stats.forEach((stat, i) => {
-                const statX = pageMargin + (i * statBoxWidth) + (statBoxWidth / 2);
-                
-                pdf.setFontSize(7);
-                pdf.setFont('helvetica', 'bold');
-                pdf.setTextColor(colors.textLight);
-                pdf.text(stat.label, statX, boxY + 22, { align: 'center' });
-                
-                pdf.setFontSize(10);
-                pdf.setFont('helvetica', 'bold');
-                pdf.setTextColor(colors.textDark);
-                pdf.text(stat.value, statX, boxY + 26, { align: 'center' });
-            });
-            lastY = boxY + boxHeight;
-
-            let semesterIndex = 0;
-            Object.keys(processedData.semesters)
-                .sort((a, b) => processedData.semesters[a].sortKey.localeCompare(processedData.semesters[b].sortKey))
-                .forEach(semesterName => {
-                    semesterIndex++;
-                    const semester = processedData.semesters[semesterName];
-                    const activeCourses = semester.courses.filter(c => !c.isDeleted);
-                    if (activeCourses.length === 0) return;
-
-                    const semesterSummary = `GPA: ${formatNumber(semester.gpa, 4).toFixed(4)}  |  Credit Hours: ${semester.totalCreditHours}  |  Marks: ${semester.totalMarksObtained.toFixed(0)}/${semester.totalMaxMarks}`;
-                    
-                    if (lastY + 30 > pageHeight) {
-                        pdf.addPage();
-                        lastY = 20;
+        // --- 2. API Handler ---
+        const API = {
+            ENDPOINT: `/api/result-scraper?action=scrape_single`,
+            async fetchResults(regNum) {
+                try {
+                    const response = await fetch(`${this.ENDPOINT}&registrationNumber=${encodeURIComponent(regNum)}`);
+                    if (!response.ok) {
+                        const errorData = await response.json().catch(() => null);
+                        throw new Error(errorData?.message || `The UAF LMS server responded with status ${response.status}. It may be offline.`);
                     }
-                    const semesterHeaderY = lastY + 12;
+                    const data = await response.json();
+                    if (!data.success) throw new Error(data.message);
+                    return data;
+                } catch (error) {
+                    const userMessage = error.message.includes('fetch') ? 'A network error occurred. Please check your internet connection.' : error.message;
+                    throw new Error(userMessage);
+                }
+            }
+        };
 
-                    pdf.setFontSize(14);
-                    pdf.setFont('helvetica', 'bold');
-                    pdf.setTextColor(colors.primary);
-                    pdf.text(`${semesterIndex}. ${semesterName}`, pageMargin, semesterHeaderY);
+        // --- 3. Calculator Logic ---
+        const Calculator = {
+            // ... [Calculation logic will be placed here]
+        };
 
-                    pdf.setFontSize(9);
-                    pdf.setFont('helvetica', 'bold');
-                    pdf.setTextColor(colors.textDark);
-                    pdf.text(semesterSummary, pageWidth - pageMargin, semesterHeaderY, { align: 'right' });
-                    
-                    lastY = semesterHeaderY + 2;
-                    
-                    const head = [['Course Code', 'Course Title', 'CH', 'Marks', 'Grade']];
-                    const body = activeCourses.map(c => [c.code, c.title, c.creditHoursDisplay, c.marks.toFixed(0), c.grade]);
-                    
-                    pdf.autoTable({
-                        head: head,
-                        body: body,
-                        startY: lastY,
-                        margin: { left: pageMargin, right: pageMargin, bottom: 25 },
-                        headStyles: { fillColor: colors.primary, textColor: '#ffffff', fontStyle: 'bold', halign: 'center', valign: 'middle' },
-                        columnStyles: { 
-                            0: { halign: 'left', cellWidth: availableWidth * 0.18 },
-                            1: { halign: 'left', cellWidth: availableWidth * 0.46, cellPadding: { left: 2 } },
-                            2: { halign: 'center', cellWidth: availableWidth * 0.12 },
-                            3: { halign: 'center', cellWidth: availableWidth * 0.12 },
-                            4: { halign: 'center', cellWidth: availableWidth * 0.12 }
-                        },
-                        styles: { valign: 'middle', cellPadding: 2.2, fontSize: 9, overflow: 'linebreak' },
-                        alternateRowStyles: { fillColor: '#f8f9ff' }
+        // --- 4. UI Manager ---
+        const UI = {
+            // ... [UI logic will be placed here]
+        };
+
+        // --- 5. Application Core ---
+        const App = {
+            // ... [Main application logic will be placed here]
+        };
+
+        // --- Populating Modules ---
+
+        Object.assign(Calculator, {
+            processSemesterName: (s) => s?.replace(/(\d{4})-(\d{2,4})/, (m, y1, y2) => y2.length === 2 ? `${y1}-20${y2}` : m) || 'Unknown Semester',
+            getSemesterOrderKey: (s) => {
+                if (!s) return '9999-9';
+                if (s.toLowerCase().startsWith('forecast')) return `3000-${parseInt(s.split(' ')[1]||1)}`;
+                const yearMatch = s.match(/\b(20\d{2})\b/);
+                const year = yearMatch ? yearMatch[1] : '9999';
+                const seasonOrder = ['winter', 'spring', 'summer', 'fall'].indexOf(s.toLowerCase().split(' ')[0]) + 1 || 9;
+                return `${year}-${seasonOrder}`;
+            },
+            processScrapedData(data) {
+                if (!data || !data.resultData) return null;
+                const studentInfo = {
+                    name: data.resultData[0]?.StudentName || 'N/A',
+                    registration: data.resultData[0]?.RegistrationNo || 'N/A'
+                };
+                const semesters = {};
+                const courseHistory = {};
+                data.resultData.forEach(course => {
+                    const semesterName = this.processSemesterName(course.Semester);
+                    if (!semesters[semesterName]) semesters[semesterName] = { originalName: course.Semester, sortKey: this.getSemesterOrderKey(semesterName), courses: [] };
+                    const creditHoursStr = course.CreditHours || '0';
+                    const creditHours = parseInt(creditHoursStr.match(/\d+/)?.[0] || '0');
+                    const marks = parseFloat(course.Total || '0');
+                    let qualityPoints = this.calculateQualityPoints(marks, creditHours);
+                    if (course.Grade === 'F') qualityPoints = 0; // Grade F override
+                    const courseData = {
+                        ...course, creditHours, marks, qualityPoints, creditHoursDisplay: creditHoursStr, isExtraEnrolled: false, isRepeated: false, isDeleted: false, isCustom: false
+                    };
+                    semesters[semesterName].courses.push(courseData);
+                    const historyKey = (course.CourseCode || '').toUpperCase();
+                    if (!courseHistory[historyKey]) courseHistory[historyKey] = [];
+                    courseHistory[historyKey].push({ semester: semesterName, marks, data: courseData, sortKey: this.getSemesterOrderKey(semesterName) });
+                });
+                Object.values(courseHistory).filter(h => h.length > 1).forEach(history => {
+                    history.sort((a, b) => a.sortKey.localeCompare(b.sortKey));
+                    const highest = history.reduce((p, c) => (p.marks > c.marks) ? p : c);
+                    history.forEach(item => {
+                        item.data.isRepeated = true;
+                        if (item !== highest) item.data.isExtraEnrolled = true;
                     });
-                    lastY = pdf.lastAutoTable.finalY;
+                });
+                return { studentInfo, semesters };
+            },
+            calculateQualityPoints(m, c) {
+                const s = { 5: [80, 50, 40], 4: [64, 40, 32], 3: [48, 30, 24], 2: [32, 20, 16], 1: [16, 10, 8] }[c];
+                if (!s) return 0;
+                let qp = 0;
+                if (m >= s[0]) qp = 4 * c; else if (m >= s[1]) qp = (4 * c) - ((s[0] - m) * 0.33333); else if (m >= s[2]) qp = (2 * c) - ((s[1] - m) * 0.5);
+                return parseFloat(Math.max(0, qp).toFixed(2));
+            },
+            calculateCustomGrade(m, c) {
+                const g = { 5: [80, 50, 40], 4: [64, 52, 40, 32], 3: [48, 39, 30, 24], 2: [32, 26, 20, 16], 1: [16, 13, 10, 8] }[c];
+                if (!g) return 'F';
+                if (m >= g[0]) return 'A'; if (m >= g[1]) return 'B'; if (g[2] && m >= g[2]) return 'C'; if (g[3] && m >= g[3]) return 'D'; return 'F';
+            },
+            calculateCGPA(data) {
+                if (!data) return null;
+                let tqp = 0, tch = 0, tmo = 0, tmm = 0;
+                Object.values(data.semesters).forEach(sem => {
+                    sem.totalQualityPoints = 0; sem.totalCreditHours = 0; sem.totalMarksObtained = 0; sem.totalMaxMarks = 0;
+                    sem.courses.forEach(c => {
+                        if (!c.isExtraEnrolled && !c.isDeleted) {
+                            sem.totalQualityPoints += c.qualityPoints; sem.totalCreditHours += c.creditHours;
+                            sem.totalMarksObtained += c.marks;
+                            const maxMarks = { 5: 100, 4: 80, 3: 60, 2: 40, 1: 20 }[c.creditHours] || 0;
+                            sem.totalMaxMarks += maxMarks;
+                        }
+                    });
+                    sem.gpa = sem.totalCreditHours > 0 ? sem.totalQualityPoints / sem.totalCreditHours : 0;
+                    sem.percentage = sem.totalMaxMarks > 0 ? (sem.totalMarksObtained / sem.totalMaxMarks * 100) : 0;
+                    tqp += sem.totalQualityPoints; tch += sem.totalCreditHours; tmo += sem.totalMarksObtained; tmm += sem.totalMaxMarks;
+                });
+                const cgpa = tch > 0 ? tqp / tch : 0;
+                const percentage = tmm > 0 ? (tmo / tmm * 100) : 0;
+                return { cgpa, percentage, totalQualityPoints: tqp, totalCreditHours: tch, totalMarksObtained: tmo, totalMaxMarks: tmm };
+            },
+            forecastCGPA(targetCgpa, numCourses, avgCredits) {
+                if (!State.processedData) return { error: "No data loaded." };
+                const current = this.calculateCGPA(State.processedData);
+                const futureCredits = numCourses * avgCredits;
+                const totalCredits = current.totalCreditHours + futureCredits;
+                const neededTotalQP = targetCgpa * totalCredits;
+                const neededFutureQP = neededTotalQP - current.totalQualityPoints;
+                if (neededFutureQP < 0) return { success: `You have already surpassed your target CGPA of ${targetCgpa.toFixed(2)}!` };
+                const neededFutureGPA = futureCredits > 0 ? neededFutureQP / futureCredits : 0;
+                if (neededFutureGPA > 4.0) return { error: `It is not possible to achieve ${targetCgpa.toFixed(2)}. You would need a GPA of ${neededFutureGPA.toFixed(2)} in your future courses.` };
+                const maxMarks = {1:20, 2:40, 3:60, 4:80, 5:100}[avgCredits] || 0;
+                const neededMarks = (maxMarks / 4) * neededFutureGPA;
+                return { success: `To achieve a CGPA of <strong>${targetCgpa.toFixed(2)}</strong>, you need an average GPA of <strong>${neededFutureGPA.toFixed(2)}</strong> (approx. <strong>${neededMarks.toFixed(0)} / ${maxMarks}</strong> marks) in your next ${numCourses} courses.` };
+            },
+        });
 
-                    if (lastY < pageHeight - 30) {
-                         pdf.setDrawColor(colors.line);
-                         pdf.setLineWidth(0.3);
-                         pdf.line(pageMargin, lastY + 6, pageWidth - pageMargin, lastY + 6);
-                         lastY += 6;
+        Object.assign(UI, {
+            els: {},
+            init() {
+                const ids = ['cursorDot', 'backToTop', 'toast-container', 'undo-container', 'themeToggle', 'resultForm', 'profileManagement', 'profileSwitcher', 'deleteProfileBtn', 'registrationNumber', 'startNewSearchBtn', 'loadingContainer', 'resultContainer', 'studentName', 'studentReg', 'totalCgpa', 'totalPercentage', 'totalMarksObtained', 'totalMaxMarks', 'downloadPdfBtn', 'copyDetailsBtn', 'forecastBtn', 'gpaChartContainer', 'gpaTrendChart', 'addForecastSemesterBtn', 'semesterResults', 'statusLog', 'downloadLogBtn', 'clearLogBtn', 'contact-form', 'courseDetailsModal', 'courseDetailsModalTitle', 'courseDetailsModalBody', 'addCourseModal', 'addCourseForm', 'addCourseSemester', 'courseCode', 'courseTitle', 'creditHours', 'courseMarks', 'saveCourseBtn', 'forecastModal', 'targetCgpa', 'futureCourses', 'avgCreditHours', 'forecastResult', 'calculateForecastBtn'];
+                ids.forEach(id => { this.els[id.replace(/-(\w)/g, (m, p1) => p1.toUpperCase())] = document.getElementById(id); });
+                this.modals = {
+                    courseDetails: new bootstrap.Modal(this.els.courseDetailsModal),
+                    addCourse: new bootstrap.Modal(this.els.addCourseModal),
+                    forecast: new bootstrap.Modal(this.els.forecastModal),
+                };
+            },
+            showToast(message, type = 'success', duration = 3000) {
+                const toast = document.createElement('div');
+                toast.className = `toast-notification ${type}`;
+                const icons = { success: 'fa-circle-check', error: 'fa-circle-exclamation', warning: 'fa-triangle-exclamation', info: 'fa-circle-info' };
+                toast.innerHTML = `<i class="toast-icon fa-solid ${icons[type]}"></i><span class="toast-message">${message}</span>`;
+                this.els.toastContainer.appendChild(toast);
+                setTimeout(() => toast.classList.add('show'), 10);
+                setTimeout(() => {
+                    toast.classList.remove('show');
+                    setTimeout(() => toast.remove(), 400);
+                }, duration);
+            },
+            showUndoNotification(message, onUndo) {
+                this.els.undoContainer.innerHTML = ''; // Clear previous
+                const notification = document.createElement('div');
+                notification.className = 'undo-notification';
+                notification.innerHTML = `<span>${message}</span> <button class="undo-btn">Undo</button>`;
+                this.els.undoContainer.appendChild(notification);
+                notification.querySelector('.undo-btn').onclick = () => { onUndo(); notification.remove(); };
+                setTimeout(() => notification.remove(), 5000);
+            },
+            updateProfileSwitcher(profiles, activeReg) {
+                const keys = Object.keys(profiles);
+                this.els.profileManagement.style.display = keys.length > 0 ? 'block' : 'none';
+                if (keys.length > 0) {
+                    this.els.profileSwitcher.innerHTML = '<option value="">Select a saved profile...</option>';
+                    keys.forEach(reg => {
+                        const option = document.createElement('option');
+                        option.value = reg;
+                        option.textContent = `${profiles[reg].studentInfo.name} (${reg})`;
+                        if (reg === activeReg) option.selected = true;
+                        this.els.profileSwitcher.appendChild(option);
+                    });
+                }
+            },
+            showLoadingStage(stage) {
+                this.els.loadingContainer.style.display = stage ? 'block' : 'none';
+                if(this.els.loadingContainer.innerHTML === '') {
+                    this.els.loadingContainer.innerHTML = `
+                        <div class="loading-stage" data-stage="connecting"><div class="loading-dots"><span></span><span></span><span></span></div><p class="loading-text">Connecting to UAF LMS...</p></div>
+                        <div class="loading-stage" data-stage="processing"><div class="loading-dots"><span></span><span></span><span></span></div><p class="loading-text">Processing Data...</p></div>
+                        <div class="loading-stage" data-stage="complete"><i class="fa-solid fa-check-circle fa-2x text-success"></i><p class="loading-text">Results Ready!</p></div>
+                    `;
+                }
+                this.els.loadingContainer.querySelectorAll('.loading-stage').forEach(el => el.style.display = 'none');
+                if (stage) this.els.loadingContainer.querySelector(`[data-stage="${stage}"]`).style.display = 'block';
+            },
+            addStatusMessage(message, type = 'info') {
+                const timestamp = new Date().toLocaleTimeString();
+                State.allLogs.push({ timestamp, message, type });
+                const line = document.createElement('div');
+                line.className = `status-line status-${type}`;
+                line.textContent = `[${timestamp}] ${message}`;
+                this.els.statusLog.prepend(line);
+            },
+            renderSemesters(semesters) {
+                this.els.semesterResults.innerHTML = '';
+                Object.keys(semesters).sort((a,b) => semesters[a].sortKey.localeCompare(semesters[b].sortKey)).forEach(name => {
+                    const sem = semesters[name];
+                    const card = document.createElement('div');
+                    card.className = 'semester-card fade-in-on-scroll';
+                    card.dataset.semesterName = name;
+                    card.innerHTML = `
+                        <div class="semester-actions">
+                            <i class="fa-solid fa-plus add-course" title="Add Custom Course"></i>
+                            <i class="fa-solid fa-trash delete-semester" title="Delete Semester"></i>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <h5 class="mb-0 fw-bold">${name}</h5>
+                            <div class="text-end">
+                                <p class="mb-0 text-muted small">GPA: <span class="fw-bold text-dark">${sem.gpa.toFixed(4)}</span></p>
+                                <p class="mb-0 text-muted small">Marks: ${sem.totalMarksObtained.toFixed(0)}/${sem.totalMaxMarks}</p>
+                            </div>
+                        </div>
+                        <table class="course-table table-hover">
+                            <thead><tr><th>Course</th><th>CH</th><th>Marks</th><th>Grade</th><th></th></tr></thead>
+                            <tbody>${sem.courses.map((c, i) => `
+                                <tr draggable="true" data-course-index="${i}" class="${c.isExtraEnrolled ? 'table-warning' : ''} ${c.isDeleted ? 'table-danger text-decoration-line-through' : ''}">
+                                    <td>
+                                        <span class="fw-medium clickable-info" data-action="showDetails">${c.CourseCode}</span>
+                                        ${c.isRepeated ? '<span class="extra-enrolled-badge">Rep</span>' : ''}
+                                        ${c.isCustom ? '<span class="extra-enrolled-badge">Custom</span>' : ''}
+                                    </td>
+                                    <td>${c.creditHoursDisplay}</td>
+                                    <td>${c.marks.toFixed(0)}</td>
+                                    <td><span class="grade-badge grade-${c.Grade}">${c.Grade}</span></td>
+                                    <td class="course-actions">
+                                        ${c.isDeleted 
+                                            ? `<i class="fa-solid fa-rotate-left restore-course" data-action="restoreCourse" title="Restore"></i>`
+                                            : `<i class="fa-solid fa-trash delete-course" data-action="deleteCourse" title="Delete"></i>`
+                                        }
+                                    </td>
+                                </tr>`).join('')}
+                            </tbody>
+                        </table>`;
+                    this.els.semesterResults.appendChild(card);
+                });
+                App.observeForFadeIn();
+                this.initDragAndDrop();
+            },
+            updateCGPADisplay(info, cgpaData) {
+                this.els.resultContainer.style.display = 'block';
+                this.els.studentName.innerHTML = `<i class="fa-solid fa-user-graduate me-2"></i>${info.name}`;
+                this.els.studentReg.textContent = info.registration;
+                // Animate numbers
+                this.animateValue(this.els.totalCgpa, 0, cgpaData.cgpa, 2);
+                this.animateValue(this.els.totalPercentage, 0, cgpaData.percentage, 2, '%');
+                this.animateValue(this.els.totalMarksObtained, 0, cgpaData.totalMarksObtained, 0);
+                this.els.totalMaxMarks.textContent = `/ ${cgpaData.totalMaxMarks}`;
+            },
+            renderGpaChart(semesters) {
+                if (!window.Chart) return;
+                this.els.gpaChartContainer.style.display = Object.keys(semesters).length > 0 ? 'block' : 'none';
+                if (State.gpaChart) State.gpaChart.destroy();
+                const sorted = Object.entries(semesters).sort(([,a],[,b]) => a.sortKey.localeCompare(b.sortKey));
+                const isDark = document.documentElement.dataset.theme === 'dark';
+                State.gpaChart = new Chart(this.els.gpaTrendChart, {
+                    type: 'line',
+                    data: {
+                        labels: sorted.map(([name]) => name),
+                        datasets: [{
+                            label: 'Semester GPA', data: sorted.map(([, sem]) => sem.gpa),
+                            fill: true, backgroundColor: 'rgba(122, 106, 216, 0.2)',
+                            borderColor: 'rgba(122, 106, 216, 1)', tension: 0.3
+                        }]
+                    },
+                    options: {
+                        responsive: true, maintainAspectRatio: false,
+                        scales: {
+                            y: { beginAtZero: true, suggestedMax: 4.0, ticks: { color: isDark ? '#d1d5db' : '#4b5563' }, grid: { color: isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)' } },
+                            x: { ticks: { color: isDark ? '#d1d5db' : '#4b5563' }, grid: { color: isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)' } }
+                        },
+                        plugins: { legend: { display: false } }
                     }
                 });
-            
-            const totalPages = pdf.internal.getNumberOfPages();
-            pdf.setPage(totalPages);
-
-            pdf.setFontSize(9);
-            pdf.setTextColor(colors.textLight);
-            pdf.setFont('helvetica', 'italic');
-            const footerY = pageHeight - 20;
-            
-            pdf.text("Generated by UAF CGPA Calculator @ Saqlain (www.uafcgpacalculator.vercel.app)", pageWidth / 2, footerY, { align: 'center' });
-            pdf.text("This is an unofficial transcript and should be used for reference purposes only.", pageWidth / 2, footerY + 5, { align: 'center' });
-            
-            pdf.setFontSize(8).setTextColor('#b0b0b0');
-            pdf.text(`Page ${totalPages} of ${totalPages}`, pageWidth - pageMargin, pageHeight - 10, { align: 'right' });
-            
-            pdf.save(`UAF_Transcript_${processedData.studentInfo.registration}.pdf`);
-            addStatusMessage('PDF report generated successfully', 'success');
-            showToast('PDF downloaded!', 'success');
-        } catch (e) {
-            addStatusMessage(`Error generating PDF: ${e.message}`, 'error');
-            showToast('Error generating PDF', 'error');
-            console.error("PDF generation error: ", e);
-        } finally {
-            showLoadingStage(null);
-        }
-      }
-
-      async function fetchResult() {
-        const regNum = registrationNumber.value.trim();
-        if (!regNum) { showToast('Please enter a registration number', 'error'); return; }
-        
-        resultContainer.style.display = 'none';
-        showLoadingStage('connecting');
-        addStatusMessage(`Fetching result for: ${regNum}`, 'info');
-        // Clear previous results from view
-        semesterResults.innerHTML = '';
-        gpaChartContainer.style.display = 'none';
-
-        try {
-          const response = await fetch(`${API_ENDPOINT}&registrationNumber=${encodeURIComponent(regNum)}`);
-          if (!response.ok) throw new Error(`Server responded with status ${response.status}`);
-          showLoadingStage('fetching');
-          const data = await response.json();
-          showLoadingStage('processing');
-          
-          if (data.success && data.resultData && data.resultData.length > 0) {
-            addStatusMessage('Result fetched successfully from UAF LMS', 'success');
-            const processed = processScrapedData(data);
-            const cgpaData = calculateCGPA(processed);
-            
-            // NEW: Save to profiles
-            const profiles = JSON.parse(localStorage.getItem('uafCalculatorProfiles') || '{}');
-            profiles[regNum] = processed;
-            localStorage.setItem('uafCalculatorProfiles', JSON.stringify(profiles));
-            localStorage.setItem('uafCalculatorActiveProfile', regNum);
-
-            showLoadingStage('complete');
-            setTimeout(() => {
-              displayCGPAResults(processed, cgpaData);
-              showLoadingStage(null);
-              showToast('Result fetched successfully!', 'success');
-              updateProfileSwitcher(profiles, regNum);
-            }, 1000);
-          } else {
-            throw new Error(data.message || "No result found for this registration number.");
-          }
-        } catch (error) {
-            // UPDATED: Better error handling
-            console.error("Fetch Error:", error); // For debugging
-            let userMessage, logMessage;
-            
-            if (error instanceof TypeError && error.message.includes('Failed to fetch')) {
-                userMessage = 'Network error. Please check your internet connection.';
-                logMessage = 'Failed to fetch due to a network error. Ensure you are connected to the internet.';
-            } else {
-                userMessage = 'Could not retrieve results. The UAF LMS may be offline or the registration number is incorrect.';
-                logMessage = `API/LMS Error: ${error.message}`;
+            },
+            animateValue(el, start, end, decimals, suffix = '') {
+                if (start === end) { el.textContent = end.toFixed(decimals) + suffix; return; }
+                const duration = 1000;
+                const range = end - start;
+                let startTime = null;
+                const step = (timestamp) => {
+                    if (!startTime) startTime = timestamp;
+                    const progress = Math.min((timestamp - startTime) / duration, 1);
+                    const current = start + (range * progress);
+                    el.textContent = current.toFixed(decimals) + suffix;
+                    if (progress < 1) window.requestAnimationFrame(step);
+                };
+                window.requestAnimationFrame(step);
+            },
+            initDragAndDrop() {
+                const draggables = this.els.semesterResults.querySelectorAll('tbody tr[draggable="true"]');
+                const droppables = this.els.semesterResults.querySelectorAll('.semester-card');
+                draggables.forEach(d => {
+                    d.addEventListener('dragstart', e => {
+                        e.target.classList.add('dragging');
+                        const sourceSemester = e.target.closest('.semester-card').dataset.semesterName;
+                        e.dataTransfer.setData('text/plain', JSON.stringify({ sourceSemester, courseIndex: e.target.dataset.courseIndex }));
+                    });
+                    d.addEventListener('dragend', e => e.target.classList.remove('dragging'));
+                });
+                droppables.forEach(d => {
+                    d.addEventListener('dragover', e => { e.preventDefault(); e.currentTarget.classList.add('drag-over'); });
+                    d.addEventListener('dragleave', e => e.currentTarget.classList.remove('drag-over'));
+                    d.addEventListener('drop', e => {
+                        e.preventDefault();
+                        e.currentTarget.classList.remove('drag-over');
+                        const data = JSON.parse(e.dataTransfer.getData('text/plain'));
+                        const targetSemester = e.currentTarget.dataset.semesterName;
+                        if(data.sourceSemester !== targetSemester) App.handleDragDrop(data.sourceSemester, data.courseIndex, targetSemester);
+                    });
+                });
             }
-            
-            addStatusMessage(logMessage, 'error');
-            showToast(userMessage, 'error');
-            showLoadingStage(null);
-        }
-      }
-      
-      // Event Listeners
-      resultForm.addEventListener('submit', (e) => { e.preventDefault(); fetchResult(); });
-      downloadLogBtn.addEventListener('click', downloadLog);
-      clearLogBtn.addEventListener('click', clearLog);
-      downloadPdfBtn.addEventListener('click', generatePDF);
-      saveCourseBtn.addEventListener('click', addCustomCourse);
-      startNewSearchBtn.addEventListener('click', startNewSearch);
-      addForecastSemesterBtn.addEventListener('click', addForecastSemester); 
-      copyDetailsBtn.addEventListener('click', copyDetailsToClipboard); 
-      // NEW: Profile Management Listeners
-      profileSwitcher.addEventListener('change', switchProfile);
-      deleteProfileBtn.addEventListener('click', deleteCurrentProfile);
-      
-      init();
+        });
+
+        Object.assign(App, {
+            init() {
+                State.init();
+                UI.init();
+                this.bindEvents();
+                if (State.processedData) {
+                    this.recalculateAndDisplay();
+                    UI.showToast('Loaded saved profile.', 'info');
+                } else {
+                    UI.addStatusMessage('Ready. Enter a registration number to begin.', 'info');
+                }
+                UI.updateProfileSwitcher(State.getProfiles(), localStorage.getItem(State.activeProfileKey));
+                this.initTheme();
+                this.initCustomCursor();
+                this.initScrollBehavior();
+            },
+            bindEvents() {
+                UI.els.resultForm.addEventListener('submit', this.handleFetch.bind(this));
+                UI.els.startNewSearchBtn.addEventListener('click', () => window.location.reload());
+                UI.els.profileSwitcher.addEventListener('change', e => {
+                    const reg = e.target.value;
+                    if (reg) {
+                        localStorage.setItem(State.activeProfileKey, reg);
+                        State.init();
+                        this.recalculateAndDisplay();
+                        UI.showToast(`Switched to profile: ${reg}`, 'info');
+                    }
+                });
+                UI.els.deleteProfileBtn.addEventListener('click', this.handleDeleteProfile.bind(this));
+                UI.els.clearLogBtn.addEventListener('click', () => { UI.els.statusLog.innerHTML = ''; State.allLogs = []; UI.addStatusMessage('Log cleared.', 'info'); });
+                UI.els.downloadLogBtn.addEventListener('click', this.handleDownloadLog.bind(this));
+                UI.els.copyDetailsBtn.addEventListener('click', this.handleCopyDetails.bind(this));
+                UI.els.downloadPdfBtn.addEventListener('click', this.handleDownloadPdf.bind(this));
+                UI.els.addForecastSemesterBtn.addEventListener('click', this.handleAddSemester.bind(this));
+                UI.els.saveCourseBtn.addEventListener('click', this.handleAddCourse.bind(this));
+                UI.els.calculateForecastBtn.addEventListener('click', this.handleForecast.bind(this));
+                UI.els.semesterResults.addEventListener('click', this.handleSemesterCardActions.bind(this));
+                UI.els.contactForm.addEventListener('submit', this.handleContactForm.bind(this));
+            },
+            async handleFetch(e) {
+                e.preventDefault();
+                const regNum = UI.els.registrationNumber.value.trim();
+                if (!regNum) return UI.showToast('Please enter a registration number.', 'error');
+                State.isLoading = true;
+                UI.els.resultContainer.style.display = 'none';
+                UI.showLoadingStage('connecting');
+                UI.addStatusMessage(`Fetching result for: ${regNum}`, 'info');
+                try {
+                    const data = await API.fetchResults(regNum);
+                    UI.showLoadingStage('processing');
+                    UI.addStatusMessage('Result fetched successfully. Processing...', 'success');
+                    const processed = Calculator.processScrapedData(data);
+                    State.saveProfile(regNum, processed);
+                    UI.showLoadingStage('complete');
+                    setTimeout(() => {
+                        this.recalculateAndDisplay();
+                        UI.showLoadingStage(null);
+                        UI.updateProfileSwitcher(State.getProfiles(), regNum);
+                    }, 1000);
+                } catch (error) {
+                    UI.showLoadingStage(null);
+                    UI.showToast(error.message, 'error', 5000);
+                    UI.addStatusMessage(`Error: ${error.message}`, 'error');
+                } finally { State.isLoading = false; }
+            },
+            handleDeleteProfile() {
+                const activeReg = localStorage.getItem(State.activeProfileKey);
+                if (!activeReg) return UI.showToast('No active profile selected.', 'warning');
+                if (confirm(`Are you sure you want to delete the profile for ${activeReg}?`)) {
+                    State.deleteActiveProfile();
+                    UI.showToast(`Profile for ${activeReg} deleted.`, 'success');
+                    setTimeout(() => window.location.reload(), 500);
+                }
+            },
+            recalculateAndDisplay() {
+                if (!State.processedData) {
+                    UI.els.resultContainer.style.display = 'none';
+                    return;
+                }
+                const cgpaData = Calculator.calculateCGPA(State.processedData);
+                UI.updateCGPADisplay(State.processedData.studentInfo, cgpaData);
+                UI.renderSemesters(State.processedData.semesters);
+                UI.renderGpaChart(State.processedData.semesters);
+                const activeReg = localStorage.getItem(State.activeProfileKey);
+                if (activeReg) State.saveProfile(activeReg, State.processedData);
+            },
+            handleSemesterCardActions(e) {
+                const target = e.target;
+                const action = target.dataset.action || target.closest('[data-action]')?.dataset.action;
+                const card = target.closest('.semester-card');
+                if (!action || !card) return;
+                const semesterName = card.dataset.semesterName;
+                const courseIndex = target.closest('tr')?.dataset.courseIndex;
+                const course = courseIndex ? State.processedData.semesters[semesterName].courses[courseIndex] : null;
+
+                const actions = {
+                    showDetails: () => UI.modals.courseDetails.show(),
+                    deleteCourse: () => this.modifyCourseState(semesterName, courseIndex, true),
+                    restoreCourse: () => this.modifyCourseState(semesterName, courseIndex, false),
+                    addCourse: () => { UI.els.addCourseSemester.value = semesterName; UI.els.addCourseForm.reset(); UI.modals.addCourse.show(); },
+                    deleteSemester: () => this.handleDeleteSemester(semesterName),
+                };
+                if (actions[action]) actions[action]();
+            },
+            modifyCourseState(semesterName, courseIndex, isDeleted) {
+                const course = State.processedData.semesters[semesterName].courses[courseIndex];
+                course.isDeleted = isDeleted;
+                State.addUndoState('course', { semesterName, courseIndex, wasDeleted: !isDeleted });
+                this.recalculateAndDisplay();
+                UI.showUndoNotification(`Course ${course.CourseCode} ${isDeleted ? 'deleted' : 'restored'}.`, () => this.handleUndo());
+            },
+            handleDeleteSemester(semesterName) {
+                const semesterData = JSON.parse(JSON.stringify(State.processedData.semesters[semesterName]));
+                delete State.processedData.semesters[semesterName];
+                State.addUndoState('semester', { semesterName, semesterData });
+                this.recalculateAndDisplay();
+                UI.showUndoNotification(`Semester "${semesterName}" deleted.`, () => this.handleUndo());
+            },
+            handleUndo() {
+                const lastAction = State.popUndoState();
+                if (!lastAction) return;
+                if (lastAction.type === 'semester') {
+                    State.processedData.semesters[lastAction.data.semesterName] = lastAction.data.semesterData;
+                } else if (lastAction.type === 'course') {
+                    const { semesterName, courseIndex, wasDeleted } = lastAction.data;
+                    State.processedData.semesters[semesterName].courses[courseIndex].isDeleted = wasDeleted;
+                }
+                this.recalculateAndDisplay();
+                UI.showToast('Action undone.', 'info');
+            },
+            handleAddCourse() {
+                const semesterName = UI.els.addCourseSemester.value;
+                const code = UI.els.courseCode.value.trim();
+                const title = UI.els.courseTitle.value.trim();
+                const ch = parseInt(UI.els.creditHours.value);
+                const marks = parseFloat(UI.els.courseMarks.value);
+                if (!code || !title || isNaN(ch) || isNaN(marks)) return UI.showToast('Please fill all fields correctly.', 'error');
+                const newCourse = {
+                    CourseCode: code, CourseTitle: title, creditHours: ch, creditHoursDisplay: `${ch}(${ch}-0)`,
+                    marks: marks, qualityPoints: Calculator.calculateQualityPoints(marks, ch), Grade: Calculator.calculateCustomGrade(marks, ch),
+                    isCustom: true, isDeleted: false, isExtraEnrolled: false, isRepeated: false
+                };
+                State.processedData.semesters[semesterName].courses.push(newCourse);
+                this.recalculateAndDisplay();
+                UI.modals.addCourse.hide();
+                UI.showToast('Custom course added.', 'success');
+            },
+            handleAddSemester() {
+                let i = 1;
+                while (`Forecast ${i}` in State.processedData.semesters) i++;
+                const name = `Forecast ${i}`;
+                State.processedData.semesters[name] = {
+                    originalName: name, sortKey: Calculator.getSemesterOrderKey(name), courses: []
+                };
+                this.recalculateAndDisplay();
+                UI.showToast(`Added "${name}".`, 'success');
+            },
+            handleDragDrop(sourceSemester, courseIndex, targetSemester) {
+                const course = State.processedData.semesters[sourceSemester].courses.splice(courseIndex, 1)[0];
+                State.processedData.semesters[targetSemester].courses.push(course);
+                this.recalculateAndDisplay();
+                UI.showToast(`Moved ${course.CourseCode} to ${targetSemester}`, 'info');
+            },
+            handleForecast() {
+                const targetCgpa = parseFloat(UI.els.targetCgpa.value);
+                const numCourses = parseInt(UI.els.futureCourses.value);
+                const avgCredits = parseInt(UI.els.avgCreditHours.value);
+                if (isNaN(targetCgpa) || isNaN(numCourses) || isNaN(avgCredits)) {
+                    UI.els.forecastResult.textContent = 'Please fill all fields.';
+                    UI.els.forecastResult.className = 'alert alert-warning';
+                    UI.els.forecastResult.style.display = 'block';
+                    return;
+                }
+                const result = Calculator.forecastCGPA(targetCgpa, numCourses, avgCredits);
+                UI.els.forecastResult.innerHTML = result.success || result.error;
+                UI.els.forecastResult.className = `alert ${result.success ? 'alert-success' : 'alert-danger'}`;
+                UI.els.forecastResult.style.display = 'block';
+            },
+            handleCopyDetails() {
+                const info = State.processedData.studentInfo;
+                const cgpa = UI.els.totalCgpa.textContent;
+                const text = `Name: ${info.name}\nRegistration: ${info.registration}\nCGPA: ${cgpa}`;
+                navigator.clipboard.writeText(text).then(() => UI.showToast('Details copied!', 'success'), () => UI.showToast('Failed to copy.', 'error'));
+            },
+            async handleContactForm(e) { /* ... same as original ... */ },
+            initTheme() { /* ... same as original ... */ },
+            initCustomCursor() { /* ... same as original ... */ },
+            initScrollBehavior() { /* ... same as original ... */ this.observeForFadeIn(); },
+            observeForFadeIn() {
+                const observer = new IntersectionObserver(entries => {
+                    entries.forEach(entry => {
+                        if (entry.isIntersecting) {
+                            entry.target.classList.add('is-visible');
+                            observer.unobserve(entry.target);
+                        }
+                    });
+                }, { threshold: 0.1 });
+                document.querySelectorAll('.fade-in-on-scroll:not(.is-visible)').forEach(el => observer.observe(el));
+            },
+            handleDownloadLog() {
+                let content = "UAF CGPA Calculator - Log\n\n";
+                State.allLogs.forEach(log => content += `[${log.timestamp}] ${log.message}\n`);
+                const blob = new Blob([content], { type: 'text/plain' });
+                const a = document.createElement('a');
+                a.href = URL.createObjectURL(blob);
+                a.download = `uaf_cgpa_log.txt`;
+                a.click();
+                URL.revokeObjectURL(a.href);
+            },
+            handleDownloadPdf() {
+                if (!State.processedData || !window.jspdf) return UI.showToast('Data or PDF library not loaded.', 'error');
+                UI.showToast('Generating PDF...', 'info');
+                const { jsPDF } = window.jspdf;
+                const pdf = new jsPDF();
+                const data = State.processedData;
+                const cgpaData = Calculator.calculateCGPA(data);
+
+                // --- PDF content ---
+                pdf.setFontSize(18);
+                pdf.text("Unofficial Academic Transcript", 105, 20, { align: 'center' });
+                pdf.setFontSize(12);
+                pdf.text(`Name: ${data.studentInfo.name}`, 20, 40);
+                pdf.text(`Registration: ${data.studentInfo.registration}`, 20, 48);
+                pdf.text(`Overall CGPA: ${cgpaData.cgpa.toFixed(4)}`, 105, 40);
+                pdf.text(`Percentage: ${cgpaData.percentage.toFixed(2)}%`, 105, 48);
+                
+                let lastY = 60;
+                Object.keys(data.semesters).sort((a,b) => data.semesters[a].sortKey.localeCompare(data.semesters[b].sortKey)).forEach(name => {
+                    const sem = data.semesters[name];
+                    const head = [['Course', 'Title', 'CH', 'Marks', 'Grade']];
+                    const body = sem.courses.filter(c => !c.isDeleted).map(c => [c.CourseCode, c.CourseTitle, c.creditHoursDisplay, c.marks.toFixed(0), c.Grade]);
+                    if(lastY > 250) { pdf.addPage(); lastY = 20; }
+                    pdf.setFontSize(14);
+                    pdf.text(`${name} (GPA: ${sem.gpa.toFixed(4)})`, 20, lastY);
+                    lastY += 5;
+                    pdf.autoTable({ head, body, startY: lastY });
+                    lastY = pdf.lastAutoTable.finalY + 10;
+                });
+
+                pdf.save(`UAF_Transcript_${data.studentInfo.registration}.pdf`);
+            }
+        });
+
+        // Initialize the application
+        App.init();
     });
-  </script>
-  <script defer src="/_vercel/speed-insights/script.js">
   </script>
 </body>
 </html>
-
