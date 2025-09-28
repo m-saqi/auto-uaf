@@ -3135,7 +3135,7 @@ a[aria-expanded="true"] #gpaChartChevron {
 
             // --- PREMIUM HEADER START ---
             const topBoxY = lastY + 10;
-            const boxHeight = 45;
+            const boxHeight = 55; // Increased box height to fit the larger name
             const gap = 5;
             const leftBoxWidth = availableWidth * 0.4;
             const rightBoxWidth = availableWidth - leftBoxWidth - gap;
@@ -3151,16 +3151,25 @@ a[aria-expanded="true"] #gpaChartChevron {
             pdf.setDrawColor(colors.line);
             pdf.line(pageMargin + 5, topBoxY + 11, pageMargin + leftBoxWidth - 5, topBoxY + 11);
 
+            // --- START: MODIFIED SECTION FOR PROMINENT NAME ---
+
+            // Prominent Student Name (Styled like the CGPA)
+            pdf.setFontSize(22);
+            pdf.setFont('helvetica', 'bold');
+            pdf.setTextColor(colors.primary);
+            pdf.text(processedData.studentInfo.name, pageMargin + 5, topBoxY + 25, { maxWidth: leftBoxWidth - 10 });
+
+            // Reset font and reposition Registration Number
             pdf.setFontSize(9);
             pdf.setFont('helvetica', 'bold');
             pdf.setTextColor(colors.textLight);
-            pdf.text("Name:", pageMargin + 5, topBoxY + 20);
-            pdf.text("Registration No:", pageMargin + 5, topBoxY + 30);
+            pdf.text("Registration No:", pageMargin + 5, topBoxY + 38); // Pushed down
 
             pdf.setFont('helvetica', 'normal');
             pdf.setTextColor(colors.textDark);
-            pdf.text(processedData.studentInfo.name, pageMargin + 5, topBoxY + 25);
-            pdf.text(processedData.studentInfo.registration, pageMargin + 5, topBoxY + 35);
+            pdf.text(processedData.studentInfo.registration, pageMargin + 5, topBoxY + 43); // Pushed down
+            
+            // --- END: MODIFIED SECTION FOR PROMINENT NAME ---
 
             // Right Box: Academic Summary
             pdf.setFillColor(colors.fillLight);
@@ -3360,6 +3369,7 @@ a[aria-expanded="true"] #gpaChartChevron {
   </script>
 </body>
 </html>
+
 
 
 
