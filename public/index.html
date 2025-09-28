@@ -2325,40 +2325,6 @@ a:hover {
         }
       }
 
-      // ========================================================================
-      // START: NEW HELPER FUNCTIONS (Add this entire block)
-      // ========================================================================
-      function saveActiveProfile() {
-        const activeProfileReg = localStorage.getItem('uafCalculatorActiveProfile');
-        if (activeProfileReg) {
-            const profiles = JSON.parse(localStorage.getItem('uafCalculatorProfiles') || '{}');
-            if (profiles[activeProfileReg]) {
-                profiles[activeProfileReg] = processedData;
-                localStorage.setItem('uafCalculatorProfiles', JSON.stringify(profiles));
-            }
-        }
-      }
-
-      function updateTotalsDisplay() {
-        const cgpaData = calculateCGPA(processedData);
-        if (!cgpaData) return;
-
-        // Update the main display without touching the semester cards
-        studentName.innerHTML = `<i class="fa-solid fa-user-graduate me-2"></i>${processedData.studentInfo.name}`;
-        studentReg.textContent = processedData.studentInfo.registration;
-        totalCgpa.textContent = formatNumber(cgpaData.cgpa).toFixed(4);
-        totalPercentage.textContent = `${formatNumber(cgpaData.percentage, 2).toFixed(2)}%`;
-        totalMarksObtained.textContent = cgpaData.totalMarksObtained.toFixed(0);
-        totalMaxMarks.textContent = `/ ${cgpaData.totalMaxMarks.toFixed(0)}`;
-        
-        // Also update the chart and save the changes
-        renderGpaChart();
-        saveActiveProfile();
-      }
-      // ========================================================================
-      // END: NEW HELPER FUNCTIONS
-      // ========================================================================
-
       function startNewSearch() {
           showToast('Ready for a new search.', 'info');
           location.reload();
@@ -2933,23 +2899,11 @@ a:hover {
         showToast(`Course ${courseCode} added`, 'success');
       }
       
-            function deleteSemester(semesterName) {
+      function deleteSemester(semesterName) {
         if (!processedData || !processedData.semesters[semesterName]) return;
-        
-        // 1. Data Manipulation: Still update the underlying data object
         deletedSemesters[semesterName] = JSON.parse(JSON.stringify(processedData.semesters[semesterName]));
         delete processedData.semesters[semesterName];
-        
-        // 2. DOM Manipulation: Hide the card directly instead of re-rendering
-        const semesterCard = document.querySelector(`.semester-card[data-semester="${semesterName}"]`);
-        if (semesterCard) {
-            semesterCard.style.display = 'none';
-        }
-        
-        // 3. Update Totals: Call the new lightweight function
-        updateTotalsDisplay();
-        
-        // 4. Show Notification
+        recalculateAndDisplay();
         showUndoNotification(`Semester "${semesterName}" deleted`, () => undoDeleteSemester(semesterName));
         addStatusMessage(`Deleted semester: ${semesterName}`, 'info');
       }
@@ -2970,55 +2924,17 @@ a:hover {
       
       function undoDeleteSemester(semesterName) {
         if (!deletedSemesters[semesterName]) return;
-        
-        // 1. Data Manipulation: Restore the data
         processedData.semesters[semesterName] = deletedSemesters[semesterName];
         delete deletedSemesters[semesterName];
-        
-        // 2. DOM Manipulation: Show the card again
-        const semesterCard = document.querySelector(`.semester-card[data-semester="${semesterName}"]`);
-        if (semesterCard) {
-            semesterCard.style.display = 'block';
-        }
-        
-        // 3. Update Totals
-        updateTotalsDisplay();
+        recalculateAndDisplay();
         addStatusMessage(`Restored semester: ${semesterName}`, 'info');
       }
       
       function modifyCourseState(course, semesterName, isDeleted) {
-        // Find the specific course in our data using its index for reliability
-        const semester = processedData.semesters[semesterName];
-        if (!semester) return;
-
-        const courseIndex = semester.courses.findIndex(c => c.code === course.code && c.total === course.total && c.title === course.title);
-        
-        if (courseIndex !== -1) {
-          // 1. Data Manipulation
-          semester.courses[courseIndex].isDeleted = isDeleted;
-
-          // 2. DOM Manipulation: Find the specific table row and update its style
-          const courseIdentifier = `${semesterName}-${course.code}-${course.total}-${courseIndex}`;
-          const courseRow = document.querySelector(`tr[data-course-identifier="${courseIdentifier}"]`);
-          
-          if (courseRow) {
-            courseRow.classList.toggle('table-danger', isDeleted);
-            courseRow.classList.toggle('text-decoration-line-through', isDeleted);
-
-            // Update the action button inside the row
-            const actionCell = courseRow.querySelector('.course-actions');
-            const newActionHTML = isDeleted 
-              ? `<i class="fa-solid fa-rotate-left restore-course" data-course='${JSON.stringify(course).replace(/'/g, "&#39;")}' data-semester="${semesterName}" title="Restore"></i>`
-              : `<i class="fa-solid fa-trash delete-course" data-course='${JSON.stringify(course).replace(/'/g, "&#39;")}' data-semester="${semesterName}" title="Delete"></i>`;
-            actionCell.innerHTML = newActionHTML;
-
-            // Re-attach the event listener to the new icon
-            actionCell.querySelector('i').addEventListener('click', () => modifyCourseState(course, semesterName, !isDeleted));
-          }
-
-          // 3. Update Totals
-          updateTotalsDisplay();
-          
+        const courseInState = processedData.semesters[semesterName]?.courses.find(c => c.code === course.code && c.total === course.total);
+        if (courseInState) {
+          courseInState.isDeleted = isDeleted;
+          recalculateAndDisplay();
           const action = isDeleted ? 'Deleted' : 'Restored';
           showToast(`Course ${course.code} ${action.toLowerCase()}`, 'info');
           addStatusMessage(`${action} course: ${course.code} from ${semesterName}`, 'info');
@@ -3026,10 +2942,17 @@ a:hover {
       }
 
       function recalculateAndDisplay() {
-        // This function is now only used for major redraws, like adding a new course or semester.
         const cgpaData = calculateCGPA(processedData);
         displayCGPAResults(processedData, cgpaData);
-        saveActiveProfile();
+        // Save the updated data to the active profile
+        const activeProfileReg = localStorage.getItem('uafCalculatorActiveProfile');
+        if (activeProfileReg) {
+            const profiles = JSON.parse(localStorage.getItem('uafCalculatorProfiles') || '{}');
+            if (profiles[activeProfileReg]) {
+                profiles[activeProfileReg] = processedData;
+                localStorage.setItem('uafCalculatorProfiles', JSON.stringify(profiles));
+            }
+        }
       }
 
       function addForecastSemester() {
@@ -3309,4 +3232,3 @@ a:hover {
   </script>
 </body>
 </html>
-
