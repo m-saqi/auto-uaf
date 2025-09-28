@@ -2715,8 +2715,16 @@ a[aria-expanded="true"] #gpaChartChevron {
         processedData = data;
         resultContainer.style.display = 'block';
 
-        // ADD THIS LINE to inject the new copy icon
-        document.querySelector('#resultContainer .gpa-result-card').innerHTML += '<i class="fa-solid fa-clipboard copy-icon-btn" id="copyDetailsIconBtn" title="Copy Details"></i>';
+        // Create and append the new copy icon without destroying other elements
+        const card = document.querySelector('#resultContainer .gpa-result-card');
+        // Prevent adding multiple icons if function is called again
+        if (!card.querySelector('.copy-icon-btn')) { 
+          const icon = document.createElement('i');
+          icon.className = 'fa-solid fa-clipboard copy-icon-btn';
+          icon.id = 'copyDetailsIconBtn';
+          icon.title = 'Copy Details';
+          card.appendChild(icon);
+        }
         
         studentName.innerHTML = `<i class="fa-solid fa-user-graduate me-2"></i>${data.studentInfo.name}`;
         studentReg.textContent = data.studentInfo.registration;
@@ -2748,15 +2756,15 @@ a[aria-expanded="true"] #gpaChartChevron {
                     return `
                     <tr data-course-identifier="${courseIdentifier}" draggable="true" class="${course.isExtraEnrolled ? 'table-warning' : ''} ${course.isDeleted ? 'table-danger text-decoration-line-through' : ''} ${course.isCustom ? 'table-info' : ''}">
                       <td>
-  <div class="course-code-container">
-    <span class="fw-medium course-code clickable-info" data-course='${JSON.stringify(course).replace(/'/g, "&#39;")}'>
-      ${course.code}
-      <i class="fa-solid fa-info-circle ms-1 clickable-info small" data-course='${JSON.stringify(course).replace(/'/g, "&#39;")}' title="${course.title}"></i>
-    </span>
-    ${course.isExtraEnrolled ? '<sup class="extra-enrolled">Rep.</sup>' : ''}
-    ${course.isCustom ? '<span class="extra-enrolled">Custom</span>' : ''}
-  </div>
-</td>
+                        <div class="course-code-container">
+                          <span class="fw-medium course-code clickable-info" data-course='${JSON.stringify(course).replace(/'/g, "&#39;")}'>
+                            ${course.code}
+                            <i class="fa-solid fa-info-circle ms-1 clickable-info small" data-course='${JSON.stringify(course).replace(/'/g, "&#39;")}' title="${course.title}"></i>
+                          </span>
+                          ${course.isExtraEnrolled ? '<sup class="extra-enrolled">Rep.</sup>' : ''}
+                          ${course.isCustom ? '<span class="extra-enrolled">Custom</span>' : ''}
+                        </div>
+                      </td>
                       <td>${course.creditHoursDisplay || course.creditHours}</td><td>${course.marks}</td>
                       <td><span class="grade-badge grade-${course.grade}">${course.grade}</span></td>
                       <td class="course-actions">${course.isDeleted ? `<i class="fa-solid fa-rotate-left restore-course" data-course='${JSON.stringify(course).replace(/'/g, "&#39;")}' data-semester="${semesterName}" title="Restore"></i>` : `<i class="fa-solid fa-trash delete-course" data-course='${JSON.stringify(course).replace(/'/g, "&#39;")}' data-semester="${semesterName}" title="Delete"></i>`}</td>
@@ -3390,6 +3398,7 @@ a[aria-expanded="true"] #gpaChartChevron {
   </script>
 </body>
 </html>
+
 
 
 
