@@ -3135,7 +3135,7 @@ a[aria-expanded="true"] #gpaChartChevron {
 
             // --- PREMIUM HEADER START ---
             const topBoxY = lastY + 10;
-            const boxHeight = 45; // Adjusted box height for compact layout
+            const boxHeight = 45; 
             const gap = 5;
             const leftBoxWidth = availableWidth * 0.4;
             const rightBoxWidth = availableWidth - leftBoxWidth - gap;
@@ -3151,30 +3151,21 @@ a[aria-expanded="true"] #gpaChartChevron {
             pdf.setDrawColor(colors.line);
             pdf.line(pageMargin + 5, topBoxY + 11, pageMargin + leftBoxWidth - 5, topBoxY + 11);
 
-            // --- START: MODIFIED SECTION FOR NAME AND ALIGNMENT ---
+            // --- START: FINAL MODIFIED SECTION ---
 
-            // Name Label and Value
-            pdf.setFontSize(9);
-            pdf.setFont('helvetica', 'bold');
-            pdf.setTextColor(colors.textLight);
-            pdf.text("Name:", pageMargin + 5, topBoxY + 20);
-
-            pdf.setFontSize(10); // Set font size to 10 for the name
+            // Student Name (Value)
+            pdf.setFontSize(10);
             pdf.setFont('helvetica', 'bold');
             pdf.setTextColor(colors.textDark);
             pdf.text(processedData.studentInfo.name, pageMargin + 5, topBoxY + 25, { maxWidth: leftBoxWidth - 10 });
             
-            // Registration No Label and Value
-            pdf.setFontSize(9);
-            pdf.setFont('helvetica', 'bold');
-            pdf.setTextColor(colors.textLight);
-            pdf.text("Registration No:", pageMargin + 5, topBoxY + 32); // Adjusted Y position
-
+            // Registration Number (Styled as a sub-label below the name)
+            pdf.setFontSize(8);
             pdf.setFont('helvetica', 'normal');
-            pdf.setTextColor(colors.textDark);
-            pdf.text(processedData.studentInfo.registration, pageMargin + 5, topBoxY + 37); // Adjusted Y position
+            pdf.setTextColor(colors.textLight);
+            pdf.text(processedData.studentInfo.registration, pageMargin + 5, topBoxY + 30);
 
-            // --- END: MODIFIED SECTION ---
+            // --- END: FINAL MODIFIED SECTION ---
 
             // Right Box: Academic Summary
             pdf.setFillColor(colors.fillLight);
@@ -3374,6 +3365,7 @@ a[aria-expanded="true"] #gpaChartChevron {
   </script>
 </body>
 </html>
+
 
 
 
