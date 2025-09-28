@@ -2797,15 +2797,18 @@ a:hover {
 
       function attachResultEventListeners() {
         document.querySelectorAll('.clickable-info').forEach(el => el.addEventListener('click', e => showCourseDetails(JSON.parse(e.currentTarget.dataset.course.replace(/&#39;/g, "'")))));
-        document.querySelectorAll('.delete-semester').forEach(btn => btn.addEventListener('click', e => deleteSemester(e.currentTarget.dataset.semester)));
+        // Pass the event object 'e' to the deleteSemester function
+        document.querySelectorAll('.delete-semester').forEach(btn => btn.addEventListener('click', e => deleteSemester(e, e.currentTarget.dataset.semester)));
         document.querySelectorAll('.custom-course-btn').forEach(btn => btn.addEventListener('click', e => openAddCourseModal(e.currentTarget.dataset.semester)));
+        
+        // Update these listeners to pass the event 'e'
         document.querySelectorAll('.delete-course').forEach(btn => {
           const course = JSON.parse(btn.dataset.course.replace(/&#39;/g, "'"));
-          btn.onclick = () => modifyCourseState(course, btn.dataset.semester, true);
+          btn.addEventListener('click', e => modifyCourseState(e, course, btn.dataset.semester, true));
         });
         document.querySelectorAll('.restore-course').forEach(btn => {
           const course = JSON.parse(btn.dataset.course.replace(/&#39;/g, "'"));
-          btn.onclick = () => modifyCourseState(course, btn.dataset.semester, false);
+          btn.addEventListener('click', e => modifyCourseState(e, course, btn.dataset.semester, false));
         });
 
         // Add scroll animations to newly added semester cards
@@ -2933,7 +2936,8 @@ a:hover {
         showToast(`Course ${courseCode} added`, 'success');
       }
       
-            function deleteSemester(semesterName) {
+            function deleteSemester(event, semesterName) {
+        event.preventDefault(); // <-- ADD THIS LINE to prevent the scroll jump
         if (!processedData || !processedData.semesters[semesterName]) return;
         
         // 1. Data Manipulation: Still update the underlying data object
@@ -2986,7 +2990,9 @@ a:hover {
         addStatusMessage(`Restored semester: ${semesterName}`, 'info');
       }
       
-      function modifyCourseState(course, semesterName, isDeleted) {
+      function modifyCourseState(event, course, semesterName, isDeleted) {
+        event.preventDefault(); // <-- ADD THIS LINE to prevent the scroll jump
+
         // Find the specific course in our data using its index for reliability
         const semester = processedData.semesters[semesterName];
         if (!semester) return;
@@ -3012,8 +3018,8 @@ a:hover {
               : `<i class="fa-solid fa-trash delete-course" data-course='${JSON.stringify(course).replace(/'/g, "&#39;")}' data-semester="${semesterName}" title="Delete"></i>`;
             actionCell.innerHTML = newActionHTML;
 
-            // Re-attach the event listener to the new icon
-            actionCell.querySelector('i').addEventListener('click', () => modifyCourseState(course, semesterName, !isDeleted));
+            // Re-attach the event listener to the new icon, passing the event
+            actionCell.querySelector('i').addEventListener('click', (e) => modifyCourseState(e, course, semesterName, !isDeleted));
           }
 
           // 3. Update Totals
@@ -3309,3 +3315,4 @@ a:hover {
   </script>
 </body>
 </html>
+
