@@ -3154,16 +3154,16 @@ a[aria-expanded="true"] #gpaChartChevron {
             // --- START: MODIFIED SECTION FOR PROMINENT NAME ---
 
             // Prominent Student Name (Styled like the CGPA)
-            pdf.setFontSize(16);
+            pdf.setFontSize(12);
             pdf.setFont('helvetica', 'bold');
             pdf.setTextColor(colors.primary);
-            pdf.text(processedData.studentInfo.name, pageMargin + 5, topBoxY + 5, { maxWidth: leftBoxWidth - 10 });
+            pdf.text(processedData.studentInfo.name, pageMargin + 5, topBoxY + 25, { maxWidth: leftBoxWidth - 10 });
 
             // Reset font and reposition Registration Number
             pdf.setFontSize(9);
             pdf.setFont('helvetica', 'bold');
             pdf.setTextColor(colors.textLight);
-            pdf.text("Registration No:", pageMargin + 5, topBoxY + 8); // Pushed down
+            pdf.text("Registration No:", pageMargin + 5, topBoxY + 38); // Pushed down
 
             pdf.setFont('helvetica', 'normal');
             pdf.setTextColor(colors.textDark);
@@ -3369,6 +3369,7 @@ a[aria-expanded="true"] #gpaChartChevron {
   </script>
 </body>
 </html>
+
 
 
 
