@@ -770,10 +770,12 @@ a:hover {
 .extra-enrolled {
   background-color: rgba(255, 193, 7, 0.2);
   color: #856404;
-  padding: 0.15rem 0.35rem;
-  border-radius: 0.25rem;
-  font-size: 0.7rem;
-  margin-left: 0.5rem;
+  padding: 1px 5px;
+  border-radius: 4px;
+  font-size: 0.65rem;
+  font-weight: 600;
+  margin-left: 0.25rem;
+  vertical-align: top; /* Ensures consistent alignment */
 }
 
 .course-details-modal .modal-content {
@@ -2726,7 +2728,7 @@ a[aria-expanded="true"] #gpaChartChevron {
                     return `
                     <tr data-course-identifier="${courseIdentifier}" draggable="true" class="${course.isExtraEnrolled ? 'table-warning' : ''} ${course.isDeleted ? 'table-danger text-decoration-line-through' : ''} ${course.isCustom ? 'table-info' : ''}">
                       <td><div class="course-code-container">
-                          <span class="fw-medium course-code clickable-info" data-course='${JSON.stringify(course).replace(/'/g, "&#39;")}'>${course.code}${course.isExtraEnrolled ? '<span class="extra-enrolled">Rep.</span>' : ''}</span>
+                          <span class="fw-medium course-code clickable-info" data-course='${JSON.stringify(course).replace(/'/g, "&#39;")}'>${course.code}${course.isExtraEnrolled ? '<sup class="extra-enrolled">Rep.</sup>' : ''}</span>
                           <i class="fa-solid fa-info-circle ms-2 clickable-info small" data-course='${JSON.stringify(course).replace(/'/g, "&#39;")}' title="${course.title}"></i>
                           ${course.isCustom ? '<span class="extra-enrolled">Custom</span>' : ''}
                       </div></td>
@@ -3338,5 +3340,6 @@ a[aria-expanded="true"] #gpaChartChevron {
   </script>
 </body>
 </html>
+
 
 
