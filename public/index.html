@@ -670,6 +670,25 @@ a:hover {
   to { transform: scaleX(0); }
 }
 
+    /* Positions the new icon relative to the card */
+.gpa-result-card {
+  position: relative;
+}
+
+/* Styles the new copy icon */
+.copy-icon-btn {
+  position: absolute;
+  top: 1.25rem;
+  right: 1.25rem;
+  font-size: 1.2rem;
+  color: #10ac84; /* Green color */
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+.copy-icon-btn:hover {
+  transform: scale(1.15);
+}
+    
 /* GPA Result Display */
 .gpa-result-card {
   background: rgba(255, 255, 255, 0.8);
@@ -1238,13 +1257,19 @@ a[aria-expanded="true"] #gpaChartChevron {
   }
   
   .action-buttons {
-    flex-direction: column;
-    align-items: center; 
+    flex-direction: row; /* Keep buttons in a row */
+    justify-content: space-between; /* Pushes them to opposite sides */
+    width: 100%;
+    align-items: center;
   }
   
   .action-buttons .btn {
-    width: auto; 
-    min-width: 200px;
+    /* Make buttons smaller and fit side-by-side */
+    flex-grow: 1;
+    margin: 0 0.25rem;
+    padding: 0.6rem 0.5rem;
+    font-size: 0.8rem;
+    min-width: auto;
   }
 }
 
@@ -2035,7 +2060,6 @@ a[aria-expanded="true"] #gpaChartChevron {
 
             <div class="action-buttons fade-in-on-scroll">
               <button id="downloadPdfBtn" class="btn btn-pdf-download rounded-pill"><i class="fa-solid fa-file-pdf me-2"></i>Download PDF</button>
-              <button id="copyDetailsBtn" class="btn btn-success-action rounded-pill"><i class="fa-solid fa-clipboard me-2"></i>Copy Details</button>
               <button id="addForecastSemesterBtn" class="btn btn-info-action rounded-pill"><i class="fa-solid fa-wand-magic-sparkles me-2"></i>Forecast Semester</button>
             </div>
             <div class="semester-results-container">
@@ -2690,6 +2714,9 @@ a[aria-expanded="true"] #gpaChartChevron {
       function displayCGPAResults(data, cgpaData) {
         processedData = data;
         resultContainer.style.display = 'block';
+
+        // ADD THIS LINE to inject the new copy icon
+        document.querySelector('#resultContainer .gpa-result-card').innerHTML += '<i class="fa-solid fa-clipboard copy-icon-btn" id="copyDetailsIconBtn" title="Copy Details"></i>';
         
         studentName.innerHTML = `<i class="fa-solid fa-user-graduate me-2"></i>${data.studentInfo.name}`;
         studentReg.textContent = data.studentInfo.registration;
@@ -2823,6 +2850,9 @@ a[aria-expanded="true"] #gpaChartChevron {
         // Pass the event object 'e' to the deleteSemester function
         document.querySelectorAll('.delete-semester').forEach(btn => btn.addEventListener('click', e => deleteSemester(e, e.currentTarget.dataset.semester)));
         document.querySelectorAll('.custom-course-btn').forEach(btn => btn.addEventListener('click', e => openAddCourseModal(e.currentTarget.dataset.semester)));
+
+        // ADD THIS LISTENER for the new icon
+        document.getElementById('copyDetailsIconBtn').addEventListener('click', copyDetailsToClipboard);
         
         // Update these listeners to pass the event 'e'
         document.querySelectorAll('.delete-course').forEach(btn => {
@@ -3348,8 +3378,7 @@ a[aria-expanded="true"] #gpaChartChevron {
       downloadPdfBtn.addEventListener('click', generatePDF);
       saveCourseBtn.addEventListener('click', addCustomCourse);
       startNewSearchBtn.addEventListener('click', startNewSearch);
-      addForecastSemesterBtn.addEventListener('click', addForecastSemester); 
-      copyDetailsBtn.addEventListener('click', copyDetailsToClipboard); 
+      addForecastSemesterBtn.addEventListener('click', addForecastSemester);
       // NEW: Profile Management Listeners
       profileSwitcher.addEventListener('change', switchProfile);
       deleteProfileBtn.addEventListener('click', deleteCurrentProfile);
@@ -3361,6 +3390,7 @@ a[aria-expanded="true"] #gpaChartChevron {
   </script>
 </body>
 </html>
+
 
 
 
