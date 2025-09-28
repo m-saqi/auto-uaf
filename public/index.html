@@ -1046,16 +1046,10 @@ a[aria-expanded="true"] #gpaChartChevron {
   transform: scale(1.1);
 }
 
-    /* Stacks the course code and info icon vertically */
-.course-code-container {
-  display: flex;
-  flex-direction: column;
-  line-height: 1.3;
-}
     
-/* Changes the icon's margin from left to top for vertical spacing */
+/* Restore the original horizontal margin for the icon */
 .course-code-container .fa-info-circle {
-  margin-top: 2px;
+    margin-left: 0.3rem !important;
 }
 
 /* Mobile responsive adjustments */
@@ -2735,11 +2729,16 @@ a[aria-expanded="true"] #gpaChartChevron {
                     const courseIdentifier = `${semesterName}-${course.code}-${course.total}-${index}`;
                     return `
                     <tr data-course-identifier="${courseIdentifier}" draggable="true" class="${course.isExtraEnrolled ? 'table-warning' : ''} ${course.isDeleted ? 'table-danger text-decoration-line-through' : ''} ${course.isCustom ? 'table-info' : ''}">
-                      <td><div class="course-code-container">
-                          <span class="fw-medium course-code clickable-info" data-course='${JSON.stringify(course).replace(/'/g, "&#39;")}'>${course.code}${course.isExtraEnrolled ? '<sup class="extra-enrolled">Rep.</sup>' : ''}</span>
-                          <i class="fa-solid fa-info-circle clickable-info small" data-course='${JSON.stringify(course).replace(/'/g, "&#39;")}' title="${course.title}"></i>
-                          ${course.isCustom ? '<span class="extra-enrolled">Custom</span>' : ''}
-                      </div></td>
+                      <td>
+  <div class="course-code-container">
+    <span class="fw-medium course-code clickable-info" data-course='${JSON.stringify(course).replace(/'/g, "&#39;")}'>
+      ${course.code}
+      <i class="fa-solid fa-info-circle ms-1 clickable-info small" data-course='${JSON.stringify(course).replace(/'/g, "&#39;")}' title="${course.title}"></i>
+    </span>
+    ${course.isExtraEnrolled ? '<sup class="extra-enrolled">Rep.</sup>' : ''}
+    ${course.isCustom ? '<span class="extra-enrolled">Custom</span>' : ''}
+  </div>
+</td>
                       <td>${course.creditHoursDisplay || course.creditHours}</td><td>${course.marks}</td>
                       <td><span class="grade-badge grade-${course.grade}">${course.grade}</span></td>
                       <td class="course-actions">${course.isDeleted ? `<i class="fa-solid fa-rotate-left restore-course" data-course='${JSON.stringify(course).replace(/'/g, "&#39;")}' data-semester="${semesterName}" title="Restore"></i>` : `<i class="fa-solid fa-trash delete-course" data-course='${JSON.stringify(course).replace(/'/g, "&#39;")}' data-semester="${semesterName}" title="Delete"></i>`}</td>
@@ -3348,6 +3347,7 @@ a[aria-expanded="true"] #gpaChartChevron {
   </script>
 </body>
 </html>
+
 
 
 
