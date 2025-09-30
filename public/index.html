@@ -704,9 +704,9 @@ a:hover {
   box-shadow: var(--shadow);
   margin-bottom: 2rem;
   margin-top: 2rem;
-  width: 70%; /* CORRECTED: As per user request */
-  margin-left: auto; /* CORRECTED: As per user request */
-  margin-right: auto; /* CORRECTED: As per user request */
+  width: 70%;
+  margin-left: auto;
+  margin-right: auto;
   backdrop-filter: blur(10px);
   transition: all 0.3s ease;
 }
@@ -800,7 +800,7 @@ a:hover {
   border-radius: 4px;
   font-size: 0.65rem;
   font-weight: 600;
-  vertical-align: super; /* UPDATED for asterisk alignment */
+  vertical-align: super;
 }
 
 .course-details-modal .modal-content {
@@ -1144,9 +1144,6 @@ a[aria-expanded="true"] #gpaChartChevron {
   body {
     font-size: 0.9rem;
   }
-  .course-table {
-    font-size: 0.7rem;
-  }
   .gpa-result-card {
     width: 95%;
     padding: 1.25rem;
@@ -1158,21 +1155,24 @@ a[aria-expanded="true"] #gpaChartChevron {
     padding: 1.25rem;
     max-width: 420px;
   }
-  /* --- NEW: Mobile semester card text --- */
   .semester-card h5 {
-    font-size: 1rem;
+    font-size: 0.9rem;
   }
-  .semester-card .h4 {
-    font-size: 1.2rem;
-  }
-  .semester-card .text-body-secondary.small {
-    font-size: 0.7rem;
+  .semester-card .text-end .small {
+    font-size: 0.65rem;
   }
   .custom-course-btn {
-    padding: 6px 10px;
-    font-size: 0.8rem;
+    padding: 4px 8px;
+    font-size: 0.7rem;
+    margin-top: 5px;
   }
-  /* --- End new styles --- */
+  .course-table {
+    font-size: 0.65rem;
+  }
+  .course-table td:first-child {
+    font-size: 0.7rem;
+    font-weight: 500;
+  }
   .btn {
     padding: 0.6rem 0.9rem;
     font-size: 0.9rem;
@@ -2286,7 +2286,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         createToastContainer();
         initBackToTop();
         initScrollAnimations(); 
-        loadProfiles(); // Updated from loadFromSession
+        loadProfiles();
       }
 
       function initScrollAnimations() {
@@ -2301,7 +2301,6 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         document.querySelectorAll('.fade-in-on-scroll').forEach(el => observer.observe(el));
       }
 
-      // NEW: Load all profiles and the active one
       function loadProfiles() {
         const profiles = JSON.parse(localStorage.getItem('uafCalculatorProfiles') || '{}');
         const activeProfileReg = localStorage.getItem('uafCalculatorActiveProfile');
@@ -2314,7 +2313,6 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         }
       }
 
-      // NEW: Update the profile dropdown UI
       function updateProfileSwitcher(profiles, activeProfileReg) {
         const profileKeys = Object.keys(profiles);
         if (profileKeys.length > 0) {
@@ -2334,7 +2332,6 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         }
       }
 
-      // NEW: Load a specific profile by registration number
       function loadProfile(regNum) {
         const profiles = JSON.parse(localStorage.getItem('uafCalculatorProfiles') || '{}');
         if (profiles[regNum]) {
@@ -2347,7 +2344,6 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         }
       }
 
-      // NEW: Switch profile from dropdown
       function switchProfile(event) {
         const regNum = event.target.value;
         if (regNum) {
@@ -2356,7 +2352,6 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         }
       }
 
-      // NEW: Delete the currently active profile
       function deleteCurrentProfile() {
         const activeProfileReg = localStorage.getItem('uafCalculatorActiveProfile');
         if (!activeProfileReg) {
@@ -2373,14 +2368,10 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
           showToast(`Profile for ${activeProfileReg} deleted.`, 'success');
           addStatusMessage(`Deleted profile: ${activeProfileReg}`, 'info');
           
-          // Reset the view
           setTimeout(() => location.reload(), 500);
         }
       }
 
-      // ========================================================================
-      // START: NEW HELPER FUNCTIONS (Add this entire block)
-      // ========================================================================
       function saveActiveProfile() {
         const activeProfileReg = localStorage.getItem('uafCalculatorActiveProfile');
         if (activeProfileReg) {
@@ -2396,7 +2387,6 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         const cgpaData = calculateCGPA(processedData);
         if (!cgpaData) return;
 
-        // Update the main display without touching the semester cards
         studentName.innerHTML = `<i class="fa-solid fa-user-graduate me-2"></i>${processedData.studentInfo.name}`;
         studentReg.textContent = processedData.studentInfo.registration;
         totalCgpa.textContent = formatNumber(cgpaData.cgpa).toFixed(4);
@@ -2404,13 +2394,9 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         totalMarksObtained.textContent = cgpaData.totalMarksObtained.toFixed(0);
         totalMaxMarks.textContent = `/ ${cgpaData.totalMaxMarks.toFixed(0)}`;
         
-        // Also update the chart and save the changes
         renderGpaChart();
         saveActiveProfile();
       }
-      // ========================================================================
-      // END: NEW HELPER FUNCTIONS
-      // ========================================================================
 
       function startNewSearch() {
           showToast('Ready for a new search.', 'info');
@@ -2585,7 +2571,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
           const originalSemester = course.Semester || 'Unknown Semester';
           const semesterName = processSemesterName(originalSemester);
           const courseCode = course.CourseCode || '';
-          const historyKey = courseCode.toUpperCase(); // Case-insensitive key for logic
+          const historyKey = courseCode.toUpperCase();
 
           if (!semesters[semesterName]) {
             semesters[semesterName] = { originalName: originalSemester, sortKey: getSemesterOrderKey(originalSemester), courses: [] };
@@ -2595,21 +2581,19 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
           const creditHours = parseInt(creditHoursStr.match(/\d+/)?.[0] || '0');
           const marks = parseFloat(course.Total || '0');
           
-          // Calculate quality points initially
           let qualityPoints = calculateQualityPoints(marks, creditHours);
           
-          // **BUG FIX**: If grade is 'F', quality points must be 0
           if (course.Grade === 'F') {
             qualityPoints = 0;
           }
 
           const courseData = {
-            code: courseCode, // Keep original casing for display
+            code: courseCode,
             title: course.CourseTitle || '',
             creditHours: creditHours,
             creditHoursDisplay: creditHoursStr,
             marks: marks,
-            qualityPoints: qualityPoints, // Use the corrected quality points
+            qualityPoints: qualityPoints,
             grade: course.Grade || '',
             teacher: course.TeacherName || '',
             mid: course.Mid || '0',
@@ -2623,7 +2607,6 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
             isCustom: false
           };
           
-          // **IMPROVEMENT**: Use case-insensitive key for course history
           if (!courseHistory[historyKey]) {
             courseHistory[historyKey] = [];
           }
@@ -2782,14 +2765,6 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
             </table></div>`;
           semesterResults.appendChild(semesterCard);
         });
-
-        // Add legend for the asterisk
-        const legend = document.createElement('div');
-        legend.className = 'text-center text-muted small mt-3 px-2';
-        legend.innerHTML = `<strong>*</strong> Repeated Course: Only the attempt with the highest marks is counted towards the final CGPA.`;
-        if (document.querySelector('.semester-results-container')) {
-            document.querySelector('.semester-results-container').appendChild(legend);
-        }
 
         attachResultEventListeners();
         renderGpaChart(); 
