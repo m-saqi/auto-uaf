@@ -134,14 +134,14 @@ html, body {
 }
 
 body {
-  background-color: var(--light-bg); /* UPDATED: Solid background color */
+  background-color: var(--light-bg);
   min-height: 100vh;
   margin: 0;
   padding: 0;
-  color: var(--text); /* Added base text color */
+  color: var(--text);
 }
 
-/* Improved navbar with glassmorphism effect */
+/* Navbar */
 .navbar {
   backdrop-filter: saturate(180%) blur(12px);
   background-color: rgba(255, 255, 255, 0.8);
@@ -182,7 +182,7 @@ body {
   width: 100%;
 }
 
-/* Improved buttons */
+/* Buttons & Badges */
 .btn-brand {
   background: var(--brand-gradient);
   border: none;
@@ -273,7 +273,7 @@ body {
   transform: translateY(-2px);
 }
 
-/* Improved hero section */
+/* Hero Section */
 .hero {
   padding: 5rem 0 4rem;
   position: relative;
@@ -329,7 +329,7 @@ body {
   gap: 0.5rem;
 }
 
-/* Improved cards with glassmorphism effect */
+/* Cards & Forms */
 .card-modern {
   border: 0;
   border-radius: var(--radius);
@@ -357,7 +357,7 @@ body {
 .card-modern .card-header h4 {
   font-weight: 700;
   color: var(--text);
-  text-align: center; /* Center header text */
+  text-align: center;
 }
 
 .form-select, .form-control {
@@ -380,30 +380,7 @@ label {
   margin-bottom: 0.5rem;
 }
 
-.subject-row {
-  border: 1px dashed rgba(122, 106, 216, 0.3);
-  border-radius: 1rem;
-  padding: 1.5rem;
-  background: rgba(255, 255, 255, 0.5);
-  transition: all 0.3s ease;
-}
-
-.subject-row:hover {
-  border-color: var(--brand);
-  background: rgba(255, 255, 255, 0.8);
-}
-
-.result-display {
-  font-size: 1.75rem;
-  font-weight: 800;
-  color: var(--brand);
-  background: linear-gradient(135deg, var(--brand) 0%, var(--text) 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-}
-
-/* Improved loading animations */
+/* Loading & Status */
 .loading-container {
   margin-top: 1.5rem;
   text-align: center;
@@ -510,29 +487,16 @@ label {
   margin-bottom: 0.5rem;
   padding-bottom: 0.5rem;
   border-bottom: 1px solid rgba(233, 236, 239, 0.5);
-  cursor: pointer;
-  transition: all 0.3s ease;
-}
-
-.status-line:hover {
-  background: rgba(255, 255, 255, 0.5);
-  border-radius: 0.25rem;
-  padding-left: 0.5rem;
-}
-
-.status-line:last-child {
-  margin-bottom: 0;
-  border-bottom: none;
 }
 
 .status-success { color: #28a745; }
 .status-error { color: #dc3545; }
-status-warning { color: #fd7e14; }
 .status-info { color: var(--brand); }
 
+/* General Page Elements */
 .footer {
   color: #9ca3af;
-  background-color: var(--light-bg); /* UPDATED: Solid background color */
+  background-color: var(--light-bg);
 }
 
 a {
@@ -546,23 +510,11 @@ a:hover {
   color: var(--brand-600);
 }
 
-/* Loading spinner styles */
-.loading {
-  display: none;
-  text-align: center;
-  padding: 20px;
-}
-
-.loading p {
-  margin-top: 10px;
-}
-
-/* Result container styles */
 .result-container {
   display: none;
 }
 
-/* Toast notifications */
+/* Toast Notifications */
 #toast-container {
   position: fixed;
   top: 65px;
@@ -597,121 +549,52 @@ a:hover {
   opacity: 1;
 }
 
-.toast-success {
-  border-left-color: #10ac84;
-}
+.toast-success { border-left-color: #10ac84; }
+.toast-error { border-left-color: #e74c3c; }
+.toast-warning { border-left-color: #f39c12; }
+.toast-info { border-left-color: #3498db; }
+.toast-content { display: flex; align-items: center; width: 100%; }
+.toast-icon { margin-right: 12px; font-size: 20px; }
+.toast-success .toast-icon { color: #10ac84; }
+.toast-error .toast-icon { color: #e74c3c; }
+.toast-warning .toast-icon { color: #f39c12; }
+.toast-info .toast-icon { color: #3498db; }
+.toast-message { flex: 1; font-weight: 500; font-size: 14px; color: #2d3748; }
+.toast-progress { position: absolute; bottom: 0; left: 0; height: 3px; width: 100%; background: rgba(0, 0, 0, 0.1); transform: scaleX(1); transform-origin: left; animation: toastProgress 3s linear forwards; }
+.toast-success .toast-progress { background: linear-gradient(to right, #10ac84, #0d916b); }
+.toast-error .toast-progress { background: linear-gradient(to right, #e74c3c, #c0392b); }
+.toast-warning .toast-progress { background: linear-gradient(to right, #f39c12, #e67e22); }
+.toast-info .toast-progress { background: linear-gradient(to right, #3498db, #2980b9); }
+@keyframes toastProgress { from { transform: scaleX(1); } to { transform: scaleX(0); } }
 
-.toast-error {
-  border-left-color: #e74c3c;
-}
-
-.toast-warning {
-  border-left-color: #f39c12;
-}
-
-.toast-info {
-  border-left-color: #3498db;
-}
-
-.toast-content {
-  display: flex;
-  align-items: center;
-  width: 100%;
-}
-
-.toast-icon {
-  margin-right: 12px;
-  font-size: 20px;
-}
-
-.toast-success .toast-icon {
-  color: #10ac84;
-}
-
-.toast-error .toast-icon {
-  color: #e74c3c;
-}
-
-.toast-warning .toast-icon {
-  color: #f39c12;
-}
-
-.toast-info .toast-icon {
-  color: #3498db;
-}
-
-.toast-message {
-  flex: 1;
-  font-weight: 500;
-  font-size: 14px;
-  color: #2d3748;
-}
-
-.toast-progress {
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  height: 3px;
-  width: 100%;
-  background: rgba(0, 0, 0, 0.1);
-  transform: scaleX(1);
-  transform-origin: left;
-  animation: toastProgress 3s linear forwards;
-}
-
-.toast-success .toast-progress {
-  background: linear-gradient(to right, #10ac84, #0d916b);
-}
-
-.toast-error .toast-progress {
-  background: linear-gradient(to right, #e74c3c, #c0392b);
-}
-
-.toast-warning .toast-progress {
-  background: linear-gradient(to right, #f39c12, #e67e22);
-}
-
-.toast-info .toast-progress {
-  background: linear-gradient(to right, #3498db, #2980b9);
-}
-
-@keyframes toastProgress {
-  from { transform: scaleX(1); }
-  to { transform: scaleX(0); }
-}
-
-    /* Positions the new icon relative to the card */
+/* Results Display Section */
 .gpa-result-card {
   position: relative;
-}
-
-/* Styles the new copy icon */
-.copy-icon-btn {
-  position: absolute;
-  top: 1.25rem;
-  right: 1.25rem;
-  font-size: 1.2rem;
-  color: #10ac84; /* Green color */
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-.copy-icon-btn:hover {
-  transform: scale(1.15);
-}
-    
-/* GPA Result Display */
-.gpa-result-card {
   background: rgba(255, 255, 255, 0.8);
   border-radius: var(--radius);
   padding: 2rem;
   box-shadow: var(--shadow);
   margin-bottom: 2rem;
   margin-top: 2rem;
-  width: 70%; /* CORRECTED: As per user request */
-  margin-left: auto; /* CORRECTED: As per user request */
-  margin-right: auto; /* CORRECTED: As per user request */
+  width: 70%;
+  margin-left: auto;
+  margin-right: auto;
   backdrop-filter: blur(10px);
   transition: all 0.3s ease;
+}
+
+.copy-icon-btn {
+  position: absolute;
+  top: 1.25rem;
+  right: 1.25rem;
+  font-size: 1.2rem;
+  color: #10ac84;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.copy-icon-btn:hover {
+  transform: scale(1.15);
 }
 
 .gpa-result-card:hover {
@@ -747,21 +630,6 @@ a:hover {
 }
 
 .delete-semester:hover {
-  transform: scale(1.2);
-}
-
-.add-course-btn {
-  position: absolute;
-  top: 1rem;
-  right: 3rem;
-  cursor: pointer;
-  color: var(--brand);
-  font-size: 1.2rem;
-  z-index: 10;
-  transition: all 0.3s ease;
-}
-
-.add-course-btn:hover {
   transform: scale(1.2);
 }
 
@@ -803,62 +671,10 @@ a:hover {
   border-radius: 4px;
   font-size: 0.65rem;
   font-weight: 600;
-  /* margin-left: 0.25rem; */ /* Ensures distance from course */
-  vertical-align: top; /* Ensures consistent alignment */
+  vertical-align: top;
 }
 
-.course-details-modal .modal-content {
-  border-radius: var(--radius);
-  backdrop-filter: blur(10px);
-  background: rgba(255, 255, 255, 0.95);
-}
-
-.course-details-modal .modal-header {
-  background: linear-gradient(135deg, rgba(122, 106, 216, 0.2), rgba(122, 106, 216, 0.1));
-  border-top-left-radius: var(--radius);
-  border-top-right-radius: var(--radius);
-}
-
-.calculate-cgpa-btn {
-  margin-top: 1rem;
-  display: none;
-}
-
-/* Add Course Form */
-.add-course-form {
-  background: rgba(248, 249, 250, 0.7);
-  border-radius: 0.5rem;
-  padding: 1.5rem;
-  margin-top: 1rem;
-  display: none;
-  backdrop-filter: blur(10px);
-}
-
-.form-row {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 1rem;
-  margin-bottom: 1rem;
-}
-
-.form-group {
-  flex: 1;
-  min-width: 200px;
-}
-
-    /* Styling for the collapsible chart header */
-#gpaChartChevron {
-  transition: transform 0.3s ease-in-out;
-}
-a[aria-expanded="true"] #gpaChartChevron {
-  transform: rotate(180deg);
-}
-[data-theme="dark"] #gpaChartContainer .text-body {
-    color: var(--text) !important;
-}
-
-    
-/* ----------- DARK MODE IMPROVED ----------- */
+/* Dark Mode */
 [data-theme="dark"] {
   --text: #e5e7eb;
   --text-light: #d1d5db;
@@ -899,11 +715,6 @@ a[aria-expanded="true"] #gpaChartChevron {
   color: #9ca3af;
 }
 
-[data-theme="dark"] .subject-row {
-  background: rgba(26, 31, 46, 0.8);
-  border-color: rgba(122, 106, 216, 0.3);
-}
-
 [data-theme="dark"] label {
   color: #e5e7eb;
 }
@@ -920,11 +731,6 @@ a[aria-expanded="true"] #gpaChartChevron {
 
 [data-theme="dark"] .form-text {
   color: var(--muted);
-}
-
-[data-theme="dark"] .input-group-text {
-  background: rgba(31, 41, 55, 0.8);
-  color: #e5e7eb;
 }
 
 [data-theme="dark"] .footer {
@@ -965,75 +771,14 @@ a[aria-expanded="true"] #gpaChartChevron {
   background: rgba(122, 106, 216, 0.1);
 }
 
-[data-theme="dark"] .add-course-form {
-  background: rgba(26, 31, 46, 0.8);
-}
-
-[data-theme="dark"] .loading-container {
-  background: linear-gradient(135deg, rgba(122, 106, 216, 0.15), rgba(122, 106, 216, 0.08));
-}
-
 [data-theme="dark"] .grade-A { background-color: rgba(21, 128, 61, 0.3); color: #86efac; }
 [data-theme="dark"] .grade-B { background-color: rgba(30, 64, 175, 0.3); color: #93c5fd; }
 [data-theme="dark"] .grade-C { background-color: rgba(146, 64, 14, 0.3); color: #fed7aa; }
 [data-theme="dark"] .grade-D { background-color: rgba(153, 27, 27, 0.3); color: #fecaca; }
 [data-theme="dark"] .grade-F { background-color: rgba(55, 65, 81, 0.3); color: #d1d5db; }
 
-/* Dark mode for modals */
-[data-theme="dark"] .course-details-modal .modal-content,
-[data-theme="dark"] #addCourseModal .modal-content {
-  background: rgba(26, 32, 48, 0.95);
-  color: #e5e7eb;
-}
-
-[data-theme="dark"] .course-details-modal .modal-header,
-[data-theme="dark"] #addCourseModal .modal-header {
-  background: linear-gradient(135deg, rgba(122, 106, 216, 0.3), rgba(122, 106, 216, 0.15));
-  border-bottom-color: rgba(45, 55, 72, 0.5);
-}
-
-[data-theme="dark"] .course-details-modal .modal-header .btn-close,
-[data-theme="dark"] #addCourseModal .modal-header .btn-close {
-  filter: invert(1);
-}
-
-[data-theme="dark"] .course-details-modal .alert-info {
-  background-color: rgba(23, 162, 184, 0.2);
-  border-color: rgba(23, 162, 184, 0.3);
-  color: #71d4f0;
-}
-
-[data-theme="dark"] .course-details-modal .alert-warning {
-  background-color: rgba(255, 193, 7, 0.2);
-  border-color: rgba(255, 193, 7, 0.3);
-  color: #ffd351;
-}
-
-/* Dark mode contrast improvements */
 [data-theme="dark"] .text-body-secondary {
   color: #d1d5db !important;
-}
-
-[data-theme="dark"] .btn-primary-action {
-  color: #ffffff !important;
-}
-
-.cursor-dot {
-  position: fixed;
-  width: 10px;
-  height: 10px;
-  border-radius: 50%;
-  background: var(--brand);
-  pointer-events: none;
-  transform: translate(-50%, -50%);
-  opacity: .7;
-  mix-blend-mode: multiply;
-  z-index: 9999;
-  transition: all 0.1s ease;
-}
-
-[data-theme="dark"] .cursor-dot {
-  mix-blend-mode: screen;
 }
 
 /* Course action buttons */
@@ -1063,197 +808,122 @@ a[aria-expanded="true"] #gpaChartChevron {
   transform: scale(1.2);
 }
 
-/* Clickable info icon */
 .clickable-info {
   cursor: pointer;
   color: var(--brand);
-  transition: all 0.3s ease;
-}
-
-.clickable-info:hover {
-  opacity: 0.8;
-  transform: scale(1.1);
-}
-
-    
-/* Restore the original horizontal margin for the icon */
-.course-code-container .fa-info-circle {
-    margin-left: 0.3rem !important;
 }
 
 /*
- ===============================================
-  START: MOBILE RESPONSIVE ADJUSTMENTS
- ===============================================
+ =======================================================
+  START: MORE COMPACT MOBILE RESPONSIVE STYLES
+ =======================================================
 */
 
 /* General Mobile Styles for Medium Screens & Down (Tablets and Phones) */
 @media screen and (max-width: 768px) {
-  /* --- Typography --- */
+  /* --- Global Sizing --- */
   body {
-    font-size: 0.95rem; /* ADDED: Slightly reduce base font size on mobile */
+    font-size: 14px; /* UPDATED: Set a fixed base font size for predictability */
   }
 
-  h2, .h2 {
-    font-size: 1.75rem; /* ADDED: Reduce heading size */
-  }
-
-  h4, .h4 {
-    font-size: 1.2rem; /* ADDED: Reduce heading size */
-  }
-
-  h5, .h5 {
-    font-size: 1.1rem; /* ADDED: Reduce heading size */
-  }
-
+  /* --- Typography --- */
+  h2, .h2 { font-size: 1.6rem; }
+  h4, .h4 { font-size: 1.1rem; }
+  h5, .h5 { font-size: 1.0rem; }
+  
   .hero .lead {
-    font-size: 1.1rem; /* ADDED: Reduce hero lead text */
+    font-size: 0.95rem; /* UPDATED: Make lead text smaller */
   }
 
   .accordion-button {
-    font-size: 0.9rem; /* ADDED: Smaller text for FAQ buttons */
+    font-size: 0.9rem;
+    padding: 0.75rem 1rem; /* ADDED: Reduce padding */
   }
 
   /* --- Layout & Spacing --- */
-  .gpa-result-card {
-    width: 95%; /* Adjust for mobile */
-    padding: 1.5rem; /* Existing: good */
+  .section-container {
+    margin-bottom: 1.5rem; /* ADDED: Reduce space between sections */
   }
 
-  .semester-card {
-    padding: 1.5rem; /* Existing: good */
-    max-width: 420px; /* Existing: good */
+  .gpa-result-card, .semester-card, .card-modern {
+    padding: 1rem; /* UPDATED: Reduced padding for all cards */
+    margin-bottom: 1rem; /* UPDATED: Tighter vertical spacing */
+    border-radius: 1rem; /* ADDED: Slightly smaller radius on mobile */
   }
-  
+
+  /* --- Specific Component Adjustments --- */
+  /* Main GPA/Name/Percentage Card */
+  .cgpa-main-info h2 {
+    font-size: 1.15rem; /* UPDATED: Significantly smaller student name */
+  }
+  .cgpa-metric-value {
+    font-size: 1.4rem; /* UPDATED: Smaller GPA/Percentage values */
+  }
+  .cgpa-metric-label {
+    font-size: 0.8rem; /* UPDATED: Smaller labels */
+  }
+  .cgpa-metric {
+    padding: 0.25rem 0; /* ADDED: Reduce padding between metrics */
+    gap: 0;
+  }
+  .cgpa-display-container {
+    gap: 0.75rem; /* ADDED: Reduce gap in main display card */
+  }
+
+  /* Semester Table Card */
+  .semester-card .d-flex.justify-content-between {
+    margin-bottom: 0.5rem !important; /* ADDED: Less space above table */
+  }
   .course-table {
+    font-size: 10px; /* UPDATED: Make table text even smaller */
     white-space: nowrap;
-    font-size: 11px; /* Existing: good */
+  }
+  .course-table th, .course-table td {
+    padding: 0.5rem 0.4rem; /* UPDATED: Tighter cell padding */
+  }
+
+  /* Other Elements */
+  .btn {
+    font-size: 0.85rem; /* UPDATED: Smaller button text */
+    padding: 0.6rem 0.9rem;
   }
 
   .course-code-container .fa-info-circle {
-    display: none; /* Existing: good */
-  }
-  
-  /* --- Component Adjustments --- */
-  .cgpa-main-info h2 {
-    font-size: 1.3rem; /* UPDATED: Make student name smaller */
-  }
-  
-  .cgpa-metric-value {
-    font-size: 1.5rem; /* Existing: good */
-  }
-
-  /* Make buttons more touch-friendly but with smaller text */
-  .btn {
-    padding: 0.75rem 1rem; /* Existing: good */
-    font-size: 0.9rem; /* ADDED: Reduce button font size */
-  }
-
-  /* Adjust loading animations for mobile */
-  .loading-animation {
-    width: 60px;
-    height: 60px;
-  }
-  
-  .loading-text {
-    font-size: 1rem;
-  }
-  
-  .loading-subtext {
-    font-size: 0.8rem;
-  }
-
-  .student-info-section {
-    flex-direction: column;
-  }
-  
-  .cgpa-display {
-    text-align: left;
-    margin-top: 1rem;
-  }
-  
-  .action-buttons {
-    flex-direction: row; /* Keep buttons in a row */
-    justify-content: space-between; /* Pushes them to opposite sides */
-    width: 100%;
-    align-items: center;
-  }
-  
-  .action-buttons .btn {
-    flex-grow: 1;
-    margin: 0 0.25rem;
-    padding: 0.6rem 0.5rem;
-    font-size: 0.8rem;
-    min-width: auto;
+    display: none;
   }
 }
 
 /* Specific Adjustments for Small Screens (Phones) */
 @media (max-width: 575.98px) {
   .hero {
-    padding: 2.5rem 0 2rem; /* UPDATED: Slightly more padding */
+    padding: 2rem 0; /* UPDATED: Reduced hero padding */
   }
   
   .hero h1 {
-    font-size: 2.2rem !important; /* UPDATED: Make hero title smaller */
-    line-height: 1.15; /* ADDED: Improve line spacing */
+    font-size: 1.9rem !important; /* UPDATED: Further reduction for hero title */
+    line-height: 1.2;
   }
 
   .hero .lead {
-    font-size: 1rem; /* ADDED: Further reduce lead text */
-    margin-bottom: 1.5rem;
-  }
-  
-  .d-flex.gap-2 .btn {
-    width: 100%;
-    max-width: 300px;
-    margin-bottom: 0.5rem;
-  }
-  
-  /* Mobile notification text size */
-  .toast {
-    min-width: 250px;
-    max-width: 300px;
-    padding: 12px 16px;
-  }
-  
-  .toast-message {
-    font-size: 12px;
+    font-size: 0.9rem; /* UPDATED: Smaller lead text */
+    margin-bottom: 1.25rem;
   }
   
   .card-modern .card-header {
-    padding: 1rem 1.25rem; /* UPDATED: Adjust padding */
+    padding: 0.75rem 1rem; /* UPDATED: Reduced header padding */
   }
 }
 
-/* Minor Tweaks for Very Small Screens */
-@media (max-width: 420px) {
-  .subject-row .col-6 {
-    padding-right: .4rem;
-    padding-left: .4rem;
-  }
-  .gpa-result-card, .semester-card, .card-modern {
-    padding: 1rem; /* ADDED: Reduce padding on very small screens */
-  }
-  .cgpa-metric-value {
-      font-size: 1.35rem; /* ADDED: Further reduce CGPA value size */
-  }
-}
 /*
- ===============================================
-  END: MOBILE RESPONSIVE ADJUSTMENTS
- ===============================================
+ =======================================================
+  END: MORE COMPACT MOBILE RESPONSIVE STYLES
+ =======================================================
 */
 
-
-/* UPDATED: Narrow calculator container on desktop */
 @media (min-width: 992px) {
   #Auto-Calculator .col-md-10 {
-    width: 100%; /* CORRECTED: As per user request */
+    width: 100%;
   }
-}
-
-@media (min-width: 992px) {
   .navbar-expand-lg .navbar-nav .nav-link {
     padding-right: var(--bs-navbar-nav-link-padding-x);
     margin-right: 20px;
@@ -1265,16 +935,12 @@ a[aria-expanded="true"] #gpaChartChevron {
     flex: 0 0 auto;
     width: 100%;
   }
-}
-
-@media (min-width: 768px) {
   .col-md-4 {
     flex: 0 0 auto;
     width: 48.3%;
   }
 }
 
-/* Center buttons only in specific sections */
 .scraping-section .center-buttons,
 .log-section .center-buttons {
   display: flex;
@@ -1297,98 +963,107 @@ a[aria-expanded="true"] #gpaChartChevron {
   }
 }
 
-/* New layout improvements */
 .results-section {
   margin-top: 2rem;
 }
 
-.student-info-section {
+.cgpa-display-container {
   display: flex;
-  flex-wrap: wrap;
-  gap: 1.5rem;
-  margin-bottom: 2rem;
-}
-
-.student-details {
-  flex: 1;
-  min-width: 300px;
-}
-
-.cgpa-display {
-  flex: 0 0 auto;
-  text-align: right;
-  min-width: 200px;
-}
-
-.action-buttons {
-  display: flex;
-  gap: 1rem;
-  margin-top: 1.5rem;
-  margin-bottom: 1.5rem; /* CORRECTED: As per user request */
-  flex-wrap: wrap;
-  justify-content: center;
-}
-
-/* Section separators */
-.section-container {
-  margin-bottom: 2rem;
-}
-
-.section-title {
-  margin-bottom: 1.5rem;
-  padding-bottom: 0.5rem;
-  border-bottom: 2px solid rgba(122, 106, 216, 0.3);
-  position: relative;
-}
-
-.section-title::after {
-  content: '';
-  position: absolute;
-  bottom: -2px;
-  left: 0;
-  width: 60px;
-  height: 2px;
-  background: var(--brand-gradient);
-}
-
-/* Student info logo style */
-.student-info-logo {
-  background: linear-gradient(135deg, rgba(122, 106, 216, 0.2), rgba(122, 106, 216, 0.1));
-  border-radius: 50%;
-  width: 60px;
-  height: 60px;
-  display: flex;
+  flex-direction: column;
   align-items: center;
-  justify-content: center;
-  margin-right: 1rem;
-  transition: all 0.3s ease;
+  gap: 1.5rem;
 }
 
-.student-info-logo:hover {
-  transform: rotate(15deg);
+.cgpa-main-info {
+  text-align: center;
+  width: 100%;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid rgba(122, 106, 216, 0.3);
 }
 
-.student-info-logo i {
-  font-size: 1.5rem;
+.cgpa-metrics-row {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+  gap: 1rem;
+}
+
+.cgpa-metric {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex: 1;
+}
+
+.cgpa-metric-left { align-items: flex-start; }
+.cgpa-metric-center { align-items: center; }
+.cgpa-metric-right { align-items: flex-end; }
+
+.cgpa-metric-label {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--muted);
+  margin-bottom: 0.5rem;
+}
+
+.cgpa-metric-value {
+  font-size: 1.75rem;
+  font-weight: 650;
   color: var(--brand);
+  line-height: 1.2;
+  background: var(--brand-gradient);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
 
-/* Desktop-specific smaller text for semester sections */
-@media (min-width: 992px) {
-  .semester-card {
-    font-size: 0.95rem;
+.cgpa-metric-subvalue {
+  font-size: 0.9rem;
+  color: var(--muted);
+}
+
+@media (max-width: 768px) {
+  .cgpa-metrics-row {
+    flex-direction: column;
+    gap: 0.5rem; /* UPDATED: Tighter gap */
   }
   
-  .semester-card h5 {
-    font-size: 1.15rem;
+  .cgpa-metric {
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    padding: 0.5rem 0;
+    border-bottom: 1px solid rgba(122, 106, 216, 0.1);
   }
   
-  .course-table {
-    font-size: 0.9rem;
+  .cgpa-metric:last-child {
+    border-bottom: none;
+  }
+  
+  .cgpa-metric-left,
+  .cgpa-metric-center,
+  .cgpa-metric-right {
+    align-items: center;
+  }
+  
+  .cgpa-metric-label {
+    margin-bottom: 0;
+    min-width: 100px;
+    text-align: left;
+  }
+  
+  .cgpa-metric-value-container {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+  }
+  
+  .semester-grid {
+    display: block;
   }
 }
 
-/* Semester section layout improvements */
 .semester-results-container {
   width: 100%;
 }
@@ -1404,39 +1079,6 @@ a[aria-expanded="true"] #gpaChartChevron {
   .semester-grid {
     grid-template-columns: repeat(2, 1fr);
   }
-}
-
-/* NEW STYLES FOR UPDATES */
-.repeated-badge {
-  position: absolute;
-  top: 5px;
-  right: 5px;
-  background-color: #ffc107;
-  color: #856404;
-  font-size: 8px;
-  padding: 2px 4px;
-  border-radius: 3px;
-  font-weight: bold;
-}
-
-.custom-course-btn {
-  background: var(--brand-gradient);
-  color: white;
-  border: none;
-  border-radius: 8px;
-  padding: 8px 12px;
-  font-size: 0.9rem;
-  margin-top: 10px;
-  display: flex;
-  align-items: center;
-  gap: 5px;
-  cursor: pointer;
-  transition: all 0.3s ease;
-}
-
-.custom-course-btn:hover {
-  background: var(--brand-gradient-hover);
-  transform: translateY(-2px);
 }
 
 .undo-notification {
@@ -1475,7 +1117,7 @@ a[aria-expanded="true"] #gpaChartChevron {
 }
 @media (max-width: 576px) {
   .undo-notification {
-    bottom: 70px; /* Raise it above mobile browser UI */
+    bottom: 70px;
     padding: 10px 15px;
     font-size: 0.9rem;
     flex-direction: column;
@@ -1488,227 +1130,6 @@ a[aria-expanded="true"] #gpaChartChevron {
   }
 }
 
-
-/* Updated CGPA Display Layout */
-.cgpa-display-container {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 1.5rem;
-}
-
-.cgpa-main-info {
-  text-align: center;
-  width: 100%;
-  padding-bottom: 1rem;
-  border-bottom: 1px solid rgba(122, 106, 216, 0.3);
-}
-
-.cgpa-metrics-row {
-  display: flex;
-  justify-content: space-between;
-  width: 100%;
-  gap: 1rem;
-}
-
-.cgpa-metric {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  flex: 1;
-}
-
-.cgpa-metric-left {
-  align-items: flex-start;
-}
-
-.cgpa-metric-center {
-  align-items: center;
-}
-
-.cgpa-metric-right {
-  align-items: flex-end;
-}
-
-.cgpa-metric-label {
-  font-size: 1rem;
-  font-weight: 600;
-  color: var(--muted);
-  margin-bottom: 0.5rem;
-}
-
-.cgpa-metric-value {
-  font-size: 1.75rem;
-  font-weight: 650;
-  color: var(--brand);
-  line-height: 1.2;
-  background: var(--brand-gradient);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-}
-
-.cgpa-metric-subvalue {
-  font-size: 0.9rem;
-  color: var(--muted);
-}
-
-/* Mobile responsive adjustments */
-@media (max-width: 768px) {
-  .cgpa-metrics-row {
-    flex-direction: column;
-    gap: 1.5rem;
-  }
-  
-  .cgpa-metric {
-    flex-direction: row;
-    justify-content: space-between;
-    align-items: center;
-    width: 100%;
-    padding: 0.5rem 0;
-    border-bottom: 1px solid rgba(122, 106, 216, 0.1);
-  }
-  
-  .cgpa-metric:last-child {
-    border-bottom: none;
-  }
-  
-  .cgpa-metric-left,
-  .cgpa-metric-center,
-  .cgpa-metric-right {
-    align-items: center;
-  }
-  
-  .cgpa-metric-label {
-    margin-bottom: 0;
-    min-width: 100px;
-    text-align: left;
-  }
-  
-  .cgpa-metric-value-container {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-end;
-  }
-  
-  .cgpa-main-info h2 {
-    font-size: 1.5rem;
-  }
-
-  .semester-grid {
-    display: block;
-}
-  }
-
-/* Contact form improvements */
-#contact-form {
-  background: rgba(255, 255, 255, 0.5);
-  padding: 2rem;
-  border-radius: var(--radius);
-  backdrop-filter: blur(10px);
-}
-
-[data-theme="dark"] #contact-form {
-  background: rgba(26, 32, 48, 0.5);
-}
-
-/* Animation for form elements */
-.form-control, .form-select {
-  transition: all 0.3s ease;
-}
-
-.form-control:focus, .form-select:focus {
-  transform: translateY(-2px);
-}
-
-/* Pulse animation for important elements */
-@keyframes pulse {
-  0% { transform: scale(1); }
-  50% { transform: scale(1.05); }
-  100% { transform: scale(1); }
-}
-
-.pulse {
-  animation: pulse 2s infinite;
-}
-
-/* Floating animation */
-@keyframes float {
-  0% { transform: translateY(0px); }
-  50% { transform: translateY(-10px); }
-  100% { transform: translateY(0px); }
-}
-
-.float {
-  animation: float 3s ease-in-out infinite;
-}
-
-/* Improved scrollbar */
-::-webkit-scrollbar {
-  width: 8px;
-}
-
-::-webkit-scrollbar-track {
-  background: rgba(122, 106, 216, 0.1);
-  border-radius: 10px;
-}
-
-::-webkit-scrollbar-thumb {
-  background: var(--brand);
-  border-radius: 10px;
-}
-
-::-webkit-scrollbar-thumb:hover {
-  background: var(--brand-600);
-}
-
-[data-theme="dark"] ::-webkit-scrollbar-track {
-  background: rgba(122, 106, 216, 0.2);
-}
-
-[data-theme="dark"] ::-webkit-scrollbar-thumb {
-  background: var(--brand-600);
-}
-
-[data-theme="dark"] ::-webkit-scrollbar-thumb:hover {
-  background: var(--brand);
-}
-
-/* NEW STYLES FOR ADDED FEATURES */
-
-/* Back to Top Button */
-#backToTop {
-  position: fixed;
-  bottom: 30px;
-  right: 30px;
-  width: 50px;
-  height: 50px;
-  border-radius: 50%;
-  background: var(--brand-gradient);
-  color: white;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  opacity: 0;
-  visibility: hidden;
-  transition: all 0.3s ease;
-  box-shadow: 0 5px 15px rgba(122, 106, 216, 0.3);
-  z-index: 1000;
-}
-
-#backToTop.visible {
-  opacity: 1;
-  visibility: visible;
-}
-
-#backToTop:hover {
-  background: var(--brand-gradient-hover);
-  transform: translateY(-5px);
-  box-shadow: 0 8px 20px rgba(122, 106, 216, 0.4);
-}
-
-/* Gradient Text Animation */
 .gradient-text {
   background: linear-gradient(90deg, var(--brand-primary), var(--brand-secondary), var(--accent), var(--brand-primary));
   background-size: 300% 300%;
@@ -1723,98 +1144,12 @@ a[aria-expanded="true"] #gpaChartChevron {
   100% { background-position: 0% 50%; }
 }
 
-/* Why Choose Section */
-.why-choose-section {
-  padding: 5rem 0;
-}
-
-.why-choose-section .text-center {
-  margin-bottom: 4rem;
-}
-
-.why-choose-section h2 {
-  font-weight: 800;
-  margin-bottom: 1rem;
-}
-
-.why-choose-section .lead {
-  color: var(--text-light);
-  font-size: 1.25rem;
-}
-
-.feature-card {
-  background: rgba(255, 255, 255, 0.8);
-  border-radius: var(--radius);
-  padding: 2rem;
-  height: 100%;
-  text-align: center;
-  transition: all 0.3s ease;
-  backdrop-filter: blur(10px);
-  box-shadow: var(--shadow);
-}
-
-.feature-card:hover {
-  transform: translateY(-10px);
-  box-shadow: var(--shadow-hover);
-}
-
-.feature-icon {
-  width: 70px;
-  height: 70px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin: 0 auto 1.5rem;
-  background: var(--brand-gradient);
-  color: white;
-  font-size: 1.5rem;
-  transition: all 0.3s ease;
-}
-
-.feature-card:hover .feature-icon {
-  transform: scale(1.1) rotate(5deg);
-}
-
-.feature-card h5 {
-  font-weight: 700;
-  margin-bottom: 1rem;
-  color: var(--text);
-}
-
-.feature-card p {
-  color: var(--text-light);
-}
-
-/* Dark mode for Why Choose section */
-[data-theme="dark"] .why-choose-section {
-  background: transparent; /* Inherit from body gradient */
-}
-
-[data-theme="dark"] .feature-card {
-  background: rgba(15, 20, 34, 0.8);
-}
-
-[data-theme="dark"] .feature-card h5 {
-  color: #ffffff;
-}
-
-[data-theme="dark"] .feature-card p.text-muted {
-    color: var(--muted) !important;
-}
-[data-theme="dark"] .why-choose-section .lead.text-muted {
-    color: var(--text-light) !important;
-}
-
-
-/* Hide Why Choose section on mobile */
 @media (max-width: 991.98px) {
   .why-choose-section {
     display: none;
   }
 }
 
-/* Animation for hero text */
 .hero-text-gradient {
   background: linear-gradient(90deg, var(--brand-primary), var(--brand-secondary), var(--accent), var(--brand-primary));
   background-size: 300% 300%;
@@ -1823,72 +1158,21 @@ a[aria-expanded="true"] #gpaChartChevron {
   animation: gradient-text 3s ease infinite;
 }
 
-/* Animation for robot icon */
-.robot-icon-gradient {
-  background: linear-gradient(90deg, var(--brand-primary), var(--brand-secondary), var(--accent), var(--brand-primary));
-  background-size: 300% 300%;
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  animation: gradient-text 3s ease infinite;
-}
-
-/* PDF Download Button */
-.btn-pdf-download {
-  background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
-  color: white;
-  border: 0;
-  box-shadow: 0 6px 18px rgba(231, 76, 60, 0.2);
-  cursor: pointer;
-  transition: all 0.3s ease;
-}
-
-.btn-pdf-download:hover {
-  background: linear-gradient(135deg, #ff6b6b 0%, #e74c3c 100%);
-  color: white;
-  transform: translateY(-2px);
-  box-shadow: 0 10px 25px rgba(231, 76, 60, 0.3);
-}
-
-/* Action buttons container */
 .action-buttons {
   display: flex;
-  justify-content: center; /* Center the single button */
+  justify-content: center;
   align-items: center;
   margin-top: 1.5rem;
   flex-wrap: wrap;
   gap: 1rem;
 }
 
-/* Center Registration Number Input */
-.scraping-section .mb-3 {
-    text-align: center;
-}
 .scraping-section #registrationNumber {
     max-width: 350px;
     margin: 0 auto;
     text-align: center;
 }
 
-/* Drag and Drop Styles (Desktop Only) */
-@media (min-width: 992px) {
-  .course-table tbody tr {
-    cursor: grab;
-  }
-  .course-table tbody tr.dragging {
-    opacity: 0.5;
-    background: #e9e6f8;
-  }
-  .semester-card.drag-over {
-    border: 2px dashed var(--brand);
-    transform: scale(1.02);
-    background-color: rgba(122, 106, 216, 0.1);
-  }
-  [data-theme="dark"] .semester-card.drag-over {
-    background-color: rgba(122, 106, 216, 0.2);
-  }
-}
-
-/* NEW: Scroll Animation Styles */
 .fade-in-on-scroll {
   opacity: 0;
   transform: translateY(30px);
@@ -1897,20 +1181,6 @@ a[aria-expanded="true"] #gpaChartChevron {
 .fade-in-on-scroll.is-visible {
   opacity: 1;
   transform: translateY(0);
-}
-
-/* NEW: Forecast/Info Button Style */
-.btn-info-action {
-  background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
-  color: white;
-  border: 0;
-  cursor: pointer;
-  transition: all 0.3s ease;
-}
-.btn-info-action:hover {
-  background: linear-gradient(135deg, #5dade2 0%, #3498db 100%);
-  color: white;
-  transform: translateY(-2px);
 }
   </style>
 </head>
@@ -3467,6 +2737,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
   </script>
 </body>
 </html>
+
 
 
 
