@@ -1081,14 +1081,127 @@ a[aria-expanded="true"] #gpaChartChevron {
     margin-left: 0.3rem !important;
 }
 
-/* Mobile responsive adjustments */
+/*
+ ===============================================
+  START: MOBILE RESPONSIVE ADJUSTMENTS
+ ===============================================
+*/
+
+/* General Mobile Styles for Medium Screens & Down (Tablets and Phones) */
+@media screen and (max-width: 768px) {
+  /* --- Typography --- */
+  body {
+    font-size: 0.95rem; /* ADDED: Slightly reduce base font size on mobile */
+  }
+
+  h2, .h2 {
+    font-size: 1.75rem; /* ADDED: Reduce heading size */
+  }
+
+  h4, .h4 {
+    font-size: 1.2rem; /* ADDED: Reduce heading size */
+  }
+
+  h5, .h5 {
+    font-size: 1.1rem; /* ADDED: Reduce heading size */
+  }
+
+  .hero .lead {
+    font-size: 1.1rem; /* ADDED: Reduce hero lead text */
+  }
+
+  .accordion-button {
+    font-size: 0.9rem; /* ADDED: Smaller text for FAQ buttons */
+  }
+
+  /* --- Layout & Spacing --- */
+  .gpa-result-card {
+    width: 95%; /* Adjust for mobile */
+    padding: 1.5rem; /* Existing: good */
+  }
+
+  .semester-card {
+    padding: 1.5rem; /* Existing: good */
+    max-width: 420px; /* Existing: good */
+  }
+  
+  .course-table {
+    white-space: nowrap;
+    font-size: 11px; /* Existing: good */
+  }
+
+  .course-code-container .fa-info-circle {
+    display: none; /* Existing: good */
+  }
+  
+  /* --- Component Adjustments --- */
+  .cgpa-main-info h2 {
+    font-size: 1.3rem; /* UPDATED: Make student name smaller */
+  }
+  
+  .cgpa-metric-value {
+    font-size: 1.5rem; /* Existing: good */
+  }
+
+  /* Make buttons more touch-friendly but with smaller text */
+  .btn {
+    padding: 0.75rem 1rem; /* Existing: good */
+    font-size: 0.9rem; /* ADDED: Reduce button font size */
+  }
+
+  /* Adjust loading animations for mobile */
+  .loading-animation {
+    width: 60px;
+    height: 60px;
+  }
+  
+  .loading-text {
+    font-size: 1rem;
+  }
+  
+  .loading-subtext {
+    font-size: 0.8rem;
+  }
+
+  .student-info-section {
+    flex-direction: column;
+  }
+  
+  .cgpa-display {
+    text-align: left;
+    margin-top: 1rem;
+  }
+  
+  .action-buttons {
+    flex-direction: row; /* Keep buttons in a row */
+    justify-content: space-between; /* Pushes them to opposite sides */
+    width: 100%;
+    align-items: center;
+  }
+  
+  .action-buttons .btn {
+    flex-grow: 1;
+    margin: 0 0.25rem;
+    padding: 0.6rem 0.5rem;
+    font-size: 0.8rem;
+    min-width: auto;
+  }
+}
+
+/* Specific Adjustments for Small Screens (Phones) */
 @media (max-width: 575.98px) {
   .hero {
-    padding: 2rem 0 2rem;
+    padding: 2.5rem 0 2rem; /* UPDATED: Slightly more padding */
   }
   
   .hero h1 {
-    font-size: 2.5rem !important;
+    font-size: 2.2rem !important; /* UPDATED: Make hero title smaller */
+    line-height: 1.15; /* ADDED: Improve line spacing */
+  }
+
+  .hero .lead {
+    font-size: 1rem; /* ADDED: Further reduce lead text */
+    margin-bottom: 1.5rem;
   }
   
   .d-flex.gap-2 .btn {
@@ -1109,22 +1222,29 @@ a[aria-expanded="true"] #gpaChartChevron {
   }
   
   .card-modern .card-header {
-    padding: 1rem;
-  }
-  
-  .gpa-result-card, .semester-card {
-    padding: 1.5rem;
+    padding: 1rem 1.25rem; /* UPDATED: Adjust padding */
   }
 }
-    
 
-/* Ensure subject columns are 2-up on very small screens: change from col-12 col-md-6 -> col-6 col-md-6 */
+/* Minor Tweaks for Very Small Screens */
 @media (max-width: 420px) {
   .subject-row .col-6 {
     padding-right: .4rem;
     padding-left: .4rem;
   }
+  .gpa-result-card, .semester-card, .card-modern {
+    padding: 1rem; /* ADDED: Reduce padding on very small screens */
+  }
+  .cgpa-metric-value {
+      font-size: 1.35rem; /* ADDED: Further reduce CGPA value size */
+  }
 }
+/*
+ ===============================================
+  END: MOBILE RESPONSIVE ADJUSTMENTS
+ ===============================================
+*/
+
 
 /* UPDATED: Narrow calculator container on desktop */
 @media (min-width: 992px) {
@@ -1151,53 +1271,6 @@ a[aria-expanded="true"] #gpaChartChevron {
   .col-md-4 {
     flex: 0 0 auto;
     width: 48.3%;
-  }
-}
-
-/* Mobile responsive table */
-@media screen and (max-width: 768px) {
-  .course-table {
-    white-space: nowrap;
-    font-size: 11px;
-  }
-  
-  .gpa-result-card {
-    width: 95%; /* Adjust for mobile */
-  }
-  
-
-  .course-code-container .fa-info-circle {
-    display: none;
-  }
-  
-  
-  /* Adjust spacing for mobile */
-  .semester-card {
-    padding: 1.5rem;
-    max-width: 420px;
-  }
-  
-  .gpa-result-card {
-    padding: 1.5rem;
-  }
-  
-  /* Make buttons more touch-friendly */
-  .btn {
-    padding: 0.75rem 1rem;
-  }
-  
-  /* Adjust loading animations for mobile */
-  .loading-animation {
-    width: 60px;
-    height: 60px;
-  }
-  
-  .loading-text {
-    font-size: 1rem;
-  }
-  
-  .loading-subtext {
-    font-size: 0.8rem;
   }
 }
 
@@ -1254,33 +1327,6 @@ a[aria-expanded="true"] #gpaChartChevron {
   margin-bottom: 1.5rem; /* CORRECTED: As per user request */
   flex-wrap: wrap;
   justify-content: center;
-}
-
-@media (max-width: 768px) {
-  .student-info-section {
-    flex-direction: column;
-  }
-  
-  .cgpa-display {
-    text-align: left;
-    margin-top: 1rem;
-  }
-  
-  .action-buttons {
-    flex-direction: row; /* Keep buttons in a row */
-    justify-content: space-between; /* Pushes them to opposite sides */
-    width: 100%;
-    align-items: center;
-  }
-  
-  .action-buttons .btn {
-    /* Make buttons smaller and fit side-by-side */
-    flex-grow: 1;
-    margin: 0 0.25rem;
-    padding: 0.6rem 0.5rem;
-    font-size: 0.8rem;
-    min-width: auto;
-  }
 }
 
 /* Section separators */
@@ -1543,10 +1589,6 @@ a[aria-expanded="true"] #gpaChartChevron {
     display: flex;
     flex-direction: column;
     align-items: flex-end;
-  }
-  
-  .cgpa-metric-value {
-    font-size: 1.5rem;
   }
   
   .cgpa-main-info h2 {
@@ -3425,6 +3467,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
   </script>
 </body>
 </html>
+
 
 
 
