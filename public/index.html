@@ -26,15 +26,12 @@
   <meta property="twitter:description" content="The best UAF CGPA Calculator. Automatically fetches results from the UAF LMS to calculate your exact CGPA and percentage." />
   <meta property="twitter:image" content="https://uafcgpacalculator.vercel.app/uafcgpacalculator.png" />
 
-  <!-- Google Tag Manager -->
-<script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+  <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
 new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
 j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
 })(window,document,'script','dataLayer','GTM-MJW7HPPS');</script>
-<!-- End Google Tag Manager -->
-
-  <script type="application/ld+json">
+<script type="application/ld+json">
   {
     "@context": "https://schema.org",
     "@type": "WebApplication",
@@ -1081,43 +1078,32 @@ a[aria-expanded="true"] #gpaChartChevron {
     margin-left: 0.3rem !important;
 }
 
-/* Mobile responsive adjustments */
+/* --- UPDATED: Mobile responsive adjustments --- */
 @media (max-width: 575.98px) {
   .hero {
-    padding: 2rem 0 2rem;
+    padding: 2rem 0;
   }
-  
   .hero h1 {
-    font-size: 2.5rem !important;
+    font-size: 2.2rem !important; /* UPDATED */
   }
-  
   .d-flex.gap-2 .btn {
     width: 100%;
     max-width: 300px;
     margin-bottom: 0.5rem;
   }
-  
-  /* Mobile notification text size */
   .toast {
     min-width: 250px;
     max-width: 300px;
     padding: 12px 16px;
   }
-  
   .toast-message {
-    font-size: 12px;
+    font-size: 0.75rem; /* UPDATED */
   }
-  
   .card-modern .card-header {
-    padding: 1rem;
-  }
-  
-  .gpa-result-card, .semester-card {
-    padding: 1.5rem;
+    padding: 1rem 1.25rem; /* UPDATED */
   }
 }
     
-
 /* Ensure subject columns are 2-up on very small screens: change from col-12 col-md-6 -> col-6 col-md-6 */
 @media (max-width: 420px) {
   .subject-row .col-6 {
@@ -1154,50 +1140,48 @@ a[aria-expanded="true"] #gpaChartChevron {
   }
 }
 
-/* Mobile responsive table */
+/* --- UPDATED: Mobile responsive table --- */
 @media screen and (max-width: 768px) {
+  body {
+    font-size: 0.9rem; /* UPDATED: Base font size reduction */
+  }
   .course-table {
-    white-space: nowrap;
-    font-size: 11px;
+    font-size: 0.7rem; /* UPDATED */
   }
-  
   .gpa-result-card {
-    width: 95%; /* Adjust for mobile */
+    width: 95%;
+    padding: 1.25rem; /* UPDATED */
   }
-  
-
   .course-code-container .fa-info-circle {
     display: none;
   }
-  
-  
-  /* Adjust spacing for mobile */
   .semester-card {
-    padding: 1.5rem;
+    padding: 1.25rem; /* UPDATED */
     max-width: 420px;
   }
-  
-  .gpa-result-card {
-    padding: 1.5rem;
-  }
-  
-  /* Make buttons more touch-friendly */
   .btn {
-    padding: 0.75rem 1rem;
+    padding: 0.6rem 0.9rem; /* UPDATED */
+    font-size: 0.9rem; /* UPDATED */
   }
-  
-  /* Adjust loading animations for mobile */
   .loading-animation {
-    width: 60px;
-    height: 60px;
+    width: 50px; /* UPDATED */
+    height: 50px; /* UPDATED */
   }
-  
   .loading-text {
-    font-size: 1rem;
+    font-size: 0.9rem; /* UPDATED */
   }
-  
   .loading-subtext {
-    font-size: 0.8rem;
+    font-size: 0.75rem; /* UPDATED */
+  }
+  .cgpa-main-info h2 {
+    font-size: 1.3rem; /* UPDATED */
+  }
+  .cgpa-metric-value {
+    font-size: 1.35rem; /* UPDATED */
+  }
+  .action-buttons .btn {
+    font-size: 0.75rem; /* UPDATED */
+    padding: 0.6rem 0.4rem; /* UPDATED */
   }
 }
 
@@ -1259,6 +1243,7 @@ a[aria-expanded="true"] #gpaChartChevron {
 @media (max-width: 768px) {
   .student-info-section {
     flex-direction: column;
+    gap: 1rem; /* UPDATED */
   }
   
   .cgpa-display {
@@ -1274,11 +1259,8 @@ a[aria-expanded="true"] #gpaChartChevron {
   }
   
   .action-buttons .btn {
-    /* Make buttons smaller and fit side-by-side */
     flex-grow: 1;
     margin: 0 0.25rem;
-    padding: 0.6rem 0.5rem;
-    font-size: 0.8rem;
     min-width: auto;
   }
 }
@@ -1507,7 +1489,7 @@ a[aria-expanded="true"] #gpaChartChevron {
   color: var(--muted);
 }
 
-/* Mobile responsive adjustments */
+/* --- UPDATED: Mobile responsive adjustments for CGPA --- */
 @media (max-width: 768px) {
   .cgpa-metrics-row {
     flex-direction: column;
@@ -1545,18 +1527,10 @@ a[aria-expanded="true"] #gpaChartChevron {
     align-items: flex-end;
   }
   
-  .cgpa-metric-value {
-    font-size: 1.5rem;
-  }
-  
-  .cgpa-main-info h2 {
-    font-size: 1.5rem;
-  }
-
   .semester-grid {
     display: block;
-}
   }
+}
 
 /* Contact form improvements */
 #contact-form {
@@ -1873,7 +1847,6 @@ a[aria-expanded="true"] #gpaChartChevron {
   </style>
 </head>
   
-<!-- Google tag (gtag.js) -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-CMENQJ4ELS"></script>
 <script>
   window.dataLayer = window.dataLayer || [];
@@ -1885,12 +1858,9 @@ a[aria-expanded="true"] #gpaChartChevron {
 
 <body>
 
-  <!-- Google Tag Manager (noscript) -->
-<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-MJW7HPPS"
+  <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-MJW7HPPS"
 height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
-<!-- End Google Tag Manager (noscript) -->
-  
-  <div class="cursor-dot" id="cursorDot"></div>
+<div class="cursor-dot" id="cursorDot"></div>
 
   <div id="backToTop">
     <i class="fas fa-arrow-up"></i>
@@ -2242,7 +2212,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 
   <footer class="border-top py-4">
     <div class="container text-center footer">
-      <p class="mb-1">UAF CGPA Calculator - A project by <a href="#contact-us">M. Saqlain</a>.</p>
+      <p class="mb-1">UAF CGPA Calculator - A project by <a href="#contact-us">Muhammad Saqlain</a>.</p>
       <p class="mb-0">© 2025 UAFTools. All rights reserved.</p>
     </div>
   </footer>
@@ -3425,40 +3395,3 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
   </script>
 </body>
 </html>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
