@@ -3038,23 +3038,8 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         if (courseIndex !== -1) {
           semester.courses[courseIndex].isDeleted = isDeleted;
 
-          const courseIdentifier = `${semesterName}-${course.code}-${course.total}-${courseIndex}`;
-          const courseRow = document.querySelector(`tr[data-course-identifier="${courseIdentifier}"]`);
-          
-          if (courseRow) {
-            courseRow.classList.toggle('table-danger', isDeleted);
-            courseRow.classList.toggle('text-decoration-line-through', isDeleted);
-
-            const actionCell = courseRow.querySelector('.course-actions');
-            const newActionHTML = isDeleted 
-              ? `<i class="fa-solid fa-rotate-left restore-course" data-course='${JSON.stringify(course).replace(/'/g, "&#39;")}' data-semester="${semesterName}" title="Restore"></i>`
-              : `<i class="fa-solid fa-trash delete-course" data-course='${JSON.stringify(course).replace(/'/g, "&#39;")}' data-semester="${semesterName}" title="Delete"></i>`;
-            actionCell.innerHTML = newActionHTML;
-
-            actionCell.querySelector('i').addEventListener('click', (e) => modifyCourseState(e, course, semesterName, !isDeleted));
-          }
-
-          updateTotalsDisplay(); // <-- THIS IS THE NEW LINE YOU NEED TO ADD
+          // This single function call recalculates AND redraws everything correctly.
+          recalculateAndDisplay();
           
           const action = isDeleted ? 'Deleted' : 'Restored';
           showToast(`Course ${course.code} ${action.toLowerCase()}`, 'info');
@@ -3354,4 +3339,5 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
   </script>
 </body>
 </html>
+
 
