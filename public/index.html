@@ -3029,38 +3029,38 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
       }
       
       function modifyCourseState(event, course, semesterName, isDeleted) {
-        event.preventDefault();
-        const semester = processedData.semesters[semesterName];
-        if (!semester) return;
+        event.preventDefault();
+        const semester = processedData.semesters[semesterName];
+        if (!semester) return;
 
-        const courseIndex = semester.courses.findIndex(c => c.code === course.code && c.total === course.total && c.title === course.title);
-        
-        if (courseIndex !== -1) {
-          semester.courses[courseIndex].isDeleted = isDeleted;
+        const courseIndex = semester.courses.findIndex(c => c.code === course.code && c.total === course.total && c.title === course.title);
+        
+        if (courseIndex !== -1) {
+          semester.courses[courseIndex].isDeleted = isDeleted;
 
-          const courseIdentifier = `${semesterName}-${course.code}-${course.total}-${courseIndex}`;
-          const courseRow = document.querySelector(`tr[data-course-identifier="${courseIdentifier}"]`);
-          
-          if (courseRow) {
-            courseRow.classList.toggle('table-danger', isDeleted);
-            courseRow.classList.toggle('text-decoration-line-through', isDeleted);
+          const courseIdentifier = `${semesterName}-${course.code}-${course.total}-${courseIndex}`;
+          const courseRow = document.querySelector(`tr[data-course-identifier="${courseIdentifier}"]`);
+          
+          if (courseRow) {
+            courseRow.classList.toggle('table-danger', isDeleted);
+            courseRow.classList.toggle('text-decoration-line-through', isDeleted);
 
-            const actionCell = courseRow.querySelector('.course-actions');
-            const newActionHTML = isDeleted 
-              ? `<i class="fa-solid fa-rotate-left restore-course" data-course='${JSON.stringify(course).replace(/'/g, "&#39;")}' data-semester="${semesterName}" title="Restore"></i>`
-              : `<i class="fa-solid fa-trash delete-course" data-course='${JSON.stringify(course).replace(/'/g, "&#39;")}' data-semester="${semesterName}" title="Delete"></i>`;
-            actionCell.innerHTML = newActionHTML;
+            const actionCell = courseRow.querySelector('.course-actions');
+            const newActionHTML = isDeleted 
+              ? `<i class="fa-solid fa-rotate-left restore-course" data-course='${JSON.stringify(course).replace(/'/g, "&#39;")}' data-semester="${semesterName}" title="Restore"></i>`
+              : `<i class="fa-solid fa-trash delete-course" data-course='${JSON.stringify(course).replace(/'/g, "&#39;")}' data-semester="${semesterName}" title="Delete"></i>`;
+            actionCell.innerHTML = newActionHTML;
 
-            actionCell.querySelector('i').addEventListener('click', (e) => modifyCourseState(e, course, semesterName, !isDeleted));
-          }
+            actionCell.querySelector('i').addEventListener('click', (e) => modifyCourseState(e, course, semesterName, !isDeleted));
+          }
 
-          updateTotalsDisplay();
-          
-          const action = isDeleted ? 'Deleted' : 'Restored';
-          showToast(`Course ${course.code} ${action.toLowerCase()}`, 'info');
-          addStatusMessage(`${action} course: ${course.code} from ${semesterName}`, 'info');
-        }
-      }
+          updateTotalsDisplay(); // <-- THIS IS THE NEW LINE YOU NEED TO ADD
+          
+          const action = isDeleted ? 'Deleted' : 'Restored';
+          showToast(`Course ${course.code} ${action.toLowerCase()}`, 'info');
+          addStatusMessage(`${action} course: ${course.code} from ${semesterName}`, 'info');
+        }
+      }
 
       function recalculateAndDisplay() {
         const cgpaData = calculateCGPA(processedData);
@@ -3354,3 +3354,4 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
   </script>
 </body>
 </html>
+
