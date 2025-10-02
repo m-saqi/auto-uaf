@@ -907,15 +907,25 @@ a[aria-expanded="true"] #gpaChartChevron {
   align-items: center;
   justify-content: center;
   padding: 0;
+  transition: all 0.3s ease; /* Added for smooth transition */
+}
+
+/* --- CHANGE 1: More subtle hover effect for the button --- */
+.modern-search-button:hover {
+  transform: translateY(-50%) scale(1.05); /* Softer transform */
+  box-shadow: var(--shadow-hover);
 }
 
 .modern-profiles-wrapper {
   width: 100%;
 }
 
+/* --- CHANGE 2: Fix for the profile switcher text collision --- */
 .modern-profiles-select {
   border-top-left-radius: 0 !important;
   border-bottom-left-radius: 0 !important;
+  text-overflow: ellipsis; /* Add ellipsis for very long text */
+  padding-right: 2.5rem;   /* Add padding to avoid overlap with arrow */
 }
 
 .modern-profiles-icon {
@@ -3427,4 +3437,5 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
   </script>
 </body>
 </html>
+
 
