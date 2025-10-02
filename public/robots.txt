@@ -1,6 +1,4 @@
-# Allow all search engines full access to the site.
 User-agent: *
-Disallow:
+Allow: /
 
-# Point search engines to the sitemap for easy discovery of all pages.
 Sitemap: https://uafcgpacalculator.vercel.app/sitemap.xml
