@@ -1859,6 +1859,30 @@ a[aria-expanded="true"] #gpaChartChevron {
   animation: gradient-text 3s ease infinite;
 }
 
+    /* ADD THIS CSS */
+.section-divider {
+  height: 50px;
+  background: var(--light-bg);
+  position: relative;
+  overflow: hidden;
+}
+
+.section-divider::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  bottom: 0;
+  width: 150px;
+  height: 4px;
+  background: var(--brand-gradient);
+  border-radius: 2px;
+}
+
+[data-theme="dark"] .section-divider {
+  background: transparent;
+}
+
 /* Animation for robot icon */
 .robot-icon-gradient {
   background: linear-gradient(90deg, var(--brand-primary), var(--brand-secondary), var(--accent), var(--brand-primary));
@@ -2093,6 +2117,8 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
       </div>
     </div>
   </section>
+
+  <div class="section-divider"></div>
 
   <section class="py-5" id="Auto-Calculator">
     <div class="container">
@@ -3431,6 +3457,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
   </script>
 </body>
 </html>
+
 
 
 
