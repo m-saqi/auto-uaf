@@ -933,6 +933,58 @@ a[aria-expanded="true"] #gpaChartChevron {
     border-top-right-radius: .85rem !important;
     border-bottom-right-radius: .85rem !important;
 }
+
+
+    /* ADD THIS CSS FOR THE NEW CHANGES */
+
+/* Modern Section Divider */
+.section-divider {
+  height: 50px;
+  background: var(--light-bg);
+  position: relative;
+  overflow: hidden;
+}
+.section-divider::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  bottom: 0;
+  width: 150px;
+  height: 4px;
+  background: var(--brand-gradient);
+  border-radius: 2px;
+}
+[data-theme="dark"] .section-divider {
+  background: transparent;
+}
+
+/* Aligned Action Buttons */
+.action-buttons-aligned {
+  display: flex;
+  justify-content: space-between; /* This is the key change */
+  align-items: center;
+  margin-top: 1.5rem;
+  margin-bottom: 1.5rem;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+.action-buttons-aligned .btn {
+  border-radius: 12px; /* A little radius, not fully rounded */
+}
+@media (max-width: 576px) {
+  .action-buttons-aligned {
+    justify-content: center; /* Stack them in the center on mobile */
+  }
+}
+
+/* Collapsible Status Log Icon */
+.status-log-chevron {
+  transition: transform 0.3s ease-in-out;
+}
+a[aria-expanded="true"] .status-log-chevron {
+  transform: rotate(180deg);
+}
     
     
 /* ----------- DARK MODE IMPROVED ----------- */
@@ -2168,58 +2220,66 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 </div>
           
           <div id="resultContainer" class="result-container">
-            <div class="gpa-result-card fade-in-on-scroll">
-              <div class="card-body p-0">
-                <div class="cgpa-display-container">
-                  <div class="cgpa-main-info"><h2 class="mb-1 fw-bold" id="studentName" style="margin-top: 20px"><i class="fa-solid fa-user-graduate me-2"></i>Student Name</h2><p class="mb-0 text-body-secondary" id="studentReg">Registration Number</p></div>
-                  <div class="cgpa-metrics-row">
-                    <div class="cgpa-metric cgpa-metric-left"><p class="mb-0 cgpa-metric-label">CGPA</p><p class="mb-0 cgpa-metric-value" id="totalCgpa">0.0000</p></div>
-                    <div class="cgpa-metric cgpa-metric-center"><p class="mb-0 cgpa-metric-label">Percentage</p><p class="mb-0 cgpa-metric-value" id="totalPercentage">0.0000%</p></div>
-                    <div class="cgpa-metric cgpa-metric-right"><p class="mb-0 cgpa-metric-label">Marks</p><div class="cgpa-metric-value-container"><p class="mb-0 cgpa-metric-value" id="totalMarksObtained">0</p><p class="mb-0 cgpa-metric-subvalue" id="totalMaxMarks">/ 0</p></div></div>
-                  </div>
-                </div>
-              </div>
-            </div>
-            
-            <div class="card card-modern mt-4 fade-in-on-scroll" id="gpaChartContainer" style="display: none;">
-            <div class="card-header p-0">
-              <a href="#gpaChartCollapse" class="d-block text-decoration-none p-3" data-bs-toggle="collapse" role="button" aria-expanded="false" aria-controls="gpaChartCollapse">
-                <div class="d-flex justify-content-between align-items-center">
-                  <h4 class="mb-0 text-body"><i class="fa-solid fa-chart-line me-2"></i>GPA Trend</h4>
-                  <i class="fa-solid fa-chevron-down text-body" id="gpaChartChevron"></i>
-                </div>
-              </a>
-            </div>
-            <div class="collapse" id="gpaChartCollapse">
-              <div class="card-body">
-                <canvas id="gpaTrendChart"></canvas>
-              </div>
-            </div>
-          </div>
-
-            <div class="action-buttons fade-in-on-scroll">
-              <button id="downloadPdfBtn" class="btn btn-pdf-download rounded-pill"><i class="fa-solid fa-file-pdf me-2"></i>Download PDF</button>
-              <button id="addForecastSemesterBtn" class="btn btn-info-action rounded-pill"><i class="fa-solid fa-wand-magic-sparkles me-2"></i>Forecast Semester</button>
-            </div>
-            <div class="semester-results-container">
-              <div id="semesterResults" class="semester-grid"></div>
-            </div>
-          </div>
-          
-          <div class="card card-modern mt-4 fade-in-on-scroll">
-            <div class="card-header p-4"><h4 class="mb-0 text-start"><i class="fa-solid fa-terminal me-2"></i>Status Log</h4></div>
-            <div class="card-body p-4">
-              <div class="status-log" id="statusLog"><div class="status-line status-info">Ready to fetch your results. Enter your registration number and click "Fetch Result".</div></div>
-              <div class="log-section center-buttons mt-3">
-                <button id="downloadLogBtn" class="btn btn-secondary-action rounded-pill"><i class="fa-solid fa-file-lines me-2"></i>Download Log</button>
-                <button id="clearLogBtn" class="btn btn-danger-action rounded-pill"><i class="fa-solid fa-trash me-2"></i>Clear Log</button>
-              </div>
-            </div>
+    <div class="gpa-result-card fade-in-on-scroll">
+      <div class="card-body p-0">
+        <div class="cgpa-display-container">
+          <div class="cgpa-main-info"><h2 class="mb-1 fw-bold" id="studentName" style="margin-top: 20px"><i class="fa-solid fa-user-graduate me-2"></i>Student Name</h2><p class="mb-0 text-body-secondary" id="studentReg">Registration Number</p></div>
+          <div class="cgpa-metrics-row">
+            <div class="cgpa-metric cgpa-metric-left"><p class="mb-0 cgpa-metric-label">CGPA</p><p class="mb-0 cgpa-metric-value" id="totalCgpa">0.0000</p></div>
+            <div class="cgpa-metric cgpa-metric-center"><p class="mb-0 cgpa-metric-label">Percentage</p><p class="mb-0 cgpa-metric-value" id="totalPercentage">0.0000%</p></div>
+            <div class="cgpa-metric cgpa-metric-right"><p class="mb-0 cgpa-metric-label">Marks</p><div class="cgpa-metric-value-container"><p class="mb-0 cgpa-metric-value" id="totalMarksObtained">0</p><p class="mb-0 cgpa-metric-subvalue" id="totalMaxMarks">/ 0</p></div></div>
           </div>
         </div>
       </div>
     </div>
-  </section>
+    
+    <div class="card card-modern mt-4 fade-in-on-scroll" id="gpaChartContainer" style="display: none;">
+    <div class="card-header p-0">
+      <a href="#gpaChartCollapse" class="d-block text-decoration-none p-3" data-bs-toggle="collapse" role="button" aria-expanded="false" aria-controls="gpaChartCollapse">
+        <div class="d-flex justify-content-between align-items-center">
+          <h4 class="mb-0 text-body"><i class="fa-solid fa-chart-line me-2"></i>GPA Trend</h4>
+          <i class="fa-solid fa-chevron-down text-body" id="gpaChartChevron"></i>
+        </div>
+      </a>
+    </div>
+    <div class="collapse" id="gpaChartCollapse">
+      <div class="card-body">
+        <canvas id="gpaTrendChart"></canvas>
+      </div>
+    </div>
+  </div>
+
+    <div class="action-buttons-aligned fade-in-on-scroll">
+      <button id="downloadPdfBtn" class="btn btn-pdf-download"><i class="fa-solid fa-file-pdf me-2"></i>Download PDF</button>
+      <button id="addForecastSemesterBtn" class="btn btn-info-action"><i class="fa-solid fa-wand-magic-sparkles me-2"></i>Forecast Semester</button>
+    </div>
+
+    <div class="semester-results-container">
+      <div id="semesterResults" class="semester-grid"></div>
+    </div>
+</div>
+          
+<div class="card card-modern mt-4 fade-in-on-scroll">
+    <div class="card-header p-0">
+        <a href="#statusLogCollapse" class="d-block text-decoration-none p-3" data-bs-toggle="collapse" role="button" aria-expanded="false" aria-controls="statusLogCollapse">
+            <div class="d-flex justify-content-between align-items-center">
+                <h4 class="mb-0 text-body"><i class="fa-solid fa-terminal me-2"></i>Status Log</h4>
+                <i class="fa-solid fa-chevron-down text-body status-log-chevron"></i>
+            </div>
+        </a>
+    </div>
+    <div class="collapse" id="statusLogCollapse">
+        <div class="card-body p-4">
+            <div class="status-log" id="statusLog">
+                <div class="status-line status-info">Ready to fetch your results. Enter your registration number and click "Fetch Result".</div>
+            </div>
+            <div class="log-section center-buttons mt-3">
+                <button id="downloadLogBtn" class="btn btn-secondary-action rounded-pill"><i class="fa-solid fa-file-lines me-2"></i>Download Log</button>
+                <button id="clearLogBtn" class="btn btn-danger-action rounded-pill"><i class="fa-solid fa-trash me-2"></i>Clear Log</button>
+            </div>
+        </div>
+    </div>
+</div>
 
   <section class="why-choose-section" id="features">
     <div class="container">
@@ -3457,6 +3517,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
   </script>
 </body>
 </html>
+
 
 
 
