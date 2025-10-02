@@ -853,6 +853,83 @@ a[aria-expanded="true"] #gpaChartChevron {
     color: var(--text) !important;
 }
 
+
+    /* NEW: Modern Calculator Section Styles */
+.calculator-section-modern {
+  background: rgba(255, 255, 255, 0.5);
+  padding: 3rem 2rem;
+  border-radius: var(--radius);
+  backdrop-filter: blur(10px);
+  box-shadow: var(--shadow);
+  margin-bottom: 2rem;
+}
+
+[data-theme="dark"] .calculator-section-modern {
+  background: rgba(15, 20, 34, 0.8);
+}
+
+.search-and-profiles-container {
+  max-width: 600px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.modern-search-wrapper {
+  position: relative;
+  width: 100%;
+}
+
+.modern-search-input {
+  border-radius: 50px !important;
+  padding: 1rem 1.5rem !important;
+  font-size: 1.1rem;
+  box-shadow: var(--shadow);
+  border: 2px solid transparent;
+}
+
+.modern-search-input:focus {
+  border-color: var(--brand);
+  box-shadow: var(--shadow-hover);
+}
+
+.modern-search-button {
+  position: absolute;
+  top: 50%;
+  right: 8px;
+  transform: translateY(-50%);
+  border-radius: 50%;
+  width: 48px;
+  height: 48px;
+  font-size: 1.2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+}
+
+.modern-profiles-wrapper {
+  width: 100%;
+}
+
+.modern-profiles-select {
+  border-top-left-radius: 0 !important;
+  border-bottom-left-radius: 0 !important;
+}
+
+.modern-profiles-icon {
+  border-top-left-radius: .85rem !important;
+  border-bottom-left-radius: .85rem !important;
+  background-color: rgba(122, 106, 216, 0.1);
+  color: var(--brand);
+}
+
+.modern-delete-button {
+    border-top-right-radius: .85rem !important;
+    border-bottom-right-radius: .85rem !important;
+}
+    
     
 /* ----------- DARK MODE IMPROVED ----------- */
 [data-theme="dark"] {
@@ -2017,36 +2094,48 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     <div class="container">
       <div class="row justify-content-center">
         <div class="col-md-10">
-          <div class="card card-modern mb-4 fade-in-on-scroll">
-            <div class="card-header p-4">
-              <h4 class="mb-0"><i class="fa-solid fa-bolt me-2"></i>UAF CGPA Calculator</h4>
-            </div>
-            <div class="card-body p-4 scraping-section">
-              <form id="resultForm">
-                <div id="profileManagement" class="mb-3 text-start" style="display: none;">
-                  <label for="profileSwitcher" class="form-label">Saved Profiles</label>
-                  <div class="input-group">
-                    <select class="form-select" id="profileSwitcher"></select>
-                    <button class="btn btn-outline-danger" type="button" id="deleteProfileBtn" title="Delete Selected Profile"><i class="fa-solid fa-trash-can"></i></button>
-                  </div>
-                </div>
-                
-                <div class="mb-3">
-                  <label for="registrationNumber" class="form-label">Registration Number</label>
-                  <input type="text" class="form-control" id="registrationNumber" placeholder="e.g., 2020-ag-1234" required>
-                </div>
-                <div class="center-buttons">
-                  <button type="submit" class="btn btn-primary-action rounded-pill"><i class="fa-solid fa-cloud-arrow-down me-2"></i>Fetch Result</button>
-                </div>
-              </form>
-              <div class="loading-container" id="loadingContainer">
-                <div class="loading-stage" id="connectingStage"><div class="loading-animation loading-connecting"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div><p class="loading-text">Connecting to UAF LMS</p><p class="loading-subtext">Establishing secure connection to university servers</p></div>
-                <div class="loading-stage" id="fetchingStage"><div class="loading-animation loading-connecting"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div><p class="loading-text">Fetching Your Results</p><p class="loading-subtext">Retrieving your academic records from the database</p></div>
-                <div class="loading-stage" id="processingStage"><div class="loading-animation loading-connecting"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div><p class="loading-text">Processing Data</p><p class="loading-subtext">Analyzing your grades and calculating CGPA</p></div>
-                <div class="loading-stage" id="completeStage"><div class="loading-animation loading-complete"><div class="checkmark"></div></div><p class="loading-text">Results Ready!</p><p class="loading-subtext">Your CGPA has been calculated successfully</p></div>
-              </div>
-            </div>
-          </div>
+          <div class="calculator-section-modern fade-in-on-scroll">
+  <div class="text-center mb-4">
+    <h2 class="fw-bold">
+      <i class="fa-solid fa-calculator me-2 gradient-text"></i>
+      <span class="gradient-text">UAF CGPA Calculator</span>
+    </h2>
+    <p class="text-muted">Enter a registration number or select a saved profile.</p>
+  </div>
+  <form id="resultForm" class="text-center">
+    <div class="search-and-profiles-container">
+      <div class="modern-search-wrapper">
+        <input
+          type="text"
+          class="form-control modern-search-input"
+          id="registrationNumber"
+          placeholder="e.g., 2020-ag-1234"
+          required
+        />
+        <button type="submit" class="btn btn-primary-action modern-search-button">
+          <i class="fa-solid fa-cloud-arrow-down"></i>
+        </button>
+      </div>
+      <div id="profileManagement" class="modern-profiles-wrapper" style="display: none;">
+        <div class="input-group">
+          <span class="input-group-text modern-profiles-icon">
+            <i class="fa-solid fa-user-check"></i>
+          </span>
+          <select class="form-select modern-profiles-select" id="profileSwitcher"></select>
+          <button class="btn btn-outline-danger modern-delete-button" type="button" id="deleteProfileBtn" title="Delete Selected Profile">
+            <i class="fa-solid fa-trash-can"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+  </form>
+  <div class="loading-container" id="loadingContainer">
+    <div class="loading-stage" id="connectingStage"><div class="loading-animation loading-connecting"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div><p class="loading-text">Connecting to UAF LMS</p><p class="loading-subtext">Establishing secure connection to university servers</p></div>
+    <div class="loading-stage" id="fetchingStage"><div class="loading-animation loading-connecting"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div><p class="loading-text">Fetching Your Results</p><p class="loading-subtext">Retrieving your academic records from the database</p></div>
+    <div class="loading-stage" id="processingStage"><div class="loading-animation loading-connecting"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div><p class="loading-text">Processing Data</p><p class="loading-subtext">Analyzing your grades and calculating CGPA</p></div>
+    <div class="loading-stage" id="completeStage"><div class="loading-animation loading-complete"><div class="checkmark"></div></div><p class="loading-text">Results Ready!</p><p class="loading-subtext">Your CGPA has been calculated successfully</p></div>
+  </div>
+</div>
           
           <div id="resultContainer" class="result-container">
             <div class="gpa-result-card fade-in-on-scroll">
@@ -3338,3 +3427,4 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
   </script>
 </body>
 </html>
+
