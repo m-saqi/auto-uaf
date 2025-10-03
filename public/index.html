@@ -991,6 +991,12 @@ a[aria-expanded="true"] #gpaChartChevron {
 a[aria-expanded="true"] .status-log-chevron {
   transform: rotate(180deg);
 }
+
+
+    /* ADD THIS CSS FOR THE RENAME BUTTON */
+.modern-rename-button {
+    border-left: 0 !important;
+}
     
     
 /* ----------- DARK MODE IMPROVED ----------- */
@@ -2088,6 +2094,30 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     </div>
   </div>
 
+  <div class="modal fade" id="renameProfileModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title"><i class="fa-solid fa-pen-to-square me-2"></i>Rename Profile</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <form id="renameProfileForm">
+            <div class="mb-3">
+              <label for="newProfileName" class="form-label">Profile Name</label>
+              <input type="text" class="form-control" id="newProfileName" required>
+              <div class="form-text">Give this profile a unique name (e.g., "My Final Year Forecast").</div>
+            </div>
+          </form>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary-action rounded-pill" data-bs-dismiss="modal">Cancel</button>
+          <button type="button" class="btn btn-primary-action rounded-pill" id="saveProfileNameBtn">Save Name</button>
+        </div>
+      </div>
+    </div>
+</div>
+
   <nav class="navbar navbar-expand-lg sticky-top border-bottom">
     <div class="container">
       <a class="navbar-brand d-flex align-items-center gap-2" href="/">
@@ -2187,46 +2217,49 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
       <div class="row justify-content-center">
         <div class="col-md-10">
           <div class="calculator-section-modern fade-in-on-scroll">
-  <div class="text-center mb-4">
-    <h2 class="fw-bold">
-      <i class="fa-solid fa-calculator me-2 gradient-text"></i>
-      <span class="gradient-text">UAF CGPA Calculator</span>
-    </h2>
-    <p class="text-muted">Enter a registration number or select a saved profile.</p>
-  </div>
-  <form id="resultForm" class="text-center">
-    <div class="search-and-profiles-container">
-      <div class="modern-search-wrapper">
-        <input
-          type="text"
-          class="form-control modern-search-input"
-          id="registrationNumber"
-          placeholder="e.g., 2020-ag-1234"
-          required
-        />
-        <button type="submit" class="btn btn-primary-action modern-search-button">
-          <i class="fa-solid fa-cloud-arrow-down"></i>
-        </button>
-      </div>
-      <div id="profileManagement" class="modern-profiles-wrapper" style="display: none;">
-        <div class="input-group">
-          <span class="input-group-text modern-profiles-icon">
-            <i class="fa-solid fa-user-check"></i>
-          </span>
-          <select class="form-select modern-profiles-select" id="profileSwitcher"></select>
-          <button class="btn btn-outline-danger modern-delete-button" type="button" id="deleteProfileBtn" title="Delete Selected Profile">
-            <i class="fa-solid fa-trash-can"></i>
+    <div class="text-center mb-4">
+      <h2 class="fw-bold">
+        <i class="fa-solid fa-calculator me-2 gradient-text"></i>
+        <span class="gradient-text">UAF CGPA Calculator</span>
+      </h2>
+      <p class="text-muted">Enter a registration number or select a saved profile.</p>
+    </div>
+    <form id="resultForm" class="text-center">
+      <div class="search-and-profiles-container">
+        <div class="modern-search-wrapper">
+          <input
+            type="text"
+            class="form-control modern-search-input"
+            id="registrationNumber"
+            placeholder="e.g., 2020-ag-1234"
+            required
+          />
+          <button type="submit" class="btn btn-primary-action modern-search-button">
+            <i class="fa-solid fa-cloud-arrow-down"></i>
           </button>
         </div>
+        <div id="profileManagement" class="modern-profiles-wrapper" style="display: none;">
+          <div class="input-group">
+            <span class="input-group-text modern-profiles-icon">
+              <i class="fa-solid fa-user-check"></i>
+            </span>
+            <select class="form-select modern-profiles-select" id="profileSwitcher"></select>
+            <button class="btn btn-outline-secondary modern-rename-button" type="button" id="renameProfileBtn" title="Rename Selected Profile">
+                <i class="fa-solid fa-pen-to-square"></i>
+            </button>
+            <button class="btn btn-outline-danger modern-delete-button" type="button" id="deleteProfileBtn" title="Delete Selected Profile">
+              <i class="fa-solid fa-trash-can"></i>
+            </button>
+          </div>
+        </div>
       </div>
+    </form>
+    <div class="loading-container" id="loadingContainer">
+      <div class="loading-stage" id="connectingStage"><div class="loading-animation loading-connecting"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div><p class="loading-text">Connecting to UAF LMS</p><p class="loading-subtext">Establishing secure connection to university servers</p></div>
+      <div class="loading-stage" id="fetchingStage"><div class="loading-animation loading-connecting"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div><p class="loading-text">Fetching Your Results</p<p class="loading-subtext">Retrieving your academic records from the database</p></div>
+      <div class="loading-stage" id="processingStage"><div class="loading-animation loading-connecting"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div><p class="loading-text">Processing Data</p><p class="loading-subtext">Analyzing your grades and calculating CGPA</p></div>
+      <div class="loading-stage" id="completeStage"><div class="loading-animation loading-complete"><div class="checkmark"></div></div><p class="loading-text">Results Ready!</p><p class="loading-subtext">Your CGPA has been calculated successfully</p></div>
     </div>
-  </form>
-  <div class="loading-container" id="loadingContainer">
-    <div class="loading-stage" id="connectingStage"><div class="loading-animation loading-connecting"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div><p class="loading-text">Connecting to UAF LMS</p><p class="loading-subtext">Establishing secure connection to university servers</p></div>
-    <div class="loading-stage" id="fetchingStage"><div class="loading-animation loading-connecting"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div><p class="loading-text">Fetching Your Results</p><p class="loading-subtext">Retrieving your academic records from the database</p></div>
-    <div class="loading-stage" id="processingStage"><div class="loading-animation loading-connecting"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div><p class="loading-text">Processing Data</p><p class="loading-subtext">Analyzing your grades and calculating CGPA</p></div>
-    <div class="loading-stage" id="completeStage"><div class="loading-animation loading-complete"><div class="checkmark"></div></div><p class="loading-text">Results Ready!</p><p class="loading-subtext">Your CGPA has been calculated successfully</p></div>
-  </div>
 </div>
           
           <div id="resultContainer" class="result-container">
@@ -2432,7 +2465,8 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js"></script>
   
-  <script>
+  // USE THIS NEW, COMPLETE SCRIPT
+<script>
     document.addEventListener('DOMContentLoaded', function() {
       // Elements
       const resultForm = document.getElementById('resultForm');
@@ -2459,22 +2493,24 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
       const loadingContainer = document.getElementById('loadingContainer');
       const backToTopButton = document.getElementById('backToTop');
       const addForecastSemesterBtn = document.getElementById('addForecastSemesterBtn');
-      const copyDetailsBtn = document.getElementById('copyDetailsBtn');
       const gpaChartContainer = document.getElementById('gpaChartContainer');
       const gpaTrendChartCanvas = document.getElementById('gpaTrendChart').getContext('2d');  
-      // NEW: Profile Management Elements
       const profileManagementDiv = document.getElementById('profileManagement');
       const profileSwitcher = document.getElementById('profileSwitcher');
       const deleteProfileBtn = document.getElementById('deleteProfileBtn');
+
+      // NEW: Rename Profile Elements
+      const renameProfileBtn = document.getElementById('renameProfileBtn');
+      const renameProfileModal = new bootstrap.Modal(document.getElementById('renameProfileModal'));
+      const saveProfileNameBtn = document.getElementById('saveProfileNameBtn');
       
       // State
       let allLogs = [];
       let processedData = null;
       let deletedSemesters = {};
       let gpaChart = null;  
-      let isInitialLoad = true; // Flag to control animations
+      let isInitialLoad = true;
       
-      // API Endpoints
       const API_ENDPOINT = `/api/result-scraper?action=scrape_single`;
       
       function init() {
@@ -2499,30 +2535,50 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         document.querySelectorAll('.fade-in-on-scroll').forEach(el => observer.observe(el));
       }
 
-      function loadProfiles() {
-        const profiles = JSON.parse(localStorage.getItem('uafCalculatorProfiles') || '{}');
-        const activeProfileReg = localStorage.getItem('uafCalculatorActiveProfile');
-        
-        updateProfileSwitcher(profiles, activeProfileReg);
+      // --- UPDATED PROFILE MANAGEMENT ---
+      function getProfiles() {
+        return JSON.parse(localStorage.getItem('uafCalculatorProfiles') || '{}');
+      }
 
-        if (activeProfileReg && profiles[activeProfileReg]) {
-          loadProfile(activeProfileReg);
+      function saveProfiles(profiles) {
+        localStorage.setItem('uafCalculatorProfiles', JSON.stringify(profiles));
+      }
+
+      function getActiveProfileId() {
+        return localStorage.getItem('uafCalculatorActiveProfile');
+      }
+
+      function setActiveProfileId(id) {
+        localStorage.setItem('uafCalculatorActiveProfile', id);
+      }
+
+      function loadProfiles() {
+        const profiles = getProfiles();
+        const activeProfileId = getActiveProfileId();
+        updateProfileSwitcher(profiles, activeProfileId);
+
+        if (activeProfileId && profiles[activeProfileId]) {
+          loadProfile(activeProfileId);
           addStatusMessage('Loaded active profile from session.', 'info');
         }
       }
 
-      function updateProfileSwitcher(profiles, activeProfileReg) {
+      function updateProfileSwitcher(profiles, activeProfileId) {
         const profileKeys = Object.keys(profiles);
         if (profileKeys.length > 0) {
           profileSwitcher.innerHTML = '<option value="">Select a saved profile...</option>';
-          profileKeys.forEach(regNum => {
-            const option = document.createElement('option');
-            option.value = regNum;
-            option.textContent = `${profiles[regNum].studentInfo.name} (${regNum})`;
-            if (regNum === activeProfileReg) {
-              option.selected = true;
+          profileKeys.forEach(profileId => {
+            const profile = profiles[profileId];
+            if (profile && profile.studentInfo) { // Ensure profile data is valid
+                const option = document.createElement('option');
+                option.value = profileId;
+                // Use the custom displayName, fallback to the default generated name
+                option.textContent = profile.displayName || `${profile.studentInfo.name} (${profile.studentInfo.registration})`;
+                if (profileId === activeProfileId) {
+                option.selected = true;
+                }
+                profileSwitcher.appendChild(option);
             }
-            profileSwitcher.appendChild(option);
           });
           profileManagementDiv.style.display = 'block';
         } else {
@@ -2530,58 +2586,98 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         }
       }
 
-      function loadProfile(regNum) {
-        const profiles = JSON.parse(localStorage.getItem('uafCalculatorProfiles') || '{}');
-        if (profiles[regNum]) {
-          processedData = profiles[regNum];
-          isInitialLoad = true; // Treat profile load as an initial load for animations
+      function loadProfile(profileId) {
+        const profiles = getProfiles();
+        if (profiles[profileId]) {
+          processedData = profiles[profileId];
+          isInitialLoad = true;
           const cgpaData = calculateCGPA(processedData);
           displayCGPAResults(processedData, cgpaData);
-          registrationNumber.value = regNum;
-          localStorage.setItem('uafCalculatorActiveProfile', regNum);
-          updateProfileSwitcher(profiles, regNum);
+          registrationNumber.value = processedData.studentInfo.registration;
+          setActiveProfileId(profileId);
+          updateProfileSwitcher(profiles, profileId);
         }
       }
 
       function switchProfile(event) {
-        const regNum = event.target.value;
-        if (regNum) {
-          loadProfile(regNum);
-          showToast(`Switched to profile: ${regNum}`, 'info');
+        const profileId = event.target.value;
+        if (profileId) {
+          loadProfile(profileId);
+          showToast(`Switched to profile: ${getProfiles()[profileId].displayName}`, 'info');
         }
       }
 
       function deleteCurrentProfile() {
-        const activeProfileReg = localStorage.getItem('uafCalculatorActiveProfile');
-        if (!activeProfileReg) {
-          showToast('No active profile to delete.', 'warning');
+        const activeProfileId = getActiveProfileId();
+        if (!activeProfileId) {
+          showToast('No active profile selected to delete.', 'warning');
           return;
         }
 
-        if (confirm(`Are you sure you want to delete the profile for ${activeProfileReg}? This cannot be undone.`)) {
-          const profiles = JSON.parse(localStorage.getItem('uafCalculatorProfiles') || '{}');
-          delete profiles[activeProfileReg];
-          localStorage.setItem('uafCalculatorProfiles', JSON.stringify(profiles));
+        const profiles = getProfiles();
+        const profileNameToDelete = profiles[activeProfileId].displayName;
+
+        if (confirm(`Are you sure you want to delete the profile "${profileNameToDelete}"? This cannot be undone.`)) {
+          delete profiles[activeProfileId];
+          saveProfiles(profiles);
           localStorage.removeItem('uafCalculatorActiveProfile');
           
-          showToast(`Profile for ${activeProfileReg} deleted.`, 'success');
-          addStatusMessage(`Deleted profile: ${activeProfileReg}`, 'info');
+          showToast(`Profile "${profileNameToDelete}" deleted.`, 'success');
+          addStatusMessage(`Deleted profile: ${profileNameToDelete}`, 'info');
           
           setTimeout(() => location.reload(), 500);
         }
       }
 
       function saveActiveProfile() {
-        const activeProfileReg = localStorage.getItem('uafCalculatorActiveProfile');
-        if (activeProfileReg) {
-            const profiles = JSON.parse(localStorage.getItem('uafCalculatorProfiles') || '{}');
-            if (profiles[activeProfileReg]) {
-                profiles[activeProfileReg] = processedData;
-                localStorage.setItem('uafCalculatorProfiles', JSON.stringify(profiles));
+        const activeProfileId = getActiveProfileId();
+        if (activeProfileId) {
+            const profiles = getProfiles();
+            if (profiles[activeProfileId]) {
+                profiles[activeProfileId] = processedData;
+                saveProfiles(profiles);
             }
         }
       }
 
+      function openRenameModal() {
+        const activeProfileId = getActiveProfileId();
+        if (!activeProfileId) {
+            showToast('Please select a profile to rename.', 'warning');
+            return;
+        }
+        const profiles = getProfiles();
+        const currentName = profiles[activeProfileId].displayName;
+        document.getElementById('newProfileName').value = currentName;
+        renameProfileModal.show();
+      }
+
+      function renameProfile() {
+          const activeProfileId = getActiveProfileId();
+          const newName = document.getElementById('newProfileName').value.trim();
+
+          if (!newName) {
+              showToast('Profile name cannot be empty.', 'error');
+              return;
+          }
+
+          const profiles = getProfiles();
+          // Check if another profile already has this name
+          const nameExists = Object.values(profiles).some(p => p.displayName === newName);
+          if (nameExists && profiles[activeProfileId].displayName !== newName) {
+              showToast('A profile with this name already exists.', 'error');
+              return;
+          }
+
+          profiles[activeProfileId].displayName = newName;
+          saveProfiles(profiles);
+          renameProfileModal.hide();
+          showToast('Profile renamed successfully!', 'success');
+          updateProfileSwitcher(profiles, activeProfileId);
+      }
+      
+      // --- END OF UPDATED PROFILE MANAGEMENT ---
+      
       function updateTotalsDisplay() {
         const cgpaData = calculateCGPA(processedData);
         if (!cgpaData) return;
@@ -2963,7 +3059,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
           semesterResults.appendChild(semesterCard);
         });
 
-        isInitialLoad = false; // Set flag to false after the first full render
+        isInitialLoad = false;
         attachResultEventListeners();
         renderGpaChart();  
       }
@@ -3225,10 +3321,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         
         if (courseIndex !== -1) {
           semester.courses[courseIndex].isDeleted = isDeleted;
-
-          // This single function call recalculates AND redraws everything correctly.
           recalculateAndDisplay();
-          
           const action = isDeleted ? 'Deleted' : 'Restored';
           showToast(`Course ${course.code} ${action.toLowerCase()}`, 'info');
           addStatusMessage(`${action} course: ${course.code} from ${semesterName}`, 'info');
@@ -3473,22 +3566,39 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
           
           if (data.success && data.resultData && data.resultData.length > 0) {
             addStatusMessage('Result fetched successfully from UAF LMS', 'success');
-            isInitialLoad = true; // Set flag to true for initial fetch to enable animations
+            isInitialLoad = true;
             const processed = processScrapedData(data);
             const cgpaData = calculateCGPA(processed);
             
-            const profiles = JSON.parse(localStorage.getItem('uafCalculatorProfiles') || '{}');
-            profiles[regNum] = processed;
-            localStorage.setItem('uafCalculatorProfiles', JSON.stringify(profiles));
-            localStorage.setItem('uafCalculatorActiveProfile', regNum);
+            // --- UPDATED SAVE LOGIC ---
+            const profiles = getProfiles();
+            const studentInfo = processed.studentInfo;
+            let baseName = `${studentInfo.name} (${studentInfo.registration})`;
+            let finalName = baseName;
+            let copyNum = 1;
+
+            // Find an available name if the base name is already taken for a different registration number
+            const allDisplayNames = Object.values(profiles).map(p => p.displayName);
+
+            while(allDisplayNames.includes(finalName)) {
+                finalName = `${baseName} - ${copyNum++}`;
+            }
+
+            processed.displayName = finalName;
+            const newProfileId = `profile_${Date.now()}`;
+            profiles[newProfileId] = processed;
+            saveProfiles(profiles);
+            setActiveProfileId(newProfileId);
+            // --- END OF UPDATED SAVE LOGIC ---
 
             showLoadingStage('complete');
             setTimeout(() => {
               displayCGPAResults(processed, cgpaData);
               showLoadingStage(null);
-              showToast('Result fetched successfully!', 'success');
-              updateProfileSwitcher(profiles, regNum);
+              showToast('New profile created successfully!', 'success');
+              updateProfileSwitcher(profiles, newProfileId);
             }, 1000);
+
           } else {
             throw new Error(data.message || "No result found for this registration number.");
           }
@@ -3519,14 +3629,16 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
       addForecastSemesterBtn.addEventListener('click', addForecastSemester);
       profileSwitcher.addEventListener('change', switchProfile);
       deleteProfileBtn.addEventListener('click', deleteCurrentProfile);
+      // NEW: Event listeners for rename functionality
+      renameProfileBtn.addEventListener('click', openRenameModal);
+      saveProfileNameBtn.addEventListener('click', renameProfile);
       
       init();
     });
-  </script>
-  <script defer src="/_vercel/speed-insights/script.js">
-  </script>
+</script>
 </body>
 </html>
+
 
 
 
