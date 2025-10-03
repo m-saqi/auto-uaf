@@ -935,28 +935,25 @@ a[aria-expanded="true"] #gpaChartChevron {
 }
 
 
-    /* ADD THIS CSS FOR THE NEW CHANGES */
-
-/* Modern Section Divider */
+    /* USE THIS NEW CSS FOR THE DIVIDER */
 .section-divider {
-  height: 50px;
-  background: var(--light-bg);
+  height: 80px;
   position: relative;
-  overflow: hidden;
+  background: linear-gradient(to bottom, var(--light-bg) 0%, #ffffff 100%);
 }
+
 .section-divider::after {
   content: '';
   position: absolute;
-  left: 50%;
-  transform: translateX(-50%);
-  bottom: 0;
-  width: 150px;
-  height: 4px;
-  background: var(--brand-gradient);
-  border-radius: 2px;
+  left: 0;
+  right: 0;
+  top: 0;
+  height: 1px;
+  background: linear-gradient(to right, rgba(122, 106, 216, 0), rgba(122, 106, 216, 0.4), rgba(122, 106, 216, 0));
 }
+
 [data-theme="dark"] .section-divider {
-  background: transparent;
+  background: linear-gradient(to bottom, #0f1320 0%, #0b0e13 100%);
 }
 
 /* Aligned Action Buttons */
@@ -3517,6 +3514,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
   </script>
 </body>
 </html>
+
 
 
 
