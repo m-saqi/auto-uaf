@@ -934,26 +934,35 @@ a[aria-expanded="true"] #gpaChartChevron {
     border-bottom-right-radius: .85rem !important;
 }
 
-
-    /* USE THIS NEW CSS FOR THE DIVIDER */
-.section-divider {
-  height: 80px;
-  position: relative;
-  background: linear-gradient(to bottom, var(--light-bg) 0%, #ffffff 100%);
+/* ADD THIS CSS FOR THE ANNOUNCEMENT BAR */
+.announcement-bar {
+  background: var(--brand-gradient);
+  color: white;
+  padding: 0.75rem 0;
+  overflow: hidden;
+  white-space: nowrap;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
 }
 
-.section-divider::after {
-  content: '';
-  position: absolute;
-  left: 0;
-  right: 0;
-  top: 0;
-  height: 1px;
-  background: linear-gradient(to right, rgba(122, 106, 216, 0), rgba(122, 106, 216, 0.4), rgba(122, 106, 216, 0));
+.announcement-track {
+  display: inline-block;
+  animation: scroll-left 30s linear infinite;
 }
 
-[data-theme="dark"] .section-divider {
-  background: linear-gradient(to bottom, #0f1320 0%, #0b0e13 100%);
+.announcement-text {
+  display: inline-block;
+  font-weight: 500;
+  margin: 0 2.5rem; /* Spacing between tips */
+  opacity: 0.9;
+}
+
+@keyframes scroll-left {
+  0% {
+    transform: translateX(0%);
+  }
+  100% {
+    transform: translateX(-50%); /* This value should be -50% because the content is duplicated */
+  }
 }
 
 /* Aligned Action Buttons */
@@ -3514,6 +3523,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
   </script>
 </body>
 </html>
+
 
 
 
