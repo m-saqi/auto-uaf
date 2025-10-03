@@ -1917,29 +1917,6 @@ a[aria-expanded="true"] .status-log-chevron {
   animation: gradient-text 3s ease infinite;
 }
 
-    /* ADD THIS CSS */
-.section-divider {
-  height: 50px;
-  background: var(--light-bg);
-  position: relative;
-  overflow: hidden;
-}
-
-.section-divider::after {
-  content: '';
-  position: absolute;
-  left: 50%;
-  transform: translateX(-50%);
-  bottom: 0;
-  width: 150px;
-  height: 4px;
-  background: var(--brand-gradient);
-  border-radius: 2px;
-}
-
-[data-theme="dark"] .section-divider {
-  background: transparent;
-}
 
 /* Animation for robot icon */
 .robot-icon-gradient {
@@ -2176,7 +2153,34 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     </div>
   </section>
 
-  <div class="section-divider"></div>
+  <div class="announcement-bar">
+    <div class="announcement-track">
+        <span class="announcement-text">
+            <i class="fa-solid fa-circle-info me-2"></i>
+            <strong>Tip:</strong> Only the highest marks in a repeated course are counted towards your CGPA.
+        </span>
+        <span class="announcement-text">
+            <i class="fa-solid fa-wand-magic-sparkles me-2"></i>
+            <strong>Tip:</strong> Use the 'Forecast Semester' button to plan your future grades.
+        </span>
+        <span class="announcement-text">
+            <i class="fa-solid fa-arrows-up-down-left-right me-2"></i>
+            <strong>Tip:</strong> On desktop, you can drag & drop courses between semesters.
+        </span>
+        <span class="announcement-text">
+            <i class="fa-solid fa-circle-info me-2"></i>
+            <strong>Tip:</strong> Only the highest marks in a repeated course are counted towards your CGPA.
+        </span>
+        <span class="announcement-text">
+            <i class="fa-solid fa-wand-magic-sparkles me-2"></i>
+            <strong>Tip:</strong> Use the 'Forecast Semester' button to plan your future grades.
+        </span>
+        <span class="announcement-text">
+            <i class="fa-solid fa-arrows-up-down-left-right me-2"></i>
+            <strong>Tip:</strong> On desktop, you can drag & drop courses between semesters.
+        </span>
+    </div>
+</div>
 
   <section class="py-5" id="Auto-Calculator">
     <div class="container">
@@ -3523,6 +3527,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
   </script>
 </body>
 </html>
+
 
 
 
