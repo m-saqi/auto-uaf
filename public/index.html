@@ -2217,6 +2217,11 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                   <option value="3" selected>3</option>
                   <option value="4">4</option>
                   <option value="5">5</option>
+                  <option value="6">6</option>
+                  <option value="7">7</option>
+                  <option value="8">8</option>
+                  <option value="9">9</option>
+                  <option value="10">10</option>
                 </select>
               </div>
               <div class="col-6 mb-3">
@@ -3082,7 +3087,32 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         marks = parseFloat(marks);
         creditHours = parseInt(creditHours);
         let qualityPoints = 0;
-        if (creditHours === 5) {
+        if (creditHours === 10) {
+            if (marks >= 160) qualityPoints = 40;
+            else if (marks >= 100) qualityPoints = 40 - ((160 - marks) * 0.33333);
+            else if (marks < 100) qualityPoints = 20 - ((100 - marks) * 0.5);
+            if (marks < 80) qualityPoints = 0;
+        } else if (creditHours === 9) {
+            if (marks >= 144) qualityPoints = 36;
+            else if (marks >= 90) qualityPoints = 36 - ((144 - marks) * 0.33333);
+            else if (marks < 90) qualityPoints = 18 - ((90 - marks) * 0.5);
+            if (marks < 72) qualityPoints = 0;
+        } else if (creditHours === 8) {
+            if (marks >= 128) qualityPoints = 32;
+            else if (marks >= 80) qualityPoints = 32 - ((128 - marks) * 0.33333);
+            else if (marks < 80) qualityPoints = 16 - ((80 - marks) * 0.5);
+            if (marks < 64) qualityPoints = 0;
+        } else if (creditHours === 7) {
+            if (marks >= 112) qualityPoints = 28;
+            else if (marks >= 70) qualityPoints = 28 - ((112 - marks) * 0.33333);
+            else if (marks < 70) qualityPoints = 14 - ((70 - marks) * 0.5);
+            if (marks < 56) qualityPoints = 0;
+        } else if (creditHours === 6) {
+            if (marks >= 96) qualityPoints = 24;
+            else if (marks >= 60) qualityPoints = 24 - ((96 - marks) * 0.33333);
+            else if (marks < 60) qualityPoints = 12 - ((60 - marks) * 0.5);
+            if (marks < 48) qualityPoints = 0;
+        } else if (creditHours === 5) {
             if (marks >= 80) qualityPoints = 20;
             else if (marks >= 50) qualityPoints = 20 - ((80 - marks) * 0.33333);
             else if (marks < 50) qualityPoints = 10 - ((50 - marks) * 0.5);
@@ -3112,7 +3142,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
       }
       
       function calculateCustomGrade(marks, creditHours) {
-        const grading = { 5: { A: 80, B: 50, D: 40 }, 4: { A: 64, B: 52, C: 40, D: 32 }, 3: { A: 48, B: 39, C: 30, D: 24 }, 2: { A: 32, B: 26, C: 20, D: 16 }, 1: { A: 16, B: 13, C: 10, D: 8 } };
+        const grading = { 10: { A: 160, B: 100, D: 80 }, 9: { A: 144, B: 90, D: 72 }, 8: { A: 128, B: 80, D: 64 }, 7: { A: 112, B: 70, D: 56 }, 6: { A: 96, B: 60, D: 48 }, 5: { A: 80, B: 50, D: 40 }, 4: { A: 64, B: 52, C: 40, D: 32 }, 3: { A: 48, B: 39, C: 30, D: 24 }, 2: { A: 32, B: 26, C: 20, D: 16 }, 1: { A: 16, B: 13, C: 10, D: 8 } };
         const scale = grading[creditHours];
         if (!scale) return 'F';
         if (marks >= scale.A) return 'A'; if (marks >= scale.B) return 'B';
@@ -3135,7 +3165,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                     semester.totalCreditHours += course.creditHours;
                     semester.totalMarksObtained += course.marks;
                     
-                    let maxMarks = { 5: 100, 4: 80, 3: 60, 2: 40, 1: 20 }[course.creditHours] || 0;
+                    let maxMarks = { 10: 200, 9: 180, 8: 160, 7: 140, 6: 120, 5: 100, 4: 80, 3: 60, 2: 40, 1: 20 }[course.creditHours] || 0;
                     semester.totalMaxMarks += maxMarks;
                     
                     totalQualityPoints += course.qualityPoints;
@@ -3801,8 +3831,3 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 </script>
 </body>
 </html>
-
-
-
-
-
