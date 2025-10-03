@@ -131,25 +131,11 @@ html, body {
 }
 
 body {
-  background: linear-gradient(-45deg, #ee7752, #e73c7e, #23a6d5, #23d5ab);
-  background-size: 400% 400%;
-  animation: gradient 15s ease infinite;
+  background-color: var(--light-bg); /* UPDATED: Solid background color */
   min-height: 100vh;
   margin: 0;
   padding: 0;
   color: var(--text); /* Added base text color */
-}
-
-@keyframes gradient {
-  0% {
-    background-position: 0% 50%;
-  }
-  50% {
-    background-position: 100% 50%;
-  }
-  100% {
-    background-position: 0% 50%;
-  }
 }
 
 /* Improved navbar with glassmorphism effect */
@@ -1161,9 +1147,7 @@ a[aria-expanded="true"] .status-log-chevron {
 }
 
 [data-theme="dark"] body {
-  background: linear-gradient(-45deg, #0b0e13, #0f1320, #1a2a3a, #0f1320);
-  background-size: 400% 400%;
-  animation: gradient 15s ease infinite;
+  background: linear-gradient(180deg, #0b0e13 0%, #0f1320 70%);
   color: #f1f5f9;
 }
 
@@ -3847,4 +3831,3 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 </script>
 </body>
 </html>
-
