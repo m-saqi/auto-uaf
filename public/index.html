@@ -997,6 +997,146 @@ a[aria-expanded="true"] .status-log-chevron {
 .modern-rename-button {
     border-left: 0 !important;
 }
+
+    /* ADD THIS CSS FOR THE PREMIUM CGPA DISPLAY */
+.gpa-result-card-premium {
+  background: rgba(255, 255, 255, 0.8);
+  border-radius: var(--radius);
+  padding: 2rem;
+  box-shadow: var(--shadow);
+  margin-bottom: 2rem;
+  margin-top: 2rem;
+  backdrop-filter: blur(10px);
+  transition: all 0.3s ease;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+[data-theme="dark"] .gpa-result-card-premium {
+  background: rgba(26, 32, 48, 0.8);
+}
+.gpa-result-card-premium:hover {
+  transform: translateY(-5px);
+  box-shadow: var(--shadow-hover);
+}
+
+.student-info-header {
+  text-align: center;
+  margin-bottom: 2rem;
+  border-bottom: 1px solid rgba(122, 106, 216, 0.2);
+  padding-bottom: 1.5rem;
+}
+.student-info-header h2 {
+  font-size: 1.5rem;
+}
+
+.cgpa-dashboard {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 2rem;
+}
+
+.cgpa-progress-circle {
+  width: 180px;
+  height: 180px;
+  position: relative;
+}
+.cgpa-progress-circle svg {
+  width: 100%;
+  height: 100%;
+  transform: rotate(-90deg);
+}
+.cgpa-progress-circle .circle-bg {
+  fill: none;
+  stroke: rgba(122, 106, 216, 0.15);
+  stroke-width: 3.8;
+}
+[data-theme="dark"] .cgpa-progress-circle .circle-bg {
+    stroke: rgba(122, 106, 216, 0.2);
+}
+.cgpa-progress-circle .circle {
+  fill: none;
+  stroke: var(--brand);
+  stroke-width: 3.8;
+  stroke-linecap: round;
+  transition: stroke-dasharray 1s ease-in-out;
+}
+
+.cgpa-progress-text {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  text-align: center;
+}
+.cgpa-progress-text .cgpa-value {
+  font-size: 2.75rem;
+  font-weight: 700;
+  line-height: 1;
+  color: var(--brand);
+  background: var(--brand-gradient);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+.cgpa-progress-text .cgpa-label {
+  display: block;
+  font-size: 1rem;
+  font-weight: 500;
+  color: var(--muted);
+  margin-top: 0.25rem;
+}
+
+.secondary-stats {
+  display: flex;
+  justify-content: center;
+  gap: 2rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid rgba(122, 106, 216, 0.2);
+}
+.stat-item {
+  text-align: center;
+}
+.stat-label {
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: var(--muted);
+  display: block;
+  margin-bottom: 0.5rem;
+}
+.stat-value {
+  font-size: 1.75rem;
+  font-weight: 600;
+  color: var(--text);
+}
+[data-theme="dark"] .stat-value {
+    color: #e5e7eb;
+}
+.stat-sub-value {
+    font-size: 1rem;
+    color: var(--muted);
+}
+.stat-divider {
+  width: 1px;
+  background: rgba(122, 106, 216, 0.2);
+}
+
+@media (max-width: 576px) {
+  .gpa-result-card-premium {
+    padding: 1.5rem;
+  }
+  .cgpa-progress-circle {
+    width: 150px;
+    height: 150px;
+  }
+  .cgpa-progress-text .cgpa-value {
+    font-size: 2.25rem;
+  }
+  .secondary-stats {
+    gap: 1rem;
+  }
+  .stat-value {
+    font-size: 1.25rem;
+  }
+}
     
     
 /* ----------- DARK MODE IMPROVED ----------- */
@@ -2263,18 +2403,39 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 </div>
           
           <div id="resultContainer" class="result-container">
-    <div class="gpa-result-card fade-in-on-scroll">
-      <div class="card-body p-0">
-        <div class="cgpa-display-container">
-          <div class="cgpa-main-info"><h2 class="mb-1 fw-bold" id="studentName" style="margin-top: 20px"><i class="fa-solid fa-user-graduate me-2"></i>Student Name</h2><p class="mb-0 text-body-secondary" id="studentReg">Registration Number</p></div>
-          <div class="cgpa-metrics-row">
-            <div class="cgpa-metric cgpa-metric-left"><p class="mb-0 cgpa-metric-label">CGPA</p><p class="mb-0 cgpa-metric-value" id="totalCgpa">0.0000</p></div>
-            <div class="cgpa-metric cgpa-metric-center"><p class="mb-0 cgpa-metric-label">Percentage</p><p class="mb-0 cgpa-metric-value" id="totalPercentage">0.0000%</p></div>
-            <div class="cgpa-metric cgpa-metric-right"><p class="mb-0 cgpa-metric-label">Marks</p><div class="cgpa-metric-value-container"><p class="mb-0 cgpa-metric-value" id="totalMarksObtained">0</p><p class="mb-0 cgpa-metric-subvalue" id="totalMaxMarks">/ 0</p></div></div>
-          </div>
+    <div class="gpa-result-card-premium fade-in-on-scroll">
+    <div class="student-info-header">
+      <h2 class="mb-0 fw-bold" id="studentName"><i class="fa-solid fa-user-graduate me-2"></i>Student Name</h2>
+      <p class="mb-0 text-body-secondary" id="studentReg">Registration Number</p>
+    </div>
+    
+    <div class="cgpa-dashboard">
+      <div class="cgpa-progress-circle">
+        <svg viewBox="0 0 36 36">
+          <path class="circle-bg" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+          <path id="cgpaCircle" class="circle" stroke-dasharray="0, 100" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+        </svg>
+        <div class="cgpa-progress-text">
+          <span id="totalCgpa" class="cgpa-value">0.00</span>
+          <span class="cgpa-label">CGPA</span>
         </div>
       </div>
     </div>
+
+    <div class="secondary-stats">
+        <div class="stat-item">
+            <span class="stat-label">Percentage</span>
+            <span class="stat-value" id="totalPercentage">0.00%</span>
+        </div>
+        <div class="stat-divider"></div>
+        <div class="stat-item">
+            <span class="stat-label">Total Marks</span>
+            <span class="stat-value">
+                <span id="totalMarksObtained">0</span><span id="totalMaxMarks" class="stat-sub-value">/ 0</span>
+            </span>
+        </div>
+    </div>
+</div>
     
     <div class="card card-modern mt-4 fade-in-on-scroll" id="gpaChartContainer" style="display: none;">
     <div class="card-header p-0">
@@ -2997,15 +3158,6 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
       function displayCGPAResults(data, cgpaData) {
         processedData = data;
         resultContainer.style.display = 'block';
-
-        const card = document.querySelector('#resultContainer .gpa-result-card');
-        if (!card.querySelector('.copy-icon-btn')) {  
-          const icon = document.createElement('i');
-          icon.className = 'fa-solid fa-clipboard copy-icon-btn';
-          icon.id = 'copyDetailsIconBtn';
-          icon.title = 'Copy Details';
-          card.appendChild(icon);
-        }
         
         studentName.innerHTML = `<i class="fa-solid fa-user-graduate me-2"></i>${data.studentInfo.name}`;
         studentReg.textContent = data.studentInfo.registration;
@@ -3013,6 +3165,18 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         totalPercentage.textContent = `${formatNumber(cgpaData.percentage, 2).toFixed(2)}%`;
         totalMarksObtained.textContent = cgpaData.totalMarksObtained.toFixed(0);
         totalMaxMarks.textContent = `/ ${cgpaData.totalMaxMarks.toFixed(0)}`;
+
+        // --- ADD THIS NEW CODE FOR THE CIRCLE ---
+    const cgpaCircle = document.getElementById('cgpaCircle');
+    if(cgpaCircle) {
+        const cgpa = parseFloat(totalCgpa.textContent);
+        const percentage = (cgpa / 4.0) * 100;
+        const offset = 100 - percentage;
+        // A short delay to allow the element to render before animating
+        setTimeout(() => {
+            cgpaCircle.style.strokeDasharray = `${percentage}, 100`;
+        }, 100);
+    }
         
         semesterResults.innerHTML = '';
         Object.keys(data.semesters).sort((a,b) => data.semesters[a].sortKey.localeCompare(data.semesters[b].sortKey)).forEach(semesterName => {
@@ -3637,5 +3801,6 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 </script>
 </body>
 </html>
+
 
 
