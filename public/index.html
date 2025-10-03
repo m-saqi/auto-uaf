@@ -763,22 +763,21 @@ a:hover {
 }
 
 .course-table {
-  font-size: 0.65rem;
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 1rem;
 }
 
-/* NEW: Make grade text smaller */
-.grade-badge {
-  font-size: 0.6rem; /* Reduced font size */
-  padding: 0.2rem 0.35rem; /* Adjusted padding */
-  font-weight: 600;
-  border-radius: 0.375rem;
-}
-
-/* NEW: Reduce padding to decrease gaps between columns */
 .course-table th, .course-table td {
-  padding: 0.75rem 0.4rem; /* Reduced horizontal padding */
+  padding: 0.75rem;
   text-align: left;
   border-bottom: 1px solid rgba(229, 231, 235, 0.5);
+}
+
+.course-table th {
+  font-weight: 600;
+  color: var(--muted);
+  background: rgba(122, 106, 216, 0.05);
 }
 
 .grade-badge {
@@ -1455,9 +1454,18 @@ a[aria-expanded="true"] .status-log-chevron {
   .course-table {
     font-size: 0.65rem;
   }
+  /* NEW: Reduce padding to decrease gaps between columns */
+  .course-table th, .course-table td {
+    padding: 0.75rem 0.4rem; /* Reduced horizontal padding */
+  }
   .course-table td:first-child {
     font-size: 0.7rem;
     font-weight: 500;
+  }
+  /* NEW: Make grade text smaller */
+  .grade-badge {
+    font-size: 0.6rem;
+    padding: 0.2rem 0.35rem;
   }
   .btn {
     padding: 0.6rem 0.9rem;
@@ -3832,4 +3840,3 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 </script>
 </body>
 </html>
-
