@@ -131,11 +131,13 @@ html, body {
 }
 
 body {
-  background-color: var(--light-bg); /* UPDATED: Solid background color */
+  display: flex; /* ADDED: Makes the body a flex container */
+  flex-direction: column; /* ADDED: Stacks children vertically */
+  background-color: var(--light-bg);
   min-height: 100vh;
   margin: 0;
   padding: 0;
-  color: var(--text); /* Added base text color */
+  color: var(--text);
 }
 
 /* Improved navbar with glassmorphism effect */
@@ -528,8 +530,9 @@ status-warning { color: #fd7e14; }
 .status-info { color: var(--brand); }
 
 .footer {
+  margin-top: auto; /* ADDED: Pushes the footer to the bottom */
   color: #9ca3af;
-  background-color: var(--light-bg); /* UPDATED: Solid background color */
+  background-color: var(--light-bg);
 }
 
 a {
