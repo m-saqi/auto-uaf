@@ -2,6 +2,8 @@ from http.server import BaseHTTPRequestHandler
 import json
 import requests
 from bs4 import BeautifulSoup
+import os
+import time
 import re
 import random
 import logging
@@ -19,6 +21,8 @@ USER_AGENTS = [
     'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
     'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Safari/537.36',
     'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:109.0) Gecko/20100101 Firefox/121.0',
+    'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+    'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Edge/120.0.0.0'
 ]
 
 class handler(BaseHTTPRequestHandler):
@@ -33,28 +37,27 @@ class handler(BaseHTTPRequestHandler):
         self.end_headers()
         return
 
-    def handle_request(self):
+    def do_GET(self):
         try:
-            query_params = self.path.split('?')
-            action = ''
-            if len(query_params) > 1:
-                params = dict(param.split('=') for param in query_params[1].split('&'))
-                action = params.get('action')
-
-            if action == 'scrape_single':
+            if 'action=scrape_single' in self.path:
                 self.handle_scrape_single()
-            elif action == 'scrape_attendance':
-                self.handle_scrape_attendance()
             else:
-                self.send_error_response(404, f"Action '{action}' not found.")
+                self.send_response(404)
+                self._set_cors_headers()
+                self.end_headers()
         except Exception as e:
             self.send_error_response(500, f"Server error: {str(e)}")
 
-    def do_GET(self):
-        self.handle_request()
-
     def do_POST(self):
-        self.handle_request()
+        try:
+            if 'action=scrape_single' in self.path:
+                self.handle_scrape_single()
+            else:
+                self.send_response(404)
+                self._set_cors_headers()
+                self.end_headers()
+        except Exception as e:
+            self.send_error_response(500, f"Server error: {str(e)}")
 
     def send_error_response(self, status_code, message):
         self.send_response(status_code)
@@ -71,24 +74,23 @@ class handler(BaseHTTPRequestHandler):
         self.end_headers()
         self.wfile.write(json.dumps(data).encode())
 
-    def get_registration_number(self):
-        registration_number = None
-        if self.command == 'GET':
-            query_params = self.path.split('?')
-            if len(query_params) > 1:
-                params = dict(param.split('=') for param in query_params[1].split('&'))
-                registration_number = params.get('registrationNumber')
-        else: # POST
-            content_length = int(self.headers['Content-Length'])
-            post_data = self.rfile.read(content_length)
-            data = json.loads(post_data)
-            registration_number = data.get('registrationNumber')
-        return registration_number
-
     def handle_scrape_single(self):
         """Handle single result scraping for CGPA calculator"""
         try:
-            registration_number = self.get_registration_number()
+            if self.command == 'GET':
+                query_params = self.path.split('?')
+                if len(query_params) > 1:
+                    params = dict(param.split('=') for param in query_params[1].split('&'))
+                    registration_number = params.get('registrationNumber')
+                else:
+                    self.send_error_response(400, 'No registration number provided')
+                    return
+            else: # POST
+                content_length = int(self.headers['Content-Length'])
+                post_data = self.rfile.read(content_length)
+                data = json.loads(post_data)
+                registration_number = data.get('registrationNumber')
+            
             if not registration_number:
                 self.send_error_response(400, 'No registration number provided')
                 return
@@ -98,22 +100,6 @@ class handler(BaseHTTPRequestHandler):
             self.send_success_response(response)
         except Exception as e:
             self.send_error_response(500, f"Error scraping single result: {str(e)}")
-
-    def handle_scrape_attendance(self):
-        """Handle attendance scraping"""
-        try:
-            registration_number = self.get_registration_number()
-            if not registration_number:
-                self.send_error_response(400, 'Registration number not provided.')
-                return
-
-            success, message, result_data = self.scrape_student_attendance(registration_number)
-            self.send_success_response({'success': success, 'message': message, 'resultData': result_data})
-
-        except json.JSONDecodeError:
-            self.send_error_response(400, "Invalid JSON.")
-        except Exception as e:
-            self.send_error_response(500, f"An unexpected error occurred: {e}")
 
     def scrape_uaf_results(self, registration_number):
         """Main function to scrape UAF results with HTTP/HTTPS fallback"""
@@ -215,69 +201,3 @@ class handler(BaseHTTPRequestHandler):
             return False, f"No result data found for: {registration_number}", None
         except Exception as e:
             return False, f"Error parsing results: {str(e)}", None
-
-    def scrape_student_attendance(self, registration_number):
-        base_url = "http://121.52.152.24/"
-        results_url = "http://121.52.152.24/StudentDetail.aspx"
-        try:
-            with requests.Session() as session:
-                session.headers.update({
-                    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
-                })
-                # Get initial page to extract form fields
-                initial_res = session.get(base_url, timeout=10)
-                initial_soup = BeautifulSoup(initial_res.content, 'html.parser')
-                
-                viewstate = initial_soup.find('input', {'name': '__VIEWSTATE'})
-                viewstategenerator = initial_soup.find('input', {'name': '__VIEWSTATEGENERATOR'})
-                eventvalidation = initial_soup.find('input', {'name': '__EVENTVALIDATION'})
-
-                if not all([viewstate, viewstategenerator, eventvalidation]):
-                    return False, "Could not find required form fields. The website may have changed.", None
-
-                form_data = {
-                    '__VIEWSTATE': viewstate['value'],
-                    '__VIEWSTATEGENERATOR': viewstategenerator['value'],
-                    '__EVENTVALIDATION': eventvalidation['value'],
-                    'ctl00$Main$txtReg': registration_number,
-                    'ctl00$Main$btnShow': 'Access To Student Information'
-                }
-
-                # Post data to get attendance details
-                post_res = session.post(base_url, data=form_data, timeout=15, headers={'Referer': base_url})
-
-                if post_res.url != results_url:
-                    return False, "Failed to access student details. The registration number may be incorrect or the service is down.", None
-
-                # Now parse the attendance table from the results page
-                results_soup = BeautifulSoup(post_res.content, 'html.parser')
-                attendance_table = results_soup.find('table', {'id': 'ctl00_Main_TabContainer1_tbAttendance_gvAttendance'})
-
-                if not attendance_table:
-                    return True, "No attendance records found for this student.", []
-
-                rows = attendance_table.find_all('tr')[1:] # Skip header
-                attendance_data = []
-                for row in rows:
-                    cols = [ele.text.strip() for ele in row.find_all('td')]
-                    if len(cols) >= 6:
-                        try:
-                            total_lectures = int(cols[3])
-                            attended_lectures = int(cols[4])
-                            attendance_data.append({
-                                'CourseCode': cols[0],
-                                'CourseName': cols[1],
-                                'TeacherName': cols[2],
-                                'TotalLectures': total_lectures,
-                                'Attended': attended_lectures,
-                                'Status': cols[5]
-                            })
-                        except (ValueError, IndexError):
-                            continue # Skip row if data is malformed
-                
-                return True, "Attendance data retrieved successfully.", attendance_data
-        
-        except requests.exceptions.RequestException as e:
-            return False, f"A network error occurred: {e}", None
-        except Exception as e:
-            return False, f"An unexpected error occurred during scraping: {e}", None
