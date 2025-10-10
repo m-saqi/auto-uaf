@@ -102,36 +102,57 @@ class handler(BaseHTTPRequestHandler):
             self.send_error_response(500, f"Error scraping single result: {str(e)}")
 
     def scrape_uaf_results(self, registration_number):
-        """Main function to scrape UAF results"""
+        """Main function to scrape UAF results with HTTP/HTTPS fallback"""
+        session = requests.Session()
+        session.headers.update({'User-Agent': random.choice(USER_AGENTS)})
+        
+        schemes = ['http', 'https']
+        response = None
+        base_url = ''
+        
+        for scheme in schemes:
+            try:
+                base_url = f"{scheme}://lms.uaf.edu.pk"
+                login_url = f"{base_url}/login/index.php"
+                logger.info(f"Attempting connection to UAF LMS via {scheme.upper()}...")
+                response = session.get(login_url, timeout=15, verify=False)
+                response.raise_for_status()
+                logger.info(f"Successfully connected via {scheme.upper()}.")
+                break 
+            except requests.exceptions.RequestException as e:
+                logger.warning(f"{scheme.upper()} connection failed: {e}")
+                response = None 
+        
+        if not response:
+            logger.error("Both HTTP and HTTPS connections failed.")
+            return False, "Could not connect to UAF LMS. The server may be down or blocking requests.", None
+
         try:
-            session = requests.Session()
-            session.headers.update({'User-Agent': random.choice(USER_AGENTS)})
-            login_url = "https://lms.uaf.edu.pk/login/index.php"
-            response = session.get(login_url, timeout=15, verify=False) # Often UAF LMS has cert issues
-            if response.status_code != 200:
-                return False, f"UAF LMS returned status code {response.status_code}. The server may be down.", None
-            
             token = self.extract_js_token(response.text)
             if not token:
                 soup = BeautifulSoup(response.text, 'html.parser')
                 token_input = soup.find('input', {'id': 'token'})
                 token = token_input.get('value') if token_input else None
+            
             if not token:
-                return False, "Could not extract security token from UAF LMS", None
+                return False, "Could not extract security token from UAF LMS. The site structure may have changed.", None
             
-            result_url = "https://lms.uaf.edu.pk/course/uaf_student_result.php"
+            result_url = f"{base_url}/course/uaf_student_result.php"
             form_data = {'token': token, 'Register': registration_number}
-            headers = {'Referer': login_url, 'Origin': 'https://lms.uaf.edu.pk'}
-            response = session.post(result_url, data=form_data, headers=headers, timeout=20, verify=False)
-            if response.status_code != 200:
-                return False, f"UAF LMS returned status code {response.status_code}", None
+            headers = {'Referer': login_url, 'Origin': base_url}
             
-            return self.parse_uaf_results(response.text, registration_number)
+            post_response = session.post(result_url, data=form_data, headers=headers, timeout=20, verify=False)
+            
+            if post_response.status_code != 200:
+                return False, f"UAF LMS returned status code {post_response.status_code} when fetching results.", None
+            
+            return self.parse_uaf_results(post_response.text, registration_number)
         except requests.exceptions.RequestException as e:
-            return False, f"Network error: {str(e)}. UAF LMS may be unavailable.", None
+            return False, f"Network error during scraping: {str(e)}. UAF LMS may be unavailable.", None
         except Exception as e:
-            logger.error(f"Unexpected error: {str(e)}")
-            return False, f"Unexpected error: {str(e)}", None
+            logger.error(f"Unexpected error during scraping logic: {str(e)}")
+            return False, f"An unexpected error occurred: {str(e)}", None
+
 
     def extract_js_token(self, html_content):
         """Extract JavaScript-generated token from UAF LMS"""
