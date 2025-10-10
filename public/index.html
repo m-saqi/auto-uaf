@@ -2230,29 +2230,6 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     <i class="fas fa-arrow-up"></i>
   </div>
 
-  <div class="modal fade" id="importCoursesModal" tabindex="-1" aria-labelledby="importCoursesModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-lg modal-dialog-centered">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title" id="importCoursesModalLabel">Import Courses from Attendance System</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-        </div>
-        <div class="modal-body">
-          <p>The following courses were found in the attendance system but not in your UAF LMS results. Select the courses you want to import.</p>
-          <div class="d-flex justify-content-end mb-3">
-            <button class="btn btn-sm btn-outline-secondary" id="toggleAllCoursesBtn">Show All Courses</button>
-          </div>
-          <div id="import-courses-list" class="list-group">
-            </div>
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-secondary-action" data-bs-dismiss="modal">Cancel</button>
-          <button type="button" class="btn btn-primary-action" id="importSelectedCoursesBtn">Import Selected</button>
-        </div>
-      </div>
-    </div>
-  </div>
-
   <div class="modal fade course-details-modal" id="courseDetailsModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
       <div class="modal-content">
@@ -2537,13 +2514,9 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
   </div>
 
     <div class="action-buttons-aligned fade-in-on-scroll">
-      <button id="attendanceBtn" class="btn btn-success-action"><i class="fa-solid fa-user-check me-2"></i>Attendance System</button>
       <button id="downloadPdfBtn" class="btn btn-pdf-download"><i class="fa-solid fa-file-pdf me-2"></i>Download PDF</button>
       <button id="addForecastSemesterBtn" class="btn btn-info-action"><i class="fa-solid fa-wand-magic-sparkles me-2"></i>Forecast Semester</button>
     </div>
-
-    <div id="attendanceResultContainer" class="result-container">
-        </div>
 
     <div class="semester-results-container">
       <div id="semesterResults" class="semester-grid"></div>
@@ -2719,7 +2692,6 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
       const resultForm = document.getElementById('resultForm');
       const registrationNumber = document.getElementById('registrationNumber');
       const resultContainer = document.getElementById('resultContainer');
-      const attendanceResultContainer = document.getElementById('attendanceResultContainer');
       const statusLog = document.getElementById('statusLog');
       const themeToggle = document.getElementById('themeToggle');
       const cursorDot = document.getElementById('cursorDot');
@@ -2734,10 +2706,8 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
       const totalMarksObtained = document.getElementById('totalMarksObtained');
       const totalMaxMarks = document.getElementById('totalMaxMarks');
       const downloadPdfBtn = document.getElementById('downloadPdfBtn');
-      const attendanceBtn = document.getElementById('attendanceBtn');
       const courseDetailsModal = new bootstrap.Modal(document.getElementById('courseDetailsModal'));
       const addCourseModal = new bootstrap.Modal(document.getElementById('addCourseModal'));
-      const importCoursesModal = new bootstrap.Modal(document.getElementById('importCoursesModal'));
       const saveCourseBtn = document.getElementById('saveCourseBtn');
       const addCourseForm = document.getElementById('addCourseForm');
       const loadingContainer = document.getElementById('loadingContainer');
@@ -2760,9 +2730,8 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
       let deletedSemesters = {};
       let gpaChart = null;  
       let isInitialLoad = true;
-      let attendanceCourses = [];
       
-      const API_ENDPOINT = `/api/result-scraper`;
+      const API_ENDPOINT = `/api/result-scraper?action=scrape_single`;
       
       function init() {
         initCustomCursor();
@@ -3831,14 +3800,13 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         if (!regNum) { showToast('Please enter a registration number', 'error'); return; }
         
         resultContainer.style.display = 'none';
-        attendanceResultContainer.style.display = 'none';
         showLoadingStage('connecting');
         addStatusMessage(`Fetching result for: ${regNum}`, 'info');
         semesterResults.innerHTML = '';
         gpaChartContainer.style.display = 'none';
 
         try {
-          const response = await fetch(`${API_ENDPOINT}?action=scrape_single&registrationNumber=${encodeURIComponent(regNum)}`);
+          const response = await fetch(`${API_ENDPOINT}&registrationNumber=${encodeURIComponent(regNum)}`);
           if (!response.ok) throw new Error(`Server responded with status ${response.status}`);
           showLoadingStage('fetching');
           const data = await response.json();
@@ -3850,12 +3818,14 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
             const processed = processScrapedData(data);
             const cgpaData = calculateCGPA(processed);
             
+            // --- UPDATED SAVE LOGIC ---
             const profiles = getProfiles();
             const studentInfo = processed.studentInfo;
             let baseName = `${studentInfo.name} (${studentInfo.registration})`;
             let finalName = baseName;
             let copyNum = 1;
 
+            // Find an available name if the base name is already taken for a different registration number
             const allDisplayNames = Object.values(profiles).map(p => p.displayName);
 
             while(allDisplayNames.includes(finalName)) {
@@ -3867,6 +3837,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
             profiles[newProfileId] = processed;
             saveProfiles(profiles);
             setActiveProfileId(newProfileId);
+            // --- END OF UPDATED SAVE LOGIC ---
 
             showLoadingStage('complete');
             setTimeout(() => {
@@ -3881,145 +3852,24 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
           }
         } catch (error) {
             console.error("Fetch Error:", error);
-            const userMessage = 'Could not retrieve results. The UAF LMS may be offline or the registration number is incorrect.';
-            addStatusMessage(`API/LMS Error: ${error.message}`, 'error');
+            let userMessage, logMessage;
+            
+            if (error instanceof TypeError && error.message.includes('Failed to fetch')) {
+                userMessage = 'Network error. Please check your internet connection.';
+                logMessage = 'Failed to fetch due to a network error. Ensure you are connected to the internet.';
+            } else {
+                userMessage = 'Could not retrieve results. The UAF LMS may be offline or the registration number is incorrect.';
+                logMessage = `API/LMS Error: ${error.message}`;
+            }
+            
+            addStatusMessage(logMessage, 'error');
             showToast(userMessage, 'error');
             showLoadingStage(null);
         }
       }
-
-      async function fetchAttendance() {
-        const regNum = registrationNumber.value.trim();
-        if (!regNum) {
-            showToast('Please enter a registration number', 'error');
-            return;
-        }
-        if (!processedData) {
-            showToast('Please fetch your LMS results first before checking attendance.', 'warning');
-            return;
-        }
-
-        showLoadingStage('connecting');
-        addStatusMessage(`Fetching attendance for: ${regNum}`, 'info');
-
-        try {
-            const response = await fetch(`${API_ENDPOINT}?action=scrape_attendance&registrationNumber=${encodeURIComponent(regNum)}`);
-
-            if (!response.ok) throw new Error(`Server responded with status ${response.status}`);
-            
-            showLoadingStage('fetching');
-            const data = await response.json();
-
-            if (data.success && data.resultData) {
-                addStatusMessage('Attendance fetched successfully.', 'success');
-                attendanceCourses = data.resultData;
-                showImportModal(false); // Initially show only missing courses
-            } else {
-                throw new Error(data.message || "No attendance data found.");
-            }
-        } catch (error) {
-            addStatusMessage(`Attendance Error: ${error.message}`, 'error');
-            showToast('Could not retrieve attendance.', 'error');
-        } finally {
-            showLoadingStage(null);
-        }
-    }
-
-    function showImportModal(showAll = false) {
-        const importList = document.getElementById('import-courses-list');
-        const toggleBtn = document.getElementById('toggleAllCoursesBtn');
-        const lmsCourseCodes = new Set(Object.values(processedData.semesters).flatMap(s => s.courses.map(c => c.code.toUpperCase())));
-        
-        let coursesToShow = attendanceCourses;
-        if (!showAll) {
-            coursesToShow = attendanceCourses.filter(ac => !lmsCourseCodes.has(ac.CourseCode.toUpperCase()));
-            toggleBtn.textContent = 'Show All Courses';
-        } else {
-            toggleBtn.textContent = 'Show Only Missing Courses';
-        }
-
-        if (coursesToShow.length === 0 && !showAll) {
-            showToast('No new courses found in the attendance system.', 'info');
-            return;
-        }
-
-        importList.innerHTML = coursesToShow.map((course, index) => {
-            const isAlreadyAdded = lmsCourseCodes.has(course.CourseCode.toUpperCase());
-            return `
-                <div class="list-group-item d-flex justify-content-between align-items-center">
-                    <div>
-                        <input class="form-check-input me-2" type="checkbox" value="${index}" id="course-check-${index}" ${isAlreadyAdded ? 'disabled' : ''}>
-                        <label class="form-check-label" for="course-check-${index}">
-                            <strong>${course.CourseCode}:</strong> ${course.CourseName}
-                            ${isAlreadyAdded ? '<span class="badge bg-secondary ms-2">Already in LMS</span>' : ''}
-                        </label>
-                    </div>
-                    <div class="d-flex align-items-center">
-                        <label for="ch-select-${index}" class="me-2 small">CH:</label>
-                        <select class="form-select form-select-sm" id="ch-select-${index}" style="width: 70px;" ${isAlreadyAdded ? 'disabled' : ''}>
-                            ${[...Array(10).keys()].map(i => `<option value="${i+1}" ${i+1 === 3 ? 'selected' : ''}>${i+1}</option>`).join('')}
-                        </select>
-                    </div>
-                </div>
-            `;
-        }).join('');
-
-        importCoursesModal.show();
-    }
-
-    function importSelectedCourses() {
-        const selectedCourses = [];
-        document.querySelectorAll('#import-courses-list input[type="checkbox"]:checked').forEach(checkbox => {
-            const index = parseInt(checkbox.value);
-            const creditHours = parseInt(document.getElementById(`ch-select-${index}`).value);
-            const courseData = attendanceCourses[index];
-            
-            // Assuming 0 marks for imported courses as they are not on LMS yet.
-            const marks = 0; 
-            
-            selectedCourses.push({
-                code: courseData.CourseCode,
-                title: courseData.CourseName,
-                creditHours: creditHours,
-                creditHoursDisplay: `${creditHours}(${creditHours}-0)`,
-                marks: marks,
-                qualityPoints: 0,
-                grade: 'F', // Default to F, can be changed later by user
-                teacher: courseData.TeacherName,
-                isCustom: true, // Mark as custom
-                isDeleted: false,
-                isRepeated: false,
-                isExtraEnrolled: false
-            });
-        });
-
-        if (selectedCourses.length === 0) {
-            showToast('No courses selected to import.', 'warning');
-            return;
-        }
-
-        // Add to the first semester or a 'Forecast' semester if it exists
-        const firstSemesterName = Object.keys(processedData.semesters).sort((a,b) => processedData.semesters[a].sortKey.localeCompare(processedData.semesters[b].sortKey))[0];
-        const targetSemester = processedData.semesters[firstSemesterName] ? firstSemesterName : 'Forecast 1';
-        
-        if (!processedData.semesters[targetSemester]) {
-            processedData.semesters[targetSemester] = {
-                originalName: targetSemester,
-                sortKey: getSemesterOrderKey(targetSemester),
-                courses: []
-            };
-        }
-
-        processedData.semesters[targetSemester].courses.push(...selectedCourses);
-        recalculateAndDisplay();
-        importCoursesModal.hide();
-        showToast(`${selectedCourses.length} course(s) imported successfully!`, 'success');
-    }
-
       
       // Event Listeners
       resultForm.addEventListener('submit', (e) => { e.preventDefault(); fetchResult(); });
-      attendanceBtn.addEventListener('click', fetchAttendance);
       downloadLogBtn.addEventListener('click', downloadLog);
       clearLogBtn.addEventListener('click', clearLog);
       downloadPdfBtn.addEventListener('click', generatePDF);
@@ -4027,16 +3877,14 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
       addForecastSemesterBtn.addEventListener('click', addForecastSemester);
       profileSwitcher.addEventListener('change', switchProfile);
       deleteProfileBtn.addEventListener('click', deleteCurrentProfile);
+      // NEW: Event listeners for rename functionality
       renameProfileBtn.addEventListener('click', openRenameModal);
       saveProfileNameBtn.addEventListener('click', renameProfile);
-      document.getElementById('importSelectedCoursesBtn').addEventListener('click', importSelectedCourses);
-      document.getElementById('toggleAllCoursesBtn').addEventListener('click', (e) => {
-        const showAll = e.target.textContent.includes('All');
-        showImportModal(showAll);
-      });
       
       init();
     });
 </script>
 </body>
 </html>
+
+
