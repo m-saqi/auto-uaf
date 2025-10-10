@@ -2514,9 +2514,13 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
   </div>
 
     <div class="action-buttons-aligned fade-in-on-scroll">
+      <button id="attendanceBtn" class="btn btn-success-action"><i class="fa-solid fa-user-check me-2"></i>Attendance System</button>
       <button id="downloadPdfBtn" class="btn btn-pdf-download"><i class="fa-solid fa-file-pdf me-2"></i>Download PDF</button>
       <button id="addForecastSemesterBtn" class="btn btn-info-action"><i class="fa-solid fa-wand-magic-sparkles me-2"></i>Forecast Semester</button>
     </div>
+
+    <div id="attendanceResultContainer" class="result-container">
+        </div>
 
     <div class="semester-results-container">
       <div id="semesterResults" class="semester-grid"></div>
@@ -2692,6 +2696,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
       const resultForm = document.getElementById('resultForm');
       const registrationNumber = document.getElementById('registrationNumber');
       const resultContainer = document.getElementById('resultContainer');
+      const attendanceResultContainer = document.getElementById('attendanceResultContainer');
       const statusLog = document.getElementById('statusLog');
       const themeToggle = document.getElementById('themeToggle');
       const cursorDot = document.getElementById('cursorDot');
@@ -2706,6 +2711,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
       const totalMarksObtained = document.getElementById('totalMarksObtained');
       const totalMaxMarks = document.getElementById('totalMaxMarks');
       const downloadPdfBtn = document.getElementById('downloadPdfBtn');
+      const attendanceBtn = document.getElementById('attendanceBtn');
       const courseDetailsModal = new bootstrap.Modal(document.getElementById('courseDetailsModal'));
       const addCourseModal = new bootstrap.Modal(document.getElementById('addCourseModal'));
       const saveCourseBtn = document.getElementById('saveCourseBtn');
@@ -2731,7 +2737,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
       let gpaChart = null;  
       let isInitialLoad = true;
       
-      const API_ENDPOINT = `/api/result-scraper?action=scrape_single`;
+      const API_ENDPOINT = `/api/result-scraper`;
       
       function init() {
         initCustomCursor();
@@ -3800,13 +3806,14 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         if (!regNum) { showToast('Please enter a registration number', 'error'); return; }
         
         resultContainer.style.display = 'none';
+        attendanceResultContainer.style.display = 'none';
         showLoadingStage('connecting');
         addStatusMessage(`Fetching result for: ${regNum}`, 'info');
         semesterResults.innerHTML = '';
         gpaChartContainer.style.display = 'none';
 
         try {
-          const response = await fetch(`${API_ENDPOINT}&registrationNumber=${encodeURIComponent(regNum)}`);
+          const response = await fetch(`${API_ENDPOINT}?action=scrape_single&registrationNumber=${encodeURIComponent(regNum)}`);
           if (!response.ok) throw new Error(`Server responded with status ${response.status}`);
           showLoadingStage('fetching');
           const data = await response.json();
@@ -3867,9 +3874,117 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
             showLoadingStage(null);
         }
       }
+
+      async function fetchAttendance() {
+        const regNum = registrationNumber.value.trim();
+        if (!regNum) {
+            showToast('Please enter a registration number', 'error');
+            return;
+        }
+
+        resultContainer.style.display = 'none';
+        attendanceResultContainer.style.display = 'none';
+        showLoadingStage('connecting');
+        addStatusMessage(`Fetching attendance for: ${regNum}`, 'info');
+
+        try {
+            const response = await fetch(`${API_ENDPOINT}?action=scrape_attendance`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    registrationNumber: regNum
+                })
+            });
+
+            if (!response.ok) {
+                throw new Error(`Server responded with status ${response.status}`);
+            }
+            showLoadingStage('fetching');
+            const data = await response.json();
+            showLoadingStage('processing');
+
+            if (data.success && data.resultData) {
+                addStatusMessage('Attendance fetched successfully', 'success');
+                displayAttendanceResults(data.resultData);
+                showLoadingStage('complete');
+                setTimeout(() => {
+                    showLoadingStage(null);
+                }, 1000);
+            } else {
+                throw new Error(data.message || "No attendance data found.");
+            }
+        } catch (error) {
+            console.error("Fetch Error:", error);
+            let userMessage, logMessage;
+            
+            if (error instanceof TypeError && error.message.includes('Failed to fetch')) {
+                userMessage = 'Network error. Please check your internet connection.';
+                logMessage = 'Failed to fetch due to a network error. Ensure you are connected to the internet.';
+            } else {
+                userMessage = 'Could not retrieve attendance. The server may be offline or the registration number is incorrect.';
+                logMessage = `Attendance Server Error: ${error.message}`;
+            }
+            
+            addStatusMessage(logMessage, 'error');
+            showToast(userMessage, 'error');
+            showLoadingStage(null);
+        }
+    }
+
+    function displayAttendanceResults(data) {
+        attendanceResultContainer.style.display = 'block';
+        let tableRows = '';
+
+        if(data && data.length > 0) {
+            tableRows = data.map(course => {
+                const percentage = (course.Attended / course.TotalLectures * 100).toFixed(2);
+                return `
+                <tr>
+                    <td>${course.CourseCode}</td>
+                    <td>${course.CourseName}</td>
+                    <td>${course.TeacherName}</td>
+                    <td>${course.TotalLectures}</td>
+                    <td>${course.Attended}</td>
+                    <td>${percentage}%</td>
+                </tr>
+            `}).join('');
+        } else {
+            tableRows = `<tr><td colspan="6" class="text-center">No attendance data found.</td></tr>`;
+        }
+
+        attendanceResultContainer.innerHTML = `
+            <div class="card card-modern mt-4 fade-in-on-scroll is-visible">
+                <div class="card-header">
+                    <h4>Attendance Details</h4>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="course-table">
+                            <thead>
+                                <tr>
+                                    <th>Course Code</th>
+                                    <th>Course Name</th>
+                                    <th>Teacher</th>
+                                    <th>Total Lectures</th>
+                                    <th>Attended</th>
+                                    <th>Percentage</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${tableRows}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        `;
+    }
       
       // Event Listeners
       resultForm.addEventListener('submit', (e) => { e.preventDefault(); fetchResult(); });
+      attendanceBtn.addEventListener('click', fetchAttendance);
       downloadLogBtn.addEventListener('click', downloadLog);
       clearLogBtn.addEventListener('click', clearLog);
       downloadPdfBtn.addEventListener('click', generatePDF);
@@ -3886,5 +4001,3 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 </script>
 </body>
 </html>
-
-
