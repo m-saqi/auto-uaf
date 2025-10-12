@@ -146,7 +146,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
   <style>
-  :root {
+    :root {
   --brand: #7a6ad8;
   --brand-600: #6b5fca;
   --brand-700: #5d52b8;
@@ -162,6 +162,8 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
   --radius: 1.25rem;
   --shadow: 0 10px 30px rgba(17, 24, 39, 0.1);
   --shadow-hover: 0 15px 40px rgba(17, 24, 39, 0.15);
+  
+  /* New gradient variables */
   --brand-primary: #7a6ad8;
   --brand-secondary: #6b5fca;
 }
@@ -172,8 +174,8 @@ html, body {
 }
 
 body {
-  display: flex;
-  flex-direction: column;
+  display: flex; /* ADDED: Makes the body a flex container */
+  flex-direction: column; /* ADDED: Stacks children vertically */
   background-color: var(--light-bg);
   min-height: 100vh;
   margin: 0;
@@ -181,6 +183,7 @@ body {
   color: var(--text);
 }
 
+/* Improved navbar with glassmorphism effect */
 .navbar {
   backdrop-filter: saturate(180%) blur(12px);
   background-color: rgba(255, 255, 255, 0.8);
@@ -221,6 +224,7 @@ body {
   width: 100%;
 }
 
+/* Improved buttons */
 .btn-brand {
   background: var(--brand-gradient);
   border: none;
@@ -311,11 +315,11 @@ body {
   transform: translateY(-2px);
 }
 
+/* Improved hero section */
 .hero {
   padding: 5rem 0 4rem;
   position: relative;
   overflow: hidden;
-  text-align: center; 
 }
 
 .hero::before {
@@ -367,6 +371,7 @@ body {
   gap: 0.5rem;
 }
 
+/* Improved cards with glassmorphism effect */
 .card-modern {
   border: 0;
   border-radius: var(--radius);
@@ -394,7 +399,7 @@ body {
 .card-modern .card-header h4 {
   font-weight: 700;
   color: var(--text);
-  text-align: center;
+  text-align: center; /* Center header text */
 }
 
 .form-select, .form-control {
@@ -440,6 +445,7 @@ label {
   background-clip: text;
 }
 
+/* Improved loading animations */
 .loading-container {
   margin-top: 1.5rem;
   text-align: center;
@@ -567,7 +573,7 @@ status-warning { color: #fd7e14; }
 .status-info { color: var(--brand); }
 
 .footer {
-  margin-top: auto;
+  margin-top: auto; /* ADDED: Pushes the footer to the bottom */
   color: #9ca3af;
   background-color: var(--light-bg);
 }
@@ -583,6 +589,7 @@ a:hover {
   color: var(--brand-600);
 }
 
+/* Loading spinner styles */
 .loading {
   display: none;
   text-align: center;
@@ -593,10 +600,12 @@ a:hover {
   margin-top: 10px;
 }
 
+/* Result container styles */
 .result-container {
   display: none;
 }
 
+/* Toast notifications */
 #toast-container {
   position: fixed;
   top: 65px;
@@ -713,17 +722,19 @@ a:hover {
   from { transform: scaleX(1); }
   to { transform: scaleX(0); }
 }
-    
+
+    /* Positions the new icon relative to the card */
 .gpa-result-card {
   position: relative;
 }
 
+/* Styles the new copy icon */
 .copy-icon-btn {
   position: absolute;
   top: 1.25rem;
   right: 1.25rem;
   font-size: 1.2rem;
-  color: #10ac84;
+  color: #10ac84; /* Green color */
   cursor: pointer;
   transition: all 0.2s ease;
 }
@@ -731,6 +742,7 @@ a:hover {
   transform: scale(1.15);
 }
     
+/* GPA Result Display */
 .gpa-result-card {
   background: rgba(255, 255, 255, 0.8);
   border-radius: var(--radius);
@@ -854,6 +866,7 @@ a:hover {
   display: none;
 }
 
+/* Add Course Form */
 .add-course-form {
   background: rgba(248, 249, 250, 0.7);
   border-radius: 0.5rem;
@@ -875,7 +888,7 @@ a:hover {
   min-width: 200px;
 }
 
-    
+    /* Styling for the collapsible chart header */
 #gpaChartChevron {
   transition: transform 0.3s ease-in-out;
 }
@@ -887,7 +900,7 @@ a[aria-expanded="true"] #gpaChartChevron {
 }
 
 
-
+    /* NEW: Modern Calculator Section Styles */
 .calculator-section-modern {
   padding: 3rem 2rem;
   backdrop-filter: blur(10px);
@@ -934,11 +947,12 @@ a[aria-expanded="true"] #gpaChartChevron {
   align-items: center;
   justify-content: center;
   padding: 0;
-  transition: all 0.3s ease;
+  transition: all 0.3s ease; /* Added for smooth transition */
 }
 
+/* --- CHANGE 1: More subtle hover effect for the button --- */
 .modern-search-button:hover {
-  transform: translateY(-50%) scale(1.05);
+  transform: translateY(-50%) scale(1.05); /* Softer transform */
   box-shadow: var(--shadow-hover);
 }
 
@@ -946,11 +960,12 @@ a[aria-expanded="true"] #gpaChartChevron {
   width: 100%;
 }
 
+/* --- CHANGE 2: Fix for the profile switcher text collision --- */
 .modern-profiles-select {
   border-top-left-radius: 0 !important;
   border-bottom-left-radius: 0 !important;
-  text-overflow: ellipsis; 
-  padding-right: 2.5rem;   
+  text-overflow: ellipsis; /* Add ellipsis for very long text */
+  padding-right: 2.5rem;   /* Add padding to avoid overlap with arrow */
 }
 
 .modern-profiles-icon {
@@ -965,6 +980,7 @@ a[aria-expanded="true"] #gpaChartChevron {
     border-bottom-right-radius: .85rem !important;
 }
 
+/* ADD THIS CSS FOR THE ANNOUNCEMENT BAR */
 .announcement-bar {
   background: var(--brand-gradient);
   color: white;
@@ -982,7 +998,7 @@ a[aria-expanded="true"] #gpaChartChevron {
 .announcement-text {
   display: inline-block;
   font-weight: 500;
-  margin: 0 2.5rem;
+  margin: 0 2.5rem; /* Spacing between tips */
   opacity: 0.9;
 }
 
@@ -991,13 +1007,14 @@ a[aria-expanded="true"] #gpaChartChevron {
     transform: translateX(0%);
   }
   100% {
-    transform: translateX(-50%);
+    transform: translateX(-50%); /* This value should be -50% because the content is duplicated */
   }
 }
 
+/* Aligned Action Buttons */
 .action-buttons-aligned {
   display: flex;
-  justify-content: space-between;
+  justify-content: space-between; /* This is the key change */
   align-items: center;
   margin-top: 1.5rem;
   margin-bottom: 1.5rem;
@@ -1005,14 +1022,15 @@ a[aria-expanded="true"] #gpaChartChevron {
   gap: 1rem;
 }
 .action-buttons-aligned .btn {
-  border-radius: 12px;
+  border-radius: 12px; /* A little radius, not fully rounded */
 }
 @media (max-width: 576px) {
   .action-buttons-aligned {
-    justify-content: center;
+    justify-content: center; /* Stack them in the center on mobile */
   }
 }
 
+/* Collapsible Status Log Icon */
 .status-log-chevron {
   transition: transform 0.3s ease-in-out;
 }
@@ -1021,10 +1039,12 @@ a[aria-expanded="true"] .status-log-chevron {
 }
 
 
+    /* ADD THIS CSS FOR THE RENAME BUTTON */
 .modern-rename-button {
     border-left: 0 !important;
 }
 
+    /* ADD THIS CSS FOR THE PREMIUM CGPA DISPLAY */
 .gpa-result-card-premium {
   background: rgba(255, 255, 255, 0.8);
   border-radius: var(--radius);
@@ -1165,6 +1185,7 @@ a[aria-expanded="true"] .status-log-chevron {
 }
     
     
+/* ----------- DARK MODE IMPROVED ----------- */
 [data-theme="dark"] {
   --text: #e5e7eb;
   --text-light: #d1d5db;
@@ -1285,6 +1306,7 @@ a[aria-expanded="true"] .status-log-chevron {
 [data-theme="dark"] .grade-D { background-color: rgba(153, 27, 27, 0.3); color: #fecaca; }
 [data-theme="dark"] .grade-F { background-color: rgba(55, 65, 81, 0.3); color: #d1d5db; }
 
+/* Dark mode for modals */
 [data-theme="dark"] .course-details-modal .modal-content,
 [data-theme="dark"] #addCourseModal .modal-content {
   background: rgba(26, 32, 48, 0.95);
@@ -1314,6 +1336,7 @@ a[aria-expanded="true"] .status-log-chevron {
   color: #ffd351;
 }
 
+/* Dark mode contrast improvements */
 [data-theme="dark"] .text-body-secondary {
   color: #d1d5db !important;
 }
@@ -1340,6 +1363,7 @@ a[aria-expanded="true"] .status-log-chevron {
   mix-blend-mode: screen;
 }
 
+/* Course action buttons */
 .course-actions i {
   cursor: pointer;
   font-size: 14px;
@@ -1366,6 +1390,7 @@ a[aria-expanded="true"] .status-log-chevron {
   transform: scale(1.2);
 }
 
+/* Clickable info icon */
 .clickable-info {
   cursor: pointer;
   color: var(--brand);
@@ -1376,11 +1401,14 @@ a[aria-expanded="true"] .status-log-chevron {
   opacity: 0.8;
   transform: scale(1.1);
 }
+
     
+/* Restore the original horizontal margin for the icon */
 .course-code-container .fa-info-circle {
     margin-left: 0.3rem !important;
 }
 
+/* --- UPDATED: Mobile responsive adjustments --- */
 @media (max-width: 575.98px) {
   .hero {
     padding: 2rem 0;
@@ -1406,6 +1434,7 @@ a[aria-expanded="true"] .status-log-chevron {
   }
 }
     
+/* Ensure subject columns are 2-up on very small screens: change from col-12 col-md-6 -> col-6 col-md-6 */
 @media (max-width: 420px) {
   .subject-row .col-6 {
     padding-right: .4rem;
@@ -1413,6 +1442,7 @@ a[aria-expanded="true"] .status-log-chevron {
   }
 }
 
+/* UPDATED: Narrow calculator container on desktop */
 @media (min-width: 992px) {
   #Auto-Calculator .col-md-10 {
     width: 100%;
@@ -1440,6 +1470,7 @@ a[aria-expanded="true"] .status-log-chevron {
   }
 }
 
+/* --- UPDATED: Mobile responsive table --- */
 @media screen and (max-width: 768px) {
   body {
     font-size: 0.9rem;
@@ -1469,13 +1500,15 @@ a[aria-expanded="true"] .status-log-chevron {
   .course-table {
     font-size: 0.65rem;
   }
+  /* NEW: Reduce padding to decrease gaps between columns */
   .course-table th, .course-table td {
-    padding: 0.75rem 0.4rem;
+    padding: 0.75rem 0.4rem; /* Reduced horizontal padding */
   }
   .course-table td:first-child {
     font-size: 0.7rem;
     font-weight: 500;
   }
+  /* NEW: Make grade text smaller */
   .grade-badge {
     font-size: 0.6rem;
     padding: 0.2rem 0.35rem;
@@ -1504,6 +1537,7 @@ a[aria-expanded="true"] .status-log-chevron {
     font-size: 0.75rem;
     padding: 0.6rem 0.4rem;
   }
+  /* NEW: Table alignment rules */
   .course-table th:nth-child(n+3),
   .course-table td:nth-child(n+3) {
       text-align: center;
@@ -1514,6 +1548,7 @@ a[aria-expanded="true"] .status-log-chevron {
   }
 }
 
+/* Center buttons only in specific sections */
 .scraping-section .center-buttons,
 .log-section .center-buttons {
   display: flex;
@@ -1536,6 +1571,7 @@ a[aria-expanded="true"] .status-log-chevron {
   }
 }
 
+/* New layout improvements */
 .results-section {
   margin-top: 2rem;
 }
@@ -1592,6 +1628,7 @@ a[aria-expanded="true"] .status-log-chevron {
   }
 }
 
+/* Section separators */
 .section-container {
   margin-bottom: 2rem;
 }
@@ -1613,6 +1650,7 @@ a[aria-expanded="true"] .status-log-chevron {
   background: var(--brand-gradient);
 }
 
+/* Student info logo style */
 .student-info-logo {
   background: linear-gradient(135deg, rgba(122, 106, 216, 0.2), rgba(122, 106, 216, 0.1));
   border-radius: 50%;
@@ -1634,6 +1672,7 @@ a[aria-expanded="true"] .status-log-chevron {
   color: var(--brand);
 }
 
+/* Desktop-specific smaller text for semester sections */
 @media (min-width: 992px) {
   .semester-card {
     font-size: 0.95rem;
@@ -1648,6 +1687,7 @@ a[aria-expanded="true"] .status-log-chevron {
   }
 }
 
+/* Semester section layout improvements */
 .semester-results-container {
   width: 100%;
 }
@@ -1665,6 +1705,7 @@ a[aria-expanded="true"] .status-log-chevron {
   }
 }
 
+/* NEW STYLES FOR UPDATES */
 .repeated-badge {
   position: absolute;
   top: 5px;
@@ -1733,7 +1774,7 @@ a[aria-expanded="true"] .status-log-chevron {
 }
 @media (max-width: 576px) {
   .undo-notification {
-    bottom: 70px;
+    bottom: 70px; /* Raise it above mobile browser UI */
     padding: 10px 15px;
     font-size: 0.9rem;
     flex-direction: column;
@@ -1747,6 +1788,7 @@ a[aria-expanded="true"] .status-log-chevron {
 }
 
 
+/* Updated CGPA Display Layout */
 .cgpa-display-container {
   display: flex;
   flex-direction: column;
@@ -1810,6 +1852,7 @@ a[aria-expanded="true"] .status-log-chevron {
   color: var(--muted);
 }
 
+/* --- UPDATED: Mobile responsive adjustments for CGPA --- */
 @media (max-width: 768px) {
   .cgpa-metrics-row {
     flex-direction: column;
@@ -1852,6 +1895,7 @@ a[aria-expanded="true"] .status-log-chevron {
   }
 }
 
+/* Contact form improvements */
 #contact-form {
   background: rgba(255, 255, 255, 0.5);
   padding: 2rem;
@@ -1863,6 +1907,7 @@ a[aria-expanded="true"] .status-log-chevron {
   background: rgba(26, 32, 48, 0.5);
 }
 
+/* Animation for form elements */
 .form-control, .form-select {
   transition: all 0.3s ease;
 }
@@ -1871,6 +1916,7 @@ a[aria-expanded="true"] .status-log-chevron {
   transform: translateY(-2px);
 }
 
+/* Pulse animation for important elements */
 @keyframes pulse {
   0% { transform: scale(1); }
   50% { transform: scale(1.05); }
@@ -1881,6 +1927,7 @@ a[aria-expanded="true"] .status-log-chevron {
   animation: pulse 2s infinite;
 }
 
+/* Floating animation */
 @keyframes float {
   0% { transform: translateY(0px); }
   50% { transform: translateY(-10px); }
@@ -1891,6 +1938,7 @@ a[aria-expanded="true"] .status-log-chevron {
   animation: float 3s ease-in-out infinite;
 }
 
+/* Improved scrollbar */
 ::-webkit-scrollbar {
   width: 8px;
 }
@@ -1921,6 +1969,9 @@ a[aria-expanded="true"] .status-log-chevron {
   background: var(--brand);
 }
 
+/* NEW STYLES FOR ADDED FEATURES */
+
+/* Back to Top Button */
 #backToTop {
   position: fixed;
   bottom: 30px;
@@ -1952,6 +2003,7 @@ a[aria-expanded="true"] .status-log-chevron {
   box-shadow: 0 8px 20px rgba(122, 106, 216, 0.4);
 }
 
+/* Gradient Text Animation */
 .gradient-text {
   background: linear-gradient(90deg, var(--brand-primary), var(--brand-secondary), var(--accent), var(--brand-primary));
   background-size: 300% 300%;
@@ -1966,6 +2018,7 @@ a[aria-expanded="true"] .status-log-chevron {
   100% { background-position: 0% 50%; }
 }
 
+/* Why Choose Section */
 .why-choose-section {
   padding: 5rem 0;
 }
@@ -2028,8 +2081,9 @@ a[aria-expanded="true"] .status-log-chevron {
   color: var(--text-light);
 }
 
+/* Dark mode for Why Choose section */
 [data-theme="dark"] .why-choose-section {
-  background: transparent;
+  background: transparent; /* Inherit from body gradient */
 }
 
 [data-theme="dark"] .feature-card {
@@ -2048,12 +2102,14 @@ a[aria-expanded="true"] .status-log-chevron {
 }
 
 
+/* Hide Why Choose section on mobile */
 @media (max-width: 991.98px) {
   .why-choose-section {
     display: none;
   }
 }
 
+/* Animation for hero text */
 .hero-text-gradient {
   background: linear-gradient(90deg, var(--brand-primary), var(--brand-secondary), var(--accent), var(--brand-primary));
   background-size: 300% 300%;
@@ -2063,6 +2119,7 @@ a[aria-expanded="true"] .status-log-chevron {
 }
 
 
+/* Animation for robot icon */
 .robot-icon-gradient {
   background: linear-gradient(90deg, var(--brand-primary), var(--brand-secondary), var(--accent), var(--brand-primary));
   background-size: 300% 300%;
@@ -2071,6 +2128,7 @@ a[aria-expanded="true"] .status-log-chevron {
   animation: gradient-text 3s ease infinite;
 }
 
+/* PDF Download Button */
 .btn-pdf-download {
   background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
   color: white;
@@ -2087,15 +2145,17 @@ a[aria-expanded="true"] .status-log-chevron {
   box-shadow: 0 10px 25px rgba(231, 76, 60, 0.3);
 }
 
+/* Action buttons container */
 .action-buttons {
   display: flex;
-  justify-content: center;
+  justify-content: center; /* Center the single button */
   align-items: center;
   margin-top: 1.5rem;
   flex-wrap: wrap;
   gap: 1rem;
 }
 
+/* Center Registration Number Input */
 .scraping-section .mb-3 {
     text-align: center;
 }
@@ -2105,6 +2165,7 @@ a[aria-expanded="true"] .status-log-chevron {
     text-align: center;
 }
 
+/* Drag and Drop Styles (Desktop Only) */
 @media (min-width: 992px) {
   .course-table tbody tr {
     cursor: grab;
@@ -2123,6 +2184,7 @@ a[aria-expanded="true"] .status-log-chevron {
   }
 }
 
+/* NEW: Scroll Animation Styles */
 .fade-in-on-scroll {
   opacity: 0;
   transform: translateY(30px);
@@ -2133,6 +2195,7 @@ a[aria-expanded="true"] .status-log-chevron {
   transform: translateY(0);
 }
 
+/* NEW: Forecast/Info Button Style */
 .btn-info-action {
   background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
   color: white;
@@ -3823,8 +3886,3 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 </script>
 </body>
 </html>
-
-
-
-
-
