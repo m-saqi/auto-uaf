@@ -146,7 +146,8 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
   <style>
-    :root {
+  /* General Responsive-First-Styles */
+:root {
   --brand: #7a6ad8;
   --brand-600: #6b5fca;
   --brand-700: #5d52b8;
@@ -162,8 +163,6 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
   --radius: 1.25rem;
   --shadow: 0 10px 30px rgba(17, 24, 39, 0.1);
   --shadow-hover: 0 15px 40px rgba(17, 24, 39, 0.15);
-  
-  /* New gradient variables */
   --brand-primary: #7a6ad8;
   --brand-secondary: #6b5fca;
 }
@@ -171,11 +170,12 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 html, body {
   font-family: "Poppins", system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, "Helvetica Neue", Arial, "Noto Sans", sans-serif;
   scroll-behavior: smooth;
+  overflow-x: hidden;
 }
 
 body {
-  display: flex; /* ADDED: Makes the body a flex container */
-  flex-direction: column; /* ADDED: Stacks children vertically */
+  display: flex;
+  flex-direction: column;
   background-color: var(--light-bg);
   min-height: 100vh;
   margin: 0;
@@ -315,7 +315,11 @@ body {
   transform: translateY(-2px);
 }
 
-/* Improved hero section */
+/* Hero section alignment */
+.hero-content-wrapper {
+  text-align: center;
+}
+
 .hero {
   padding: 5rem 0 4rem;
   position: relative;
@@ -371,7 +375,7 @@ body {
   gap: 0.5rem;
 }
 
-/* Improved cards with glassmorphism effect */
+/* Card styles */
 .card-modern {
   border: 0;
   border-radius: var(--radius);
@@ -399,9 +403,10 @@ body {
 .card-modern .card-header h4 {
   font-weight: 700;
   color: var(--text);
-  text-align: center; /* Center header text */
+  text-align: center;
 }
 
+/* Form styles */
 .form-select, .form-control {
   border-radius: .85rem;
   border: 1px solid rgba(122, 106, 216, 0.2);
@@ -445,7 +450,7 @@ label {
   background-clip: text;
 }
 
-/* Improved loading animations */
+/* Loading animations */
 .loading-container {
   margin-top: 1.5rem;
   text-align: center;
@@ -536,6 +541,7 @@ label {
   margin: 0 auto;
 }
 
+/* Status log */
 .status-log {
   max-height: 300px;
   overflow-y: auto;
@@ -572,8 +578,9 @@ label {
 status-warning { color: #fd7e14; }
 .status-info { color: var(--brand); }
 
+/* Footer */
 .footer {
-  margin-top: auto; /* ADDED: Pushes the footer to the bottom */
+  margin-top: auto;
   color: #9ca3af;
   background-color: var(--light-bg);
 }
@@ -589,7 +596,7 @@ a:hover {
   color: var(--brand-600);
 }
 
-/* Loading spinner styles */
+/* Loading spinner */
 .loading {
   display: none;
   text-align: center;
@@ -600,7 +607,7 @@ a:hover {
   margin-top: 10px;
 }
 
-/* Result container styles */
+/* Result container */
 .result-container {
   display: none;
 }
@@ -723,12 +730,29 @@ a:hover {
   to { transform: scaleX(0); }
 }
 
-    /* Positions the new icon relative to the card */
+/* GPA Result Display */
 .gpa-result-card {
   position: relative;
+  background: rgba(255, 255, 255, 0.8);
+  border-radius: var(--radius);
+  padding: 2rem;
+  box-shadow: var(--shadow);
+  margin-bottom: 2rem;
+  margin-top: 2rem;
+  width: 100%;
+  max-width: 900px;
+  margin-left: auto;
+  margin-right: auto;
+  backdrop-filter: blur(10px);
+  transition: all 0.3s ease;
 }
 
-/* Styles the new copy icon */
+.gpa-result-card:hover {
+  transform: translateY(-5px);
+  box-shadow: var(--shadow-hover);
+}
+
+/* Copy Icon */
 .copy-icon-btn {
   position: absolute;
   top: 1.25rem;
@@ -741,27 +765,8 @@ a:hover {
 .copy-icon-btn:hover {
   transform: scale(1.15);
 }
-    
-/* GPA Result Display */
-.gpa-result-card {
-  background: rgba(255, 255, 255, 0.8);
-  border-radius: var(--radius);
-  padding: 2rem;
-  box-shadow: var(--shadow);
-  margin-bottom: 2rem;
-  margin-top: 2rem;
-  width: 70%;
-  margin-left: auto;
-  margin-right: auto;
-  backdrop-filter: blur(10px);
-  transition: all 0.3s ease;
-}
 
-.gpa-result-card:hover {
-  transform: translateY(-5px);
-  box-shadow: var(--shadow-hover);
-}
-
+/* Semester Card */
 .semester-card {
   background: rgba(255, 255, 255, 0.8);
   border-radius: var(--radius);
@@ -826,6 +831,7 @@ a:hover {
   background: rgba(122, 106, 216, 0.05);
 }
 
+/* Grade Badges */
 .grade-badge {
   padding: 0.25rem 0.5rem;
   border-radius: 0.375rem;
@@ -888,7 +894,7 @@ a:hover {
   min-width: 200px;
 }
 
-    /* Styling for the collapsible chart header */
+/* Chart Styles */
 #gpaChartChevron {
   transition: transform 0.3s ease-in-out;
 }
@@ -900,7 +906,7 @@ a[aria-expanded="true"] #gpaChartChevron {
 }
 
 
-    /* NEW: Modern Calculator Section Styles */
+/* Modern Calculator Section Styles */
 .calculator-section-modern {
   padding: 3rem 2rem;
   backdrop-filter: blur(10px);
@@ -947,12 +953,11 @@ a[aria-expanded="true"] #gpaChartChevron {
   align-items: center;
   justify-content: center;
   padding: 0;
-  transition: all 0.3s ease; /* Added for smooth transition */
+  transition: all 0.3s ease;
 }
 
-/* --- CHANGE 1: More subtle hover effect for the button --- */
 .modern-search-button:hover {
-  transform: translateY(-50%) scale(1.05); /* Softer transform */
+  transform: translateY(-50%) scale(1.05);
   box-shadow: var(--shadow-hover);
 }
 
@@ -960,12 +965,11 @@ a[aria-expanded="true"] #gpaChartChevron {
   width: 100%;
 }
 
-/* --- CHANGE 2: Fix for the profile switcher text collision --- */
 .modern-profiles-select {
   border-top-left-radius: 0 !important;
   border-bottom-left-radius: 0 !important;
-  text-overflow: ellipsis; /* Add ellipsis for very long text */
-  padding-right: 2.5rem;   /* Add padding to avoid overlap with arrow */
+  text-overflow: ellipsis;
+  padding-right: 2.5rem;
 }
 
 .modern-profiles-icon {
@@ -980,7 +984,7 @@ a[aria-expanded="true"] #gpaChartChevron {
     border-bottom-right-radius: .85rem !important;
 }
 
-/* ADD THIS CSS FOR THE ANNOUNCEMENT BAR */
+/* Announcement Bar */
 .announcement-bar {
   background: var(--brand-gradient);
   color: white;
@@ -998,7 +1002,7 @@ a[aria-expanded="true"] #gpaChartChevron {
 .announcement-text {
   display: inline-block;
   font-weight: 500;
-  margin: 0 2.5rem; /* Spacing between tips */
+  margin: 0 2.5rem;
   opacity: 0.9;
 }
 
@@ -1007,14 +1011,14 @@ a[aria-expanded="true"] #gpaChartChevron {
     transform: translateX(0%);
   }
   100% {
-    transform: translateX(-50%); /* This value should be -50% because the content is duplicated */
+    transform: translateX(-50%);
   }
 }
 
 /* Aligned Action Buttons */
 .action-buttons-aligned {
   display: flex;
-  justify-content: space-between; /* This is the key change */
+  justify-content: space-between;
   align-items: center;
   margin-top: 1.5rem;
   margin-bottom: 1.5rem;
@@ -1022,12 +1026,7 @@ a[aria-expanded="true"] #gpaChartChevron {
   gap: 1rem;
 }
 .action-buttons-aligned .btn {
-  border-radius: 12px; /* A little radius, not fully rounded */
-}
-@media (max-width: 576px) {
-  .action-buttons-aligned {
-    justify-content: center; /* Stack them in the center on mobile */
-  }
+  border-radius: 12px;
 }
 
 /* Collapsible Status Log Icon */
@@ -1038,13 +1037,11 @@ a[aria-expanded="true"] .status-log-chevron {
   transform: rotate(180deg);
 }
 
-
-    /* ADD THIS CSS FOR THE RENAME BUTTON */
 .modern-rename-button {
     border-left: 0 !important;
 }
 
-    /* ADD THIS CSS FOR THE PREMIUM CGPA DISPLAY */
+/* Premium CGPA Display */
 .gpa-result-card-premium {
   background: rgba(255, 255, 255, 0.8);
   border-radius: var(--radius);
@@ -1165,27 +1162,7 @@ a[aria-expanded="true"] .status-log-chevron {
   background: rgba(122, 106, 216, 0.2);
 }
 
-@media (max-width: 576px) {
-  .gpa-result-card-premium {
-    padding: 1.5rem;
-  }
-  .cgpa-progress-circle {
-    width: 150px;
-    height: 150px;
-  }
-  .cgpa-progress-text .cgpa-value {
-    font-size: 1.70rem;
-  }
-  .secondary-stats {
-    gap: 1rem;
-  }
-  .stat-value {
-    font-size: 1.25rem;
-  }
-}
-    
-    
-/* ----------- DARK MODE IMPROVED ----------- */
+/* Dark Mode */
 [data-theme="dark"] {
   --text: #e5e7eb;
   --text-light: #d1d5db;
@@ -1345,6 +1322,7 @@ a[aria-expanded="true"] .status-log-chevron {
   color: #ffffff !important;
 }
 
+/* Custom Cursor */
 .cursor-dot {
   position: fixed;
   width: 10px;
@@ -1401,76 +1379,72 @@ a[aria-expanded="true"] .status-log-chevron {
   opacity: 0.8;
   transform: scale(1.1);
 }
-
     
-/* Restore the original horizontal margin for the icon */
 .course-code-container .fa-info-circle {
     margin-left: 0.3rem !important;
 }
 
-/* --- UPDATED: Mobile responsive adjustments --- */
-@media (max-width: 575.98px) {
-  .hero {
-    padding: 2rem 0;
-  }
+/* --- Media Queries for Responsiveness --- */
+
+/* Extra Small devices (phones, 600px and down) */
+@media (max-width: 600px) {
   .hero h1 {
-    font-size: 2.2rem !important;
+    font-size: 2.5rem;
   }
-  .d-flex.gap-2 .btn {
-    width: 100%;
-    max-width: 300px;
-    margin-bottom: 0.5rem;
+  .hero .lead {
+    font-size: 1.1rem;
   }
-  .toast {
-    min-width: 250px;
-    max-width: 300px;
-    padding: 12px 16px;
+  .modern-search-input {
+    font-size: 1rem;
   }
-  .toast-message {
-    font-size: 0.75rem;
+  .gpa-result-card-premium {
+    padding: 1.5rem;
   }
-  .card-modern .card-header {
-    padding: 1rem 1.25rem;
+  .cgpa-progress-circle {
+    width: 150px;
+    height: 150px;
   }
-}
-    
-/* Ensure subject columns are 2-up on very small screens: change from col-12 col-md-6 -> col-6 col-md-6 */
-@media (max-width: 420px) {
-  .subject-row .col-6 {
-    padding-right: .4rem;
-    padding-left: .4rem;
+  .cgpa-progress-text .cgpa-value {
+    font-size: 1.70rem;
+  }
+  .secondary-stats {
+    flex-direction: column;
+    gap: 1rem;
   }
 }
 
-/* UPDATED: Narrow calculator container on desktop */
-@media (min-width: 992px) {
-  #Auto-Calculator .col-md-10 {
-    width: 100%;
+/* Small devices (portrait tablets and large phones, 600px and up) */
+@media (min-width: 600px) {
+  .hero h1 {
+    font-size: 3rem;
   }
 }
 
-@media (min-width: 992px) {
-  .navbar-expand-lg .navbar-nav .nav-link {
-    padding-right: var(--bs-navbar-nav-link-padding-x);
-    margin-right: 20px;
-  }
-}
-
+/* Medium devices (landscape tablets, 768px and up) */
 @media (min-width: 768px) {
-  .col-md-10 {
-    flex: 0 0 auto;
-    width: 100%;
+  .hero h1 {
+    font-size: 3.5rem;
+  }
+  .semester-grid {
+    grid-template-columns: repeat(2, 1fr);
   }
 }
 
-@media (min-width: 768px) {
-  .col-md-4 {
-    flex: 0 0 auto;
-    width: 48.3%;
+/* Large devices (laptops/desktops, 992px and up) */
+@media (min-width: 992px) {
+  .hero-content-wrapper {
+    text-align: left;
   }
 }
 
-/* --- UPDATED: Mobile responsive table --- */
+/* Extra large devices (large laptops and desktops, 1200px and up) */
+@media (min-width: 1200px) {
+  .container {
+    max-width: 1140px;
+  }
+}
+
+/* Responsive adjustments for the table */
 @media screen and (max-width: 768px) {
   body {
     font-size: 0.9rem;
@@ -1484,7 +1458,6 @@ a[aria-expanded="true"] .status-log-chevron {
   }
   .semester-card {
     padding: 1.25rem;
-    max-width: 420px;
   }
   .semester-card h5 {
     font-size: 0.9rem;
@@ -1500,15 +1473,13 @@ a[aria-expanded="true"] .status-log-chevron {
   .course-table {
     font-size: 0.65rem;
   }
-  /* NEW: Reduce padding to decrease gaps between columns */
   .course-table th, .course-table td {
-    padding: 0.75rem 0.4rem; /* Reduced horizontal padding */
+    padding: 0.75rem 0.4rem;
   }
   .course-table td:first-child {
     font-size: 0.7rem;
     font-weight: 500;
   }
-  /* NEW: Make grade text smaller */
   .grade-badge {
     font-size: 0.6rem;
     padding: 0.2rem 0.35rem;
@@ -1537,7 +1508,6 @@ a[aria-expanded="true"] .status-log-chevron {
     font-size: 0.75rem;
     padding: 0.6rem 0.4rem;
   }
-  /* NEW: Table alignment rules */
   .course-table th:nth-child(n+3),
   .course-table td:nth-child(n+3) {
       text-align: center;
@@ -1548,87 +1518,7 @@ a[aria-expanded="true"] .status-log-chevron {
   }
 }
 
-/* Center buttons only in specific sections */
-.scraping-section .center-buttons,
-.log-section .center-buttons {
-  display: flex;
-  justify-content: center;
-  flex-wrap: wrap;
-  gap: 0.5rem;
-}
-
-@media (max-width: 576px) {
-  .scraping-section .center-buttons,
-  .log-section .center-buttons {
-    flex-direction: column;
-    align-items: center;
-  }
-  
-  .scraping-section .center-buttons .btn,
-  .log-section .center-buttons .btn {
-    width: auto;  
-    min-width: 180px;  
-  }
-}
-
-/* New layout improvements */
-.results-section {
-  margin-top: 2rem;
-}
-
-.student-info-section {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 1.5rem;
-  margin-bottom: 2rem;
-}
-
-.student-details {
-  flex: 1;
-  min-width: 300px;
-}
-
-.cgpa-display {
-  flex: 0 0 auto;
-  text-align: right;
-  min-width: 200px;
-}
-
-.action-buttons {
-  display: flex;
-  gap: 1rem;
-  margin-top: 1.5rem;
-  margin-bottom: 1.5rem;
-  flex-wrap: wrap;
-  justify-content: center;
-}
-
-@media (max-width: 768px) {
-  .student-info-section {
-    flex-direction: column;
-    gap: 1rem;
-  }
-  
-  .cgpa-display {
-    text-align: left;
-    margin-top: 1rem;
-  }
-  
-  .action-buttons {
-    flex-direction: row;
-    justify-content: space-between;
-    width: 100%;
-    align-items: center;
-  }
-  
-  .action-buttons .btn {
-    flex-grow: 1;
-    margin: 0 0.25rem;
-    min-width: auto;
-  }
-}
-
-/* Section separators */
+/* Section separators and titles */
 .section-container {
   margin-bottom: 2rem;
 }
@@ -1648,565 +1538,6 @@ a[aria-expanded="true"] .status-log-chevron {
   width: 60px;
   height: 2px;
   background: var(--brand-gradient);
-}
-
-/* Student info logo style */
-.student-info-logo {
-  background: linear-gradient(135deg, rgba(122, 106, 216, 0.2), rgba(122, 106, 216, 0.1));
-  border-radius: 50%;
-  width: 60px;
-  height: 60px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin-right: 1rem;
-  transition: all 0.3s ease;
-}
-
-.student-info-logo:hover {
-  transform: rotate(15deg);
-}
-
-.student-info-logo i {
-  font-size: 1.5rem;
-  color: var(--brand);
-}
-
-/* Desktop-specific smaller text for semester sections */
-@media (min-width: 992px) {
-  .semester-card {
-    font-size: 0.95rem;
-  }
-  
-  .semester-card h5 {
-    font-size: 1.15rem;
-  }
-  
-  .course-table {
-    font-size: 0.9rem;
-  }
-}
-
-/* Semester section layout improvements */
-.semester-results-container {
-  width: 100%;
-}
-
-.semester-grid {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 1.5rem;
-  width: 100%;
-}
-
-@media (min-width: 992px) {
-  .semester-grid {
-    grid-template-columns: repeat(2, 1fr);
-  }
-}
-
-/* NEW STYLES FOR UPDATES */
-.repeated-badge {
-  position: absolute;
-  top: 5px;
-  right: 5px;
-  background-color: #ffc107;
-  color: #856404;
-  font-size: 8px;
-  padding: 2px 4px;
-  border-radius: 3px;
-  font-weight: bold;
-}
-
-.custom-course-btn {
-  background: var(--brand-gradient);
-  color: white;
-  border: none;
-  border-radius: 8px;
-  padding: 8px 12px;
-  font-size: 0.9rem;
-  margin-top: 10px;
-  display: flex;
-  align-items: center;
-  gap: 5px;
-  cursor: pointer;
-  transition: all 0.3s ease;
-}
-
-.custom-course-btn:hover {
-  background: var(--brand-gradient-hover);
-  transform: translateY(-2px);
-}
-
-.undo-notification {
-  position: fixed;
-  bottom: 20px;
-  left: 50%;
-  transform: translateX(-50%);
-  background-color: rgba(51, 51, 51, 0.9);
-  color: white;
-  padding: 12px 20px;
-  border-radius: 8px;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  z-index: 10000;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
-  backdrop-filter: blur(10px);
-  width: calc(100% - 40px);
-  max-width: 400px;
-  justify-content: space-between;
-}
-
-.undo-btn {
-  background: var(--brand-gradient);
-  color: white;
-  border: none;
-  padding: 5px 10px;
-  border-radius: 4px;
-  cursor: pointer;
-  transition: all 0.3s ease;
-}
-
-.undo-btn:hover {
-  background: var(--brand-gradient-hover);
-  transform: translateY(-1px);
-}
-@media (max-width: 576px) {
-  .undo-notification {
-    bottom: 70px; /* Raise it above mobile browser UI */
-    padding: 10px 15px;
-    font-size: 0.9rem;
-    flex-direction: column;
-    gap: 8px;
-    text-align: center;
-  }
-  .undo-btn {
-    width: 100%;
-    padding: 6px 10px;
-  }
-}
-
-
-/* Updated CGPA Display Layout */
-.cgpa-display-container {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 1.5rem;
-}
-
-.cgpa-main-info {
-  text-align: center;
-  width: 100%;
-  padding-bottom: 1rem;
-  border-bottom: 1px solid rgba(122, 106, 216, 0.3);
-}
-
-.cgpa-metrics-row {
-  display: flex;
-  justify-content: space-between;
-  width: 100%;
-  gap: 1rem;
-}
-
-.cgpa-metric {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  flex: 1;
-}
-
-.cgpa-metric-left {
-  align-items: flex-start;
-}
-
-.cgpa-metric-center {
-  align-items: center;
-}
-
-.cgpa-metric-right {
-  align-items: flex-end;
-}
-
-.cgpa-metric-label {
-  font-size: 1rem;
-  font-weight: 600;
-  color: var(--muted);
-  margin-bottom: 0.5rem;
-}
-
-.cgpa-metric-value {
-  font-size: 1.75rem;
-  font-weight: 650;
-  color: var(--brand);
-  line-height: 1.2;
-  background: var(--brand-gradient);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-}
-
-.cgpa-metric-subvalue {
-  font-size: 0.9rem;
-  color: var(--muted);
-}
-
-/* --- UPDATED: Mobile responsive adjustments for CGPA --- */
-@media (max-width: 768px) {
-  .cgpa-metrics-row {
-    flex-direction: column;
-    gap: 1.5rem;
-  }
-  
-  .cgpa-metric {
-    flex-direction: row;
-    justify-content: space-between;
-    align-items: center;
-    width: 100%;
-    padding: 0.5rem 0;
-    border-bottom: 1px solid rgba(122, 106, 216, 0.1);
-  }
-  
-  .cgpa-metric:last-child {
-    border-bottom: none;
-  }
-  
-  .cgpa-metric-left,
-  .cgpa-metric-center,
-  .cgpa-metric-right {
-    align-items: center;
-  }
-  
-  .cgpa-metric-label {
-    margin-bottom: 0;
-    min-width: 100px;
-    text-align: left;
-  }
-  
-  .cgpa-metric-value-container {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-end;
-  }
-  
-  .semester-grid {
-    display: block;
-  }
-}
-
-/* Contact form improvements */
-#contact-form {
-  background: rgba(255, 255, 255, 0.5);
-  padding: 2rem;
-  border-radius: var(--radius);
-  backdrop-filter: blur(10px);
-}
-
-[data-theme="dark"] #contact-form {
-  background: rgba(26, 32, 48, 0.5);
-}
-
-/* Animation for form elements */
-.form-control, .form-select {
-  transition: all 0.3s ease;
-}
-
-.form-control:focus, .form-select:focus {
-  transform: translateY(-2px);
-}
-
-/* Pulse animation for important elements */
-@keyframes pulse {
-  0% { transform: scale(1); }
-  50% { transform: scale(1.05); }
-  100% { transform: scale(1); }
-}
-
-.pulse {
-  animation: pulse 2s infinite;
-}
-
-/* Floating animation */
-@keyframes float {
-  0% { transform: translateY(0px); }
-  50% { transform: translateY(-10px); }
-  100% { transform: translateY(0px); }
-}
-
-.float {
-  animation: float 3s ease-in-out infinite;
-}
-
-/* Improved scrollbar */
-::-webkit-scrollbar {
-  width: 8px;
-}
-
-::-webkit-scrollbar-track {
-  background: rgba(122, 106, 216, 0.1);
-  border-radius: 10px;
-}
-
-::-webkit-scrollbar-thumb {
-  background: var(--brand);
-  border-radius: 10px;
-}
-
-::-webkit-scrollbar-thumb:hover {
-  background: var(--brand-600);
-}
-
-[data-theme="dark"] ::-webkit-scrollbar-track {
-  background: rgba(122, 106, 216, 0.2);
-}
-
-[data-theme="dark"] ::-webkit-scrollbar-thumb {
-  background: var(--brand-600);
-}
-
-[data-theme="dark"] ::-webkit-scrollbar-thumb:hover {
-  background: var(--brand);
-}
-
-/* NEW STYLES FOR ADDED FEATURES */
-
-/* Back to Top Button */
-#backToTop {
-  position: fixed;
-  bottom: 30px;
-  right: 30px;
-  width: 50px;
-  height: 50px;
-  border-radius: 50%;
-  background: var(--brand-gradient);
-  color: white;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  opacity: 0;
-  visibility: hidden;
-  transition: all 0.3s ease;
-  box-shadow: 0 5px 15px rgba(122, 106, 216, 0.3);
-  z-index: 1000;
-}
-
-#backToTop.visible {
-  opacity: 1;
-  visibility: visible;
-}
-
-#backToTop:hover {
-  background: var(--brand-gradient-hover);
-  transform: translateY(-5px);
-  box-shadow: 0 8px 20px rgba(122, 106, 216, 0.4);
-}
-
-/* Gradient Text Animation */
-.gradient-text {
-  background: linear-gradient(90deg, var(--brand-primary), var(--brand-secondary), var(--accent), var(--brand-primary));
-  background-size: 300% 300%;
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  animation: gradient-text 3s ease infinite;
-}
-
-@keyframes gradient-text {
-  0% { background-position: 0% 50%; }
-  50% { background-position: 100% 50%; }
-  100% { background-position: 0% 50%; }
-}
-
-/* Why Choose Section */
-.why-choose-section {
-  padding: 5rem 0;
-}
-
-.why-choose-section .text-center {
-  margin-bottom: 4rem;
-}
-
-.why-choose-section h2 {
-  font-weight: 800;
-  margin-bottom: 1rem;
-}
-
-.why-choose-section .lead {
-  color: var(--text-light);
-  font-size: 1.25rem;
-}
-
-.feature-card {
-  background: rgba(255, 255, 255, 0.8);
-  border-radius: var(--radius);
-  padding: 2rem;
-  height: 100%;
-  text-align: center;
-  transition: all 0.3s ease;
-  backdrop-filter: blur(10px);
-  box-shadow: var(--shadow);
-}
-
-.feature-card:hover {
-  transform: translateY(-10px);
-  box-shadow: var(--shadow-hover);
-}
-
-.feature-icon {
-  width: 70px;
-  height: 70px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin: 0 auto 1.5rem;
-  background: var(--brand-gradient);
-  color: white;
-  font-size: 1.5rem;
-  transition: all 0.3s ease;
-}
-
-.feature-card:hover .feature-icon {
-  transform: scale(1.1) rotate(5deg);
-}
-
-.feature-card h5 {
-  font-weight: 700;
-  margin-bottom: 1rem;
-  color: var(--text);
-}
-
-.feature-card p {
-  color: var(--text-light);
-}
-
-/* Dark mode for Why Choose section */
-[data-theme="dark"] .why-choose-section {
-  background: transparent; /* Inherit from body gradient */
-}
-
-[data-theme="dark"] .feature-card {
-  background: rgba(15, 20, 34, 0.8);
-}
-
-[data-theme="dark"] .feature-card h5 {
-  color: #ffffff;
-}
-
-[data-theme="dark"] .feature-card p.text-muted {
-    color: var(--muted) !important;
-}
-[data-theme="dark"] .why-choose-section .lead.text-muted {
-    color: var(--text-light) !important;
-}
-
-
-/* Hide Why Choose section on mobile */
-@media (max-width: 991.98px) {
-  .why-choose-section {
-    display: none;
-  }
-}
-
-/* Animation for hero text */
-.hero-text-gradient {
-  background: linear-gradient(90deg, var(--brand-primary), var(--brand-secondary), var(--accent), var(--brand-primary));
-  background-size: 300% 300%;
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  animation: gradient-text 3s ease infinite;
-}
-
-
-/* Animation for robot icon */
-.robot-icon-gradient {
-  background: linear-gradient(90deg, var(--brand-primary), var(--brand-secondary), var(--accent), var(--brand-primary));
-  background-size: 300% 300%;
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  animation: gradient-text 3s ease infinite;
-}
-
-/* PDF Download Button */
-.btn-pdf-download {
-  background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
-  color: white;
-  border: 0;
-  box-shadow: 0 6px 18px rgba(231, 76, 60, 0.2);
-  cursor: pointer;
-  transition: all 0.3s ease;
-}
-
-.btn-pdf-download:hover {
-  background: linear-gradient(135deg, #ff6b6b 0%, #e74c3c 100%);
-  color: white;
-  transform: translateY(-2px);
-  box-shadow: 0 10px 25px rgba(231, 76, 60, 0.3);
-}
-
-/* Action buttons container */
-.action-buttons {
-  display: flex;
-  justify-content: center; /* Center the single button */
-  align-items: center;
-  margin-top: 1.5rem;
-  flex-wrap: wrap;
-  gap: 1rem;
-}
-
-/* Center Registration Number Input */
-.scraping-section .mb-3 {
-    text-align: center;
-}
-.scraping-section #registrationNumber {
-    max-width: 350px;
-    margin: 0 auto;
-    text-align: center;
-}
-
-/* Drag and Drop Styles (Desktop Only) */
-@media (min-width: 992px) {
-  .course-table tbody tr {
-    cursor: grab;
-  }
-  .course-table tbody tr.dragging {
-    opacity: 0.5;
-    background: #e9e6f8;
-  }
-  .semester-card.drag-over {
-    border: 2px dashed var(--brand);
-    transform: scale(1.02);
-    background-color: rgba(122, 106, 216, 0.1);
-  }
-  [data-theme="dark"] .semester-card.drag-over {
-    background-color: rgba(122, 106, 216, 0.2);
-  }
-}
-
-/* NEW: Scroll Animation Styles */
-.fade-in-on-scroll {
-  opacity: 0;
-  transform: translateY(30px);
-  transition: opacity 0.6s ease-out, transform 0.6s ease-out;
-}
-.fade-in-on-scroll.is-visible {
-  opacity: 1;
-  transform: translateY(0);
-}
-
-/* NEW: Forecast/Info Button Style */
-.btn-info-action {
-  background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
-  color: white;
-  border: 0;
-  cursor: pointer;
-  transition: all 0.3s ease;
-}
-.btn-info-action:hover {
-  background: linear-gradient(135deg, #5dade2 0%, #3498db 100%);
-  color: white;
-  transform: translateY(-2px);
 }
   </style>
 </head>
@@ -3886,6 +3217,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 </script>
 </body>
 </html>
+
 
 
 
