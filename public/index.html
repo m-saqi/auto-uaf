@@ -3069,34 +3069,35 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
       }
       
       function getSemesterOrderKey(semesterName) {
-  if (!semesterName) return '0000-0'; // Default for safety
-  if (semesterName.toLowerCase().startsWith('forecast')) {
-      const num = parseInt(semesterName.split(' ')[1] || '1');
-      // Use a high year to keep forecast semesters at the very top
-      return `3000-${num}`; 
-  }
+    if (!semesterName) return '0000-0'; // Default for safety
 
-  let year = '0000';
-  let seasonOrder = 0; // Default for any unknown format
+    // Keep forecast semesters at the very top when sorted descending
+    if (semesterName.toLowerCase().startsWith('forecast')) {
+        const num = parseInt(semesterName.split(' ')[1] || '1');
+        return `3000-${num}`; 
+    }
 
-  const yearMatch = semesterName.match(/\b(20\d{2})\b/);
-  if (yearMatch) {
-      year = yearMatch[1];
-  }
+    let year = 0;
+    let seasonOrder = 0; // Default for any unknown format
 
-  // Assigning a logical order to the academic seasons
-  const lowerCaseName = semesterName.toLowerCase();
-  if (lowerCaseName.includes('spring')) {
-      seasonOrder = 1;
-  } else if (lowerCaseName.includes('summer')) {
-      seasonOrder = 2;
-  } else if (lowerCaseName.includes('fall')) {
-      seasonOrder = 3;
-  } else if (lowerCaseName.includes('winter')) {
-      seasonOrder = 4;
-  }
+    const yearMatch = semesterName.match(/\b(20\d{2})\b/);
+    if (yearMatch) {
+        year = parseInt(yearMatch[1]);
+    }
 
-  return `${year}-${seasonOrder}`;
+    // Assigning a logical order to the academic seasons
+    const lowerCaseName = semesterName.toLowerCase();
+    if (lowerCaseName.includes('spring')) {
+        seasonOrder = 2;
+    } else if (lowerCaseName.includes('summer')) {
+        seasonOrder = 3;
+    } else if (lowerCaseName.includes('fall') || lowerCaseName.includes('winter')) {
+        // Fall/Winter starts the academic year, so we associate it with the *next* year's session
+        seasonOrder = 1;
+        year += 1; // Crucial step: This groups Winter 2020 with Spring/Summer 2021
+    }
+
+    return `${year}-${seasonOrder}`;
 }
       
       function processScrapedData(data) {
@@ -3930,6 +3931,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 </script>
 </body>
 </html>
+
 
 
 
