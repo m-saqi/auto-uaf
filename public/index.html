@@ -3078,7 +3078,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     }
 
     let academicYear = 0;
-    let seasonOrder = 0; // 1: Winter, 2: Spring, 3: Summer
+    let seasonOrder = 0; // 3: Summer, 2: Spring, 1: Winter
 
     const yearMatch = semesterName.match(/\b(20\d{2})\b/);
     if (yearMatch) {
@@ -3087,14 +3087,10 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 
     const lowerCaseName = semesterName.toLowerCase();
 
-    // An academic session is defined by the year of its Winter start.
-    // Therefore, Spring and Summer belong to the academic session of the PREVIOUS calendar year.
-    if (lowerCaseName.includes('spring') || lowerCaseName.includes('summer')) {
-        academicYear -= 1; 
-    }
-
-    // Now, set the seasonal order within that academic year.
+    // The academic session is defined by the year of the Spring/Summer.
+    // A Winter semester belongs to the academic session of the *next* calendar year.
     if (lowerCaseName.includes('winter')) {
+        academicYear += 1; 
         seasonOrder = 1;
     } else if (lowerCaseName.includes('spring')) {
         seasonOrder = 2;
@@ -3936,6 +3932,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 </script>
 </body>
 </html>
+
 
 
 
