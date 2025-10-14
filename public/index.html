@@ -3069,40 +3069,20 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
       }
       
       function getSemesterOrderKey(semesterName) {
-    if (!semesterName) return '0000-0'; // Default for safety
-
-    // Keep forecast semesters at the very top when sorted descending
-    if (semesterName.toLowerCase().startsWith('forecast')) {
-        const num = parseInt(semesterName.split(' ')[1] || '1');
-        return `3000-${num}`; 
-    }
-
-    let academicSessionYear = 0;
-    let seasonOrder = 0; // 3: Summer, 2: Spring, 1: Winter
-
-    const yearMatch = semesterName.match(/\b(20\d{2})\b/);
-    if (yearMatch) {
-        academicSessionYear = parseInt(yearMatch[1]);
-    }
-
-    const lowerCaseName = semesterName.toLowerCase();
-
-    // An academic session is defined by the year of its Spring/Summer.
-    // A Winter semester therefore belongs to the session of the NEXT calendar year.
-    if (lowerCaseName.includes('winter')) {
-        academicSessionYear += 1; 
-    }
-
-    // Now, set the seasonal order within that academic session for descending sort.
-    if (lowerCaseName.includes('summer')) {
-        seasonOrder = 3;
-    } else if (lowerCaseName.includes('spring')) {
-        seasonOrder = 2;
-    } else if (lowerCaseName.includes('winter')) {
-        seasonOrder = 1;
-    }
-
-    return `${academicSessionYear}-${seasonOrder}`;
+  if (!semesterName) return '9999-9';
+  if (semesterName.toLowerCase().startsWith('forecast')) {
+      const num = parseInt(semesterName.split(' ')[1] || '1');
+      return `3000-${num}`;
+  }
+  let year = '9999';
+  let seasonOrder = 9;
+  const yearMatch = semesterName.match(/\b(20\d{2})\b/);
+  if (yearMatch) year = yearMatch[1];
+  if (semesterName.toLowerCase().includes('winter')) seasonOrder = 1;
+  else if (semesterName.toLowerCase().includes('spring')) seasonOrder = 2;
+  else if (semesterName.toLowerCase().includes('summer')) seasonOrder = 3;
+  else if (semesterName.toLowerCase().includes('fall')) seasonOrder = 4;
+  return `${year}-${seasonOrder}`;
 }
       
       function processScrapedData(data) {
@@ -3936,6 +3916,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 </script>
 </body>
 </html>
+
 
 
 
