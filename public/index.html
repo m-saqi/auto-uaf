@@ -3069,37 +3069,39 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
       }
       
       function getSemesterOrderKey(semesterName) {
-    if (!semesterName) return '0000-0'; // Default for safety
+  if (!semesterName) return '0000-0'; // Default for safety
 
-    // Keep forecast semesters at the very top when sorted descending
-    if (semesterName.toLowerCase().startsWith('forecast')) {
-        const num = parseInt(semesterName.split(' ')[1] || '1');
-        return `3000-${num}`; 
-    }
+  // Keep forecast semesters at the very top when sorted descending
+  if (semesterName.toLowerCase().startsWith('forecast')) {
+    const num = parseInt(semesterName.split(' ')[1] || '1');
+    return `3000-${num}`;
+  }
 
-    let academicYear = 0;
-    let seasonOrder = 0; // 1: Winter/Fall, 2: Spring, 3: Summer
+  let academicYear = 0;
+  let seasonOrder = 0; // 1: Winter/Fall, 2: Spring, 3: Summer
 
-    const yearMatch = semesterName.match(/\b(20\d{2})\b/);
-    if (yearMatch) {
-        academicYear = parseInt(yearMatch[1]);
-    }
+  const yearMatch = semesterName.match(/\b(20\d{2})\b/);
+  if (yearMatch) {
+    academicYear = parseInt(yearMatch[1]);
+  }
 
-    const lowerCaseName = semesterName.toLowerCase();
-    if (lowerCaseName.includes('spring')) {
-        seasonOrder = 2;
-        // A Spring semester belongs to the *previous* year's academic session
-        academicYear = academicYear - 1;
-    } else if (lowerCaseName.includes('summer')) {
-        seasonOrder = 3;
-        // A Summer semester also belongs to the *previous* year's academic session
-        academicYear = academicYear - 1;
-    } else if (lowerCaseName.includes('fall') || lowerCaseName.includes('winter')) {
-        // A Winter/Fall semester starts a new academic session
-        seasonOrder = 1;
-    }
+  const lowerCaseName = semesterName.toLowerCase();
 
-    return `${academicYear}-${seasonOrder}`;
+  // The academic session is defined by the Winter/Fall year.
+  // Spring and Summer belong to the session of the *previous* calendar year.
+  if (lowerCaseName.includes('spring') || lowerCaseName.includes('summer')) {
+      academicYear -= 1; 
+  }
+
+  if (lowerCaseName.includes('fall') || lowerCaseName.includes('winter')) {
+    seasonOrder = 1;
+  } else if (lowerCaseName.includes('spring')) {
+    seasonOrder = 2;
+  } else if (lowerCaseName.includes('summer')) {
+    seasonOrder = 3;
+  }
+
+  return `${academicYear}-${seasonOrder}`;
 }
       
       function processScrapedData(data) {
@@ -3933,6 +3935,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 </script>
 </body>
 </html>
+
 
 
 
