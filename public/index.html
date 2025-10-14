@@ -3077,28 +3077,32 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         return `3000-${num}`; 
     }
 
-    let academicYear = 0;
+    let academicSessionYear = 0;
     let seasonOrder = 0; // 3: Summer, 2: Spring, 1: Winter
 
     const yearMatch = semesterName.match(/\b(20\d{2})\b/);
     if (yearMatch) {
-        academicYear = parseInt(yearMatch[1]);
+        academicSessionYear = parseInt(yearMatch[1]);
     }
 
     const lowerCaseName = semesterName.toLowerCase();
 
-    // The academic session is defined by the year of the Spring/Summer.
-    // A Winter semester belongs to the academic session of the *next* calendar year.
+    // An academic session is defined by the year of its Spring/Summer.
+    // A Winter semester therefore belongs to the session of the NEXT calendar year.
     if (lowerCaseName.includes('winter')) {
-        academicYear += 1; 
-        seasonOrder = 1;
-    } else if (lowerCaseName.includes('spring')) {
-        seasonOrder = 2;
-    } else if (lowerCaseName.includes('summer')) {
-        seasonOrder = 3;
+        academicSessionYear += 1; 
     }
 
-    return `${academicYear}-${seasonOrder}`;
+    // Now, set the seasonal order within that academic session.
+    if (lowerCaseName.includes('summer')) {
+        seasonOrder = 3;
+    } else if (lowerCaseName.includes('spring')) {
+        seasonOrder = 2;
+    } else if (lowerCaseName.includes('winter')) {
+        seasonOrder = 1;
+    }
+
+    return `${academicSessionYear}-${seasonOrder}`;
 }
       
       function processScrapedData(data) {
@@ -3932,6 +3936,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 </script>
 </body>
 </html>
+
 
 
 
