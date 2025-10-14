@@ -3293,8 +3293,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     }
         
         semesterResults.innerHTML = '';
-        // Object.keys(data.semesters).sort((a,b) => data.semesters[a].sortKey.localeCompare(data.semesters[b].sortKey)).forEach(semesterName => { (FOR ACCENDING ORDER)
-        Object.keys(data.semesters).sort((a,b) => data.semesters[b].sortKey.localeCompare(data.semesters[a].sortKey)).forEach(semesterName => {
+        Object.keys(data.semesters).sort((a,b) => data.semesters[a].sortKey.localeCompare(data.semesters[b].sortKey)).forEach(semesterName => {
           const semester = data.semesters[semesterName];
           const semesterCard = document.createElement('div');
           
@@ -3916,6 +3915,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 </script>
 </body>
 </html>
+
 
 
 
