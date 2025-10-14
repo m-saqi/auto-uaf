@@ -3069,21 +3069,35 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
       }
       
       function getSemesterOrderKey(semesterName) {
-        if (!semesterName) return '9999-9';
-        if (semesterName.toLowerCase().startsWith('forecast')) {
-            const num = parseInt(semesterName.split(' ')[1] || '1');
-            return `3000-${num}`;
-        }
-        let year = '9999';
-        let seasonOrder = 9;
-        const yearMatch = semesterName.match(/\b(20\d{2})\b/);
-        if (yearMatch) year = yearMatch[1];
-        if (semesterName.toLowerCase().includes('winter')) seasonOrder = 1;
-        else if (semesterName.toLowerCase().includes('spring')) seasonOrder = 2;
-        else if (semesterName.toLowerCase().includes('summer')) seasonOrder = 3;
-        else if (semesterName.toLowerCase().includes('fall')) seasonOrder = 4;
-        return `${year}-${seasonOrder}`;
-      }
+  if (!semesterName) return '0000-0'; // Default for safety
+  if (semesterName.toLowerCase().startsWith('forecast')) {
+      const num = parseInt(semesterName.split(' ')[1] || '1');
+      // Use a high year to keep forecast semesters at the very top
+      return `3000-${num}`; 
+  }
+
+  let year = '0000';
+  let seasonOrder = 0; // Default for any unknown format
+
+  const yearMatch = semesterName.match(/\b(20\d{2})\b/);
+  if (yearMatch) {
+      year = yearMatch[1];
+  }
+
+  // Assigning a logical order to the academic seasons
+  const lowerCaseName = semesterName.toLowerCase();
+  if (lowerCaseName.includes('spring')) {
+      seasonOrder = 1;
+  } else if (lowerCaseName.includes('summer')) {
+      seasonOrder = 2;
+  } else if (lowerCaseName.includes('fall')) {
+      seasonOrder = 3;
+  } else if (lowerCaseName.includes('winter')) {
+      seasonOrder = 4;
+  }
+
+  return `${year}-${seasonOrder}`;
+}
       
       function processScrapedData(data) {
         if (!data || !data.resultData) return null;
@@ -3293,7 +3307,8 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     }
         
         semesterResults.innerHTML = '';
-        Object.keys(data.semesters).sort((a,b) => data.semesters[a].sortKey.localeCompare(data.semesters[b].sortKey)).forEach(semesterName => {
+        // Object.keys(data.semesters).sort((a,b) => data.semesters[a].sortKey.localeCompare(data.semesters[b].sortKey)).forEach(semesterName => { (FOR ACCENDING ORDER)
+        Object.keys(data.semesters).sort((a,b) => data.semesters[b].sortKey.localeCompare(data.semesters[a].sortKey)).forEach(semesterName => {
           const semester = data.semesters[semesterName];
           const semesterCard = document.createElement('div');
           
@@ -3915,6 +3930,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 </script>
 </body>
 </html>
+
 
 
 
