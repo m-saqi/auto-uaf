@@ -3141,10 +3141,25 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         Object.values(courseHistory).forEach(history => {
           if (history.length > 1) {
             history.sort((a, b) => a.semesterSortKey.localeCompare(b.semesterSortKey));
-            const highest = history.reduce((prev, current) => (prev.marks > current.marks) ? prev : current);
+
+            const passedCourses = history.filter(item => item.data.grade !== 'F');
+            let bestAttempt;
+
+            if (passedCourses.length > 0) {
+              // If there's at least one passing grade, find the one with the highest marks
+              bestAttempt = passedCourses.reduce((prev, current) => (prev.marks > current.marks) ? prev : current);
+            } else {
+              // If all attempts are failed, then just pick the one with the highest marks
+              bestAttempt = history.reduce((prev, current) => (prev.marks > current.marks) ? prev : current);
+            }
+            
             history.forEach(item => {
               item.data.isRepeated = true;
-              if (item !== highest) item.data.isExtraEnrolled = true;
+              if (item !== bestAttempt) {
+                item.data.isExtraEnrolled = true;
+              } else {
+                item.data.isExtraEnrolled = false; // Ensure the best attempt is not marked as extra
+              }
             });
           }
         });
@@ -3900,6 +3915,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 </script>
 </body>
 </html>
+
 
 
 
