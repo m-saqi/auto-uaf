@@ -1316,21 +1316,25 @@ a[aria-expanded="true"] .status-log-chevron {
 
 /* Dark mode for modals */
 [data-theme="dark"] .course-details-modal .modal-content,
-[data-theme="dark"] #addCourseModal .modal-content {
+[data-theme="dark"] #addCourseModal .modal-content,
+[data-theme="dark"] #renameProfileModal .modal-content,
+[data-theme="dark"] #manageProfilesModal .modal-content {
   background: rgba(26, 32, 48, 0.95);
   color: #e5e7eb;
 }
 
 [data-theme="dark"] .course-details-modal .modal-header,
-[data-theme="dark"] #addCourseModal .modal-header {
+[data-theme="dark"] #addCourseModal .modal-header,
+[data-theme="dark"] #renameProfileModal .modal-header,
+[data-theme="dark"] #manageProfilesModal .modal-header {
   background: linear-gradient(135deg, rgba(122, 106, 216, 0.3), rgba(122, 106, 216, 0.15));
   border-bottom-color: rgba(45, 55, 72, 0.5);
 }
 
-[data-theme="dark"] .course-details-modal .modal-header .btn-close,
-[data-theme="dark"] #addCourseModal .modal-header .btn-close {
+[data-theme="dark"] .modal-header .btn-close {
   filter: invert(1);
 }
+
 
 [data-theme="dark"] .course-details-modal .alert-info {
   background-color: rgba(23, 162, 184, 0.2);
