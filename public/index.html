@@ -2328,9 +2328,31 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         </div>
       </div>
     </div>
-</div>
 
-  <nav class="navbar navbar-expand-lg sticky-top border-bottom">
+	<div class="modal fade" id="manageProfilesModal" tabindex="-1" aria-hidden="true">
+		<div class="modal-dialog modal-dialog-centered modal-lg">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h5 class="modal-title"><i class="fa-solid fa-users-gear me-2"></i>Manage Profiles</h5>
+					<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+				</div>
+				<div class="modal-body">
+					<div id="profileListContainer">
+						</div>
+					<div class="alert alert-info mt-3" id="noProfilesMessage" style="display: none;">
+						<i class="fa-solid fa-info-circle me-2"></i>You don't have any saved profiles yet. Fetch a result to create your first profile.
+					</div>
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-secondary-action rounded-pill" data-bs-dismiss="modal">Close</button>
+					<button type="button" class="btn btn-danger-action rounded-pill" id="deleteSelectedProfilesBtn" disabled>
+						<i class="fa-solid fa-trash-can me-2"></i>Delete Selected
+					</button>
+				</div>
+			</div>
+		</div>
+	</div>
+	<nav class="navbar navbar-expand-lg sticky-top border-bottom">
     <div class="container">
       <a class="navbar-brand d-flex align-items-center gap-2" href="/">
         <span class="badge rounded-pill badge-brand">UAF</span>
@@ -2476,15 +2498,12 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
               <i class="fa-solid fa-user-check"></i>
             </span>
             <select class="form-select modern-profiles-select" id="profileSwitcher"></select>
-            <button class="btn btn-outline-secondary modern-rename-button" type="button" id="renameProfileBtn" title="Rename Selected Profile">
-                <i class="fa-solid fa-pen-to-square"></i>
-            </button>
-            <button class="btn btn-outline-danger modern-delete-button" type="button" id="deleteProfileBtn" title="Delete Selected Profile">
-              <i class="fa-solid fa-trash-can"></i>
+            <button class="btn btn-outline-secondary modern-manage-button" type="button" id="manageProfilesBtn" title="Manage Profiles">
+                <i class="fa-solid fa-users-gear"></i>
             </button>
           </div>
         </div>
-      </div>
+        </div>
     </form>
     <div class="loading-container" id="loadingContainer">
       <div class="loading-stage" id="connectingStage"><div class="loading-animation loading-connecting"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div><p class="loading-text">Connecting to UAF LMS</p><p class="loading-subtext">Establishing secure connection to university servers</p></div>
@@ -2749,10 +2768,15 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
       const gpaTrendChartCanvas = document.getElementById('gpaTrendChart').getContext('2d');  
       const profileManagementDiv = document.getElementById('profileManagement');
       const profileSwitcher = document.getElementById('profileSwitcher');
-      const deleteProfileBtn = document.getElementById('deleteProfileBtn');
 
+      // NEW: Profile Management Elements
+      const manageProfilesBtn = document.getElementById('manageProfilesBtn');
+      const manageProfilesModal = new bootstrap.Modal(document.getElementById('manageProfilesModal'));
+      const profileListContainer = document.getElementById('profileListContainer');
+      const noProfilesMessage = document.getElementById('noProfilesMessage');
+      const deleteSelectedProfilesBtn = document.getElementById('deleteSelectedProfilesBtn');
+      
       // NEW: Rename Profile Elements
-      const renameProfileBtn = document.getElementById('renameProfileBtn');
       const renameProfileModal = new bootstrap.Modal(document.getElementById('renameProfileModal'));
       const saveProfileNameBtn = document.getElementById('saveProfileNameBtn');
       
@@ -2858,28 +2882,112 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
           showToast(`Switched to profile: ${getProfiles()[profileId].displayName}`, 'info');
         }
       }
-
-      function deleteCurrentProfile() {
+      
+      function openManageProfilesModal() {
+        const profiles = getProfiles();
+        const profileKeys = Object.keys(profiles);
         const activeProfileId = getActiveProfileId();
-        if (!activeProfileId) {
-          showToast('No active profile selected to delete.', 'warning');
-          return;
+
+        if (profileKeys.length === 0) {
+            profileListContainer.innerHTML = '';
+            noProfilesMessage.style.display = 'block';
+            deleteSelectedProfilesBtn.disabled = true;
+        } else {
+            noProfilesMessage.style.display = 'none';
+            let profileListHTML = '<ul class="list-group">';
+            profileKeys.forEach(profileId => {
+                const profile = profiles[profileId];
+                const isActive = profileId === activeProfileId;
+                profileListHTML += `
+                    <li class="list-group-item d-flex justify-content-between align-items-center ${isActive ? 'active' : ''}">
+                        <div>
+                            <input class="form-check-input me-2" type="checkbox" value="${profileId}" id="profile-check-${profileId}">
+                            <label class="form-check-label" for="profile-check-${profileId}">
+                                <strong>${profile.displayName}</strong>
+                                <small class="d-block text-muted">${profile.studentInfo.registration}</small>
+                            </label>
+                        </div>
+                        <div>
+                            <button class="btn btn-sm btn-outline-primary me-2 rename-profile-btn" data-profile-id="${profileId}" title="Rename">
+                                <i class="fa-solid fa-pen-to-square"></i>
+                            </button>
+                            <button class="btn btn-sm btn-outline-danger delete-single-profile-btn" data-profile-id="${profileId}" title="Delete">
+                                <i class="fa-solid fa-trash-can"></i>
+                            </button>
+                        </div>
+                    </li>
+                `;
+            });
+            profileListHTML += '</ul>';
+            profileListContainer.innerHTML = profileListHTML;
+
+            // Add event listeners for the buttons inside the modal
+            document.querySelectorAll('.rename-profile-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    const profileId = e.currentTarget.dataset.profileId;
+                    openRenameModal(profileId);
+                });
+            });
+
+            document.querySelectorAll('.delete-single-profile-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    const profileId = e.currentTarget.dataset.profileId;
+                    deleteProfiles([profileId]);
+                });
+            });
+
+            // Handle checkbox changes to enable/disable the delete button
+            const checkboxes = document.querySelectorAll('#profileListContainer .form-check-input');
+            checkboxes.forEach(checkbox => {
+                checkbox.addEventListener('change', () => {
+                    const anyChecked = Array.from(checkboxes).some(cb => cb.checked);
+                    deleteSelectedProfilesBtn.disabled = !anyChecked;
+                });
+            });
+        }
+        manageProfilesModal.show();
+    }
+    
+    function deleteSelectedProfiles() {
+        const checkboxes = document.querySelectorAll('#profileListContainer .form-check-input:checked');
+        const profileIdsToDelete = Array.from(checkboxes).map(cb => cb.value);
+
+        if (profileIdsToDelete.length > 0) {
+            deleteProfiles(profileIdsToDelete);
+        }
+    }
+
+    function deleteProfiles(profileIds) {
+        if (!confirm(`Are you sure you want to delete ${profileIds.length} profile(s)? This action cannot be undone.`)) {
+            return;
         }
 
         const profiles = getProfiles();
-        const profileNameToDelete = profiles[activeProfileId].displayName;
+        const activeProfileId = getActiveProfileId();
+        let activeProfileWasDeleted = false;
 
-        if (confirm(`Are you sure you want to delete the profile "${profileNameToDelete}"? This cannot be undone.`)) {
-          delete profiles[activeProfileId];
-          saveProfiles(profiles);
-          localStorage.removeItem('uafCalculatorActiveProfile');
-          
-          showToast(`Profile "${profileNameToDelete}" deleted.`, 'success');
-          addStatusMessage(`Deleted profile: ${profileNameToDelete}`, 'info');
-          
-          setTimeout(() => location.reload(), 500);
+        profileIds.forEach(id => {
+            if (profiles[id]) {
+                delete profiles[id];
+                if (id === activeProfileId) {
+                    activeProfileWasDeleted = true;
+                }
+            }
+        });
+
+        saveProfiles(profiles);
+        showToast(`${profileIds.length} profile(s) deleted.`, 'success');
+        addStatusMessage(`Deleted ${profileIds.length} profile(s).`, 'info');
+        
+        if (activeProfileWasDeleted) {
+            localStorage.removeItem('uafCalculatorActiveProfile');
+            location.reload(); 
+        } else {
+            // Refresh the modal and the main dropdown
+            updateProfileSwitcher(profiles, getActiveProfileId());
+            openManageProfilesModal(); // Re-open to show updated list
         }
-      }
+    }
 
       function saveActiveProfile() {
         const activeProfileId = getActiveProfileId();
@@ -2892,20 +3000,24 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         }
       }
 
-      function openRenameModal() {
-        const activeProfileId = getActiveProfileId();
-        if (!activeProfileId) {
-            showToast('Please select a profile to rename.', 'warning');
-            return;
-        }
-        const profiles = getProfiles();
-        const currentName = profiles[activeProfileId].displayName;
-        document.getElementById('newProfileName').value = currentName;
-        renameProfileModal.show();
+      function openRenameModal(profileIdToRename = null) {
+          const profileId = profileIdToRename || getActiveProfileId();
+          if (!profileId) {
+              showToast('Please select a profile to rename.', 'warning');
+              return;
+          }
+          const profiles = getProfiles();
+          const currentName = profiles[profileId].displayName;
+          document.getElementById('newProfileName').value = currentName;
+          
+          // Store the ID of the profile being renamed
+          renameProfileModal._element.dataset.profileId = profileId;
+          
+          renameProfileModal.show();
       }
 
       function renameProfile() {
-          const activeProfileId = getActiveProfileId();
+          const profileId = renameProfileModal._element.dataset.profileId;
           const newName = document.getElementById('newProfileName').value.trim();
 
           if (!newName) {
@@ -2916,16 +3028,21 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
           const profiles = getProfiles();
           // Check if another profile already has this name
           const nameExists = Object.values(profiles).some(p => p.displayName === newName);
-          if (nameExists && profiles[activeProfileId].displayName !== newName) {
+          if (nameExists && profiles[profileId].displayName !== newName) {
               showToast('A profile with this name already exists.', 'error');
               return;
           }
 
-          profiles[activeProfileId].displayName = newName;
+          profiles[profileId].displayName = newName;
           saveProfiles(profiles);
           renameProfileModal.hide();
           showToast('Profile renamed successfully!', 'success');
-          updateProfileSwitcher(profiles, activeProfileId);
+          updateProfileSwitcher(profiles, getActiveProfileId());
+          
+          // If the manage profiles modal is open, refresh it
+          if (manageProfilesModal._element.classList.contains('show')) {
+              openManageProfilesModal();
+          }
       }
       
       // --- END OF UPDATED PROFILE MANAGEMENT ---
@@ -3923,9 +4040,10 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
       saveCourseBtn.addEventListener('click', addCustomCourse);
       addForecastSemesterBtn.addEventListener('click', addForecastSemester);
       profileSwitcher.addEventListener('change', switchProfile);
-      deleteProfileBtn.addEventListener('click', deleteCurrentProfile);
-      // NEW: Event listeners for rename functionality
-      renameProfileBtn.addEventListener('click', openRenameModal);
+      
+      // NEW: Event listeners for new profile management functionality
+      manageProfilesBtn.addEventListener('click', openManageProfilesModal);
+      deleteSelectedProfilesBtn.addEventListener('click', deleteSelectedProfiles);
       saveProfileNameBtn.addEventListener('click', renameProfile);
       
       init();
@@ -3933,43 +4051,3 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 </script>
 </body>
 </html>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
