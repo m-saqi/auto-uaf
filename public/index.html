@@ -1315,30 +1315,23 @@ a[aria-expanded="true"] .status-log-chevron {
 [data-theme="dark"] .grade-F { background-color: rgba(55, 65, 81, 0.3); color: #d1d5db; }
 
 /* Dark mode for modals */
-[data-theme="dark"] .course-details-modal .modal-content,
-[data-theme="dark"] #addCourseModal .modal-content {
-  background: rgba(26, 32, 48, 0.95);
-  color: #e5e7eb;
+[data-theme="dark"] .modal-content {
+    background: rgba(26, 32, 48, 0.95);
+    color: #e5e7eb;
 }
-
-[data-theme="dark"] .course-details-modal .modal-header,
-[data-theme="dark"] #addCourseModal .modal-header {
-  background: linear-gradient(135deg, rgba(122, 106, 216, 0.3), rgba(122, 106, 216, 0.15));
-  border-bottom-color: rgba(45, 55, 72, 0.5);
+[data-theme="dark"] .modal-header {
+    background: linear-gradient(135deg, rgba(122, 106, 216, 0.3), rgba(122, 106, 216, 0.15));
+    border-bottom-color: rgba(45, 55, 72, 0.5);
 }
-
-[data-theme="dark"] .course-details-modal .modal-header .btn-close,
-[data-theme="dark"] #addCourseModal .modal-header .btn-close {
-  filter: invert(1);
+[data-theme="dark"] .modal-header .btn-close {
+    filter: invert(1);
 }
-
-[data-theme="dark"] .course-details-modal .alert-info {
+[data-theme="dark"] .alert-info {
   background-color: rgba(23, 162, 184, 0.2);
   border-color: rgba(23, 162, 184, 0.3);
   color: #71d4f0;
 }
-
-[data-theme="dark"] .course-details-modal .alert-warning {
+[data-theme="dark"] .alert-warning {
   background-color: rgba(255, 193, 7, 0.2);
   border-color: rgba(255, 193, 7, 0.3);
   color: #ffd351;
@@ -2220,6 +2213,100 @@ a[aria-expanded="true"] .status-log-chevron {
   color: white;
   transform: translateY(-2px);
 }
+
+/* NEW: Profile Manager Styles */
+.profile-manager-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid rgba(122, 106, 216, 0.2);
+    margin-bottom: 1rem;
+}
+.profile-manager-stats {
+    font-size: 0.85rem;
+    color: var(--muted);
+}
+.profile-manager-toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+.profile-list {
+    list-style: none;
+    padding: 0;
+    max-height: 50vh;
+    overflow-y: auto;
+}
+.profile-item {
+    display: flex;
+    align-items: center;
+    padding: 0.75rem;
+    border-radius: 0.75rem;
+    transition: background-color 0.2s ease;
+    border-bottom: 1px solid rgba(122, 106, 216, 0.1);
+}
+.profile-item:last-child {
+    border-bottom: none;
+}
+.profile-item:hover {
+    background-color: rgba(122, 106, 216, 0.05);
+}
+[data-theme="dark"] .profile-item:hover {
+    background-color: rgba(122, 106, 216, 0.1);
+}
+.profile-item .form-check-input {
+    margin-top: 0;
+    transform: scale(1.2);
+}
+.profile-item-details {
+    flex-grow: 1;
+    margin-left: 1rem;
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0 1rem;
+}
+.profile-item-name {
+    grid-column: 1 / -1;
+    font-weight: 600;
+    color: var(--text);
+}
+.profile-item-meta {
+    font-size: 0.8rem;
+    color: var(--muted);
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+}
+.profile-item-actions {
+    display: flex;
+    gap: 0.5rem;
+}
+.profile-item-actions .btn {
+    padding: 0.25rem 0.5rem;
+    font-size: 0.8rem;
+}
+
+/* Custom Confirmation Modal */
+.confirmation-modal .modal-content {
+    border-radius: var(--radius);
+}
+.confirmation-modal .modal-header {
+    border-bottom: none;
+}
+.confirmation-modal .modal-body {
+    text-align: center;
+}
+.confirmation-modal .modal-body .fa-triangle-exclamation {
+    font-size: 2.5rem;
+    color: #f39c12;
+}
+.confirmation-modal .modal-footer {
+    border-top: none;
+    justify-content: center;
+}
   </style>
 </head>
   
@@ -2242,6 +2329,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     <i class="fas fa-arrow-up"></i>
   </div>
 
+  <!-- MODALS -->
   <div class="modal fade course-details-modal" id="courseDetailsModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
       <div class="modal-content">
@@ -2328,7 +2416,66 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         </div>
       </div>
     </div>
-</div>
+  </div>
+
+  <!-- NEW PROFILE MANAGER MODAL -->
+  <div class="modal fade" id="profileManagerModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title"><i class="fa-solid fa-users-gear me-2"></i>Profile Manager</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="profile-manager-header">
+                    <h6 class="mb-0">Manage Your Saved Profiles</h6>
+                    <div class="profile-manager-stats">
+                        <span id="profileCountStat">0 Profiles</span> | 
+                        <span id="lastBackupStat">Last Backup: Never</span>
+                    </div>
+                </div>
+                <div class="profile-manager-toolbar">
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="selectAllProfiles">
+                        <label class="form-check-label" for="selectAllProfiles">Select All</label>
+                    </div>
+                    <div class="dropdown">
+                        <button class="btn btn-secondary-action btn-sm dropdown-toggle" type="button" id="bulkActionsBtn" data-bs-toggle="dropdown" aria-expanded="false" disabled>
+                            Bulk Actions
+                        </button>
+                        <ul class="dropdown-menu" aria-labelledby="bulkActionsBtn">
+                            <li><a class="dropdown-item text-danger" href="#" id="deleteSelectedBtn"><i class="fa-solid fa-trash-can me-2"></i>Delete Selected</a></li>
+                        </ul>
+                    </div>
+                    <div class="ms-auto d-flex gap-2">
+                         <button class="btn btn-success-action btn-sm" id="importProfilesBtn"><i class="fa-solid fa-upload me-2"></i>Import</button>
+                         <button class="btn btn-info-action btn-sm" id="exportProfilesBtn"><i class="fa-solid fa-download me-2"></i>Export</button>
+                    </div>
+                </div>
+                <ul class="profile-list" id="profileManagerList">
+                    <!-- Profiles will be dynamically inserted here -->
+                </ul>
+            </div>
+        </div>
+    </div>
+  </div>
+
+  <!-- NEW CUSTOM CONFIRMATION MODAL -->
+  <div class="modal fade confirmation-modal" id="confirmationModal" tabindex="-1" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+    <div class="modal-dialog modal-dialog-centered modal-sm">
+      <div class="modal-content">
+        <div class="modal-body">
+          <i class="fa-solid fa-triangle-exclamation mb-3"></i>
+          <h5 class="modal-title mb-2" id="confirmationModalTitle">Are you sure?</h5>
+          <p id="confirmationModalBody" class="text-muted small">This action cannot be undone.</p>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary-action rounded-pill" data-bs-dismiss="modal" id="confirmationCancelBtn">Cancel</button>
+          <button type="button" class="btn btn-danger-action rounded-pill" id="confirmationConfirmBtn">Confirm</button>
+        </div>
+      </div>
+    </div>
+  </div>
 
   <nav class="navbar navbar-expand-lg sticky-top border-bottom">
     <div class="container">
@@ -2476,11 +2623,9 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
               <i class="fa-solid fa-user-check"></i>
             </span>
             <select class="form-select modern-profiles-select" id="profileSwitcher"></select>
-            <button class="btn btn-outline-secondary modern-rename-button" type="button" id="renameProfileBtn" title="Rename Selected Profile">
-                <i class="fa-solid fa-pen-to-square"></i>
-            </button>
-            <button class="btn btn-outline-danger modern-delete-button" type="button" id="deleteProfileBtn" title="Delete Selected Profile">
-              <i class="fa-solid fa-trash-can"></i>
+            <!-- NEW PROFILE MANAGER BUTTON -->
+            <button class="btn btn-outline-secondary modern-rename-button" type="button" id="openProfileManagerBtn" title="Manage All Profiles">
+                <i class="fa-solid fa-users-gear"></i>
             </button>
           </div>
         </div>
@@ -2749,12 +2894,13 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
       const gpaTrendChartCanvas = document.getElementById('gpaTrendChart').getContext('2d');  
       const profileManagementDiv = document.getElementById('profileManagement');
       const profileSwitcher = document.getElementById('profileSwitcher');
-      const deleteProfileBtn = document.getElementById('deleteProfileBtn');
-
-      // NEW: Rename Profile Elements
-      const renameProfileBtn = document.getElementById('renameProfileBtn');
       const renameProfileModal = new bootstrap.Modal(document.getElementById('renameProfileModal'));
       const saveProfileNameBtn = document.getElementById('saveProfileNameBtn');
+
+      // NEW Profile Manager Elements
+      const openProfileManagerBtn = document.getElementById('openProfileManagerBtn');
+      const profileManagerModal = new bootstrap.Modal(document.getElementById('profileManagerModal'));
+      const confirmationModal = new bootstrap.Modal(document.getElementById('confirmationModal'));
       
       // State
       let allLogs = [];
@@ -2762,6 +2908,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
       let deletedSemesters = {};
       let gpaChart = null;  
       let isInitialLoad = true;
+      let confirmationCallback = null;
       
       const API_ENDPOINT = `/api/result-scraper?action=scrape_single`;
       
@@ -2786,22 +2933,29 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         }, { threshold: 0.1 });
         document.querySelectorAll('.fade-in-on-scroll').forEach(el => observer.observe(el));
       }
-
-      // --- UPDATED PROFILE MANAGEMENT ---
+      
       function getProfiles() {
-        return JSON.parse(localStorage.getItem('uafCalculatorProfiles') || '{}');
+        return JSON.parse(localStorage.getItem('uafCalculatorProfiles_v2') || '{}');
       }
 
       function saveProfiles(profiles) {
-        localStorage.setItem('uafCalculatorProfiles', JSON.stringify(profiles));
+        localStorage.setItem('uafCalculatorProfiles_v2', JSON.stringify(profiles));
       }
 
       function getActiveProfileId() {
-        return localStorage.getItem('uafCalculatorActiveProfile');
+        return localStorage.getItem('uafCalculatorActiveProfile_v2');
       }
 
       function setActiveProfileId(id) {
-        localStorage.setItem('uafCalculatorActiveProfile', id);
+        localStorage.setItem('uafCalculatorActiveProfile_v2', id);
+      }
+      
+      function getBackupInfo() {
+          return JSON.parse(localStorage.getItem('uafCalculatorBackupInfo') || '{}');
+      }
+      
+      function saveBackupInfo(info) {
+          localStorage.setItem('uafCalculatorBackupInfo', JSON.stringify(info));
       }
 
       function loadProfiles() {
@@ -2821,13 +2975,12 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
           profileSwitcher.innerHTML = '<option value="">Select a saved profile...</option>';
           profileKeys.forEach(profileId => {
             const profile = profiles[profileId];
-            if (profile && profile.studentInfo) { // Ensure profile data is valid
+            if (profile && profile.studentInfo) {
                 const option = document.createElement('option');
                 option.value = profileId;
-                // Use the custom displayName, fallback to the default generated name
                 option.textContent = profile.displayName || `${profile.studentInfo.name} (${profile.studentInfo.registration})`;
                 if (profileId === activeProfileId) {
-                option.selected = true;
+                  option.selected = true;
                 }
                 profileSwitcher.appendChild(option);
             }
@@ -2859,53 +3012,31 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         }
       }
 
-      function deleteCurrentProfile() {
-        const activeProfileId = getActiveProfileId();
-        if (!activeProfileId) {
-          showToast('No active profile selected to delete.', 'warning');
-          return;
-        }
-
-        const profiles = getProfiles();
-        const profileNameToDelete = profiles[activeProfileId].displayName;
-
-        if (confirm(`Are you sure you want to delete the profile "${profileNameToDelete}"? This cannot be undone.`)) {
-          delete profiles[activeProfileId];
-          saveProfiles(profiles);
-          localStorage.removeItem('uafCalculatorActiveProfile');
-          
-          showToast(`Profile "${profileNameToDelete}" deleted.`, 'success');
-          addStatusMessage(`Deleted profile: ${profileNameToDelete}`, 'info');
-          
-          setTimeout(() => location.reload(), 500);
-        }
-      }
-
       function saveActiveProfile() {
         const activeProfileId = getActiveProfileId();
-        if (activeProfileId) {
+        if (activeProfileId && processedData) {
             const profiles = getProfiles();
             if (profiles[activeProfileId]) {
+                processedData.lastModified = new Date().toISOString();
                 profiles[activeProfileId] = processedData;
                 saveProfiles(profiles);
             }
         }
       }
 
-      function openRenameModal() {
-        const activeProfileId = getActiveProfileId();
-        if (!activeProfileId) {
-            showToast('Please select a profile to rename.', 'warning');
+      function openRenameModal(profileId) {
+        const profiles = getProfiles();
+        if (!profileId || !profiles[profileId]) {
+            showToast('Invalid profile selected for rename.', 'warning');
             return;
         }
-        const profiles = getProfiles();
-        const currentName = profiles[activeProfileId].displayName;
-        document.getElementById('newProfileName').value = currentName;
+        document.getElementById('newProfileName').value = profiles[profileId].displayName;
+        saveProfileNameBtn.dataset.profileId = profileId; // Store the ID
         renameProfileModal.show();
       }
-
+      
       function renameProfile() {
-          const activeProfileId = getActiveProfileId();
+          const profileId = saveProfileNameBtn.dataset.profileId;
           const newName = document.getElementById('newProfileName').value.trim();
 
           if (!newName) {
@@ -2914,21 +3045,212 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
           }
 
           const profiles = getProfiles();
-          // Check if another profile already has this name
-          const nameExists = Object.values(profiles).some(p => p.displayName === newName);
-          if (nameExists && profiles[activeProfileId].displayName !== newName) {
+          const nameExists = Object.values(profiles).some((p, id) => p.displayName === newName && id !== profileId);
+          if (nameExists) {
               showToast('A profile with this name already exists.', 'error');
               return;
           }
 
-          profiles[activeProfileId].displayName = newName;
+          profiles[profileId].displayName = newName;
+          profiles[profileId].lastModified = new Date().toISOString();
           saveProfiles(profiles);
           renameProfileModal.hide();
           showToast('Profile renamed successfully!', 'success');
-          updateProfileSwitcher(profiles, activeProfileId);
+          
+          updateProfileSwitcher(profiles, getActiveProfileId());
+          if (profileManagerModal._element.classList.contains('show')) {
+              renderProfileManager();
+          }
+      }
+
+      function showConfirmationModal(title, body, onConfirm) {
+        document.getElementById('confirmationModalTitle').textContent = title;
+        document.getElementById('confirmationModalBody').textContent = body;
+        confirmationCallback = onConfirm;
+        confirmationModal.show();
+      }
+
+      function handleConfirm() {
+        if (typeof confirmationCallback === 'function') {
+          confirmationCallback();
+        }
+        confirmationModal.hide();
+        confirmationCallback = null;
       }
       
-      // --- END OF UPDATED PROFILE MANAGEMENT ---
+      // --- NEW PROFILE MANAGER FUNCTIONS ---
+
+      function renderProfileManager() {
+        const profiles = getProfiles();
+        const profileListEl = document.getElementById('profileManagerList');
+        const profileCountStat = document.getElementById('profileCountStat');
+        const lastBackupStat = document.getElementById('lastBackupStat');
+        
+        const profileKeys = Object.keys(profiles);
+        profileCountStat.textContent = `${profileKeys.length} Profile${profileKeys.length !== 1 ? 's' : ''}`;
+        
+        const backupInfo = getBackupInfo();
+        lastBackupStat.textContent = backupInfo.lastBackup ? `Last Backup: ${new Date(backupInfo.lastBackup).toLocaleString()}` : 'Last Backup: Never';
+
+        if (profileKeys.length === 0) {
+            profileListEl.innerHTML = '<li class="text-center text-muted p-4">No profiles saved yet.</li>';
+            return;
+        }
+
+        profileListEl.innerHTML = profileKeys.map(id => {
+            const profile = profiles[id];
+            const cgpaData = calculateCGPA(profile);
+            const semesterCount = Object.keys(profile.semesters).length;
+            const courseCount = Object.values(profile.semesters).reduce((sum, s) => sum + s.courses.length, 0);
+            const lastModified = profile.lastModified ? new Date(profile.lastModified).toLocaleString() : 'N/A';
+            
+            return `
+              <li class="profile-item" data-profile-id="${id}">
+                  <input class="form-check-input profile-checkbox" type="checkbox" value="${id}">
+                  <div class="profile-item-details">
+                      <div class="profile-item-name">${profile.displayName}</div>
+                      <div class="profile-item-meta"><i class="fa-solid fa-id-card"></i> ${profile.studentInfo.registration}</div>
+                      <div class="profile-item-meta"><i class="fa-solid fa-graduation-cap"></i> CGPA: ${cgpaData.cgpa.toFixed(4)}</div>
+                      <div class="profile-item-meta"><i class="fa-solid fa-book"></i> ${semesterCount} Semesters, ${courseCount} Courses</div>
+                      <div class="profile-item-meta"><i class="fa-solid fa-clock"></i> ${lastModified}</div>
+                  </div>
+                  <div class="profile-item-actions">
+                      <button class="btn btn-sm btn-soft rounded-pill action-load" title="Load Profile"><i class="fa-solid fa-arrow-up-right-from-square"></i></button>
+                      <button class="btn btn-sm btn-soft rounded-pill action-rename" title="Rename"><i class="fa-solid fa-pen"></i></button>
+                      <button class="btn btn-sm btn-soft rounded-pill text-danger action-delete" title="Delete"><i class="fa-solid fa-trash"></i></button>
+                  </div>
+              </li>
+            `;
+        }).join('');
+        
+        // Attach event listeners for quick actions
+        profileListEl.querySelectorAll('.action-load').forEach(btn => btn.addEventListener('click', e => {
+            loadProfile(e.currentTarget.closest('.profile-item').dataset.profileId);
+            profileManagerModal.hide();
+        }));
+        profileListEl.querySelectorAll('.action-rename').forEach(btn => btn.addEventListener('click', e => {
+            openRenameModal(e.currentTarget.closest('.profile-item').dataset.profileId);
+        }));
+        profileListEl.querySelectorAll('.action-delete').forEach(btn => btn.addEventListener('click', e => {
+            const profileId = e.currentTarget.closest('.profile-item').dataset.profileId;
+            showConfirmationModal('Delete Profile?', `Are you sure you want to delete "${profiles[profileId].displayName}"?`, () => {
+                deleteProfiles([profileId]);
+            });
+        }));
+      }
+
+      function handleBulkAction() {
+          const selectedIds = Array.from(document.querySelectorAll('.profile-checkbox:checked')).map(cb => cb.value);
+          if (selectedIds.length === 0) {
+              showToast('No profiles selected.', 'warning');
+              return;
+          }
+          showConfirmationModal(`Delete ${selectedIds.length} Profiles?`, `This will permanently delete the selected profiles.`, () => {
+              deleteProfiles(selectedIds);
+          });
+      }
+
+      function deleteProfiles(idsToDelete) {
+          const profiles = getProfiles();
+          let deletedCount = 0;
+          idsToDelete.forEach(id => {
+              if (profiles[id]) {
+                  delete profiles[id];
+                  deletedCount++;
+                  if (getActiveProfileId() === id) {
+                      setActiveProfileId('');
+                  }
+              }
+          });
+          saveProfiles(profiles);
+          showToast(`Successfully deleted ${deletedCount} profile(s).`, 'success');
+          renderProfileManager();
+          updateProfileSwitcher(profiles, getActiveProfileId());
+          if (!getActiveProfileId()) {
+              resultContainer.style.display = 'none';
+              registrationNumber.value = '';
+          }
+      }
+
+      function exportProfiles() {
+          const selectedIds = Array.from(document.querySelectorAll('.profile-checkbox:checked')).map(cb => cb.value);
+          const profiles = getProfiles();
+          const profilesToExport = {};
+          const idsToUse = selectedIds.length > 0 ? selectedIds : Object.keys(profiles);
+
+          if (idsToUse.length === 0) {
+              showToast('No profiles to export.', 'warning');
+              return;
+          }
+          
+          idsToUse.forEach(id => {
+              profilesToExport[id] = profiles[id];
+          });
+          
+          const backupData = {
+              version: '2.0.0',
+              exportDate: new Date().toISOString(),
+              profiles: profilesToExport
+          };
+          
+          const blob = new Blob([JSON.stringify(backupData, null, 2)], { type: 'application/json' });
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = `uaf-cgpa-profiles-backup-${new Date().toISOString().split('T')[0]}.json`;
+          document.body.appendChild(a);
+          a.click();
+          a.remove();
+          URL.revokeObjectURL(url);
+          
+          saveBackupInfo({ lastBackup: new Date().toISOString() });
+          showToast(`${idsToUse.length} profile(s) exported.`, 'success');
+          renderProfileManager(); // To update the last backup date
+      }
+
+      function importProfiles() {
+          const input = document.createElement('input');
+          input.type = 'file';
+          input.accept = '.json';
+          input.onchange = e => {
+              const file = e.target.files[0];
+              if (!file) return;
+              const reader = new FileReader();
+              reader.onload = event => {
+                  try {
+                      const importedData = JSON.parse(event.target.result);
+                      if (!importedData.profiles || importedData.version !== '2.0.0') {
+                          throw new Error('Invalid or incompatible backup file.');
+                      }
+                      
+                      const existingProfiles = getProfiles();
+                      let importedCount = 0, skippedCount = 0;
+
+                      Object.keys(importedData.profiles).forEach(id => {
+                          if (existingProfiles[id]) {
+                              skippedCount++;
+                          } else {
+                              existingProfiles[id] = importedData.profiles[id];
+                              importedCount++;
+                          }
+                      });
+                      
+                      saveProfiles(existingProfiles);
+                      showToast(`Import complete: ${importedCount} added, ${skippedCount} skipped.`, 'success');
+                      loadProfiles();
+                      renderProfileManager();
+
+                  } catch (error) {
+                      showToast(`Import failed: ${error.message}`, 'error');
+                      console.error('Import error:', error);
+                  }
+              };
+              reader.readAsText(file);
+          };
+          input.click();
+      }
+      
+      // --- END OF NEW PROFILE MANAGER FUNCTIONS ---
       
       function updateTotalsDisplay() {
         const cgpaData = calculateCGPA(processedData);
@@ -3087,21 +3409,21 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
       }
       
       function getSemesterOrderKey(semesterName) {
-  if (!semesterName) return '9999-9';
-  if (semesterName.toLowerCase().startsWith('forecast')) {
-      const num = parseInt(semesterName.split(' ')[1] || '1');
-      return `3000-${num}`;
-  }
-  let year = '9999';
-  let seasonOrder = 9;
-  const yearMatch = semesterName.match(/\b(20\d{2})\b/);
-  if (yearMatch) year = yearMatch[1];
-  if (semesterName.toLowerCase().includes('winter')) seasonOrder = 1;
-  else if (semesterName.toLowerCase().includes('spring')) seasonOrder = 2;
-  else if (semesterName.toLowerCase().includes('summer')) seasonOrder = 3;
-  else if (semesterName.toLowerCase().includes('fall')) seasonOrder = 4;
-  return `${year}-${seasonOrder}`;
-}
+        if (!semesterName) return '9999-9';
+        if (semesterName.toLowerCase().startsWith('forecast')) {
+            const num = parseInt(semesterName.split(' ')[1] || '1');
+            return `3000-${num}`;
+        }
+        let year = '9999';
+        let seasonOrder = 9;
+        const yearMatch = semesterName.match(/\b(20\d{2})\b/);
+        if (yearMatch) year = yearMatch[1];
+        if (semesterName.toLowerCase().includes('winter')) seasonOrder = 1;
+        else if (semesterName.toLowerCase().includes('spring')) seasonOrder = 2;
+        else if (semesterName.toLowerCase().includes('summer')) seasonOrder = 3;
+        else if (semesterName.toLowerCase().includes('fall')) seasonOrder = 4;
+        return `${year}-${seasonOrder}`;
+      }
       
       function processScrapedData(data) {
         if (!data || !data.resultData) return null;
@@ -3164,10 +3486,8 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
             let bestAttempt;
 
             if (passedCourses.length > 0) {
-              // If there's at least one passing grade, find the one with the highest marks
               bestAttempt = passedCourses.reduce((prev, current) => (prev.marks > current.marks) ? prev : current);
             } else {
-              // If all attempts are failed, then just pick the one with the highest marks
               bestAttempt = history.reduce((prev, current) => (prev.marks > current.marks) ? prev : current);
             }
             
@@ -3176,7 +3496,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
               if (item !== bestAttempt) {
                 item.data.isExtraEnrolled = true;
               } else {
-                item.data.isExtraEnrolled = false; // Ensure the best attempt is not marked as extra
+                item.data.isExtraEnrolled = false;
               }
             });
           }
@@ -3298,13 +3618,10 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         totalMarksObtained.textContent = cgpaData.totalMarksObtained.toFixed(0);
         totalMaxMarks.textContent = `/ ${cgpaData.totalMaxMarks.toFixed(0)}`;
 
-        // --- ADD THIS NEW CODE FOR THE CIRCLE ---
     const cgpaCircle = document.getElementById('cgpaCircle');
     if(cgpaCircle) {
         const cgpa = parseFloat(totalCgpa.textContent);
         const percentage = (cgpa / 4.0) * 100;
-        const offset = 100 - percentage;
-        // A short delay to allow the element to render before animating
         setTimeout(() => {
             cgpaCircle.style.strokeDasharray = `${percentage}, 100`;
         }, 100);
@@ -3865,14 +4182,12 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
             const processed = processScrapedData(data);
             const cgpaData = calculateCGPA(processed);
             
-            // --- UPDATED SAVE LOGIC ---
             const profiles = getProfiles();
             const studentInfo = processed.studentInfo;
             let baseName = `${studentInfo.name} (${studentInfo.registration})`;
             let finalName = baseName;
             let copyNum = 1;
 
-            // Find an available name if the base name is already taken for a different registration number
             const allDisplayNames = Object.values(profiles).map(p => p.displayName);
 
             while(allDisplayNames.includes(finalName)) {
@@ -3880,11 +4195,12 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
             }
 
             processed.displayName = finalName;
+            processed.createdAt = new Date().toISOString();
+            processed.lastModified = new Date().toISOString();
             const newProfileId = `profile_${Date.now()}`;
             profiles[newProfileId] = processed;
             saveProfiles(profiles);
             setActiveProfileId(newProfileId);
-            // --- END OF UPDATED SAVE LOGIC ---
 
             showLoadingStage('complete');
             setTimeout(() => {
@@ -3923,11 +4239,28 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
       saveCourseBtn.addEventListener('click', addCustomCourse);
       addForecastSemesterBtn.addEventListener('click', addForecastSemester);
       profileSwitcher.addEventListener('change', switchProfile);
-      deleteProfileBtn.addEventListener('click', deleteCurrentProfile);
-      // NEW: Event listeners for rename functionality
-      renameProfileBtn.addEventListener('click', openRenameModal);
       saveProfileNameBtn.addEventListener('click', renameProfile);
-      
+      document.getElementById('confirmationConfirmBtn').addEventListener('click', handleConfirm);
+
+      // Profile Manager Listeners
+      openProfileManagerBtn.addEventListener('click', () => {
+          renderProfileManager();
+          profileManagerModal.show();
+      });
+      document.getElementById('selectAllProfiles').addEventListener('change', e => {
+          document.querySelectorAll('.profile-checkbox').forEach(cb => cb.checked = e.target.checked);
+          document.getElementById('bulkActionsBtn').disabled = !e.target.checked;
+      });
+      document.getElementById('profileManagerList').addEventListener('change', e => {
+          if (e.target.classList.contains('profile-checkbox')) {
+              const anyChecked = !!document.querySelector('.profile-checkbox:checked');
+              document.getElementById('bulkActionsBtn').disabled = !anyChecked;
+          }
+      });
+      document.getElementById('deleteSelectedBtn').addEventListener('click', handleBulkAction);
+      document.getElementById('exportProfilesBtn').addEventListener('click', exportProfiles);
+      document.getElementById('importProfilesBtn').addEventListener('click', importProfiles);
+
       init();
     });
 </script>
