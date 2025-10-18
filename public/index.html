@@ -1047,9 +1047,10 @@ a[aria-expanded="true"] .status-log-chevron {
 }
 
 
-    /* ADD THIS CSS FOR THE RENAME BUTTON */
-.modern-rename-button {
-    border-left: 0 !important;
+#openProfileManagerBtn {
+    border-top-right-radius: .85rem !important;
+    border-bottom-right-radius: .85rem !important;
+    border-left: 0;
 }
 
     /* ADD THIS CSS FOR THE PREMIUM CGPA DISPLAY */
@@ -2247,6 +2248,7 @@ a[aria-expanded="true"] .status-log-chevron {
     border-radius: 0.75rem;
     transition: background-color 0.2s ease;
     border-bottom: 1px solid rgba(122, 106, 216, 0.1);
+    position: relative;
 }
 .profile-item:last-child {
     border-bottom: none;
@@ -2306,6 +2308,41 @@ a[aria-expanded="true"] .status-log-chevron {
 .confirmation-modal .modal-footer {
     border-top: none;
     justify-content: center;
+}
+
+/* Mobile adjustments for Profile Manager */
+@media (max-width: 767.98px) {
+    .profile-manager-toolbar {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    .profile-manager-toolbar .ms-auto {
+        width: 100%;
+        margin-top: 0.5rem;
+        display: flex;
+        justify-content: space-between;
+    }
+    .profile-item {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.75rem;
+    }
+    .profile-item .form-check-input {
+        position: absolute;
+        top: 0.75rem;
+        right: 0.75rem;
+    }
+    .profile-item-details {
+        margin-left: 0;
+        grid-template-columns: 1fr; /* Stack details vertically */
+        gap: 0.25rem;
+    }
+    .profile-item-actions {
+        width: 100%;
+        justify-content: space-around;
+        border-top: 1px solid rgba(122, 106, 216, 0.1);
+        padding-top: 0.75rem;
+    }
 }
   </style>
 </head>
@@ -2623,9 +2660,8 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
               <i class="fa-solid fa-user-check"></i>
             </span>
             <select class="form-select modern-profiles-select" id="profileSwitcher"></select>
-            <!-- NEW PROFILE MANAGER BUTTON -->
-            <button class="btn btn-outline-secondary modern-rename-button" type="button" id="openProfileManagerBtn" title="Manage All Profiles">
-                <i class="fa-solid fa-users-gear"></i>
+            <button class="btn btn-soft" type="button" id="openProfileManagerBtn" title="Manage All Profiles">
+              <i class="fa-solid fa-users-gear"></i><span class="d-none d-sm-inline ms-1">Manage</span>
             </button>
           </div>
         </div>
@@ -2913,6 +2949,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
       const API_ENDPOINT = `/api/result-scraper?action=scrape_single`;
       
       function init() {
+        migrateOldProfiles(); // Check for and migrate old data first
         initCustomCursor();
         initTheme();
         initContactForm();
@@ -2920,6 +2957,46 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         initBackToTop();
         initScrollAnimations();  
         loadProfiles();
+      }
+
+      function migrateOldProfiles() {
+          const oldProfilesData = localStorage.getItem('uafCalculatorProfiles');
+          if (oldProfilesData) {
+              try {
+                  const oldProfiles = JSON.parse(oldProfilesData);
+                  const newProfiles = getProfiles();
+                  let migratedCount = 0;
+                  
+                  Object.keys(oldProfiles).forEach(oldId => {
+                      const oldProfile = oldProfiles[oldId];
+                      // Check if a profile with the same registration # already exists in the new format
+                      const alreadyExists = Object.values(newProfiles).some(
+                          p => p.studentInfo.registration === oldProfile.studentInfo.registration
+                      );
+
+                      if (!alreadyExists && oldProfile.studentInfo) {
+                          const newProfile = {
+                              ...oldProfile,
+                              displayName: `${oldProfile.studentInfo.name} (${oldProfile.studentInfo.registration})`,
+                              createdAt: new Date().toISOString(),
+                              lastModified: new Date().toISOString()
+                          };
+                          const newId = `profile_${Date.now()}_${migratedCount}`;
+                          newProfiles[newId] = newProfile;
+                          migratedCount++;
+                      }
+                  });
+
+                  if (migratedCount > 0) {
+                      saveProfiles(newProfiles);
+                      showToast(`${migratedCount} profile(s) from a previous version were successfully migrated!`, 'success');
+                  }
+                  
+                  localStorage.removeItem('uafCalculatorProfiles'); // Remove old data after migration
+              } catch (e) {
+                  console.error("Failed to migrate old profiles:", e);
+              }
+          }
       }
 
       function initScrollAnimations() {
@@ -4266,3 +4343,4 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 </script>
 </body>
 </html>
+
