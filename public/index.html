@@ -952,7 +952,8 @@ a[aria-expanded="true"] #gpaChartChevron {
   justify-content: center;
   padding: 0.75rem 1.25rem; /* Professional padding */
   transition: all 0.3s ease;
-  height: auto; /* Remove fixed height */
+  height: calc(100% - 12px); /* Make button slightly smaller than input */
+  line-height: 1; /* Ensure text/icon aligns well */
 }
 
 .modern-search-button:hover {
@@ -1249,6 +1250,11 @@ a[aria-expanded="true"] .status-log-chevron {
 
 [data-theme="dark"] .lead {
   color: #9ca3af;
+}
+
+/* --- UPDATE: Make subtitle visible in dark mode --- */
+[data-theme="dark"] .calculator-section-modern .text-muted {
+    color: var(--text-light) !important;
 }
 
 [data-theme="dark"] .subject-row {
@@ -2331,15 +2337,23 @@ a[aria-expanded="true"] .status-log-chevron {
 /* Mobile adjustments for Profile Manager */
 @media (max-width: 767.98px) {
     .profile-manager-toolbar {
-        flex-direction: column;
-        align-items: flex-start;
+        flex-direction: row; /* Keep in a row */
+        justify-content: space-between; /* Space out items */
+        align-items: center; /* Align vertically */
     }
     .profile-manager-toolbar .ms-auto {
-        width: 100%;
-        margin-top: 0.5rem;
+        margin-left: 0 !important; /* Remove margin */
+        width: auto; /* Allow natural width */
+        margin-top: 0; /* Remove top margin */
         display: flex;
-        justify-content: space-between;
+        gap: 0.5rem; /* Reduce gap */
     }
+    /* Make toolbar buttons slightly smaller */
+    .profile-manager-toolbar .btn {
+        font-size: 0.8rem;
+        padding: 0.3rem 0.6rem;
+    }
+
     .profile-item {
         flex-direction: column;
         align-items: flex-start;
@@ -2391,15 +2405,17 @@ a[aria-expanded="true"] .status-log-chevron {
 /* --- UPDATE: Mobile styles for Import/Export buttons --- */
 @media (max-width: 575.98px) {
     .profile-data-buttons {
-        flex-direction: column; /* Stack them */
-        gap: 0.5rem;
-        align-items: center; /* Center them */
+        flex-direction: row; /* Keep in row */
+        gap: 0.5rem; /* Reduce gap */
+        justify-content: center; /* Center horizontally */
     }
     .profile-data-buttons .btn {
-        width: 75%; /* Make them a consistent width */
-        max-width: 300px;
-        font-size: 0.85rem; /* Even smaller on mobile */
-        padding: 0.6rem 1rem;
+        width: auto; /* Allow natural width */
+        max-width: none;
+        font-size: 0.8rem; /* Slightly smaller */
+        padding: 0.5rem 0.8rem; /* Adjust padding */
+        flex-grow: 1; /* Allow buttons to grow equally */
+        max-width: 50%; /* Limit width to half */
     }
 }
   </style>
@@ -2532,12 +2548,15 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                         <label class="form-check-label" for="selectAllProfiles">Select All</label>
                     </div>
                     <div class="dropdown">
-                        <button class="btn btn-secondary-action btn-sm dropdown-toggle" type="button" id="bulkActionsBtn" data-bs-toggle="dropdown" aria-expanded="false" disabled>
+                        <button class="btn btn-secondary-action btn-sm dropdown-toggle rounded-3" type="button" id="bulkActionsBtn" data-bs-toggle="dropdown" aria-expanded="false" disabled>
                             Bulk Actions
                         </button>
                         <ul class="dropdown-menu" aria-labelledby="bulkActionsBtn">
                             <li><a class="dropdown-item text-danger" href="#" id="deleteSelectedBtn"><i class="fa-solid fa-trash-can me-2"></i>Delete Selected</a></li>
                         </ul>
+                    </div>
+                    <div class="ms-auto d-flex gap-2"> <button class="btn btn-success-action btn-sm rounded-3" id="importProfilesBtnModal"><i class="fa-solid fa-upload me-2"></i>Import</button>
+                         <button class="btn btn-info-action btn-sm rounded-3" id="exportProfilesBtnModal"><i class="fa-solid fa-download me-2"></i>Export</button>
                     </div>
                 </div>
                 <ul class="profile-list" id="profileManagerList">
@@ -2998,6 +3017,8 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
       // NEW Import/Export buttons
       const importProfilesBtn = document.getElementById('importProfilesBtn');
       const exportProfilesBtn = document.getElementById('exportProfilesBtn');
+      const importProfilesBtnModal = document.getElementById('importProfilesBtnModal'); // In modal
+      const exportProfilesBtnModal = document.getElementById('exportProfilesBtnModal'); // In modal
 
       // State
       let allLogs = [];
@@ -4392,6 +4413,8 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
       // --- UPDATE: Listeners for new Import/Export buttons ---
       importProfilesBtn.addEventListener('click', importProfiles);
       exportProfilesBtn.addEventListener('click', exportProfiles);
+      importProfilesBtnModal.addEventListener('click', importProfiles); // Add listener for modal button
+      exportProfilesBtnModal.addEventListener('click', exportProfiles); // Add listener for modal button
 
       // Profile Manager Listeners
       openProfileManagerBtn.addEventListener('click', () => {
