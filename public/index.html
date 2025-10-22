@@ -2346,6 +2346,34 @@ a[aria-expanded="true"] .status-log-chevron {
         padding-top: 0.75rem;
     }
 }
+
+/* --- UPDATE: Z-index for modals --- */
+#profileManagerModal {
+  z-index: 1050; /* Bootstrap's default modal z-index is 1050 */
+}
+#renameProfileModal {
+  z-index: 1060; /* Higher z-index to appear on top */
+}
+/* When rename modal is open, apply blur to profile manager */
+.modal.show ~ #renameProfileModal.show {
+  backdrop-filter: blur(4px);
+}
+#profileManagerModal.blur-backdrop {
+  backdrop-filter: blur(4px);
+  transition: backdrop-filter 0.15s linear;
+}
+
+/* --- UPDATE: Profile data buttons --- */
+.profile-data-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 0.75rem;
+    margin-top: 1rem;
+}
+.profile-data-buttons .btn {
+    font-size: 0.9rem;
+    padding: 0.5rem 1rem;
+}
   </style>
 </head>
   
@@ -2368,7 +2396,6 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     <i class="fas fa-arrow-up"></i>
   </div>
 
-  <!-- MODALS -->
   <div class="modal fade course-details-modal" id="courseDetailsModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
       <div class="modal-content">
@@ -2435,8 +2462,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 
   <div class="modal fade" id="renameProfileModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
-      <div class="modal-content">
-        <div class="modal-header">
+      <div class="modal-content shadow-lg"> <div class="modal-header">
           <h5 class="modal-title"><i class="fa-solid fa-pen-to-square me-2"></i>Rename Profile</h5>
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
@@ -2457,7 +2483,6 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     </div>
   </div>
 
-  <!-- NEW PROFILE MANAGER MODAL -->
   <div class="modal fade" id="profileManagerModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-lg">
         <div class="modal-content">
@@ -2486,20 +2511,14 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                             <li><a class="dropdown-item text-danger" href="#" id="deleteSelectedBtn"><i class="fa-solid fa-trash-can me-2"></i>Delete Selected</a></li>
                         </ul>
                     </div>
-                    <div class="ms-auto d-flex gap-2">
-                         <button class="btn btn-success-action btn-sm" id="importProfilesBtn"><i class="fa-solid fa-upload me-2"></i>Import</button>
-                         <button class="btn btn-info-action btn-sm" id="exportProfilesBtn"><i class="fa-solid fa-download me-2"></i>Export</button>
-                    </div>
                 </div>
                 <ul class="profile-list" id="profileManagerList">
-                    <!-- Profiles will be dynamically inserted here -->
-                </ul>
+                    </ul>
             </div>
         </div>
     </div>
   </div>
 
-  <!-- NEW CUSTOM CONFIRMATION MODAL -->
   <div class="modal fade confirmation-modal" id="confirmationModal" tabindex="-1" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
     <div class="modal-dialog modal-dialog-centered modal-sm">
       <div class="modal-content">
@@ -2654,15 +2673,21 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
           />
           <button type="submit" class="btn btn-primary-action modern-search-button">
             <i class="fa-solid fa-cloud-arrow-down"></i>
-          </button>
+            <span class="d-none d-md-inline ms-2">Fetch Result</span> </button>
         </div>
+
+        <div class="profile-data-buttons">
+            <button class="btn btn-success-action btn-sm rounded-pill" type="button" id="importProfilesBtn"><i class="fa-solid fa-upload me-2"></i>Import Profiles</button>
+            <button class="btn btn-info-action btn-sm rounded-pill" type="button" id="exportProfilesBtn"><i class="fa-solid fa-download me-2"></i>Export Profiles</button>
+        </div>
+        
         <div id="profileManagement" class="modern-profiles-wrapper" style="display: none;">
           <div class="input-group">
             <span class="input-group-text modern-profiles-icon">
               <i class="fa-solid fa-user-check"></i>
             </span>
             <select class="form-select modern-profiles-select" id="profileSwitcher"></select>
-            <button class="btn btn-soft" type="button" id="openProfileManagerBtn" title="Manage All Profiles">
+            <button class="btn btn-primary-action" type="button" id="openProfileManagerBtn" title="Manage All Profiles">
               <i class="fa-solid fa-users-gear"></i><span class="d-none d-sm-inline ms-1">Manage</span>
             </button>
           </div>
@@ -2672,7 +2697,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     <div class="loading-container" id="loadingContainer">
       <div class="loading-stage" id="connectingStage"><div class="loading-animation loading-connecting"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div><p class="loading-text">Connecting to UAF LMS</p><p class="loading-subtext">Establishing secure connection to university servers</p></div>
       <div class="loading-stage" id="fetchingStage"><div class="loading-animation loading-connecting"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div><p class="loading-text">Fetching Your Results</p<p class="loading-subtext">Retrieving your academic records from the database</p></div>
-      <div class="loading-stage" id="processingStage"><div class="loading-animation loading-connecting"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div><p class="loading-text">Processing Data</p><p class="loading-subtext">Analyzing your grades and calculating CGPA</p></div>
+      <div class="loading-stage" id="processingStage"><div class="loading-animation loading-connecting"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div><p class="loading-text">Processing Data</p<p class="loading-subtext">Analyzing your grades and calculating CGPA</p></div>
       <div class="loading-stage" id="completeStage"><div class="loading-animation loading-complete"><div class="checkmark"></div></div><p class="loading-text">Results Ready!</p><p class="loading-subtext">Your CGPA has been calculated successfully</p></div>
     </div>
 </div>
@@ -2938,8 +2963,14 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
       // NEW Profile Manager Elements
       const openProfileManagerBtn = document.getElementById('openProfileManagerBtn');
       const profileManagerModal = new bootstrap.Modal(document.getElementById('profileManagerModal'));
+      const profileManagerModalEl = document.getElementById('profileManagerModal'); // Get the element
+      const renameProfileModalEl = document.getElementById('renameProfileModal'); // Get the element
       const confirmationModal = new bootstrap.Modal(document.getElementById('confirmationModal'));
       
+      // NEW Import/Export buttons
+      const importProfilesBtn = document.getElementById('importProfilesBtn');
+      const exportProfilesBtn = document.getElementById('exportProfilesBtn');
+
       // State
       let allLogs = [];
       let processedData = null;
@@ -2959,6 +2990,17 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         initBackToTop();
         initScrollAnimations();  
         loadProfiles();
+        initModalZIndexHandlers(); // Init modal stacking
+      }
+
+      // --- UPDATE: Handle modal stacking visual effects ---
+      function initModalZIndexHandlers() {
+        renameProfileModalEl.addEventListener('show.bs.modal', function () {
+            profileManagerModalEl.classList.add('blur-backdrop');
+        });
+        renameProfileModalEl.addEventListener('hide.bs.modal', function () {
+            profileManagerModalEl.classList.remove('blur-backdrop');
+        });
       }
 
       function migrateOldProfiles() {
@@ -3137,7 +3179,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
           showToast('Profile renamed successfully!', 'success');
           
           updateProfileSwitcher(profiles, getActiveProfileId());
-          if (profileManagerModal._element.classList.contains('show')) {
+          if (profileManagerModalEl.classList.contains('show')) {
               renderProfileManager();
           }
       }
@@ -3252,24 +3294,18 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
       }
 
       function exportProfiles() {
-          const selectedIds = Array.from(document.querySelectorAll('.profile-checkbox:checked')).map(cb => cb.value);
           const profiles = getProfiles();
-          const profilesToExport = {};
-          const idsToUse = selectedIds.length > 0 ? selectedIds : Object.keys(profiles);
+          const profileKeys = Object.keys(profiles);
 
-          if (idsToUse.length === 0) {
+          if (profileKeys.length === 0) {
               showToast('No profiles to export.', 'warning');
               return;
           }
           
-          idsToUse.forEach(id => {
-              profilesToExport[id] = profiles[id];
-          });
-          
           const backupData = {
               version: '2.0.0',
               exportDate: new Date().toISOString(),
-              profiles: profilesToExport
+              profiles: profiles // Export all profiles
           };
           
           const blob = new Blob([JSON.stringify(backupData, null, 2)], { type: 'application/json' });
@@ -3283,8 +3319,10 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
           URL.revokeObjectURL(url);
           
           saveBackupInfo({ lastBackup: new Date().toISOString() });
-          showToast(`${idsToUse.length} profile(s) exported.`, 'success');
-          renderProfileManager(); // To update the last backup date
+          showToast(`${profileKeys.length} profile(s) exported.`, 'success');
+          if (profileManagerModalEl.classList.contains('show')) {
+            renderProfileManager(); // To update the last backup date
+          }
       }
 
       function importProfiles() {
@@ -3317,7 +3355,9 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                       saveProfiles(existingProfiles);
                       showToast(`Import complete: ${importedCount} added, ${skippedCount} skipped.`, 'success');
                       loadProfiles();
-                      renderProfileManager();
+                      if (profileManagerModalEl.classList.contains('show')) {
+                        renderProfileManager();
+                      }
 
                   } catch (error) {
                       showToast(`Import failed: ${error.message}`, 'error');
@@ -4320,6 +4360,10 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
       profileSwitcher.addEventListener('change', switchProfile);
       saveProfileNameBtn.addEventListener('click', renameProfile);
       document.getElementById('confirmationConfirmBtn').addEventListener('click', handleConfirm);
+      
+      // --- UPDATE: Listeners for new Import/Export buttons ---
+      importProfilesBtn.addEventListener('click', importProfiles);
+      exportProfilesBtn.addEventListener('click', exportProfiles);
 
       // Profile Manager Listeners
       openProfileManagerBtn.addEventListener('click', () => {
@@ -4337,13 +4381,9 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
           }
       });
       document.getElementById('deleteSelectedBtn').addEventListener('click', handleBulkAction);
-      document.getElementById('exportProfilesBtn').addEventListener('click', exportProfiles);
-      document.getElementById('importProfilesBtn').addEventListener('click', importProfiles);
-
+      
       init();
     });
 </script>
 </body>
 </html>
-
-
