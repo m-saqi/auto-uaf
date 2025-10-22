@@ -5,15 +5,15 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <title>UAF CGPA Calculator - M Saqlain | Automatic & Accurate</title>
-  
+
   <meta name="description" content="The best UAF CGPA Calculator. Automatically fetches results from UAF LMS to calculate your exact CGPA and percentage. Easy to use for all UAF students." />
-  
+
   <meta name="keywords" content="uaf cgpa calculator, university of agriculture faisalabad, uaf lms, uaf results, gpa calculator uaf, cgpa calculator for uaf, uaf grading system, calculate uaf cgpa" />
-  
+
   <meta name="author" content="Muhammad Saqlain" />
 
   <meta name="google-site-verification" content="google3e44586abf077c1e" />
-  
+
   <link rel="canonical" href="https://uafcgpacalculator.vercel.app" />
 
   <link rel="icon" href="/favicon.ico" sizes="any">
@@ -22,7 +22,7 @@
   <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
   <link rel="manifest" href="/site.webmanifest">
   <meta name="theme-color" content="#7a6ad8">
-  
+
   <meta property="og:title" content=" - Automatic & Accurate" />
   <meta property="og:description" content="Instantly fetch results from the UAF LMS and calculate your exact CGPA and percentage. The best tool for all UAF students." />
   <meta property="og:url" content="https://uafcgpacalculator.vercel.app/" />
@@ -41,7 +41,7 @@
   <meta name="twitter:creator" content="@M_Saqlain_Akbar" />
 
   <meta name="google-site-verification" content="zClcBWKWCeJyEGq-plDV2JvodudE4m_t8OK4sBMj8aw" />
-  
+
   <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
 new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
 j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
@@ -128,9 +128,9 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 
 
   <script src="https://analytics.ahrefs.com/analytics.js" data-key="CWWh1lx4Kz/fCxT0UN7M0w" async></script>
-  
+
   <link rel="icon" type="image/x-icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🎓</text></svg>">
-  
+
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://cdnjs.cloudflare.com">
   <link rel="preconnect" href="https://cdn.jsdelivr.net">
@@ -161,10 +161,11 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
   --muted: #6b7280;
   --light-bg: #f8f9ff;
   --card-bg: #ffffff;
-  --radius: 1.25rem;
+  --radius: 1.25rem; /* Standard radius */
+  --radius-sm: 0.75rem; /* Slightly smaller radius */
   --shadow: 0 10px 30px rgba(17, 24, 39, 0.1);
   --shadow-hover: 0 15px 40px rgba(17, 24, 39, 0.15);
-  
+
   /* New gradient variables */
   --brand-primary: #7a6ad8;
   --brand-secondary: #6b5fca;
@@ -743,7 +744,7 @@ a:hover {
 .copy-icon-btn:hover {
   transform: scale(1.15);
 }
-    
+
 /* GPA Result Display */
 .gpa-result-card {
   background: rgba(255, 255, 255, 0.8);
@@ -931,7 +932,7 @@ a[aria-expanded="true"] #gpaChartChevron {
   box-shadow: var(--shadow);
   border: 2px solid transparent;
   /* Add padding to the right to make space for the button */
-  padding-right: 170px !important; 
+  padding-right: 170px !important;
 }
 
 .modern-search-input:focus {
@@ -1047,7 +1048,7 @@ a[aria-expanded="true"] #gpaChartChevron {
   gap: 1rem;
 }
 .action-buttons-aligned .btn {
-  border-radius: 12px; /* A little radius, not fully rounded */
+  border-radius: var(--radius-sm); /* Use smaller radius */
 }
 @media (max-width: 576px) {
   .action-buttons-aligned {
@@ -1209,8 +1210,8 @@ a[aria-expanded="true"] .status-log-chevron {
     font-size: 1.25rem;
   }
 }
-    
-    
+
+
 /* ----------- DARK MODE IMPROVED ----------- */
 [data-theme="dark"] {
   --text: #e5e7eb;
@@ -1314,7 +1315,7 @@ a[aria-expanded="true"] .status-log-chevron {
   background: rgba(26, 32, 48, 0.8);
 }
 
-[data-theme="dark"] .course-table th, 
+[data-theme="dark"] .course-table th,
 [data-theme="dark"] .course-table td {
   border-bottom-color: rgba(45, 55, 72, 0.5);
 }
@@ -1426,7 +1427,7 @@ a[aria-expanded="true"] .status-log-chevron {
   transform: scale(1.1);
 }
 
-    
+
 /* Restore the original horizontal margin for the icon */
 .course-code-container .fa-info-circle {
     margin-left: 0.3rem !important;
@@ -1461,7 +1462,7 @@ a[aria-expanded="true"] .status-log-chevron {
     padding: 0.3rem 0.6rem; /* Adjust padding to make the button smaller */
   }
 }
-    
+
 /* Ensure subject columns are 2-up on very small screens: change from col-12 col-md-6 -> col-6 col-md-6 */
 @media (max-width: 420px) {
   .subject-row .col-6 {
@@ -1591,11 +1592,11 @@ a[aria-expanded="true"] .status-log-chevron {
     flex-direction: column;
     align-items: center;
   }
-  
+
   .scraping-section .center-buttons .btn,
   .log-section .center-buttons .btn {
-    width: auto;  
-    min-width: 180px;  
+    width: auto;
+    min-width: 180px;
   }
 }
 
@@ -1636,19 +1637,19 @@ a[aria-expanded="true"] .status-log-chevron {
     flex-direction: column;
     gap: 1rem;
   }
-  
+
   .cgpa-display {
     text-align: left;
     margin-top: 1rem;
   }
-  
+
   .action-buttons {
     flex-direction: row;
     justify-content: space-between;
     width: 100%;
     align-items: center;
   }
-  
+
   .action-buttons .btn {
     flex-grow: 1;
     margin: 0 0.25rem;
@@ -1705,11 +1706,11 @@ a[aria-expanded="true"] .status-log-chevron {
   .semester-card {
     font-size: 0.95rem;
   }
-  
+
   .semester-card h5 {
     font-size: 1.15rem;
   }
-  
+
   .course-table {
     font-size: 0.9rem;
   }
@@ -1886,7 +1887,7 @@ a[aria-expanded="true"] .status-log-chevron {
     flex-direction: column;
     gap: 1.5rem;
   }
-  
+
   .cgpa-metric {
     flex-direction: row;
     justify-content: space-between;
@@ -1895,29 +1896,29 @@ a[aria-expanded="true"] .status-log-chevron {
     padding: 0.5rem 0;
     border-bottom: 1px solid rgba(122, 106, 216, 0.1);
   }
-  
+
   .cgpa-metric:last-child {
     border-bottom: none;
   }
-  
+
   .cgpa-metric-left,
   .cgpa-metric-center,
   .cgpa-metric-right {
     align-items: center;
   }
-  
+
   .cgpa-metric-label {
     margin-bottom: 0;
     min-width: 100px;
     text-align: left;
   }
-  
+
   .cgpa-metric-value-container {
     display: flex;
     flex-direction: column;
     align-items: flex-end;
   }
-  
+
   .semester-grid {
     display: block;
   }
@@ -2164,6 +2165,7 @@ a[aria-expanded="true"] .status-log-chevron {
   box-shadow: 0 6px 18px rgba(231, 76, 60, 0.2);
   cursor: pointer;
   transition: all 0.3s ease;
+  border-radius: var(--radius-sm); /* Consistent radius */
 }
 
 .btn-pdf-download:hover {
@@ -2230,6 +2232,7 @@ a[aria-expanded="true"] .status-log-chevron {
   border: 0;
   cursor: pointer;
   transition: all 0.3s ease;
+  border-radius: var(--radius-sm); /* Consistent radius */
 }
 .btn-info-action:hover {
   background: linear-gradient(135deg, #5dade2 0%, #3498db 100%);
@@ -2341,6 +2344,7 @@ a[aria-expanded="true"] .status-log-chevron {
         justify-content: space-between; /* Space out items */
         align-items: center; /* Align vertically */
     }
+    /* --- UPDATE: Ensure ms-auto buttons stay in a row on mobile --- */
     .profile-manager-toolbar .ms-auto {
         margin-left: 0 !important; /* Remove margin */
         width: auto; /* Allow natural width */
@@ -2401,6 +2405,7 @@ a[aria-expanded="true"] .status-log-chevron {
 .profile-data-buttons .btn {
     font-size: 0.9rem;
     padding: 0.5rem 1rem;
+    border-radius: var(--radius-sm); /* Consistent radius */
 }
 /* --- UPDATE: Mobile styles for Import/Export buttons --- */
 @media (max-width: 575.98px) {
@@ -2420,7 +2425,7 @@ a[aria-expanded="true"] .status-log-chevron {
 }
   </style>
 </head>
-  
+
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-CMENQJ4ELS"></script>
 <script>
   window.dataLayer = window.dataLayer || [];
@@ -2538,7 +2543,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                 <div class="profile-manager-header">
                     <h6 class="mb-0">Manage Your Saved Profiles</h6>
                     <div class="profile-manager-stats">
-                        <span id="profileCountStat">0 Profiles</span> | 
+                        <span id="profileCountStat">0 Profiles</span> |
                         <span id="lastBackupStat">Last Backup: Never</span>
                     </div>
                 </div>
@@ -2727,7 +2732,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
             <button class="btn btn-success-action btn-sm rounded-3" type="button" id="importProfilesBtn"><i class="fa-solid fa-upload me-2"></i>Import Profiles</button>
             <button class="btn btn-info-action btn-sm rounded-3" type="button" id="exportProfilesBtn"><i class="fa-solid fa-download me-2"></i>Export Profiles</button>
         </div>
-        
+
         <div id="profileManagement" class="modern-profiles-wrapper" style="display: none;">
           <div class="input-group">
             <span class="input-group-text modern-profiles-icon">
@@ -2748,14 +2753,14 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
       <div class="loading-stage" id="completeStage"><div class="loading-animation loading-complete"><div class="checkmark"></div></div><p class="loading-text">Results Ready!</p><p class="loading-subtext">Your CGPA has been calculated successfully</p></div>
     </div>
 </div>
-          
+
           <div id="resultContainer" class="result-container">
     <div class="gpa-result-card-premium fade-in-on-scroll">
     <div class="student-info-header">
       <h2 class="mb-0 fw-bold" id="studentName"><i class="fa-solid fa-user-graduate me-2"></i>Student Name</h2>
       <p class="mb-0 text-body-secondary" id="studentReg">Registration Number</p>
     </div>
-    
+
     <div class="cgpa-dashboard">
       <div class="cgpa-progress-circle">
         <svg viewBox="0 0 36 36">
@@ -2783,7 +2788,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         </div>
     </div>
 </div>
-    
+
     <div class="card card-modern mt-4 fade-in-on-scroll" id="gpaChartContainer" style="display: none;">
     <div class="card-header p-0">
       <a href="#gpaChartCollapse" class="d-block text-decoration-none p-3" data-bs-toggle="collapse" role="button" aria-expanded="false" aria-controls="gpaChartCollapse">
@@ -2801,15 +2806,15 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
   </div>
 
     <div class="action-buttons-aligned fade-in-on-scroll">
-      <button id="downloadPdfBtn" class="btn btn-pdf-download"><i class="fa-solid fa-file-pdf me-2"></i>Download PDF</button>
-      <button id="addForecastSemesterBtn" class="btn btn-info-action"><i class="fa-solid fa-wand-magic-sparkles me-2"></i>Forecast Semester</button>
+      <button id="downloadPdfBtn" class="btn btn-pdf-download rounded-3"><i class="fa-solid fa-file-pdf me-2"></i>Download PDF</button>
+      <button id="addForecastSemesterBtn" class="btn btn-info-action rounded-3"><i class="fa-solid fa-wand-magic-sparkles me-2"></i>Forecast Semester</button>
     </div>
 
     <div class="semester-results-container">
       <div id="semesterResults" class="semester-grid"></div>
     </div>
 </div>
-          
+
 <div class="card card-modern mt-4 fade-in-on-scroll">
     <div class="card-header p-0">
         <a href="#statusLogCollapse" class="d-block text-decoration-none p-3" data-bs-toggle="collapse" role="button" aria-expanded="false" aria-controls="statusLogCollapse">
@@ -2924,8 +2929,8 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
       </div>
     </section>
   </main>
-  
-  
+
+
   <section class="py-5" id="contact-us">
     <div class="container">
       <div class="row g-4">
@@ -2972,7 +2977,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js"></script>
-  
+
 <script>
     document.addEventListener('DOMContentLoaded', function() {
       // Elements
@@ -3001,20 +3006,20 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
       const backToTopButton = document.getElementById('backToTop');
       const addForecastSemesterBtn = document.getElementById('addForecastSemesterBtn');
       const gpaChartContainer = document.getElementById('gpaChartContainer');
-      const gpaTrendChartCanvas = document.getElementById('gpaTrendChart').getContext('2d');  
+      const gpaTrendChartCanvas = document.getElementById('gpaTrendChart').getContext('2d');
       const profileManagementDiv = document.getElementById('profileManagement');
       const profileSwitcher = document.getElementById('profileSwitcher');
       const renameProfileModal = new bootstrap.Modal(document.getElementById('renameProfileModal'));
       const saveProfileNameBtn = document.getElementById('saveProfileNameBtn');
 
-      // NEW Profile Manager Elements
+      // Profile Manager Elements
       const openProfileManagerBtn = document.getElementById('openProfileManagerBtn');
       const profileManagerModal = new bootstrap.Modal(document.getElementById('profileManagerModal'));
       const profileManagerModalEl = document.getElementById('profileManagerModal'); // Get the element
       const renameProfileModalEl = document.getElementById('renameProfileModal'); // Get the element
       const confirmationModal = new bootstrap.Modal(document.getElementById('confirmationModal'));
-      
-      // NEW Import/Export buttons
+
+      // Import/Export buttons
       const importProfilesBtn = document.getElementById('importProfilesBtn');
       const exportProfilesBtn = document.getElementById('exportProfilesBtn');
       const importProfilesBtnModal = document.getElementById('importProfilesBtnModal'); // In modal
@@ -3024,12 +3029,12 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
       let allLogs = [];
       let processedData = null;
       let deletedSemesters = {};
-      let gpaChart = null;  
+      let gpaChart = null;
       let isInitialLoad = true;
       let confirmationCallback = null;
-      
+
       const API_ENDPOINT = `/api/result-scraper?action=scrape_single`;
-      
+
       function init() {
         migrateOldProfiles(); // Check for and migrate old data first
         initCustomCursor();
@@ -3037,12 +3042,11 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         initContactForm();
         createToastContainer();
         initBackToTop();
-        initScrollAnimations();  
+        initScrollAnimations();
         loadProfiles();
         initModalZIndexHandlers(); // Init modal stacking
       }
 
-      // --- UPDATE: Handle modal stacking visual effects ---
       function initModalZIndexHandlers() {
         renameProfileModalEl.addEventListener('show.bs.modal', function () {
             profileManagerModalEl.classList.add('blur-backdrop');
@@ -3059,10 +3063,9 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                   const oldProfiles = JSON.parse(oldProfilesData);
                   const newProfiles = getProfiles();
                   let migratedCount = 0;
-                  
+
                   Object.keys(oldProfiles).forEach(oldId => {
                       const oldProfile = oldProfiles[oldId];
-                      // Check if a profile with the same registration # already exists in the new format
                       const alreadyExists = Object.values(newProfiles).some(
                           p => p.studentInfo.registration === oldProfile.studentInfo.registration
                       );
@@ -3084,7 +3087,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                       saveProfiles(newProfiles);
                       showToast(`${migratedCount} profile(s) from a previous version were successfully migrated!`, 'success');
                   }
-                  
+
                   localStorage.removeItem('uafCalculatorProfiles'); // Remove old data after migration
               } catch (e) {
                   console.error("Failed to migrate old profiles:", e);
@@ -3103,7 +3106,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         }, { threshold: 0.1 });
         document.querySelectorAll('.fade-in-on-scroll').forEach(el => observer.observe(el));
       }
-      
+
       function getProfiles() {
         return JSON.parse(localStorage.getItem('uafCalculatorProfiles_v2') || '{}');
       }
@@ -3119,11 +3122,11 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
       function setActiveProfileId(id) {
         localStorage.setItem('uafCalculatorActiveProfile_v2', id);
       }
-      
+
       function getBackupInfo() {
           return JSON.parse(localStorage.getItem('uafCalculatorBackupInfo') || '{}');
       }
-      
+
       function saveBackupInfo(info) {
           localStorage.setItem('uafCalculatorBackupInfo', JSON.stringify(info));
       }
@@ -3204,7 +3207,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         saveProfileNameBtn.dataset.profileId = profileId; // Store the ID
         renameProfileModal.show();
       }
-      
+
       function renameProfile() {
           const profileId = saveProfileNameBtn.dataset.profileId;
           const newName = document.getElementById('newProfileName').value.trim();
@@ -3226,7 +3229,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
           saveProfiles(profiles);
           renameProfileModal.hide();
           showToast('Profile renamed successfully!', 'success');
-          
+
           updateProfileSwitcher(profiles, getActiveProfileId());
           if (profileManagerModalEl.classList.contains('show')) {
               renderProfileManager();
@@ -3247,18 +3250,18 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         confirmationModal.hide();
         confirmationCallback = null;
       }
-      
-      // --- NEW PROFILE MANAGER FUNCTIONS ---
+
+      // --- PROFILE MANAGER FUNCTIONS ---
 
       function renderProfileManager() {
         const profiles = getProfiles();
         const profileListEl = document.getElementById('profileManagerList');
         const profileCountStat = document.getElementById('profileCountStat');
         const lastBackupStat = document.getElementById('lastBackupStat');
-        
+
         const profileKeys = Object.keys(profiles);
         profileCountStat.textContent = `${profileKeys.length} Profile${profileKeys.length !== 1 ? 's' : ''}`;
-        
+
         const backupInfo = getBackupInfo();
         lastBackupStat.textContent = backupInfo.lastBackup ? `Last Backup: ${new Date(backupInfo.lastBackup).toLocaleString()}` : 'Last Backup: Never';
 
@@ -3273,7 +3276,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
             const semesterCount = Object.keys(profile.semesters).length;
             const courseCount = Object.values(profile.semesters).reduce((sum, s) => sum + s.courses.length, 0);
             const lastModified = profile.lastModified ? new Date(profile.lastModified).toLocaleString() : 'N/A';
-            
+
             return `
               <li class="profile-item" data-profile-id="${id}">
                   <input class="form-check-input profile-checkbox" type="checkbox" value="${id}">
@@ -3292,7 +3295,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
               </li>
             `;
         }).join('');
-        
+
         // Attach event listeners for quick actions
         profileListEl.querySelectorAll('.action-load').forEach(btn => btn.addEventListener('click', e => {
             loadProfile(e.currentTarget.closest('.profile-item').dataset.profileId);
@@ -3342,37 +3345,54 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
           }
       }
 
-      function exportProfiles() {
+      function exportSelectedProfiles() {
+          const selectedIds = Array.from(document.querySelectorAll('.profile-checkbox:checked')).map(cb => cb.value);
           const profiles = getProfiles();
-          const profileKeys = Object.keys(profiles);
+          const profilesToExport = {};
+          let exportCount = 0;
+          let filename = `uaf-cgpa-profiles-backup-${new Date().toISOString().split('T')[0]}.json`; // Default filename
 
-          if (profileKeys.length === 0) {
-              showToast('No profiles to export.', 'warning');
+          if (selectedIds.length === 0) {
+              showToast('No profiles selected to export. Select profiles or export all using the main button.', 'warning');
               return;
           }
-          
+
+          selectedIds.forEach(id => {
+              if (profiles[id]) {
+                  profilesToExport[id] = profiles[id];
+                  exportCount++;
+              }
+          });
+
+          // --- UPDATE: Custom filename for single profile export ---
+          if (exportCount === 1) {
+              const singleProfileId = selectedIds[0];
+              // Sanitize profile name for filename
+              const profileName = profiles[singleProfileId].displayName.replace(/[^a-z0-9]/gi, '_').toLowerCase();
+              filename = `${profileName}-profile-backup.json`;
+          }
+
           const backupData = {
               version: '2.0.0',
               exportDate: new Date().toISOString(),
-              profiles: profiles // Export all profiles
+              profiles: profilesToExport
           };
-          
+
           const blob = new Blob([JSON.stringify(backupData, null, 2)], { type: 'application/json' });
           const url = URL.createObjectURL(blob);
           const a = document.createElement('a');
           a.href = url;
-          a.download = `uaf-cgpa-profiles-backup-${new Date().toISOString().split('T')[0]}.json`;
+          a.download = filename; // Use the determined filename
           document.body.appendChild(a);
           a.click();
           a.remove();
           URL.revokeObjectURL(url);
-          
+
           saveBackupInfo({ lastBackup: new Date().toISOString() });
-          showToast(`${profileKeys.length} profile(s) exported.`, 'success');
-          if (profileManagerModalEl.classList.contains('show')) {
-            renderProfileManager(); // To update the last backup date
-          }
+          showToast(`${exportCount} profile(s) exported.`, 'success');
+          renderProfileManager(); // Update last backup date
       }
+
 
       function importProfiles() {
           const input = document.createElement('input');
@@ -3388,7 +3408,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                       if (!importedData.profiles || importedData.version !== '2.0.0') {
                           throw new Error('Invalid or incompatible backup file.');
                       }
-                      
+
                       const existingProfiles = getProfiles();
                       let importedCount = 0, skippedCount = 0;
 
@@ -3400,12 +3420,12 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                               importedCount++;
                           }
                       });
-                      
+
                       saveProfiles(existingProfiles);
                       showToast(`Import complete: ${importedCount} added, ${skippedCount} skipped.`, 'success');
-                      loadProfiles();
+                      loadProfiles(); // Reload profiles into switcher
                       if (profileManagerModalEl.classList.contains('show')) {
-                        renderProfileManager();
+                        renderProfileManager(); // Re-render manager if open
                       }
 
                   } catch (error) {
@@ -3417,9 +3437,9 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
           };
           input.click();
       }
-      
-      // --- END OF NEW PROFILE MANAGER FUNCTIONS ---
-      
+
+      // --- END OF PROFILE MANAGER FUNCTIONS ---
+
       function updateTotalsDisplay() {
         const cgpaData = calculateCGPA(processedData);
         if (!cgpaData) return;
@@ -3430,16 +3450,16 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         totalPercentage.textContent = `${formatNumber(cgpaData.percentage, 2).toFixed(2)}%`;
         totalMarksObtained.textContent = cgpaData.totalMarksObtained.toFixed(0);
         totalMaxMarks.textContent = `/ ${cgpaData.totalMaxMarks.toFixed(0)}`;
-        
+
         renderGpaChart();
         saveActiveProfile();
       }
-      
+
       function initBackToTop() {
         window.addEventListener('scroll', () => backToTopButton.classList.toggle('visible', window.pageYOffset > 300));
         backToTopButton.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
       }
-      
+
       function createToastContainer() {
         if (!document.getElementById('toast-container')) {
           const toastContainer = document.createElement('div');
@@ -3447,7 +3467,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
           document.body.appendChild(toastContainer);
         }
       }
-      
+
       function showToast(message, type = 'success') {
         const toastContainer = document.getElementById('toast-container');
         const toast = document.createElement('div');
@@ -3461,7 +3481,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
           setTimeout(() => toast.remove(), 300);
         }, 3000);
       }
-      
+
       function initCustomCursor() {
         document.addEventListener('mousemove', (e) => {
           cursorDot.style.display = window.innerWidth > 768 ? 'block' : 'none';
@@ -3469,7 +3489,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
           cursorDot.style.top = `${e.clientY}px`;
         });
       }
-      
+
       function initTheme() {
         const THEME_KEY = 'uaf-theme';
         const applyTheme = (theme) => {
@@ -3481,7 +3501,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         applyTheme(currentTheme);
         themeToggle.addEventListener('click', () => applyTheme(document.documentElement.getAttribute('data-theme') === 'light' ? 'dark' : 'light'));
       }
-      
+
       function initContactForm() {
         contactForm.addEventListener('submit', async (e) => {
           e.preventDefault();
@@ -3510,7 +3530,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
           }
         });
       }
-      
+
       function addStatusMessage(message, type = 'info') {
         const timestamp = new Date().toLocaleTimeString();
         allLogs.push({ timestamp, message, type });
@@ -3520,7 +3540,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         statusLog.prepend(messageEl);
         statusLog.scrollTop = 0;
       }
-      
+
       function showLoadingStage(stage) {
         ['connecting', 'fetching', 'processing', 'complete'].forEach(s => {
           const el = document.getElementById(`${s}Stage`);
@@ -3532,7 +3552,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         }
         loadingContainer.style.display = stage ? 'block' : 'none';
       }
-      
+
       function downloadLog() {
         addStatusMessage('Preparing log file for download...', 'info');
         let logContent = "UAF CGPA Calculator - M SAQLAIN - Activity Log\n============================================\n\n";
@@ -3549,14 +3569,14 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         addStatusMessage('Log file downloaded successfully', 'success');
         showToast('Log file downloaded!', 'success');
       }
-      
+
       function clearLog() {
         statusLog.innerHTML = '';
         allLogs = [];
         addStatusMessage('Log cleared', 'info');
         showToast('Log cleared', 'info');
       }
-      
+
       function processSemesterName(semester) {
           if (!semester) return 'Unknown Semester';
           if (semester.includes('Winter')) {
@@ -3575,7 +3595,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
           }
           return semester;
       }
-      
+
       function getSemesterOrderKey(semesterName) {
         if (!semesterName) return '9999-9';
         if (semesterName.toLowerCase().startsWith('forecast')) {
@@ -3592,13 +3612,13 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         else if (semesterName.toLowerCase().includes('fall')) seasonOrder = 4;
         return `${year}-${seasonOrder}`;
       }
-      
+
       function processScrapedData(data) {
         if (!data || !data.resultData) return null;
         const studentInfo = { name: data.resultData[0]?.StudentName || '', registration: data.resultData[0]?.RegistrationNo || '' };
         const semesters = {};
         const courseHistory = {};
-        
+
         data.resultData.forEach(course => {
           const originalSemester = course.Semester || 'Unknown Semester';
           const semesterName = processSemesterName(originalSemester);
@@ -3608,13 +3628,13 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
           if (!semesters[semesterName]) {
             semesters[semesterName] = { originalName: originalSemester, sortKey: getSemesterOrderKey(originalSemester), courses: [] };
           }
-          
+
           const creditHoursStr = course.CreditHours || '0';
           const creditHours = parseInt(creditHoursStr.match(/\d+/)?.[0] || '0');
           const marks = parseFloat(course.Total || '0');
-          
+
           let qualityPoints = calculateQualityPoints(marks, creditHours);
-          
+
           if (course.Grade === 'F') {
             qualityPoints = 0;
           }
@@ -3638,14 +3658,14 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
             isDeleted: false,
             isCustom: false
           };
-          
+
           if (!courseHistory[historyKey]) {
             courseHistory[historyKey] = [];
           }
           courseHistory[historyKey].push({ semester: semesterName, semesterSortKey: getSemesterOrderKey(originalSemester), marks: marks, data: courseData });
           semesters[semesterName].courses.push(courseData);
         });
-        
+
         Object.values(courseHistory).forEach(history => {
           if (history.length > 1) {
             history.sort((a, b) => a.semesterSortKey.localeCompare(b.semesterSortKey));
@@ -3658,7 +3678,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
             } else {
               bestAttempt = history.reduce((prev, current) => (prev.marks > current.marks) ? prev : current);
             }
-            
+
             history.forEach(item => {
               item.data.isRepeated = true;
               if (item !== bestAttempt) {
@@ -3669,10 +3689,10 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
             });
           }
         });
-        
+
         return { studentInfo, semesters, courseHistory };
       }
-      
+
       function calculateQualityPoints(marks, creditHours) {
         marks = parseFloat(marks);
         creditHours = parseInt(creditHours);
@@ -3730,7 +3750,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         }
         return parseFloat(Math.max(0, qualityPoints).toFixed(2));
       }
-      
+
       function calculateCustomGrade(marks, creditHours) {
         const grading = { 10: { A: 160, B: 100, D: 80 }, 9: { A: 144, B: 90, D: 72 }, 8: { A: 128, B: 80, D: 64 }, 7: { A: 112, B: 70, D: 56 }, 6: { A: 96, B: 60, D: 48 }, 5: { A: 80, B: 50, D: 40 }, 4: { A: 64, B: 52, C: 40, D: 32 }, 3: { A: 48, B: 39, C: 30, D: 24 }, 2: { A: 32, B: 26, C: 20, D: 16 }, 1: { A: 16, B: 13, C: 10, D: 8 } };
         const scale = grading[creditHours];
@@ -3739,11 +3759,11 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         if (scale.C && marks >= scale.C) return 'C'; if (marks >= scale.D) return 'D';
         return 'F';
       }
-      
+
       function calculateCGPA(data) {
         if (!data) return null;
         let totalQualityPoints = 0, totalCreditHours = 0, totalMarksObtained = 0, totalMaxMarks = 0;
-        
+
         Object.values(data.semesters).forEach(semester => {
             semester.totalQualityPoints = 0;
             semester.totalCreditHours = 0;
@@ -3754,10 +3774,10 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                     semester.totalQualityPoints += course.qualityPoints;
                     semester.totalCreditHours += course.creditHours;
                     semester.totalMarksObtained += course.marks;
-                    
+
                     let maxMarks = { 10: 200, 9: 180, 8: 160, 7: 140, 6: 120, 5: 100, 4: 80, 3: 60, 2: 40, 1: 20 }[course.creditHours] || 0;
                     semester.totalMaxMarks += maxMarks;
-                    
+
                     totalQualityPoints += course.qualityPoints;
                     totalCreditHours += course.creditHours;
                     totalMarksObtained += course.marks;
@@ -3767,18 +3787,18 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
             semester.gpa = semester.totalCreditHours > 0 ? (semester.totalQualityPoints / semester.totalCreditHours) : 0;
             semester.percentage = semester.totalMaxMarks > 0 ? (semester.totalMarksObtained / semester.totalMaxMarks * 100) : 0;
         });
-        
+
         const cgpa = totalCreditHours > 0 ? (totalQualityPoints / totalCreditHours) : 0;
         const percentage = totalMaxMarks > 0 ? (totalMarksObtained / totalMaxMarks * 100) : 0;
         return { cgpa, percentage, totalQualityPoints, totalCreditHours, totalMarksObtained, totalMaxMarks };
       }
-      
+
       function formatNumber(value, places = 4) { return parseFloat(value.toFixed(places)); }
-      
+
       function displayCGPAResults(data, cgpaData) {
         processedData = data;
         resultContainer.style.display = 'block';
-        
+
         studentName.innerHTML = `<i class="fa-solid fa-user-graduate me-2"></i>${data.studentInfo.name}`;
         studentReg.textContent = data.studentInfo.registration;
         totalCgpa.textContent = formatNumber(cgpaData.cgpa).toFixed(4);
@@ -3794,15 +3814,15 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
             cgpaCircle.style.strokeDasharray = `${percentage}, 100`;
         }, 100);
     }
-        
+
         semesterResults.innerHTML = '';
         Object.keys(data.semesters).sort((a,b) => data.semesters[a].sortKey.localeCompare(data.semesters[b].sortKey)).forEach(semesterName => {
           const semester = data.semesters[semesterName];
           const semesterCard = document.createElement('div');
-          
+
           const animationClass = isInitialLoad ? 'fade-in-on-scroll' : 'is-visible';
           semesterCard.className = `semester-card ${animationClass}`;
-          
+
           semesterCard.dataset.semester = semesterName;
           semesterCard.innerHTML = `
             <i class="fa-solid fa-trash delete-semester" title="Delete this semester" data-semester="${semesterName}"></i>
@@ -3817,7 +3837,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
             <button class="custom-course-btn" data-semester="${semesterName}"><i class="fa-solid fa-plus"></i> Custom Course</button>
             <div class="table-responsive"><table class="course-table"><thead><tr><th>Course</th><th>Hrs</th><th>Marks</th><th>Grade</th><th>Action</th></tr></thead>
               <tbody>${semester.courses.map((course, index) => {
-                  const courseIdentifier = `${semesterName}-${course.code}-${course.total}-${index}`;
+                  const courseIdentifier = `${semesterName}-${course.code}-${course.total}-${index}`; // Unique ID
                   return `
                   <tr data-course-identifier="${courseIdentifier}" draggable="true" class="${course.isExtraEnrolled ? 'table-warning' : ''} ${course.isDeleted ? 'table-danger text-decoration-line-through' : ''} ${course.isCustom ? 'table-info' : ''}">
                     <td>
@@ -3841,7 +3861,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 
         isInitialLoad = false;
         attachResultEventListeners();
-        renderGpaChart();  
+        renderGpaChart();
       }
 
       function renderGpaChart() {
@@ -3983,37 +4003,37 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                   if (data.sourceSemester === targetSemester) {
                       return;
                   }
-                  
+
                   let courseToMove = null;
                   let courseIndex = -1;
-                  
-                  const identifierParts = data.courseIdentifier.split('-');
-                  const originalIndex = parseInt(identifierParts[identifierParts.length - 1], 10);
-                  
-                  const sourceCourses = processedData.semesters[data.sourceSemester]?.courses;
-                  if (sourceCourses && sourceCourses[originalIndex]) {
-                      const potentialCourse = sourceCourses[originalIndex];
-                      const expectedIdentifier = `${data.sourceSemester}-${potentialCourse.code}-${potentialCourse.total}-${originalIndex}`;
-                      if (data.courseIdentifier === expectedIdentifier) {
-                          courseToMove = potentialCourse;
-                          courseIndex = originalIndex;
+
+                  // Find the course based on its unique identifier
+                  const sourceSemesterCourses = processedData.semesters[data.sourceSemester]?.courses;
+                  if (sourceSemesterCourses) {
+                      courseIndex = sourceSemesterCourses.findIndex((course, index) => {
+                          const identifier = `${data.sourceSemester}-${course.code}-${course.total}-${index}`;
+                          return identifier === data.courseIdentifier;
+                      });
+                      if (courseIndex !== -1) {
+                          courseToMove = sourceSemesterCourses[courseIndex];
                       }
                   }
 
+
                   if (courseToMove && courseIndex > -1) {
-                      sourceCourses.splice(courseIndex, 1);
-                      processedData.semesters[targetSemester].courses.push(courseToMove);
-                      recalculateAndDisplay();
+                      sourceSemesterCourses.splice(courseIndex, 1); // Remove from source
+                      processedData.semesters[targetSemester].courses.push(courseToMove); // Add to target
+                      recalculateAndDisplay(); // Update UI
                       showToast(`Moved ${courseToMove.code} to ${targetSemester}`, 'success');
                       addStatusMessage(`Moved course ${courseToMove.code} from ${data.sourceSemester} to ${targetSemester}`, 'info');
                   } else {
-                      showToast('Could not move course.', 'error');
-                      console.error('Course mismatch or not found. Identifier:', data.courseIdentifier);
+                      showToast('Could not move course. Data might be out of sync.', 'error');
+                      console.error('Course mismatch or not found. Identifier:', data.courseIdentifier, 'Index:', courseIndex);
                   }
               });
           });
       }
-      
+
       function showCourseDetails(course) {
         document.getElementById('courseDetailsModalTitle').textContent = `${course.code} - ${course.title}`;
         document.getElementById('courseDetailsModalBody').innerHTML = `
@@ -4026,13 +4046,13 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
           ${course.isCustom ? `<div class="alert alert-info"><i class="fa-solid fa-info-circle me-2"></i>This is a custom course added manually.</div>` : ''}`;
         courseDetailsModal.show();
       }
-      
+
       function openAddCourseModal(semesterName) {
         document.getElementById('addCourseSemester').value = semesterName;
         addCourseForm.reset();
         addCourseModal.show();
       }
-      
+
       function addCustomCourse() {
         const semesterName = document.getElementById('addCourseSemester').value;
         const courseCode = document.getElementById('courseCode').value.trim();
@@ -4054,20 +4074,20 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         addCourseModal.hide();
         showToast(`Course ${courseCode} added`, 'success');
       }
-      
+
       function deleteSemester(event, semesterName) {
         event.preventDefault();
         if (!processedData || !processedData.semesters[semesterName]) return;
-        
+
         deletedSemesters[semesterName] = JSON.parse(JSON.stringify(processedData.semesters[semesterName]));
         delete processedData.semesters[semesterName];
-        
+
         recalculateAndDisplay();
-        
+
         showUndoNotification(`Semester "${semesterName}" deleted`, () => undoDeleteSemester(semesterName));
         addStatusMessage(`Deleted semester: ${semesterName}`, 'info');
       }
-      
+
       function showUndoNotification(message, undoCallback) {
         document.getElementById('undo-notification')?.remove();
         const notification = document.createElement('div');
@@ -4081,32 +4101,43 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         };
         setTimeout(() => notification.remove(), 5000);
       }
-      
+
       function undoDeleteSemester(semesterName) {
         if (!deletedSemesters[semesterName]) return;
-        
+
         processedData.semesters[semesterName] = deletedSemesters[semesterName];
         delete deletedSemesters[semesterName];
-        
+
         recalculateAndDisplay();
         addStatusMessage(`Restored semester: ${semesterName}`, 'info');
       }
-      
+
       function modifyCourseState(event, course, semesterName, isDeleted) {
         event.preventDefault();
         const semester = processedData.semesters[semesterName];
         if (!semester) return;
 
-        const courseIndex = semester.courses.findIndex(c => c.code === course.code && c.total === course.total && c.title === course.title);
-        
+        // Find course using a more robust comparison
+        const courseIndex = semester.courses.findIndex(c =>
+            c.code === course.code &&
+            c.title === course.title &&
+            c.creditHours === course.creditHours &&
+            c.marks === course.marks && // Use marks for better uniqueness if needed
+            c.isCustom === course.isCustom // Differentiate custom courses
+        );
+
         if (courseIndex !== -1) {
           semester.courses[courseIndex].isDeleted = isDeleted;
           recalculateAndDisplay();
           const action = isDeleted ? 'Deleted' : 'Restored';
           showToast(`Course ${course.code} ${action.toLowerCase()}`, 'info');
           addStatusMessage(`${action} course: ${course.code} from ${semesterName}`, 'info');
+        } else {
+          console.error("Could not find course to modify state:", course, "in semester:", semesterName);
+          showToast(`Error modifying course ${course.code}`, 'error');
         }
       }
+
 
       function recalculateAndDisplay() {
         const cgpaData = calculateCGPA(processedData);
@@ -4129,7 +4160,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         showToast(`Added "${newSemesterName}"`, 'success');
         addStatusMessage(`Added forecast semester: ${newSemesterName}`, 'info');
       }
-      
+
       function copyDetailsToClipboard() {
           if (!processedData) return;
           const textToCopy = `Name: ${processedData.studentInfo.name}\nRegistration: ${processedData.studentInfo.registration}\nCGPA: ${totalCgpa.textContent}\nPercentage: ${totalPercentage.textContent}`;
@@ -4140,7 +4171,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
               console.error('Clipboard copy failed: ', err);
           });
       }
-      
+
       function generatePDF() {
         if (!processedData) {
             showToast('No data to download', 'error');
@@ -4172,22 +4203,22 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                 pdf.setTextColor(colors.primary);
                 pdf.setFont('helvetica', 'bold');
                 pdf.text("University of Agriculture, Faisalabad", pageWidth / 2, 20, { align: 'center' });
-                
+
                 pdf.setFontSize(12);
                 pdf.setTextColor(colors.textLight);
                 pdf.setFont('helvetica', 'normal');
                 pdf.text("Unofficial Academic Transcript", pageWidth / 2, 28, { align: 'center' });
-                
+
                 pdf.setDrawColor(colors.primary);
                 pdf.setLineWidth(0.5);
                 pdf.line(pageMargin, 35, pageWidth - pageMargin, 35);
                 lastY = 35;
             };
-            
+
             drawFirstPageHeader();
 
             const topBoxY = lastY + 10;
-            const boxHeight = 45; 
+            const boxHeight = 45;
             const gap = 5;
             const leftBoxWidth = availableWidth * 0.4;
             const rightBoxWidth = availableWidth - leftBoxWidth - gap;
@@ -4206,7 +4237,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
             pdf.setFont('helvetica', 'bold');
             pdf.setTextColor(colors.primary);
             pdf.text(processedData.studentInfo.name, pageMargin + 5, topBoxY + 25, { maxWidth: leftBoxWidth - 10 });
-            
+
             pdf.setFontSize(8);
             pdf.setFont('helvetica', 'normal');
             pdf.setTextColor(colors.textLight);
@@ -4219,7 +4250,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
             pdf.setTextColor(colors.textDark);
             pdf.text("Overall Academic Summary", rightBoxX + 5, topBoxY + 8);
             pdf.line(rightBoxX + 5, topBoxY + 11, rightBoxX + rightBoxWidth - 5, topBoxY + 11);
-            
+
             pdf.setFontSize(22);
             pdf.setFont('helvetica', 'bold');
             pdf.setTextColor(colors.primary);
@@ -4233,13 +4264,13 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
             pdf.text("Percentage:", statsStartX, topBoxY + 20);
             pdf.text("Total Credits:", statsStartX, topBoxY + 28);
             pdf.text("Total Marks:", statsStartX, topBoxY + 36);
-            
+
             pdf.setFont('helvetica', 'normal');
             pdf.setTextColor(colors.textDark);
             pdf.text(`${formatNumber(cgpaData.percentage, 2).toFixed(2)}%`, statsStartX + 25, topBoxY + 20);
             pdf.text(cgpaData.totalCreditHours.toString(), statsStartX + 25, topBoxY + 28);
             pdf.text(`${cgpaData.totalMarksObtained.toFixed(0)} / ${cgpaData.totalMaxMarks}`, statsStartX + 25, topBoxY + 36);
-            
+
             lastY = topBoxY + boxHeight;
 
             let semesterIndex = 0;
@@ -4252,7 +4283,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                     if (activeCourses.length === 0) return;
 
                     const semesterSummary = `GPA: ${formatNumber(semester.gpa, 4).toFixed(4)}  |  Credit Hours: ${semester.totalCreditHours}  |  Marks: ${semester.totalMarksObtained.toFixed(0)}/${semester.totalMaxMarks}`;
-                    
+
                     if (lastY + 30 > pageHeight) {
                         pdf.addPage();
                         lastY = 20;
@@ -4268,19 +4299,19 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                     pdf.setFont('helvetica', 'bold');
                     pdf.setTextColor(colors.textDark);
                     pdf.text(semesterSummary, pageWidth - pageMargin, semesterHeaderY, { align: 'right' });
-                    
+
                     lastY = semesterHeaderY + 2;
-                    
+
                     const head = [['Course Code', 'Course Title', 'CH', 'Marks', 'Grade']];
                     const body = activeCourses.map(c => [c.code, c.title, c.creditHoursDisplay, c.marks.toFixed(0), c.grade]);
-                    
+
                     pdf.autoTable({
                         head: head,
                         body: body,
                         startY: lastY,
                         margin: { left: pageMargin, right: pageMargin, bottom: 25 },
                         headStyles: { fillColor: colors.primary, textColor: '#ffffff', fontStyle: 'bold', halign: 'center', valign: 'middle' },
-                        columnStyles: { 
+                        columnStyles: {
                             0: { halign: 'left', cellWidth: availableWidth * 0.18 },
                             1: { halign: 'left', cellWidth: availableWidth * 0.46, cellPadding: { left: 2 } },
                             2: { halign: 'center', cellWidth: availableWidth * 0.12 },
@@ -4299,7 +4330,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                          lastY += 6;
                     }
                 });
-            
+
             const totalPages = pdf.internal.getNumberOfPages();
             for (let i = 1; i <= totalPages; i++) {
                 pdf.setPage(i);
@@ -4307,14 +4338,14 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                 pdf.setTextColor(colors.textLight);
                 pdf.setFont('helvetica', 'italic');
                 const footerY = pageHeight - 15;
-                
+
                 pdf.text("Generated by UAF CGPA Calculator - M Saqlain (www.uafcgpacalculator.vercel.app)", pageWidth / 2, footerY, { align: 'center' });
                 pdf.text("This is an unofficial transcript and should be used for reference purposes only.", pageWidth / 2, footerY + 5, { align: 'center' });
-                
+
                 pdf.setFontSize(8).setTextColor('#b0b0b0');
                 pdf.text(`Page ${i} of ${totalPages}`, pageWidth - pageMargin, pageHeight - 10, { align: 'right' });
             }
-            
+
             pdf.save(`UAF_Transcript_${processedData.studentInfo.registration}.pdf`);
             addStatusMessage('Premium PDF report generated successfully', 'success');
             showToast('PDF downloaded!', 'success');
@@ -4330,7 +4361,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
       async function fetchResult() {
         const regNum = registrationNumber.value.trim();
         if (!regNum) { showToast('Please enter a registration number', 'error'); return; }
-        
+
         resultContainer.style.display = 'none';
         showLoadingStage('connecting');
         addStatusMessage(`Fetching result for: ${regNum}`, 'info');
@@ -4343,13 +4374,13 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
           showLoadingStage('fetching');
           const data = await response.json();
           showLoadingStage('processing');
-          
+
           if (data.success && data.resultData && data.resultData.length > 0) {
             addStatusMessage('Result fetched successfully from UAF LMS', 'success');
             isInitialLoad = true;
             const processed = processScrapedData(data);
             const cgpaData = calculateCGPA(processed);
-            
+
             const profiles = getProfiles();
             const studentInfo = processed.studentInfo;
             let baseName = `${studentInfo.name} (${studentInfo.registration})`;
@@ -4384,7 +4415,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         } catch (error) {
             console.error("Fetch Error:", error);
             let userMessage, logMessage;
-            
+
             if (error instanceof TypeError && error.message.includes('Failed to fetch')) {
                 userMessage = 'Network error. Please check your internet connection.';
                 logMessage = 'Failed to fetch due to a network error. Ensure you are connected to the internet.';
@@ -4392,13 +4423,20 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                 userMessage = 'Could not retrieve results. The UAF LMS may be offline or the registration number is incorrect.';
                 logMessage = `API/LMS Error: ${error.message}`;
             }
-            
+
             addStatusMessage(logMessage, 'error');
             showToast(userMessage, 'error');
             showLoadingStage(null);
         }
       }
-      
+
+      // --- UPDATE: Event Listener for main export button ---
+      exportProfilesBtn.addEventListener('click', () => {
+        renderProfileManager();
+        profileManagerModal.show();
+        showToast('Select profiles to export.', 'info');
+      });
+
       // Event Listeners
       resultForm.addEventListener('submit', (e) => { e.preventDefault(); fetchResult(); });
       downloadLogBtn.addEventListener('click', downloadLog);
@@ -4409,12 +4447,11 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
       profileSwitcher.addEventListener('change', switchProfile);
       saveProfileNameBtn.addEventListener('click', renameProfile);
       document.getElementById('confirmationConfirmBtn').addEventListener('click', handleConfirm);
-      
-      // --- UPDATE: Listeners for new Import/Export buttons ---
+
       importProfilesBtn.addEventListener('click', importProfiles);
-      exportProfilesBtn.addEventListener('click', exportProfiles);
+      // Removed direct export call from main button: exportProfilesBtn.addEventListener('click', exportProfiles);
       importProfilesBtnModal.addEventListener('click', importProfiles); // Add listener for modal button
-      exportProfilesBtnModal.addEventListener('click', exportProfiles); // Add listener for modal button
+      exportProfilesBtnModal.addEventListener('click', exportSelectedProfiles); // Use exportSelectedProfiles for modal button
 
       // Profile Manager Listeners
       openProfileManagerBtn.addEventListener('click', () => {
@@ -4432,7 +4469,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
           }
       });
       document.getElementById('deleteSelectedBtn').addEventListener('click', handleBulkAction);
-      
+
       init();
     });
 </script>
