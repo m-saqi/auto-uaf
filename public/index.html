@@ -923,12 +923,15 @@ a[aria-expanded="true"] #gpaChartChevron {
   width: 100%;
 }
 
+/* --- UPDATE: Professional Search Input --- */
 .modern-search-input {
   border-radius: 50px !important;
   padding: 1rem 1.5rem !important;
   font-size: 1.1rem;
   box-shadow: var(--shadow);
   border: 2px solid transparent;
+  /* Add padding to the right to make space for the button */
+  padding-right: 170px !important; 
 }
 
 .modern-search-input:focus {
@@ -936,33 +939,46 @@ a[aria-expanded="true"] #gpaChartChevron {
   box-shadow: var(--shadow-hover);
 }
 
+/* --- UPDATE: Professional Search Button --- */
 .modern-search-button {
   position: absolute;
   top: 50%;
-  right: 8px;
+  right: 6px; /* Space from edge */
   transform: translateY(-50%);
-  border-radius: 50%;
-  width: 48px;
-  height: 48px;
-  font-size: 1.2rem;
+  border-radius: 50px; /* Match input pill shape */
+  font-size: 1.1rem;
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 0;
-  transition: all 0.3s ease; /* Added for smooth transition */
+  padding: 0.75rem 1.25rem; /* Professional padding */
+  transition: all 0.3s ease;
+  height: auto; /* Remove fixed height */
 }
 
-/* --- CHANGE 1: More subtle hover effect for the button --- */
 .modern-search-button:hover {
-  transform: translateY(-50%) scale(1.05); /* Softer transform */
+  transform: translateY(-50%) scale(1.02); /* Softer transform */
   box-shadow: var(--shadow-hover);
 }
+
+/* --- UPDATE: Mobile styles for Search Button/Input --- */
+@media (max-width: 767.98px) {
+  .modern-search-input {
+    padding-right: 70px !important; /* Space for just the icon button */
+  }
+  .modern-search-button {
+    width: 48px; /* Back to circle on mobile */
+    height: 48px;
+    padding: 0;
+    right: 8px;
+    border-radius: 50%; /* Back to circle */
+  }
+}
+
 
 .modern-profiles-wrapper {
   width: 100%;
 }
 
-/* --- CHANGE 2: Fix for the profile switcher text collision --- */
 .modern-profiles-select {
   border-top-left-radius: 0 !important;
   border-bottom-left-radius: 0 !important;
@@ -2348,9 +2364,7 @@ a[aria-expanded="true"] .status-log-chevron {
 }
 
 /* --- UPDATE: Z-index for modals --- */
-#profileManagerModal {
-  z-index: 1050; /* Bootstrap's default modal z-index is 1050 */
-}
+/* REMOVED the z-index: 1050 rule for profileManagerModal to fix backdrop issue */
 #renameProfileModal {
   z-index: 1060; /* Higher z-index to appear on top */
 }
@@ -2373,6 +2387,20 @@ a[aria-expanded="true"] .status-log-chevron {
 .profile-data-buttons .btn {
     font-size: 0.9rem;
     padding: 0.5rem 1rem;
+}
+/* --- UPDATE: Mobile styles for Import/Export buttons --- */
+@media (max-width: 575.98px) {
+    .profile-data-buttons {
+        flex-direction: column; /* Stack them */
+        gap: 0.5rem;
+        align-items: center; /* Center them */
+    }
+    .profile-data-buttons .btn {
+        width: 75%; /* Make them a consistent width */
+        max-width: 300px;
+        font-size: 0.85rem; /* Even smaller on mobile */
+        padding: 0.6rem 1rem;
+    }
 }
   </style>
 </head>
@@ -2677,8 +2705,8 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         </div>
 
         <div class="profile-data-buttons">
-            <button class="btn btn-success-action btn-sm rounded-pill" type="button" id="importProfilesBtn"><i class="fa-solid fa-upload me-2"></i>Import Profiles</button>
-            <button class="btn btn-info-action btn-sm rounded-pill" type="button" id="exportProfilesBtn"><i class="fa-solid fa-download me-2"></i>Export Profiles</button>
+            <button class="btn btn-success-action btn-sm rounded-3" type="button" id="importProfilesBtn"><i class="fa-solid fa-upload me-2"></i>Import Profiles</button>
+            <button class="btn btn-info-action btn-sm rounded-3" type="button" id="exportProfilesBtn"><i class="fa-solid fa-download me-2"></i>Export Profiles</button>
         </div>
         
         <div id="profileManagement" class="modern-profiles-wrapper" style="display: none;">
