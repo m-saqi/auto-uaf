@@ -163,6 +163,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
   --card-bg: #ffffff;
   --radius: 1.25rem; /* Standard radius */
   --radius-sm: 0.75rem; /* Slightly smaller radius */
+  --radius-btn: 12px; /* Specific radius for certain buttons */
   --shadow: 0 10px 30px rgba(17, 24, 39, 0.1);
   --shadow-hover: 0 15px 40px rgba(17, 24, 39, 0.15);
 
@@ -1047,8 +1048,9 @@ a[aria-expanded="true"] #gpaChartChevron {
   flex-wrap: wrap;
   gap: 1rem;
 }
+/* --- UPDATE: Use var(--radius-btn) --- */
 .action-buttons-aligned .btn {
-  border-radius: var(--radius-sm); /* Use smaller radius */
+  border-radius: var(--radius-btn);
 }
 @media (max-width: 576px) {
   .action-buttons-aligned {
@@ -1433,7 +1435,7 @@ a[aria-expanded="true"] .status-log-chevron {
     margin-left: 0.3rem !important;
 }
 
-/* --- UPDATED: Mobile responsive adjustments --- */
+/* --- Mobile responsive adjustments --- */
 @media (max-width: 575.98px) {
   .hero {
     padding: 2rem 0;
@@ -1441,8 +1443,8 @@ a[aria-expanded="true"] .status-log-chevron {
   .hero h1 {
     font-size: 2.2rem !important;
   }
+  /* --- UPDATE: Removed width: 100% --- */
   .d-flex.gap-2 .btn {
-    width: 100%;
     max-width: 300px;
     margin-bottom: 0.5rem;
   }
@@ -1499,7 +1501,7 @@ a[aria-expanded="true"] .status-log-chevron {
   }
 }
 
-/* --- UPDATED: Mobile responsive table --- */
+/* --- Mobile responsive table --- */
 @media screen and (max-width: 768px) {
   body {
     font-size: 0.9rem;
@@ -1529,7 +1531,7 @@ a[aria-expanded="true"] .status-log-chevron {
   .course-table {
     font-size: 0.65rem;
   }
-  /* NEW: Reduce padding to decrease gaps between columns */
+  /* Reduce padding to decrease gaps between columns */
   .course-table th, .course-table td {
     padding: 0.75rem 0.4rem; /* Reduced horizontal padding */
   }
@@ -1537,7 +1539,7 @@ a[aria-expanded="true"] .status-log-chevron {
     font-size: 0.7rem;
     font-weight: 500;
   }
-  /* NEW: Make grade text smaller */
+  /* Make grade text smaller */
   .grade-badge {
     font-size: 0.6rem;
     padding: 0.2rem 0.35rem;
@@ -1566,7 +1568,7 @@ a[aria-expanded="true"] .status-log-chevron {
     font-size: 0.75rem;
     padding: 0.6rem 0.4rem;
   }
-  /* NEW: Table alignment rules */
+  /* Table alignment rules */
   .course-table th:nth-child(n+3),
   .course-table td:nth-child(n+3) {
       text-align: center;
@@ -1747,11 +1749,12 @@ a[aria-expanded="true"] .status-log-chevron {
   font-weight: bold;
 }
 
+/* --- UPDATE: Use var(--radius-btn) --- */
 .custom-course-btn {
   background: var(--brand-gradient);
   color: white;
   border: none;
-  border-radius: 8px;
+  border-radius: var(--radius-btn);
   padding: 8px 12px;
   font-size: 0.9rem;
   margin-top: 10px;
@@ -1881,7 +1884,7 @@ a[aria-expanded="true"] .status-log-chevron {
   color: var(--muted);
 }
 
-/* --- UPDATED: Mobile responsive adjustments for CGPA --- */
+/* --- Mobile responsive adjustments for CGPA --- */
 @media (max-width: 768px) {
   .cgpa-metrics-row {
     flex-direction: column;
@@ -2165,7 +2168,7 @@ a[aria-expanded="true"] .status-log-chevron {
   box-shadow: 0 6px 18px rgba(231, 76, 60, 0.2);
   cursor: pointer;
   transition: all 0.3s ease;
-  border-radius: var(--radius-sm); /* Consistent radius */
+  border-radius: var(--radius-btn); /* Consistent radius */
 }
 
 .btn-pdf-download:hover {
@@ -2232,7 +2235,7 @@ a[aria-expanded="true"] .status-log-chevron {
   border: 0;
   cursor: pointer;
   transition: all 0.3s ease;
-  border-radius: var(--radius-sm); /* Consistent radius */
+  border-radius: var(--radius-btn); /* Consistent radius */
 }
 .btn-info-action:hover {
   background: linear-gradient(135deg, #5dade2 0%, #3498db 100%);
@@ -2344,7 +2347,6 @@ a[aria-expanded="true"] .status-log-chevron {
         justify-content: space-between; /* Space out items */
         align-items: center; /* Align vertically */
     }
-    /* --- UPDATE: Ensure ms-auto buttons stay in a row on mobile --- */
     .profile-manager-toolbar .ms-auto {
         margin-left: 0 !important; /* Remove margin */
         width: auto; /* Allow natural width */
@@ -2352,10 +2354,10 @@ a[aria-expanded="true"] .status-log-chevron {
         display: flex;
         gap: 0.5rem; /* Reduce gap */
     }
-    /* Make toolbar buttons slightly smaller */
+    /* --- UPDATE: Removed padding override --- */
     .profile-manager-toolbar .btn {
         font-size: 0.8rem;
-        padding: 0.3rem 0.6rem;
+        /* Removed padding rule */
     }
 
     .profile-item {
@@ -2381,33 +2383,30 @@ a[aria-expanded="true"] .status-log-chevron {
     }
 }
 
-/* --- UPDATE: Z-index for modals --- */
-/* REMOVED the z-index: 1050 rule for profileManagerModal to fix backdrop issue */
-#renameProfileModal {
+/* --- Z-index and Blur for modals --- */
+#renameProfileModal, #confirmationModal {
   z-index: 1060; /* Higher z-index to appear on top */
 }
-/* When rename modal is open, apply blur to profile manager */
-.modal.show ~ #renameProfileModal.show {
-  backdrop-filter: blur(4px);
-}
+/* When rename or confirm modal is open, apply blur to profile manager */
 #profileManagerModal.blur-backdrop {
-  backdrop-filter: blur(4px);
-  transition: backdrop-filter 0.15s linear;
+  filter: blur(4px);
+  transition: filter 0.15s linear;
 }
 
-/* --- UPDATE: Profile data buttons --- */
+/* --- Profile data buttons --- */
 .profile-data-buttons {
     display: flex;
     justify-content: center;
     gap: 0.75rem;
     margin-top: 1rem;
 }
+/* --- UPDATE: Use var(--radius-btn) --- */
 .profile-data-buttons .btn {
     font-size: 0.9rem;
     padding: 0.5rem 1rem;
-    border-radius: var(--radius-sm); /* Consistent radius */
+    border-radius: var(--radius-btn);
 }
-/* --- UPDATE: Mobile styles for Import/Export buttons --- */
+/* --- Mobile styles for Import/Export buttons --- */
 @media (max-width: 575.98px) {
     .profile-data-buttons {
         flex-direction: row; /* Keep in row */
@@ -2445,6 +2444,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     <i class="fas fa-arrow-up"></i>
   </div>
 
+  <!-- MODALS -->
   <div class="modal fade course-details-modal" id="courseDetailsModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
       <div class="modal-content">
@@ -2511,7 +2511,8 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 
   <div class="modal fade" id="renameProfileModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
-      <div class="modal-content shadow-lg"> <div class="modal-header">
+      <div class="modal-content shadow-lg"> <!-- Added shadow -->
+        <div class="modal-header">
           <h5 class="modal-title"><i class="fa-solid fa-pen-to-square me-2"></i>Rename Profile</h5>
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
@@ -2532,6 +2533,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     </div>
   </div>
 
+  <!-- PROFILE MANAGER MODAL -->
   <div class="modal fade" id="profileManagerModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-lg">
         <div class="modal-content">
@@ -2560,17 +2562,20 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                             <li><a class="dropdown-item text-danger" href="#" id="deleteSelectedBtn"><i class="fa-solid fa-trash-can me-2"></i>Delete Selected</a></li>
                         </ul>
                     </div>
-                    <div class="ms-auto d-flex gap-2"> <button class="btn btn-success-action btn-sm rounded-3" id="importProfilesBtnModal"><i class="fa-solid fa-upload me-2"></i>Import</button>
+                    <div class="ms-auto d-flex gap-2">
+                         <button class="btn btn-success-action btn-sm rounded-3" id="importProfilesBtnModal"><i class="fa-solid fa-upload me-2"></i>Import</button>
                          <button class="btn btn-info-action btn-sm rounded-3" id="exportProfilesBtnModal"><i class="fa-solid fa-download me-2"></i>Export</button>
                     </div>
                 </div>
                 <ul class="profile-list" id="profileManagerList">
-                    </ul>
+                    <!-- Profiles will be dynamically inserted here -->
+                </ul>
             </div>
         </div>
     </div>
   </div>
 
+  <!-- CUSTOM CONFIRMATION MODAL -->
   <div class="modal fade confirmation-modal" id="confirmationModal" tabindex="-1" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
     <div class="modal-dialog modal-dialog-centered modal-sm">
       <div class="modal-content">
@@ -2725,12 +2730,13 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
           />
           <button type="submit" class="btn btn-primary-action modern-search-button">
             <i class="fa-solid fa-cloud-arrow-down"></i>
-            <span class="d-none d-md-inline ms-2">Fetch Result</span> </button>
+            <span class="d-none d-md-inline ms-2">Fetch Result</span>
+          </button>
         </div>
 
         <div class="profile-data-buttons">
-            <button class="btn btn-success-action btn-sm rounded-3" type="button" id="importProfilesBtn"><i class="fa-solid fa-upload me-2"></i>Import Profiles</button>
-            <button class="btn btn-info-action btn-sm rounded-3" type="button" id="exportProfilesBtn"><i class="fa-solid fa-download me-2"></i>Export Profiles</button>
+            <button class="btn btn-success-action btn-sm" type="button" id="importProfilesBtn"><i class="fa-solid fa-upload me-2"></i>Import Profiles</button>
+            <button class="btn btn-info-action btn-sm" type="button" id="exportProfilesBtn"><i class="fa-solid fa-download me-2"></i>Export Profiles</button>
         </div>
 
         <div id="profileManagement" class="modern-profiles-wrapper" style="display: none;">
@@ -2806,8 +2812,8 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
   </div>
 
     <div class="action-buttons-aligned fade-in-on-scroll">
-      <button id="downloadPdfBtn" class="btn btn-pdf-download rounded-3"><i class="fa-solid fa-file-pdf me-2"></i>Download PDF</button>
-      <button id="addForecastSemesterBtn" class="btn btn-info-action rounded-3"><i class="fa-solid fa-wand-magic-sparkles me-2"></i>Forecast Semester</button>
+      <button id="downloadPdfBtn" class="btn btn-pdf-download"><i class="fa-solid fa-file-pdf me-2"></i>Download PDF</button>
+      <button id="addForecastSemesterBtn" class="btn btn-info-action"><i class="fa-solid fa-wand-magic-sparkles me-2"></i>Forecast Semester</button>
     </div>
 
     <div class="semester-results-container">
@@ -3018,6 +3024,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
       const profileManagerModalEl = document.getElementById('profileManagerModal'); // Get the element
       const renameProfileModalEl = document.getElementById('renameProfileModal'); // Get the element
       const confirmationModal = new bootstrap.Modal(document.getElementById('confirmationModal'));
+      const confirmationModalEl = document.getElementById('confirmationModal'); // Get the element
 
       // Import/Export buttons
       const importProfilesBtn = document.getElementById('importProfilesBtn');
@@ -3044,14 +3051,25 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         initBackToTop();
         initScrollAnimations();
         loadProfiles();
-        initModalZIndexHandlers(); // Init modal stacking
+        initModalZIndexHandlers(); // Init modal stacking/blur effect
       }
 
+      // --- Handle modal stacking/blur visual effects ---
       function initModalZIndexHandlers() {
+        // When Rename modal shows, blur Profile Manager
         renameProfileModalEl.addEventListener('show.bs.modal', function () {
             profileManagerModalEl.classList.add('blur-backdrop');
         });
+        // When Rename modal hides, remove blur from Profile Manager
         renameProfileModalEl.addEventListener('hide.bs.modal', function () {
+            profileManagerModalEl.classList.remove('blur-backdrop');
+        });
+        // When Confirmation modal shows, blur Profile Manager
+        confirmationModalEl.addEventListener('show.bs.modal', function () {
+            profileManagerModalEl.classList.add('blur-backdrop');
+        });
+        // When Confirmation modal hides, remove blur from Profile Manager
+        confirmationModalEl.addEventListener('hide.bs.modal', function () {
             profileManagerModalEl.classList.remove('blur-backdrop');
         });
       }
@@ -3346,14 +3364,14 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
       }
 
       function exportSelectedProfiles() {
-          const selectedIds = Array.from(document.querySelectorAll('.profile-checkbox:checked')).map(cb => cb.value);
+          const selectedIds = Array.from(document.querySelectorAll('#profileManagerList .profile-checkbox:checked')).map(cb => cb.value);
           const profiles = getProfiles();
           const profilesToExport = {};
           let exportCount = 0;
           let filename = `uaf-cgpa-profiles-backup-${new Date().toISOString().split('T')[0]}.json`; // Default filename
 
           if (selectedIds.length === 0) {
-              showToast('No profiles selected to export. Select profiles or export all using the main button.', 'warning');
+              showToast('No profiles selected to export. Please select profiles from the list.', 'warning');
               return;
           }
 
@@ -3364,7 +3382,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
               }
           });
 
-          // --- UPDATE: Custom filename for single profile export ---
+          // Custom filename for single profile export
           if (exportCount === 1) {
               const singleProfileId = selectedIds[0];
               // Sanitize profile name for filename
@@ -4430,11 +4448,11 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         }
       }
 
-      // --- UPDATE: Event Listener for main export button ---
+      // --- UPDATE: Event Listener for main export button opens manager ---
       exportProfilesBtn.addEventListener('click', () => {
         renderProfileManager();
         profileManagerModal.show();
-        showToast('Select profiles to export.', 'info');
+        showToast('Select profiles from the manager to export.', 'info');
       });
 
       // Event Listeners
@@ -4449,7 +4467,6 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
       document.getElementById('confirmationConfirmBtn').addEventListener('click', handleConfirm);
 
       importProfilesBtn.addEventListener('click', importProfiles);
-      // Removed direct export call from main button: exportProfilesBtn.addEventListener('click', exportProfiles);
       importProfilesBtnModal.addEventListener('click', importProfiles); // Add listener for modal button
       exportProfilesBtnModal.addEventListener('click', exportSelectedProfiles); // Use exportSelectedProfiles for modal button
 
@@ -4466,6 +4483,8 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
           if (e.target.classList.contains('profile-checkbox')) {
               const anyChecked = !!document.querySelector('.profile-checkbox:checked');
               document.getElementById('bulkActionsBtn').disabled = !anyChecked;
+              // Also enable/disable the modal export button based on selection
+              exportProfilesBtnModal.disabled = !anyChecked;
           }
       });
       document.getElementById('deleteSelectedBtn').addEventListener('click', handleBulkAction);
