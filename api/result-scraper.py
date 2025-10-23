@@ -41,6 +41,8 @@ class handler(BaseHTTPRequestHandler):
         try:
             if 'action=scrape_single' in self.path:
                 self.handle_scrape_single()
+            elif 'action=scrape_attendance' in self.path:
+                self.handle_scrape_attendance()
             else:
                 self.send_response(404)
                 self._set_cors_headers()
@@ -52,6 +54,8 @@ class handler(BaseHTTPRequestHandler):
         try:
             if 'action=scrape_single' in self.path:
                 self.handle_scrape_single()
+            elif 'action=scrape_attendance' in self.path:
+                self.handle_scrape_attendance()
             else:
                 self.send_response(404)
                 self._set_cors_headers()
@@ -100,6 +104,148 @@ class handler(BaseHTTPRequestHandler):
             self.send_success_response(response)
         except Exception as e:
             self.send_error_response(500, f"Error scraping single result: {str(e)}")
+
+    def handle_scrape_attendance(self):
+        """Handle result scraping from the Attendance System"""
+        try:
+            if self.command == 'GET':
+                query_params = self.path.split('?')
+                if len(query_params) > 1:
+                    params = dict(param.split('=') for param in query_params[1].split('&'))
+                    registration_number = params.get('registrationNumber')
+                else:
+                    self.send_error_response(400, 'No registration number provided')
+                    return
+            else: # POST
+                content_length = int(self.headers['Content-Length'])
+                post_data = self.rfile.read(content_length)
+                data = json.loads(post_data)
+                registration_number = data.get('registrationNumber')
+            
+            if not registration_number:
+                self.send_error_response(400, 'No registration number provided')
+                return
+
+            success, message, result_data = self.scrape_attendance_system(registration_number)
+            response = {'success': success, 'message': message, 'resultData': result_data}
+            self.send_success_response(response)
+        except Exception as e:
+            self.send_error_response(500, f"Error scraping attendance system: {str(e)}")
+
+    def scrape_attendance_system(self, registration_number):
+        """Scrapes results from the UAF Attendance System"""
+        BASE_URL = "http://121.52.152.24/"
+        DEFAULT_PAGE = "default.aspx"
+        
+        try:
+            session = requests.Session()
+            session.headers.update({'User-Agent': random.choice(USER_AGENTS)})
+
+            # 1. GET the main page to retrieve VIEWSTATE and EVENTVALIDATION
+            try:
+                logger.info(f"Connecting to Attendance System at {BASE_URL}...")
+                response = session.get(BASE_URL + DEFAULT_PAGE, timeout=20)
+                response.raise_for_status()
+            except requests.exceptions.RequestException as e:
+                logger.error(f"Failed to connect to Attendance System: {e}")
+                return False, "Could not connect to UAF Attendance System. The server may be down.", None
+
+            soup = BeautifulSoup(response.text, 'html.parser')
+            
+            viewstate = soup.find('input', {'id': '__VIEWSTATE'})
+            eventvalidation = soup.find('input', {'id': '__EVENTVALIDATION'})
+
+            if not viewstate:
+                logger.warning("Could not find __VIEWSTATE on attendance system page.")
+                return False, "Could not parse the Attendance System page (VIEWSTATE missing).", None
+
+            if not eventvalidation:
+                logger.warning("Could not find __EVENTVALIDATION on attendance system page.")
+                return False, "Could not parse the Attendance System page (EVENTVALIDATION missing).", None
+
+            form_data = {
+                '__VIEWSTATE': viewstate.get('value', ''),
+                '__EVENTVALIDATION': eventvalidation.get('value', ''),
+                'ctl00$Main$txtReg': registration_number,
+                'ctl00$Main$btnShow': 'Access To Student Information'
+            }
+
+            # 2. POST the registration number
+            try:
+                logger.info(f"Submitting registration number {registration_number} to Attendance System...")
+                post_response = session.post(BASE_URL + DEFAULT_PAGE, data=form_data, timeout=30)
+                post_response.raise_for_status()
+            except requests.exceptions.RequestException as e:
+                logger.error(f"Failed to submit form to Attendance System: {e}")
+                return False, "Error while fetching results from Attendance System.", None
+            
+            # 3. Parse the result page
+            return self.parse_attendance_results(post_response.text, registration_number)
+        
+        except Exception as e:
+            logger.error(f"Unexpected error during attendance scraping: {str(e)}")
+            return False, f"An unexpected error occurred: {str(e)}", None
+
+    def parse_attendance_results(self, html_content, registration_number):
+        """Parses the result table from the Attendance System HTML"""
+        try:
+            soup = BeautifulSoup(html_content, 'html.parser')
+            
+            # Check for common errors first
+            if "object moved to" in html_content.lower() or "student registration no. not found" in html_content.lower():
+                logger.warning(f"No results found for {registration_number} on Attendance System.")
+                return False, f"No results found for {registration_number} on Attendance System.", None
+                
+            result_table = soup.find('table', {'id': 'ctl00_Main_TabContainer1_tbResultInformation_gvResultInformation'})
+            
+            if not result_table:
+                logger.warning(f"Could not find result table for {registration_number} on Attendance System.")
+                return False, "Could not find result table on Attendance System page. The registration number may be incorrect.", None
+                
+            results = []
+            header_rows = 1  # The first <tr> is the header
+            
+            for row in result_table.find_all('tr'):
+                if header_rows > 0:
+                    header_rows -= 1
+                    continue
+                
+                cols = row.find_all('td')
+                if len(cols) == 16:  # 16 columns as per the HTML structure
+                    try:
+                        course_data = {
+                            'RegistrationNo': cols[0].text.strip(),
+                            'Year': cols[1].text.strip(),
+                            'Sem': cols[2].text.strip(),
+                            'Semester': cols[3].text.strip(), # Using semestername
+                            'TeacherName': cols[4].text.strip(),
+                            'CourseCode': cols[5].text.strip(),
+                            'CourseName': cols[6].text.strip(),
+                            'DegreeName': cols[7].text.strip(),
+                            'Mid': cols[8].text.strip(),
+                            'Assigment': cols[9].text.strip(),
+                            'Final': cols[10].text.strip(),
+                            'Practical': cols[11].text.strip(),
+                            'Totalmark': cols[12].text.strip(),
+                            'Grade': cols[13].text.strip(),
+                            'Markinwords': cols[14].text.strip(),
+                            'Status': cols[15].text.strip()
+                        }
+                        results.append(course_data)
+                    except Exception as e:
+                        logger.error(f"Error parsing attendance result row: {e}")
+                        
+            if results:
+                logger.info(f"Successfully extracted {len(results)} records from Attendance System for {registration_number}.")
+                return True, f"Successfully extracted {len(results)} records", results
+            else:
+                logger.warning(f"Result table was found but no data rows could be parsed for {registration_number}.")
+                return False, f"No result data found in table for: {registration_number}", None
+                
+        except Exception as e:
+            logger.error(f"Error parsing attendance results: {str(e)}")
+            return False, f"Error parsing results: {str(e)}", None
+
 
     def scrape_uaf_results(self, registration_number):
         """Main function to scrape UAF results with HTTP/HTTPS fallback"""
