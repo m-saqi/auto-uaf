@@ -4261,7 +4261,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 
         document.getElementById('courseDetailsModalBody').innerHTML = `
           <div class="row">
-            {/* Display the original semester name */}
+            /* Display the original semester name */
             <div class="col-md-6"><p><strong>Teacher:</strong> ${course.teacher}</p><p><strong>Credit Hours:</strong> ${course.creditHoursDisplay || course.creditHours}</p><p><strong>Semester:</strong> ${semesterDisplayName}</p></div>
             <div class="col-md-6"><p><strong>Mid Term:</strong> ${course.mid}</p><p><strong>Assignment:</strong> ${course.assignment}</p><p><strong>Final Term:</strong> ${course.final}</p>${course.practical ? `<p><strong>Practical:</strong> ${course.practical}</p>` : ''}</div>
           </div>
@@ -4957,4 +4957,5 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 </script>
 </body>
 </html>
+
 
