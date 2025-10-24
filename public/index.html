@@ -3514,10 +3514,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                   try {
                       const importedData = JSON.parse(event.target.result);
                       
-                      // --- THIS LINE IS FIXED ---
-                      if (!importedData.profiles || importedData.Version !== '2.0.0') {
-                      // --- Correctly checks for 'version' (lowercase) ---
-
+                      if (!importedData.profiles || importedData.version !== '2.0.0') {
                           throw new Error('Invalid or incompatible backup file.');
                       }
 
@@ -3545,10 +3542,17 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                       console.error('Import error:', error);
                   }
               };
+
+              // --- FIX: Add onerror handler for file read errors ---
+              reader.onerror = event => {
+                  showToast('Failed to read the file. Please check the file and try again.', 'error');
+                  console.error('FileReader error:', event.target.error);
+              };
+              // --- End of Fix ---
+
               reader.readText(file);
           };
           input.click();
-      }
 
       // --- END OF PROFILE MANAGER FUNCTIONS ---
 
@@ -5046,6 +5050,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 </script>
 </body>
 </html>
+
 
 
 
