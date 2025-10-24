@@ -4874,12 +4874,12 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         const listEl = document.getElementById('attendanceCourseList');
         listEl.innerHTML = ''; // Clear previous list
         const toggleSwitch = document.getElementById('toggleAllCourses');
-        const selectAllCheckbox = document.getElementById('toggleSelectAllCourses');
+        const selectAllCheckbox = document.getElementById('toggleSelectAllCourses'); // NEW
         
         if (courses.length === 0) {
             listEl.innerHTML = '<p class="text-center text-muted">No courses found in Attendance System.</p>';
             importAttendanceCoursesBtn.disabled = true;
-            if (toggleSwitch) toggleSwitch.closest('.d-flex').style.display = 'none'; // Hide all toggles
+            if (toggleSwitch) toggleSwitch.closest('.d-flex').style.display = 'none'; // NEW: Hide container
             return;
         }
 
@@ -4931,8 +4931,8 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 
         // Handle the "Show All Courses" toggle switch
         if (toggleSwitch) {
-            toggleSwitch.closest('.d-flex').style.display = 'flex'; // Ensure container is visible
-            toggleSwitch.checked = false; // Default to hiding duplicates
+            toggleSwitch.closest('.d-flex').style.display = 'flex'; // NEW: Show container
+            toggleSwitch.checked = false; 
             
             const newToggle = toggleSwitch.cloneNode(true);
             toggleSwitch.parentNode.replaceChild(newToggle, toggleSwitch);
@@ -4942,7 +4942,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                 listEl.querySelectorAll('.duplicate-course').forEach(item => {
                     item.style.display = showAll ? 'flex' : 'none'; 
                 });
-                // After toggling visibility, reset the "Select All" checkbox
+                // NEW: Reset "Select All" when visibility changes
                 if (selectAllCheckbox) {
                     selectAllCheckbox.checked = false;
                     selectAllCheckbox.nextElementSibling.textContent = 'Select All';
@@ -4950,34 +4950,30 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
             });
         }
         
-        // Handle "Select All" checkbox logic
+        // NEW: Handle "Select All" checkbox logic
         if (selectAllCheckbox) {
-            // Reset state
             selectAllCheckbox.checked = false; 
             selectAllCheckbox.nextElementSibling.textContent = 'Select All';
 
-            // Remove old listener
             const newSelectAll = selectAllCheckbox.cloneNode(true);
             selectAllCheckbox.parentNode.replaceChild(newSelectAll, selectAllCheckbox);
 
             newSelectAll.addEventListener('change', (e) => {
                 const isChecked = e.target.checked;
                 listEl.querySelectorAll('.form-check-input').forEach(checkbox => {
-                    // Only check/uncheck visible, non-disabled checkboxes
                     const item = checkbox.closest('.attendance-course-item');
                     if (item && item.style.display !== 'none' && !checkbox.disabled) {
                         checkbox.checked = isChecked;
                     }
                 });
-                // Update label text
                 e.target.nextElementSibling.textContent = isChecked ? 'Unselect All' : 'Select All';
             });
         }
         // --- END OF NEW TOGGLE LOGIC ---
 
-        // Update modal title and text based on what was found
+        // Update modal title and text
         const modalTitle = document.querySelector('#attendanceImportModal .modal-title');
-        const modalDescription = document.getElementById('attendanceModalDescription');
+        const modalDescription = document.getElementById('attendanceModalDescription'); // NEW: Use ID
         
         if (missingCoursesFound) {
             modalTitle.innerHTML = '<i class="fa-solid fa-clipboard-user me-2"></i>Import Missing Courses';
@@ -5211,6 +5207,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 </script>
 </body>
 </html>
+
 
 
 
