@@ -2462,14 +2462,23 @@ a[aria-expanded="true"] .status-log-chevron {
 
 @media (max-width: 576px) {
   .attendance-course-item {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 0.5rem;
+    /* flex-direction: column; <-- REMOVED */
+    align-items: center; /* Vertically align items in the row */
+    gap: 0.5rem; /* Reduced gap */
+    justify-content: space-between; /* Space out checkbox/info and CH selector */
+  }
+  .attendance-course-item .form-check {
+     flex-grow: 1; /* Allow checkbox and text to take available space */
+     margin-right: 0.5rem; /* Add some space before CH selector */
   }
   .attendance-course-item .import-ch-select {
-    width: 100%;
-    justify-content: flex-end;
+    width: auto; /* Let it shrink to content */
+    flex-shrink: 0; /* Prevent it from shrinking too much */
+    /* justify-content: flex-end; <-- REMOVED (space-between on parent handles it) */
   }
+   .attendance-course-item .import-ch-select .form-select {
+       width: 65px; /* Slightly smaller width for mobile select */
+   }
 }
     /* Fix for Dark Mode Text Visibility (Request 6) */
 [data-theme="dark"] #faq .lead.text-muted {
@@ -2592,16 +2601,16 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
   <div class="modal fade" id="attendanceImportModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-lg modal-dialog-scrollable">
       <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title" id="attendanceModalTitle"><i class="fa-solid fa-clipboard-user me-2"></i>Import Courses</h5>
+        <div class="modal-header d-flex justify-content-between align-items-center w-100">
+          <h5 class="modal-title mb-0" id="attendanceModalTitle"><i class="fa-solid fa-clipboard-user me-2"></i>Import Courses</h5>
           <div class="d-flex align-items-center gap-3">
-            <span id="attendanceCourseCount" class="small text-muted me-2"></span>
+            <span id="attendanceCourseCount" class="small text-muted"></span>
             <div class="form-check form-switch">
               <input class="form-check-input" type="checkbox" id="toggleAllCourses" role="switch">
               <label class="form-check-label small" for="toggleAllCourses">Show All</label>
             </div>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
           </div>
-          <button type="button" class="btn-close ms-2" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
         <div class="modal-body">
           <p class="text-muted small" id="attendanceModalDescription">The following courses were found in the Attendance System but not in your main LMS results. Select courses to import and set their credit hours.</p>
@@ -5366,6 +5375,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 </script>
 </body>
 </html>
+
 
 
 
