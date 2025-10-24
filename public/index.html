@@ -2584,11 +2584,17 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     <div class="modal-dialog modal-dialog-centered modal-lg modal-dialog-scrollable">
       <div class="modal-content">
         <div class="modal-header">
-          <h5 class="modal-title"><i class="fa-solid fa-clipboard-user me-2"></i>Import Missing Courses</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          <div class="d-flex justify-content-between align-items-center w-100">
+              <h5 class="modal-title mb-0"><i class="fa-solid fa-clipboard-user me-2"></i>Import Courses</h5>
+              <div class="form-check form-switch">
+                <input class="form-check-input" type="checkbox" id="toggleAllCourses" role="switch">
+                <label class="form-check-label small" for="toggleAllCourses">Show All Courses</label>
+              </div>
+          </div>
+          <button type="button" class="btn-close ms-2" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
         <div class="modal-body">
-          <p class="text-muted small">The following courses were found in the Attendance System but not in your main LMS results. Select the courses you want to import and set their credit hours. They will be added to your profile.</p>
+          <p class="text-muted small">The following courses were found in the Attendance System but not in your main LMS results. Select courses to import and set their credit hours.</p>
           <div id="attendanceCourseList">
             </div>
         </div>
@@ -4139,7 +4145,8 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                           <i class="fa-solid fa-info-circle ms-1 clickable-info small" data-course='${JSON.stringify(course).replace(/'/g, "&#39;")}' title="${courseTitle}"></i>
                         </span>
                         ${course.isExtraEnrolled ? '<sup class="extra-enrolled">Rep.</sup>' : ''}
-                        ${course.isCustom ? '<span class="extra-enrolled">Custom</span>' : ''}
+                        ${course.isCustom && course.source === 'attendance' ? '<sup class="extra-enrolled" style="color: #087990; background-color: #cff4fc;">Atnd.</sup>' : ''}
+                        ${course.isCustom && course.source !== 'attendance' ? '<span class="extra-enrolled">Custom</span>' : ''}
                       </div>
                     </td>
                     <td>${course.creditHoursDisplay || course.creditHours}</td><td>${course.marks}</td>
@@ -4768,50 +4775,74 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
             addStatusMessage(`Successfully fetched ${data.resultData.length} records from Attendance System`, 'success');
             showLoadingStage('processing'); // Indicate processing
 
-            // Process and find missing courses
-            const lmsCourses = new Set();
+            // 1. Create a detailed map of LMS courses for cross-checking
+            // Key: "CHEM-101_Spring 2025", Value: { marks: 75, grade: "B" }
+            const lmsCourseMap = new Map();
             Object.values(processedData.semesters).forEach(sem => {
+                const semKey = processSemesterName(sem.originalName); // Normalized semester name
                 sem.courses.forEach(course => {
-                    // Normalize course code and combine with semester for a unique key
-                     const semKey = processSemesterName(sem.originalName); // Use the same processing
-                    lmsCourses.add(`${course.code.toUpperCase().trim()}_${semKey}`);
+                    // Only add non-deleted, non-attendance-imported courses to the map
+                    if (!course.isDeleted && course.source !== 'attendance') {
+                        const courseKey = `${course.code.toUpperCase().trim()}_${semKey}`;
+                        // Store the best attempt if multiple are somehow in the same semester
+                        if (!lmsCourseMap.has(courseKey) || course.marks > lmsCourseMap.get(courseKey).marks) {
+                            lmsCourseMap.set(courseKey, {
+                                marks: course.marks,
+                                grade: course.grade
+                            });
+                        }
+                    }
+                });
+            });
+
+            // 2. Process ALL attendance courses, flagging duplicates
+            const allAttendanceCourses = [];
+            data.resultData.forEach(attCourse => {
+                const courseCode = (attCourse.CourseCode || '').toUpperCase().trim();
+                const semesterName = processSemesterName(attCourse.Semester); // Normalized semester name
+                const uniqueKey = `${courseCode}_${semesterName}`;
+                const marks = parseFloat(attCourse.Totalmark || '0');
+                const grade = attCourse.Grade || 'N/A';
+
+                let isDuplicate = false;
+                if (lmsCourseMap.has(uniqueKey)) {
+                    // User requested to cross-check marks and grades
+                    const lmsCourse = lmsCourseMap.get(uniqueKey);
+                    if (lmsCourse.marks === marks && lmsCourse.grade.trim().toUpperCase() === grade.trim().toUpperCase()) {
+                        isDuplicate = true;
+                    }
+                    // Note: If marks/grade differ, it's NOT a duplicate and should be importable as a potential "repeated" course.
+                }
+
+                // Also check if it's *already* imported from attendance
+                const semesterExists = processedData.semesters[semesterName];
+                if (semesterExists && semesterExists.courses.some(c => c.code === courseCode && c.isCustom && c.source === 'attendance')) {
+                    isDuplicate = true; // Already imported, treat as duplicate
+                }
+
+                allAttendanceCourses.push({
+                    code: courseCode,
+                    title: attCourse.CourseName || 'N/A',
+                    semester: semesterName,
+                    marks: marks,
+                    grade: grade,
+                    teacher: attCourse.TeacherName || 'N/A',
+                    mid: attCourse.Mid || '0',
+                    assignment: attCourse.Assigment || '0',
+                    final: attCourse.Final || '0',
+                    practical: attCourse.Practical || '0',
+                    isDuplicate: isDuplicate // The new flag
                 });
             });
 
 
-            const missingCourses = [];
-            data.resultData.forEach(attCourse => {
-                const courseCode = (attCourse.CourseCode || '').toUpperCase().trim();
-                const semesterName = processSemesterName(attCourse.Semester); // semestername from attendance data
-                const uniqueKey = `${courseCode}_${semesterName}`;
-
-                if (!lmsCourses.has(uniqueKey)) {
-                    // Check if already imported (might happen if user clicks twice)
-                    const semesterExists = processedData.semesters[semesterName];
-                    if (!semesterExists || !semesterExists.courses.some(c => c.code === courseCode && c.isCustom && c.source === 'attendance')) {
-                         missingCourses.push({
-                            code: courseCode,
-                            title: attCourse.CourseName || 'N/A', // Use CourseName
-                            semester: semesterName,
-                            marks: parseFloat(attCourse.Totalmark || '0'),
-                            grade: attCourse.Grade || 'N/A',
-                            teacher: attCourse.TeacherName || 'N/A',
-                            mid: attCourse.Mid || '0',
-                            assignment: attCourse.Assigment || '0',
-                            final: attCourse.Final || '0',
-                            practical: attCourse.Practical || '0'
-                        });
-                    }
-                }
-            });
-
-            if (missingCourses.length > 0) {
-                 addStatusMessage(`${missingCourses.length} potential missing course(s) found. Showing import dialog.`, 'info');
-                renderAttendanceImportModal(missingCourses);
+            if (allAttendanceCourses.length > 0) {
+                 addStatusMessage(`${allAttendanceCourses.length} courses found in Attendance System. Showing import dialog.`, 'info');
+                renderAttendanceImportModal(allAttendanceCourses); // Pass ALL courses
                 attendanceImportModal.show();
             } else {
-                showToast('No missing courses found in Attendance System.', 'info');
-                addStatusMessage('Comparison complete. No missing courses found.', 'success');
+                showToast('No courses found in Attendance System.', 'info');
+                addStatusMessage('Attendance System search returned no courses.', 'success');
             }
 
         } catch (error) {
@@ -4836,29 +4867,50 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
       function renderAttendanceImportModal(courses) {
         const listEl = document.getElementById('attendanceCourseList');
         listEl.innerHTML = ''; // Clear previous list
-
+        const toggleSwitch = document.getElementById('toggleAllCourses');
+        
         if (courses.length === 0) {
-            listEl.innerHTML = '<p class="text-center text-muted">No missing courses found.</p>';
+            listEl.innerHTML = '<p class="text-center text-muted">No courses found in Attendance System.</p>';
             importAttendanceCoursesBtn.disabled = true;
+            if (toggleSwitch) toggleSwitch.parentElement.style.display = 'none'; // Hide toggle
             return;
         }
 
+        let missingCoursesFound = false;
+        
         courses.forEach((course, index) => {
             const courseId = `att-course-${index}`;
             const selectId = `att-ch-${index}`;
             const item = document.createElement('div');
             item.className = 'attendance-course-item';
+            // Add 'duplicate-course' class and 'display: none' if it's a duplicate
+            if (course.isDuplicate) {
+                item.classList.add('duplicate-course');
+                item.style.display = 'none';
+            } else {
+                missingCoursesFound = true;
+            }
+
+            // Build the label text (from Request #1)
+            let labelText = '';
+            if (course.title && course.title.toLowerCase() !== 'n/a' && course.title.trim() !== '') {
+                labelText = `${course.title} - `;
+            }
+            labelText += `Marks: ${course.marks}, Grade: ${course.grade}`;
+
             item.innerHTML = `
                 <div class="form-check">
-                    <input class="form-check-input" type="checkbox" value="${index}" id="${courseId}" checked>
+                    <input class="form-check-input" type="checkbox" value="${index}" id="${courseId}" 
+                        ${course.isDuplicate ? 'disabled' : 'checked'}>
                     <label class="form-check-label" for="${courseId}">
                         <strong>${course.code}</strong> (${course.semester})
-                        <small class="d-block text-muted">${course.title || 'N/A'} - Marks: ${course.marks}, Grade: ${course.grade}</small>
+                        ${course.isDuplicate ? '<span class="badge bg-success-subtle text-success-emphasis rounded-pill ms-1">In LMS</span>' : ''}
+                        <small class="d-block text-muted">${labelText}</small>
                     </label>
                 </div>
                 <div class="import-ch-select">
                     <label for="${selectId}" class="form-label mb-0 small">CH:</label>
-                    <select class="form-select form-select-sm" id="${selectId}">
+                    <select class="form-select form-select-sm" id="${selectId}" ${course.isDuplicate ? 'disabled' : ''}>
                         ${[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map(ch => `<option value="${ch}" ${ch === 3 ? 'selected' : ''}>${ch}</option>`).join('')}
                     </select>
                 </div>
@@ -4867,6 +4919,37 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
             item.querySelector(`#${courseId}`).dataset.courseData = JSON.stringify(course);
             listEl.appendChild(item);
         });
+
+        // Handle the toggle switch logic
+        if (toggleSwitch) {
+            toggleSwitch.parentElement.style.display = 'block'; // Ensure it's visible
+            toggleSwitch.checked = false; // Default to hiding duplicates
+            
+            // Remove old listener to prevent duplicates, then add new one
+            const newToggle = toggleSwitch.cloneNode(true);
+            toggleSwitch.parentNode.replaceChild(newToggle, toggleSwitch);
+            
+            newToggle.addEventListener('change', (e) => {
+                const showAll = e.target.checked;
+                listEl.querySelectorAll('.duplicate-course').forEach(item => {
+                    // Use 'flex' for display to match the item's default CSS
+                    item.style.display = showAll ? 'flex' : 'none'; 
+                });
+            });
+        }
+
+        // Update modal title and text based on what was found
+        const modalTitle = document.querySelector('#attendanceImportModal .modal-title');
+        const modalDescription = document.querySelector('#attendanceImportModal .modal-body p.text-muted');
+        
+        if (missingCoursesFound) {
+            modalTitle.innerHTML = '<i class="fa-solid fa-clipboard-user me-2"></i>Import Missing Courses';
+            modalDescription.textContent = 'The following courses were found in the Attendance System but not in your main LMS results. Select courses to import and set their credit hours.';
+        } else {
+            modalTitle.innerHTML = '<i class="fa-solid fa-clipboard-check me-2"></i>Courses Synced';
+            modalDescription.textContent = 'All courses found in the Attendance System are already present in your LMS results. You can toggle "Show All Courses" to review them.';
+        }
+
         importAttendanceCoursesBtn.disabled = false;
     }
 
@@ -4876,13 +4959,16 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         let importedCount = 0;
 
         selectedCheckboxes.forEach(checkbox => {
+            // Ensure we are not importing a disabled checkbox
+            if (checkbox.disabled) return;
+
             const courseData = JSON.parse(checkbox.dataset.courseData);
             const index = checkbox.value;
             const creditHoursSelect = document.getElementById(`att-ch-${index}`);
             const creditHours = parseInt(creditHoursSelect.value);
 
             if (!isNaN(creditHours) && creditHours > 0 && creditHours <= 10) {
-                const semesterName = courseData.semester;
+                const semesterName = courseData.semester; // This is already the normalized name
 
                 // Ensure semester exists
                 if (!processedData.semesters[semesterName]) {
@@ -4900,7 +4986,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                     code: courseData.code,
                     title: courseData.title || 'Imported from Attendance',
                     creditHours: creditHours,
-                    creditHoursDisplay: `${creditHours}(${creditHours}-0)`, // Assuming theory only for simplicity
+                    creditHoursDisplay: `${creditHours}(${creditHours}-0)`, // Assuming theory only
                     marks: marks,
                     qualityPoints: calculateQualityPoints(marks, creditHours),
                     grade: calculateCustomGrade(marks, creditHours), // Recalculate grade based on CH
@@ -4937,7 +5023,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
             showToast(`${importedCount} course(s) imported successfully!`, 'success');
             addStatusMessage(`Imported ${importedCount} courses from Attendance System.`, 'info');
         } else {
-              showToast('No courses were imported.', 'info');
+              showToast('No new courses were imported.', 'info');
         }
 
         attendanceImportModal.hide();
@@ -5088,6 +5174,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 </script>
 </body>
 </html>
+
 
 
 
