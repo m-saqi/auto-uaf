@@ -3494,48 +3494,52 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 
 
       function importProfiles() {
-          const input = document.createElement('input');
-          input.type = 'file';
-          input.accept = '.json';
-          input.onchange = e => {
-              const file = e.target.files[0];
-              if (!file) return;
-              const reader = new FileReader();
-              reader.onload = event => {
-                  try {
-                      const importedData = JSON.parse(event.target.result);
-                      if (!importedData.profiles || importedData.version !== '2.0.0') {
-                          throw new Error('Invalid or incompatible backup file.');
-                      }
+              const input = document.createElement('input');
+              input.type = 'file';
+              input.accept = '.json';
+              input.onchange = e => {
+                  const file = e.target.files[0];
+                  if (!file) return;
+                  const reader = new FileReader();
+                  reader.onload = event => {
+                      try {
+                          const importedData = JSON.parse(event.target.result);
+                          
+                          // --- THIS LINE IS FIXED ---
+                          if (!importedData.profiles || importedData.version !== '2.0.0') {
+                          // --- Correctly checks for 'version' (lowercase) ---
 
-                      const existingProfiles = getProfiles();
-                      let importedCount = 0, skippedCount = 0;
-
-                      Object.keys(importedData.profiles).forEach(id => {
-                          if (existingProfiles[id]) {
-                              skippedCount++;
-                          } else {
-                              existingProfiles[id] = importedData.profiles[id];
-                              importedCount++;
+                              throw new Error('Invalid or incompatible backup file.');
                           }
-                      });
 
-                      saveProfiles(existingProfiles);
-                      showToast(`Import complete: ${importedCount} added, ${skippedCount} skipped.`, 'success');
-                      loadProfiles(); // Reload profiles into switcher
-                      if (profileManagerModalEl.classList.contains('show')) {
-                        renderProfileManager(); // Re-render manager if open
+                          const existingProfiles = getProfiles();
+                          let importedCount = 0, skippedCount = 0;
+
+                          Object.keys(importedData.profiles).forEach(id => {
+                              if (existingProfiles[id]) {
+                                  skippedCount++;
+                              } else {
+                                  existingProfiles[id] = importedData.profiles[id];
+                                  importedCount++;
+                              }
+                          });
+
+                          saveProfiles(existingProfiles);
+                          showToast(`Import complete: ${importedCount} added, ${skippedCount} skipped.`, 'success');
+                          loadProfiles(); // Reload profiles into switcher
+                          if (profileManagerModalEl.classList.contains('show')) {
+                            renderProfileManager(); // Re-render manager if open
+                          }
+
+                      } catch (error) {
+                          showToast(`Import failed: ${error.message}`, 'error');
+                          console.error('Import error:', error);
                       }
-
-                  } catch (error) {
-                      showToast(`Import failed: ${error.message}`, 'error');
-                      console.error('Import error:', error);
-                  }
+                  };
+                  reader.readText(file);
               };
-              reader.readText(file);
-          };
-          input.click();
-      }
+              input.click();
+          }
 
       // --- END OF PROFILE MANAGER FUNCTIONS ---
 
@@ -5033,6 +5037,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 </script>
 </body>
 </html>
+
 
 
 
