@@ -2586,15 +2586,21 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         <div class="modal-header">
           <div class="d-flex justify-content-between align-items-center w-100">
               <h5 class="modal-title mb-0"><i class="fa-solid fa-clipboard-user me-2"></i>Import Courses</h5>
-              <div class="form-check form-switch">
-                <input class="form-check-input" type="checkbox" id="toggleAllCourses" role="switch">
-                <label class="form-check-label small" for="toggleAllCourses">Show All Courses</label>
+              <div class="d-flex align-items-center gap-3">
+                <div class="form-check">
+                  <input class="form-check-input" type="checkbox" id="toggleSelectAllCourses">
+                  <label class="form-check-label small" for="toggleSelectAllCourses">Select All</label>
+                </div>
+                <div class="form-check form-switch">
+                  <input class="form-check-input" type="checkbox" id="toggleAllCourses" role="switch">
+                  <label class="form-check-label small" for="toggleAllCourses">Show All Courses</label>
+                </div>
               </div>
           </div>
           <button type="button" class="btn-close ms-2" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
         <div class="modal-body">
-          <p class="text-muted small">The following courses were found in the Attendance System but not in your main LMS results. Select courses to import and set their credit hours.</p>
+          <p class="text-muted small" id="attendanceModalDescription">The following courses were found in the Attendance System but not in your main LMS results. Select courses to import and set their credit hours.</p>
           <div id="attendanceCourseList">
             </div>
         </div>
@@ -3799,11 +3805,11 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
           }
 
           // Fallback logic for non-standard formats like "Winter20" from attendance
-          // Assuming "20" refers to the year 2020
-          if (semesterLower.startsWith('winter') && semesterLower.length > 6) return `Winter 20${semesterLower.substring(6)}`;
-          if (semesterLower.startsWith('spring') && semesterLower.length > 6) return `Spring 20${(parseInt(semesterLower.substring(6)) + 1).toString()}`; // Spring 20 -> Spring 2021
-          if (semesterLower.startsWith('summer') && semesterLower.length > 6) return `Summer 20${semesterLower.substring(6)}`;
-          if (semesterLower.startsWith('fall') && semesterLower.length > 4) return `Fall 20${semesterLower.substring(4)}`;
+          // User's requested logic: Spring24 -> Spring 2024
+          if (semesterLower.startsWith('winter') && semesterLower.length > 6) return `Winter 20${semesterLower.substring(6)}`; // Winter24 -> Winter 2024
+          if (semesterLower.startsWith('spring') && semesterLower.length > 6) return `Spring 20${semesterLower.substring(6)}`; // Spring24 -> Spring 2024
+          if (semesterLower.startsWith('summer') && semesterLower.length > 6) return `Summer 20${semesterLower.substring(6)}`; // Summer24 -> Summer 2024
+          if (semesterLower.startsWith('fall') && semesterLower.length > 4) return `Fall 20${semesterLower.substring(4)}`; // Fall24 -> Fall 2024
 
           // Default fallback (original string, capitalized)
           return semester.charAt(0).toUpperCase() + semester.slice(1);
@@ -4868,11 +4874,12 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         const listEl = document.getElementById('attendanceCourseList');
         listEl.innerHTML = ''; // Clear previous list
         const toggleSwitch = document.getElementById('toggleAllCourses');
+        const selectAllCheckbox = document.getElementById('toggleSelectAllCourses');
         
         if (courses.length === 0) {
             listEl.innerHTML = '<p class="text-center text-muted">No courses found in Attendance System.</p>';
             importAttendanceCoursesBtn.disabled = true;
-            if (toggleSwitch) toggleSwitch.parentElement.style.display = 'none'; // Hide toggle
+            if (toggleSwitch) toggleSwitch.closest('.d-flex').style.display = 'none'; // Hide all toggles
             return;
         }
 
@@ -4920,27 +4927,57 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
             listEl.appendChild(item);
         });
 
-        // Handle the toggle switch logic
+        // --- NEW AND IMPROVED TOGGLE LOGIC ---
+
+        // Handle the "Show All Courses" toggle switch
         if (toggleSwitch) {
-            toggleSwitch.parentElement.style.display = 'block'; // Ensure it's visible
+            toggleSwitch.closest('.d-flex').style.display = 'flex'; // Ensure container is visible
             toggleSwitch.checked = false; // Default to hiding duplicates
             
-            // Remove old listener to prevent duplicates, then add new one
             const newToggle = toggleSwitch.cloneNode(true);
             toggleSwitch.parentNode.replaceChild(newToggle, toggleSwitch);
             
             newToggle.addEventListener('change', (e) => {
                 const showAll = e.target.checked;
                 listEl.querySelectorAll('.duplicate-course').forEach(item => {
-                    // Use 'flex' for display to match the item's default CSS
                     item.style.display = showAll ? 'flex' : 'none'; 
                 });
+                // After toggling visibility, reset the "Select All" checkbox
+                if (selectAllCheckbox) {
+                    selectAllCheckbox.checked = false;
+                    selectAllCheckbox.nextElementSibling.textContent = 'Select All';
+                }
             });
         }
+        
+        // Handle "Select All" checkbox logic
+        if (selectAllCheckbox) {
+            // Reset state
+            selectAllCheckbox.checked = false; 
+            selectAllCheckbox.nextElementSibling.textContent = 'Select All';
+
+            // Remove old listener
+            const newSelectAll = selectAllCheckbox.cloneNode(true);
+            selectAllCheckbox.parentNode.replaceChild(newSelectAll, selectAllCheckbox);
+
+            newSelectAll.addEventListener('change', (e) => {
+                const isChecked = e.target.checked;
+                listEl.querySelectorAll('.form-check-input').forEach(checkbox => {
+                    // Only check/uncheck visible, non-disabled checkboxes
+                    const item = checkbox.closest('.attendance-course-item');
+                    if (item && item.style.display !== 'none' && !checkbox.disabled) {
+                        checkbox.checked = isChecked;
+                    }
+                });
+                // Update label text
+                e.target.nextElementSibling.textContent = isChecked ? 'Unselect All' : 'Select All';
+            });
+        }
+        // --- END OF NEW TOGGLE LOGIC ---
 
         // Update modal title and text based on what was found
         const modalTitle = document.querySelector('#attendanceImportModal .modal-title');
-        const modalDescription = document.querySelector('#attendanceImportModal .modal-body p.text-muted');
+        const modalDescription = document.getElementById('attendanceModalDescription');
         
         if (missingCoursesFound) {
             modalTitle.innerHTML = '<i class="fa-solid fa-clipboard-user me-2"></i>Import Missing Courses';
@@ -5174,6 +5211,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 </script>
 </body>
 </html>
+
 
 
 
