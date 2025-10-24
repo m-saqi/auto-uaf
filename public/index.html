@@ -4271,26 +4271,80 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
           });
       }
 
-      // --- 
-      // --- UPDATED showCourseDetails Function ---
-      // --- 
       // ---
-      // --- UPDATED showCourseDetails Function ---
+      // --- REVISED showCourseDetails Function (UI/UX Improv. & Fixes) ---
       // ---
       function showCourseDetails(course) {
-        document.getElementById('courseDetailsModalTitle').textContent = `${course.code} - ${course.title}`;
+        // --- Fix 1: Semester Name Formatting ---
+        let formattedSemester = course.originalSemester || 'Unknown Semester';
+        // Remove " Semester" and format year range (e.g., "Winter Semester 2020-2021" -> "Winter 2020-21")
+        formattedSemester = formattedSemester.replace(' Semester', ''); // Remove " Semester"
+        formattedSemester = formattedSemester.replace(/(\d{4})-(\d{4})/, (match, y1, y2) => `${y1}-${y2.substring(2)}`); // Format year range
 
-        // Display the original semester name exactly as fetched from LMS
-        const semesterDisplayName = course.originalSemester || 'Unknown Semester'; // Use the stored original name
+        // Set Modal Title
+        document.getElementById('courseDetailsModalTitle').textContent = `${course.code} - ${course.title || 'N/A'}`;
 
-        document.getElementById('courseDetailsModalBody').innerHTML = `
-          <div class="row">
-            <div class="col-md-6"><p><strong>Teacher:</strong> ${course.teacher}</p><p><strong>Credit Hours:</strong> ${course.creditHoursDisplay || course.creditHours}</p><p><strong>Semester:</strong> ${semesterDisplayName}</p></div>
-            <div class="col-md-6"><p><strong>Mid Term:</strong> ${course.mid}</p><p><strong>Assignment:</strong> ${course.assignment}</p><p><strong>Final Term:</strong> ${course.final}</p>${course.practical ? `<p><strong>Practical:</strong> ${course.practical}</p>` : ''}</div>
+        // --- Fix 2 & UI Improvement: Modal Body Structure ---
+        const modalBody = document.getElementById('courseDetailsModalBody');
+        modalBody.innerHTML = `
+          <div class="mb-3 border-bottom pb-3">
+            <h6 class="text-muted fw-bold small text-uppercase mb-2">Details</h6>
+            <div class="row g-2">
+              <div class="col-12 col-sm-6">
+                <p class="mb-1 small"><i class="fa-solid fa-chalkboard-user fa-fw me-2 text-primary"></i><strong>Teacher:</strong> ${course.teacher || 'N/A'}</p>
+              </div>
+              <div class="col-12 col-sm-6">
+                <p class="mb-1 small"><i class="fa-solid fa-calendar-alt fa-fw me-2 text-primary"></i><strong>Semester:</strong> ${formattedSemester}</p>
+              </div>
+              <div class="col-12">
+                 <p class="mb-0 small"><i class="fa-solid fa-hourglass-half fa-fw me-2 text-primary"></i><strong>Credit Hours:</strong> ${course.creditHoursDisplay || course.creditHours}</p>
+              </div>
+            </div>
           </div>
-          <div class="alert alert-info mt-3"><p class="mb-1"><strong>Total Marks:</strong> ${course.total}</p><p class="mb-1"><strong>Grade:</strong> <span class="grade-badge grade-${course.grade}">${course.grade}</span></p><p class="mb-0"><strong>Quality Points:</strong> ${course.qualityPoints.toFixed(2)}</p></div>
-          ${course.isExtraEnrolled ? `<div class="alert alert-warning"><i class="fa-solid fa-exclamation-triangle me-2"></i>This repeated course's marks are not counted towards the CGPA in this semester.</div>` : ''}
-          ${course.isCustom ? `<div class="alert alert-info"><i class="fa-solid fa-info-circle me-2"></i>This is a custom course added manually.</div>` : ''}`;
+
+          <div class="mb-3 border-bottom pb-3">
+            <h6 class="text-muted fw-bold small text-uppercase mb-2">Marks Breakdown</h6>
+            <div class="row g-2">
+              <div class="col-6 col-sm-3">
+                <p class="mb-1 small text-center text-sm-start"><i class="fa-solid fa-file-pen fa-fw me-1 text-info"></i><strong>Mid:</strong> ${course.mid || 'N/A'}</p>
+              </div>
+              <div class="col-6 col-sm-3">
+                <p class="mb-1 small text-center text-sm-start"><i class="fa-solid fa-clipboard fa-fw me-1 text-info"></i><strong>Assign:</strong> ${course.assignment || 'N/A'}</p>
+              </div>
+              <div class="col-6 col-sm-3">
+                 <p class="mb-1 small text-center text-sm-start"><i class="fa-solid fa-flag-checkered fa-fw me-1 text-info"></i><strong>Final:</strong> ${course.final || 'N/A'}</p>
+              </div>
+               ${course.practical && course.practical !== '0' ? `
+                 <div class="col-6 col-sm-3">
+                   <p class="mb-1 small text-center text-sm-start"><i class="fa-solid fa-flask-vial fa-fw me-1 text-info"></i><strong>Prac:</strong> ${course.practical}</p>
+                 </div>
+               ` : ''}
+            </div>
+          </div>
+
+          <div>
+             <h6 class="text-muted fw-bold small text-uppercase mb-2">Result</h6>
+             <div class="d-flex flex-wrap justify-content-around align-items-center bg-light rounded p-2" style="background-color: rgba(122, 106, 216, 0.05) !important;">
+                 <div class="text-center px-2">
+                     <span class="small text-muted">Total Marks</span>
+                     {/* Fix: Use course.marks which holds the calculated total */}
+                     <p class="fs-5 fw-bold mb-0 text-primary">${course.marks !== undefined ? course.marks : 'N/A'}</p>
+                 </div>
+                 <div class="text-center px-2">
+                     <span class="small text-muted">Grade</span>
+                     <p class="fs-5 mb-0"><span class="grade-badge grade-${course.grade}">${course.grade || 'N/A'}</span></p>
+                 </div>
+                 <div class="text-center px-2">
+                     <span class="small text-muted">Quality Points</span>
+                     <p class="fs-5 fw-bold mb-0 text-primary">${course.qualityPoints !== undefined ? course.qualityPoints.toFixed(2) : 'N/A'}</p>
+                 </div>
+             </div>
+          </div>
+
+          ${course.isExtraEnrolled ? `<div class="alert alert-warning d-flex align-items-center mt-3 small p-2"><i class="fa-solid fa-info-circle me-2"></i> This is a repeated course attempt, and its marks are not the highest achieved. It does not count towards the CGPA calculation shown.</div>` : ''}
+          ${course.isRepeated && !course.isExtraEnrolled ? `<div class="alert alert-success d-flex align-items-center mt-3 small p-2"><i class="fa-solid fa-check-circle me-2"></i> This is the highest scoring attempt for this repeated course and is used in CGPA calculation.</div>` : ''}
+          ${course.isCustom ? `<div class="alert alert-info d-flex align-items-center mt-3 small p-2"><i class="fa-solid fa-pencil me-2"></i> This is a custom course added manually${course.source === 'attendance' ? ' (imported from Attendance System)' : ''}.</div>` : ''}`;
+
         courseDetailsModal.show();
       }
 
@@ -4980,6 +5034,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 </script>
 </body>
 </html>
+
 
 
 
