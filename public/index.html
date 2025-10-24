@@ -3676,28 +3676,67 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         showToast('Log cleared', 'info');
       }
 
+      // --- 
+      // --- UPDATED processSemesterName Function ---
+      // --- 
       function processSemesterName(semester) {
           if (!semester) return 'Unknown Semester';
-          semester = semester.toLowerCase();
-          if (semester.includes('winter')) {
-              const yearMatch = semester.match(/(\d{2,4})/);
-              if (yearMatch) return `Winter ${yearMatch[1]}`;
-          } else if (semester.includes('spring')) {
-              const yearMatch = semester.match(/(\d{2,4})/);
-              if (yearMatch) return `Spring ${yearMatch[1]}`;
-          } else if (semester.includes('summer')) {
-              const yearMatch = semester.match(/(\d{2,4})/);
-              if (yearMatch) return `Summer ${yearMatch[1]}`;
-          } else if (semester.includes('fall')) {
-              const yearMatch = semester.match(/(\d{2,4})/);
-               if (yearMatch) return `Fall ${yearMatch[1]}`;
-          }
-          // Handle cases like "Winter20" from attendance system
-          if (semester.startsWith('winter') && semester.length > 6) return `Winter ${semester.substring(6)}`;
-          if (semester.startsWith('spring') && semester.length > 6) return `Spring ${semester.substring(6)}`;
-          if (semester.startsWith('summer') && semester.length > 6) return `Summer ${semester.substring(6)}`;
-          if (semester.startsWith('fall') && semester.length > 4) return `Fall ${semester.substring(4)}`;
           
+          const semesterLower = semester.toLowerCase();
+          
+          // Regex to match "YYYY-YY" or "YYYY-YYYY"
+          const yearRangeMatch = semesterLower.match(/(\d{4})-(\d{2,4})/); 
+          // Regex to match a single 4-digit year
+          const singleYearMatch = semesterLower.match(/\b(\d{4})\b/);
+
+          let season = 'Unknown';
+          let year = '';
+
+          if (semesterLower.includes('spring')) {
+              season = 'Spring';
+              if (yearRangeMatch) {
+                  year = yearRangeMatch[2]; // "25" or "2025"
+                  if (year.length === 2) {
+                      year = `20${year}`; // "25" -> "2025"
+                  }
+              } else if (singleYearMatch) {
+                  year = singleYearMatch[1];
+              }
+          } else if (semesterLower.includes('winter')) {
+              season = 'Winter';
+              if (yearRangeMatch) {
+                  year = yearRangeMatch[1]; // "2024"
+              } else if (singleYearMatch) {
+                  year = singleYearMatch[1];
+              }
+          } else if (semesterLower.includes('summer')) {
+              season = 'Summer';
+              if (yearRangeMatch) {
+                  year = yearRangeMatch[1]; // "2024"
+              } else if (singleYearMatch) {
+                  year = singleYearMatch[1];
+              }
+          } else if (semesterLower.includes('fall')) {
+              season = 'Fall';
+              if (yearRangeMatch) {
+                  year = yearRangeMatch[1]; // "2024"
+              } else if (singleYearMatch) {
+                  year = singleYearMatch[1];
+              }
+          }
+
+          // If a season and year were found, return them
+          if (season !== 'Unknown' && year) {
+              return `${season} ${year}`;
+          }
+
+          // Fallback logic for non-standard formats like "Winter20"
+          if (semesterLower.startsWith('winter') && semesterLower.length > 6) return `Winter ${semesterLower.substring(6)}`;
+          if (semesterLower.startsWith('spring') && semesterLower.length > 6) return `Spring ${semesterLower.substring(6)}`;
+          if (semesterLower.startsWith('summer') && semesterLower.length > 6) return `Summer ${semesterLower.substring(6)}`;
+          if (semesterLower.startsWith('fall') && semesterLower.length > 4) return `Fall ${semesterLower.substring(4)}`;
+          
+          // Default fallback (original string, capitalized)
           return semester.charAt(0).toUpperCase() + semester.slice(1);
       }
 
@@ -3747,6 +3786,9 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
             qualityPoints = 0;
           }
 
+          // --- 
+          // --- UPDATED courseData Object ---
+          // --- 
           const courseData = {
             code: courseCode,
             title: course.CourseTitle || '',
@@ -3760,11 +3802,11 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
             assignment: course.Assignment || '0',
             final: course.Final || '0',
             practical: course.Practical || '0',
-            total: course.Total || '0',
             isExtraEnrolled: false,
             isRepeated: false,
             isDeleted: false,
-            isCustom: false
+            isCustom: false,
+            originalSemester: originalSemester // <-- THIS LINE WAS ADDED
           };
 
           if (!courseHistory[historyKey]) {
@@ -4191,11 +4233,18 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
           });
       }
 
+      // --- 
+      // --- UPDATED showCourseDetails Function ---
+      // --- 
       function showCourseDetails(course) {
         document.getElementById('courseDetailsModalTitle').textContent = `${course.code} - ${course.title}`;
+        
+        // NEW: Determine semester display name
+        const semesterDisplayName = course.originalSemester || 'Unknown Semester';
+
         document.getElementById('courseDetailsModalBody').innerHTML = `
           <div class="row">
-            <div class="col-md-6"><p><strong>Teacher:</strong> ${course.teacher}</p><p><strong>Credit Hours:</strong> ${course.creditHoursDisplay || course.creditHours}</p><p><strong>Semester:</strong> ${processSemesterName(course.originalSemester)}</p></div>
+            <div class="col-md-6"><p><strong>Teacher:</strong> ${course.teacher}</p><p><strong>Credit Hours:</strong> ${course.creditHoursDisplay || course.creditHours}</p><p><strong>Semester:</strong> ${semesterDisplayName}</p></div>
             <div class="col-md-6"><p><strong>Mid Term:</strong> ${course.mid}</p><p><strong>Assignment:</strong> ${course.assignment}</p><p><strong>Final Term:</strong> ${course.final}</p>${course.practical ? `<p><strong>Practical:</strong> ${course.practical}</p>` : ''}</div>
           </div>
           <div class="alert alert-info mt-3"><p class="mb-1"><strong>Total Marks:</strong> ${course.total}</p><p class="mb-1"><strong>Grade:</strong> <span class="grade-badge grade-${course.grade}">${course.grade}</span></p><p class="mb-0"><strong>Quality Points:</strong> ${course.qualityPoints.toFixed(2)}</p></div>
@@ -4739,7 +4788,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
             showToast(`${importedCount} course(s) imported successfully!`, 'success');
             addStatusMessage(`Imported ${importedCount} courses from Attendance System.`, 'info');
         } else {
-             showToast('No courses were imported.', 'info');
+              showToast('No courses were imported.', 'info');
         }
 
         attendanceImportModal.hide();
