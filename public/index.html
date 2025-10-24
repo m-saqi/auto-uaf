@@ -3515,7 +3515,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                       const importedData = JSON.parse(event.target.result);
                       
                       // --- THIS LINE IS FIXED ---
-                      if (!importedData.profiles || importedData.version !== '2.0.0') {
+                      if (!importedData.profiles || importedData.Version !== '2.0.0') {
                       // --- Correctly checks for 'version' (lowercase) ---
 
                           throw new Error('Invalid or incompatible backup file.');
@@ -5046,6 +5046,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 </script>
 </body>
 </html>
+
 
 
 
