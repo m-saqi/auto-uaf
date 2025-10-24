@@ -2468,9 +2468,18 @@ a[aria-expanded="true"] .status-log-chevron {
   }
   .attendance-course-item .import-ch-select {
     width: 100%;
-    justify-content: space-between;
+    justify-content: flex-end;
   }
 }
+    /* Fix for Dark Mode Text Visibility (Request 6) */
+[data-theme="dark"] #faq .lead.text-muted {
+    color: var(--text-light) !important;
+}
+
+[data-theme="dark"] #attendanceImportModal .text-muted {
+    color: var(--text-light) !important;
+}
+    
   </style>
 </head>
 
@@ -2584,23 +2593,27 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     <div class="modal-dialog modal-dialog-centered modal-lg modal-dialog-scrollable">
       <div class="modal-content">
         <div class="modal-header">
-          <div class="d-flex justify-content-between align-items-center w-100">
-              <h5 class="modal-title mb-0"><i class="fa-solid fa-clipboard-user me-2"></i>Import Courses</h5>
-              <div class="d-flex align-items-center gap-3">
-                <div class="form-check">
-                  <input class="form-check-input" type="checkbox" id="toggleSelectAllCourses">
-                  <label class="form-check-label small" for="toggleSelectAllCourses">Select All</label>
-                </div>
-                <div class="form-check form-switch">
-                  <input class="form-check-input" type="checkbox" id="toggleAllCourses" role="switch">
-                  <label class="form-check-label small" for="toggleAllCourses">Show All Courses</label>
-                </div>
-              </div>
+          <h5 class="modal-title" id="attendanceModalTitle"><i class="fa-solid fa-clipboard-user me-2"></i>Import Courses</h5>
+          <div class="d-flex align-items-center gap-3">
+            <span id="attendanceCourseCount" class="small text-muted me-2"></span>
+            <div class="form-check form-switch">
+              <input class="form-check-input" type="checkbox" id="toggleAllCourses" role="switch">
+              <label class="form-check-label small" for="toggleAllCourses">Show All</label>
+            </div>
           </div>
           <button type="button" class="btn-close ms-2" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
         <div class="modal-body">
           <p class="text-muted small" id="attendanceModalDescription">The following courses were found in the Attendance System but not in your main LMS results. Select courses to import and set their credit hours.</p>
+          
+          <div class="d-flex justify-content-between align-items-center py-2 px-3 rounded mb-2" style="background-color: rgba(122, 106, 216, 0.05);">
+            <div class="form-check">
+              <input class="form-check-input" type="checkbox" id="toggleSelectAllCourses">
+              <label class="form-check-label fw-medium" for="toggleSelectAllCourses">Select All Visible</label>
+            </div>
+            <span id="attendanceSelectedCount" class="small fw-medium" style="color: var(--brand);">0 Selected</span>
+          </div>
+
           <div id="attendanceCourseList">
             </div>
         </div>
@@ -3122,6 +3135,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
       let gpaChart = null;
       let isInitialLoad = true;
       let confirmationCallback = null;
+      let importedAttendanceCourses = []; // Tracks courses from the last import
 
       const API_ENDPOINT = `/api/result-scraper?action=scrape_single`;
       const ATTENDANCE_API_ENDPOINT = `/api/result-scraper?action=scrape_attendance`; // NEW API Endpoint
@@ -3152,6 +3166,87 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
             // localStorage.removeItem('uafCalculatorActiveProfile_v2');
         }
       }
+
+
+      function setupAttendanceButton() {
+        // Remove existing listener to avoid stacking
+        const newBtn = fetchAttendanceBtn.cloneNode(true);
+        fetchAttendanceBtn.parentNode.replaceChild(newBtn, fetchAttendanceBtn);
+        fetchAttendanceBtn = newBtn; // Re-assign the global variable
+
+        if (importedAttendanceCourses.length > 0) {
+            fetchAttendanceBtn.innerHTML = '<i class="fa-solid fa-rotate-left me-2"></i>Revert Import';
+            fetchAttendanceBtn.className = 'btn btn-danger-action'; // Use danger for revert
+            fetchAttendanceBtn.addEventListener('click', revertAttendanceImport);
+            fetchAttendanceBtn.disabled = false; // Ensure it's enabled
+        } else {
+            fetchAttendanceBtn.innerHTML = '<i class="fa-solid fa-clipboard-user me-2"></i>Attendance System';
+            fetchAttendanceBtn.className = 'btn btn-success-action';
+            fetchAttendanceBtn.addEventListener('click', fetchAttendanceData);
+            // Only disable if there is no processedData
+            fetchAttendanceBtn.disabled = !processedData;
+        }
+      }
+
+      function revertAttendanceImport() {
+        if (importedAttendanceCourses.length === 0) return;
+
+        let revertedCount = 0;
+        importedAttendanceCourses.forEach(imported => {
+            const semester = processedData.semesters[imported.semester];
+            if (semester) {
+                const initialLength = semester.courses.length;
+                semester.courses = semester.courses.filter(c => 
+                    !(c.isCustom && c.source === 'attendance' && c.code === imported.code)
+                );
+                if (semester.courses.length < initialLength) {
+                    revertedCount++;
+                }
+            }
+        });
+        
+        showToast(`Reverted ${revertedCount} imported course(s)`, 'success');
+        addStatusMessage(`Reverted import of ${revertedCount} courses`, 'info');
+        
+        importedAttendanceCourses = []; // Clear the list
+        recalculateAndDisplay(); // This saves the profile
+        setupAttendanceButton(); // Reset the button
+      }
+
+      function updateAttendanceCounts() {
+        const listEl = document.getElementById('attendanceCourseList');
+        const selectAllCheckbox = document.getElementById('toggleSelectAllCourses');
+        const selectedCountEl = document.getElementById('attendanceSelectedCount');
+        if (!listEl || !selectAllCheckbox || !selectedCountEl) return;
+
+        const allVisibleCheckboxes = listEl.querySelectorAll('.attendance-course-item:not([style*="display: none"]) .form-check-input:not(:disabled)');
+        const allVisibleChecked = listEl.querySelectorAll('.attendance-course-item:not([style*="display: none"]) .form-check-input:checked:not(:disabled)');
+
+        const selected = allVisibleChecked.length;
+        const totalVisible = allVisibleCheckboxes.length;
+        
+        selectedCountEl.textContent = `${selected} Selected`;
+
+        if (totalVisible === 0) {
+            selectAllCheckbox.checked = false;
+            selectAllCheckbox.indeterminate = false;
+            selectAllCheckbox.disabled = true;
+        } else {
+            selectAllCheckbox.disabled = false;
+            if (selected === 0) {
+                selectAllCheckbox.checked = false;
+                selectAllCheckbox.indeterminate = false;
+            } else if (selected === totalVisible) {
+                selectAllCheckbox.checked = true;
+                selectAllCheckbox.indeterminate = false;
+            } else {
+                selectAllCheckbox.checked = false;
+                selectAllCheckbox.indeterminate = true;
+            }
+        }
+      }
+      
+      
 
       // --- Handle modal stacking/blur visual effects ---
       function initModalZIndexHandlers() {
@@ -3887,8 +3982,11 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
           const creditHours = parseInt(creditHoursStr.match(/\d+/)?.[0] || '0');
           const marks = parseFloat(course.Total || '0');
 
-          let qualityPoints = calculateQualityPoints(marks, creditHours);
+          // Pass the grade to the QP calculation
+          let qualityPoints = calculateQualityPoints(marks, creditHours, course.Grade);
 
+          // This 'if' block is now redundant if 'F' is handled in calculateQualityPoints,
+          // but we can leave it as a safeguard.
           if (course.Grade === 'F') {
             qualityPoints = 0;
           }
@@ -3950,9 +4048,20 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         return { studentInfo, semesters, courseHistory };
       }
 
-      function calculateQualityPoints(marks, creditHours) {
+      function calculateQualityPoints(marks, creditHours, grade) {
         marks = parseFloat(marks);
         creditHours = parseInt(creditHours);
+        
+        // Handle P/F grades first (Request 2)
+        grade = (grade || '').trim().toUpperCase();
+        if (grade === 'P') {
+            return parseFloat(creditHours) * 4.0;
+        }
+        if (grade === 'F') {
+            return 0;
+        }
+
+        // Keep existing marks-based logic as a fallback
         let qualityPoints = 0;
         if (creditHours === 10) {
             if (marks >= 160) qualityPoints = 40;
@@ -4080,7 +4189,20 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                     semester.totalCreditHours += course.creditHours;
                     semester.totalMarksObtained += course.marks;
 
-                    let maxMarks = { 10: 200, 9: 180, 8: 160, 7: 140, 6: 120, 5: 100, 4: 80, 3: 60, 2: 40, 1: 20 }[course.creditHours] || 0;
+                    let maxMarks;
+                    if ((course.grade || '').trim().toUpperCase() === 'P') {
+                        // Assume 'P' grade courses with 1CH have 100 max marks, as requested
+                        if (course.creditHours === 1) {
+                            maxMarks = 100;
+                        } else {
+                            // Fallback for 'P' grade on other CH (if it ever happens)
+                            // We assume the total marks obtained are the max marks for percentage
+                            maxMarks = course.marks; 
+                        }
+                    } else {
+                         maxMarks = { 10: 200, 9: 180, 8: 160, 7: 140, 6: 120, 5: 100, 4: 80, 3: 60, 2: 40, 1: 20 }[course.creditHours] || 0;
+                    }
+
                     semester.totalMaxMarks += maxMarks;
 
                     totalQualityPoints += course.qualityPoints;
@@ -4169,6 +4291,20 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         isInitialLoad = false;
         attachResultEventListeners();
         renderGpaChart();
+        
+        // Check if this profile has attendance courses and update button
+        // Note: This only works for the *last* import. A better way is to check if *any* exist.
+        const hasAttendanceCourses = Object.values(data.semesters).some(s => s.courses.some(c => c.isCustom && c.source === 'attendance'));
+        if (!hasAttendanceCourses) {
+             importedAttendanceCourses = []; // Clear revert list if no attendance courses exist
+        }
+        // If hasAttendanceCourses is true, importedAttendanceCourses might still be empty (from a previous session)
+        // For simplicity, we only allow reverting the *last* import.
+        // If you want to revert *all*, the logic would be different.
+        // We will reset the button to its default state on *every* profile load.
+        // The revert list is only populated after a *new* import.
+        importedAttendanceCourses = []; // Clear revert list on profile load
+        setupAttendanceButton();
       }
 
       function renderGpaChart() {
@@ -4438,9 +4574,12 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
              return;
         }
 
+        const grade = calculateCustomGrade(marks, creditHours);
+        const qualityPoints = calculateQualityPoints(marks, creditHours, grade);
+
         const newCourse = {
             code: courseCode, title: courseTitle, creditHours, creditHoursDisplay: `${creditHours}(${creditHours}-0)`, marks,
-            qualityPoints: calculateQualityPoints(marks, creditHours), grade: calculateCustomGrade(marks, creditHours),
+            qualityPoints: qualityPoints, grade: grade,
             semesterName, teacher: 'Custom', mid: 'N/A', assignment: 'N/A', final: marks, practical: 'N/A', total: marks,
             isExtraEnrolled: false, isRepeated: false, isDeleted: false, isCustom: true, originalSemester: semesterName // Add originalSemester for consistency
         };
@@ -4874,14 +5013,22 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 
       function renderAttendanceImportModal(courses) {
         const listEl = document.getElementById('attendanceCourseList');
-        listEl.innerHTML = ''; // Clear previous list
+        const listElContainer = listEl.parentNode; // Get parent to replace
+        let newListEl = listEl.cloneNode(false); // Create empty new list
+        
         const toggleSwitch = document.getElementById('toggleAllCourses');
-        const selectAllCheckbox = document.getElementById('toggleSelectAllCourses'); // NEW
+        const selectAllCheckbox = document.getElementById('toggleSelectAllCourses');
+        const courseCountEl = document.getElementById('attendanceCourseCount');
+        const modalTitle = document.getElementById('attendanceModalTitle');
+        const modalDescription = document.getElementById('attendanceModalDescription');
         
         if (courses.length === 0) {
-            listEl.innerHTML = '<p class="text-center text-muted">No courses found in Attendance System.</p>';
+            newListEl.innerHTML = '<p class="text-center text-muted p-3">No courses found in Attendance System.</p>';
             importAttendanceCoursesBtn.disabled = true;
-            if (toggleSwitch) toggleSwitch.closest('.d-flex').style.display = 'none'; // NEW: Hide container
+            if (toggleSwitch) toggleSwitch.closest('.d-flex').style.display = 'none';
+            courseCountEl.textContent = 'Total: 0';
+            listElContainer.replaceChild(newListEl, listEl); // Replace old list
+            updateAttendanceCounts(); // Disable 'Select All'
             return;
         }
 
@@ -4892,7 +5039,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
             const selectId = `att-ch-${index}`;
             const item = document.createElement('div');
             item.className = 'attendance-course-item';
-            // Add 'duplicate-course' class and 'display: none' if it's a duplicate
+            
             if (course.isDuplicate) {
                 item.classList.add('duplicate-course');
                 item.style.display = 'none';
@@ -4900,7 +5047,6 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                 missingCoursesFound = true;
             }
 
-            // Build the label text (from Request #1)
             let labelText = '';
             if (course.title && course.title.toLowerCase() !== 'n/a' && course.title.trim() !== '') {
                 labelText = `${course.title} - `;
@@ -4918,22 +5064,29 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                     </label>
                 </div>
                 <div class="import-ch-select">
-                    <label for="${selectId}" class="form-label mb-0 small">CH:</label>
-                    <select class="form-select form-select-sm" id="${selectId}" ${course.isDuplicate ? 'disabled' : ''}>
+                    <label for="${selectId}" class="form-label mb-0 small me-2">CH:</label>
+                    <select class="form-select form-select-sm" id="${selectId}" ${course.isDuplicate ? 'disabled' : ''} style="width: 75px;">
                         ${[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map(ch => `<option value="${ch}" ${ch === 3 ? 'selected' : ''}>${ch}</option>`).join('')}
                     </select>
                 </div>
             `;
-            // Store course data directly on the checkbox element
             item.querySelector(`#${courseId}`).dataset.courseData = JSON.stringify(course);
-            listEl.appendChild(item);
+            newListEl.appendChild(item);
         });
 
-        // --- NEW AND IMPROVED TOGGLE LOGIC ---
+        // Replace the old list with the new one to attach fresh listeners
+        listElContainer.replaceChild(newListEl, listEl);
 
-        // Handle the "Show All Courses" toggle switch
+        // Attach listener for individual checkboxes
+        newListEl.addEventListener('change', (e) => {
+            if (e.target.classList.contains('form-check-input')) {
+                updateAttendanceCounts();
+            }
+        });
+
+        // --- Handle Toggles ---
         if (toggleSwitch) {
-            toggleSwitch.closest('.d-flex').style.display = 'flex'; // NEW: Show container
+            toggleSwitch.closest('.d-flex').style.display = 'flex';
             toggleSwitch.checked = false; 
             
             const newToggle = toggleSwitch.cloneNode(true);
@@ -4941,55 +5094,53 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
             
             newToggle.addEventListener('change', (e) => {
                 const showAll = e.target.checked;
-                listEl.querySelectorAll('.duplicate-course').forEach(item => {
+                newListEl.querySelectorAll('.duplicate-course').forEach(item => {
                     item.style.display = showAll ? 'flex' : 'none'; 
                 });
-                // NEW: Reset "Select All" when visibility changes
-                if (selectAllCheckbox) {
-                    selectAllCheckbox.checked = false;
-                    selectAllCheckbox.nextElementSibling.textContent = 'Select All';
-                }
+                updateAttendanceCounts(); // Update counts and 'Select All' state
             });
         }
         
-        // NEW: Handle "Select All" checkbox logic
         if (selectAllCheckbox) {
-            selectAllCheckbox.checked = false; 
-            selectAllCheckbox.nextElementSibling.textContent = 'Select All';
-
+            selectAllCheckbox.checked = false;
+            
             const newSelectAll = selectAllCheckbox.cloneNode(true);
             selectAllCheckbox.parentNode.replaceChild(newSelectAll, selectAllCheckbox);
 
             newSelectAll.addEventListener('change', (e) => {
                 const isChecked = e.target.checked;
-                listEl.querySelectorAll('.form-check-input').forEach(checkbox => {
-                    const item = checkbox.closest('.attendance-course-item');
-                    if (item && item.style.display !== 'none' && !checkbox.disabled) {
-                        checkbox.checked = isChecked;
+                // Find *only visible* items
+                newListEl.querySelectorAll('.attendance-course-item').forEach(item => {
+                    if (item.style.display !== 'none') {
+                        const checkbox = item.querySelector('.form-check-input:not(:disabled)');
+                        if (checkbox) {
+                            checkbox.checked = isChecked;
+                        }
                     }
                 });
-                e.target.nextElementSibling.textContent = isChecked ? 'Unselect All' : 'Select All';
+                updateAttendanceCounts();
             });
         }
-        // --- END OF NEW TOGGLE LOGIC ---
+        // --- End of Toggle Logic ---
 
-        // Update modal title and text
-        const modalTitle = document.querySelector('#attendanceImportModal .modal-title');
-        const modalDescription = document.getElementById('attendanceModalDescription'); // NEW: Use ID
+        // Update modal title, description, and counts
+        courseCountEl.textContent = `Total: ${courses.length}`;
         
         if (missingCoursesFound) {
             modalTitle.innerHTML = '<i class="fa-solid fa-clipboard-user me-2"></i>Import Missing Courses';
             modalDescription.textContent = 'The following courses were found in the Attendance System but not in your main LMS results. Select courses to import and set their credit hours.';
         } else {
             modalTitle.innerHTML = '<i class="fa-solid fa-clipboard-check me-2"></i>Courses Synced';
-            modalDescription.textContent = 'All courses found in the Attendance System are already present in your LMS results. You can toggle "Show All Courses" to review them.';
+            modalDescription.textContent = 'All courses found in the Attendance System are already present in your LMS results. You can toggle "Show All" to review them.';
         }
 
         importAttendanceCoursesBtn.disabled = false;
+        updateAttendanceCounts(); // Set initial state for counts and 'Select All'
     }
 
 
      function importSelectedAttendanceCourses() {
+        importedAttendanceCourses = []; // Clear any previous import list
         const selectedCheckboxes = document.querySelectorAll('#attendanceCourseList .form-check-input:checked');
         let importedCount = 0;
 
@@ -5017,14 +5168,17 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 
                 // Create the course object
                 const marks = courseData.marks;
+                const grade = calculateCustomGrade(marks, creditHours); // Recalculate grade based on CH
+                const qualityPoints = calculateQualityPoints(marks, creditHours, grade); // Use 'grade'
+
                 const newCourse = {
                     code: courseData.code,
                     title: courseData.title || 'Imported from Attendance',
                     creditHours: creditHours,
                     creditHoursDisplay: `${creditHours}(${creditHours}-0)`, // Assuming theory only
                     marks: marks,
-                    qualityPoints: calculateQualityPoints(marks, creditHours),
-                    grade: calculateCustomGrade(marks, creditHours), // Recalculate grade based on CH
+                    qualityPoints: qualityPoints,
+                    grade: grade, 
                     teacher: courseData.teacher || 'Attendance System',
                     mid: courseData.mid || 'N/A',
                     assignment: courseData.assignment || 'N/A',
@@ -5043,6 +5197,8 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                 const semester = processedData.semesters[semesterName];
                  if (!semester.courses.some(c => !c.isDeleted && c.code.toUpperCase() === newCourse.code)) {
                      semester.courses.push(newCourse);
+                     // Add to our revert list
+                     importedAttendanceCourses.push({ semester: semesterName, code: newCourse.code });
                      importedCount++;
                  } else {
                      addStatusMessage(`Skipped importing ${newCourse.code} for ${semesterName} as it already exists.`, 'warning');
@@ -5054,13 +5210,15 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         });
 
         if (importedCount > 0) {
-            recalculateAndDisplay();
+            recalculateAndDisplay(); // This will save the profile
             showToast(`${importedCount} course(s) imported successfully!`, 'success');
             addStatusMessage(`Imported ${importedCount} courses from Attendance System.`, 'info');
         } else {
               showToast('No new courses were imported.', 'info');
+              importedAttendanceCourses = []; // Ensure list is empty if nothing was imported
         }
 
+        setupAttendanceButton(); // Update the button to "Revert" or "Attendance"
         attendanceImportModal.hide();
     }
 
@@ -5165,10 +5323,9 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
       saveProfileNameBtn.addEventListener('click', renameProfile);
       document.getElementById('confirmationConfirmBtn').addEventListener('click', handleConfirm);
 
-       // NEW: Attendance Button Listener
-      fetchAttendanceBtn.addEventListener('click', fetchAttendanceData);
+       // NEW: Attendance Button Setup
+      setupAttendanceButton(); // This replaces the simple event listener
       importAttendanceCoursesBtn.addEventListener('click', importSelectedAttendanceCourses);
-
 
       importProfilesBtn.addEventListener('click', importProfiles);
       importProfilesBtnModal.addEventListener('click', importProfiles); // Add listener for modal button
@@ -5209,6 +5366,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 </script>
 </body>
 </html>
+
 
 
 
