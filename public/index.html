@@ -4272,77 +4272,59 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
       }
 
       // ---
-      // --- REVISED showCourseDetails Function (UI/UX Improv. & Fixes) ---
+      // --- REVISED showCourseDetails Function (Minimalist UI) ---
       // ---
       function showCourseDetails(course) {
-        // --- Fix 1: Semester Name Formatting ---
+        // Semester Name Formatting
         let formattedSemester = course.originalSemester || 'Unknown Semester';
-        // Remove " Semester" and format year range (e.g., "Winter Semester 2020-2021" -> "Winter 2020-21")
-        formattedSemester = formattedSemester.replace(' Semester', ''); // Remove " Semester"
-        formattedSemester = formattedSemester.replace(/(\d{4})-(\d{4})/, (match, y1, y2) => `${y1}-${y2.substring(2)}`); // Format year range
+        formattedSemester = formattedSemester.replace(' Semester', '');
+        formattedSemester = formattedSemester.replace(/(\d{4})-(\d{4})/, (match, y1, y2) => `${y1}-${y2.substring(2)}`);
 
         // Set Modal Title
         document.getElementById('courseDetailsModalTitle').textContent = `${course.code} - ${course.title || 'N/A'}`;
 
-        // --- Fix 2 & UI Improvement: Modal Body Structure ---
+        // Modal Body Structure (Minimalist)
         const modalBody = document.getElementById('courseDetailsModalBody');
         modalBody.innerHTML = `
-          <div class="mb-3 border-bottom pb-3">
-            <h6 class="text-muted fw-bold small text-uppercase mb-2">Details</h6>
+          <div class="mb-3">
+            <p class="mb-1"><strong>Teacher:</strong> ${course.teacher || 'N/A'}</p>
+            <p class="mb-1"><strong>Semester:</strong> ${formattedSemester}</p>
+            <p class="mb-0"><strong>Credit Hours:</strong> ${course.creditHoursDisplay || course.creditHours}</p>
+          </div>
+          <hr>
+          <div class="mb-3">
+            <h6 class="text-muted mb-2">Marks</h6>
             <div class="row g-2">
-              <div class="col-12 col-sm-6">
-                <p class="mb-1 small"><i class="fa-solid fa-chalkboard-user fa-fw me-2 text-primary"></i><strong>Teacher:</strong> ${course.teacher || 'N/A'}</p>
-              </div>
-              <div class="col-12 col-sm-6">
-                <p class="mb-1 small"><i class="fa-solid fa-calendar-alt fa-fw me-2 text-primary"></i><strong>Semester:</strong> ${formattedSemester}</p>
-              </div>
-              <div class="col-12">
-                 <p class="mb-0 small"><i class="fa-solid fa-hourglass-half fa-fw me-2 text-primary"></i><strong>Credit Hours:</strong> ${course.creditHoursDisplay || course.creditHours}</p>
-              </div>
+              <div class="col-6 col-sm-3"><small><strong>Mid:</strong> ${course.mid || 'N/A'}</small></div>
+              <div class="col-6 col-sm-3"><small><strong>Assign:</strong> ${course.assignment || 'N/A'}</small></div>
+              <div class="col-6 col-sm-3"><small><strong>Final:</strong> ${course.final || 'N/A'}</small></div>
+              ${course.practical && course.practical !== '0' ? `
+                <div class="col-6 col-sm-3"><small><strong>Prac:</strong> ${course.practical}</small></div>
+              ` : ''}
             </div>
           </div>
-
-          <div class="mb-3 border-bottom pb-3">
-            <h6 class="text-muted fw-bold small text-uppercase mb-2">Marks Breakdown</h6>
-            <div class="row g-2">
-              <div class="col-6 col-sm-3">
-                <p class="mb-1 small text-center text-sm-start"><i class="fa-solid fa-file-pen fa-fw me-1 text-info"></i><strong>Mid:</strong> ${course.mid || 'N/A'}</p>
-              </div>
-              <div class="col-6 col-sm-3">
-                <p class="mb-1 small text-center text-sm-start"><i class="fa-solid fa-clipboard fa-fw me-1 text-info"></i><strong>Assign:</strong> ${course.assignment || 'N/A'}</p>
-              </div>
-              <div class="col-6 col-sm-3">
-                 <p class="mb-1 small text-center text-sm-start"><i class="fa-solid fa-flag-checkered fa-fw me-1 text-info"></i><strong>Final:</strong> ${course.final || 'N/A'}</p>
-              </div>
-               ${course.practical && course.practical !== '0' ? `
-                 <div class="col-6 col-sm-3">
-                   <p class="mb-1 small text-center text-sm-start"><i class="fa-solid fa-flask-vial fa-fw me-1 text-info"></i><strong>Prac:</strong> ${course.practical}</p>
-                 </div>
-               ` : ''}
-            </div>
-          </div>
-
+          <hr>
           <div>
-             <h6 class="text-muted fw-bold small text-uppercase mb-2">Result</h6>
-             <div class="d-flex flex-wrap justify-content-around align-items-center bg-light rounded p-2" style="background-color: rgba(122, 106, 216, 0.05) !important;">
-                 <div class="text-center px-2">
-                     <span class="small text-muted">Total Marks</span>
-                     <p class="fs-5 fw-bold mb-0 text-primary">${course.marks !== undefined ? course.marks : 'N/A'}</p>
+             <h6 class="text-muted mb-2">Result</h6>
+             <div class="d-flex justify-content-between align-items-center rounded p-2" style="background-color: rgba(122, 106, 216, 0.05);">
+                 <div>
+                     <span class="small text-muted d-block">Total Marks</span>
+                     <span class="fw-bold fs-5">${course.marks !== undefined ? course.marks : 'N/A'}</span>
                  </div>
-                 <div class="text-center px-2">
-                     <span class="small text-muted">Grade</span>
-                     <p class="fs-5 mb-0"><span class="grade-badge grade-${course.grade}">${course.grade || 'N/A'}</span></p>
+                 <div class="text-center">
+                      <span class="small text-muted d-block">Grade</span>
+                     <span class="grade-badge grade-${course.grade}">${course.grade || 'N/A'}</span>
                  </div>
-                 <div class="text-center px-2">
-                     <span class="small text-muted">Quality Points</span>
-                     <p class="fs-5 fw-bold mb-0 text-primary">${course.qualityPoints !== undefined ? course.qualityPoints.toFixed(2) : 'N/A'}</p>
+                 <div class="text-end">
+                      <span class="small text-muted d-block">Quality Points</span>
+                     <span class="fw-bold fs-5">${course.qualityPoints !== undefined ? course.qualityPoints.toFixed(2) : 'N/A'}</span>
                  </div>
              </div>
           </div>
 
-          ${course.isExtraEnrolled ? `<div class="alert alert-warning d-flex align-items-center mt-3 small p-2"><i class="fa-solid fa-info-circle me-2"></i> This is a repeated course attempt, and its marks are not the highest achieved. It does not count towards the CGPA calculation shown.</div>` : ''}
-          ${course.isRepeated && !course.isExtraEnrolled ? `<div class="alert alert-success d-flex align-items-center mt-3 small p-2"><i class="fa-solid fa-check-circle me-2"></i> This is the highest scoring attempt for this repeated course and is used in CGPA calculation.</div>` : ''}
-          ${course.isCustom ? `<div class="alert alert-info d-flex align-items-center mt-3 small p-2"><i class="fa-solid fa-pencil me-2"></i> This is a custom course added manually${course.source === 'attendance' ? ' (imported from Attendance System)' : ''}.</div>` : ''}`;
+          ${course.isExtraEnrolled ? `<div class="alert alert-warning mt-3 small p-2">Repeated course attempt (not counted in CGPA).</div>` : ''}
+          ${course.isRepeated && !course.isExtraEnrolled ? `<div class="alert alert-success mt-3 small p-2">Highest scoring attempt for this repeated course (counted in CGPA).</div>` : ''}
+          ${course.isCustom ? `<div class="alert alert-info mt-3 small p-2">Custom course added manually${course.source === 'attendance' ? ' (from Attendance System)' : ''}.</div>` : ''}`;
 
         courseDetailsModal.show();
       }
@@ -5033,6 +5015,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 </script>
 </body>
 </html>
+
 
 
 
