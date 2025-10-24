@@ -3109,7 +3109,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
       const saveProfileNameBtn = document.getElementById('saveProfileNameBtn');
 
       // NEW Attendance System Elements
-      const fetchAttendanceBtn = document.getElementById('fetchAttendanceBtn');
+      let fetchAttendanceBtn = document.getElementById('fetchAttendanceBtn'); // Changed const to let
       const attendanceImportModal = new bootstrap.Modal(document.getElementById('attendanceImportModal'));
       const importAttendanceCoursesBtn = document.getElementById('importAttendanceCoursesBtn');
 
@@ -3172,7 +3172,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         // Remove existing listener to avoid stacking
         const newBtn = fetchAttendanceBtn.cloneNode(true);
         fetchAttendanceBtn.parentNode.replaceChild(newBtn, fetchAttendanceBtn);
-        fetchAttendanceBtn = newBtn; // Re-assign the global variable
+        fetchAttendanceBtn = newBtn; // Re-assign the global variable (Now works with 'let')
 
         if (importedAttendanceCourses.length > 0) {
             fetchAttendanceBtn.innerHTML = '<i class="fa-solid fa-rotate-left me-2"></i>Revert Import';
@@ -5366,6 +5366,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 </script>
 </body>
 </html>
+
 
 
 
