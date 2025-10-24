@@ -3748,29 +3748,53 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
           return semester.charAt(0).toUpperCase() + semester.slice(1);
       }
 
-      function getSemesterOrderKey(processedSemesterName) { // Takes the *processed* name like "Winter 2020" or "Spring 2021"
-        if (!processedSemesterName) return '9999-9';
+      function getSemesterOrderKey(processedSemesterName) {
+        // Takes the processed name like "Winter 2020" or "Spring 2021"
+        if (!processedSemesterName) return '9999-9'; // Ensure unknowns sort last
+
         const semesterLower = processedSemesterName.toLowerCase();
 
+        // Handle Forecast semesters - place them far in the future
         if (semesterLower.startsWith('forecast')) {
             const num = parseInt(semesterLower.split(' ')[1] || '1');
-            return `3000-${num}`; // Keep forecasts at the end
+            // Ensure proper numerical sorting for multiple forecasts
+            return `3000-${num.toString().padStart(2, '0')}`;
         }
 
-        let year = '9999';
-        let seasonOrder = 9; // Default for unknowns or errors
+        let year = 0;
+        let seasonOrder = 9; // Default for unknowns
 
-        const yearMatch = semesterLower.match(/\b(\d{4})\b/); // Match the 4-digit year from the processed name
+        const yearMatch = semesterLower.match(/\b(\d{4})\b/); // Match the 4-digit year
         if (yearMatch) {
-            year = yearMatch[1];
+            year = parseInt(yearMatch[1]);
+        } else {
+            return '9999-9'; // Cannot determine year, sort last
         }
 
-        if (semesterLower.includes('winter')) seasonOrder = 1; // Winter first
-        else if (semesterLower.includes('spring')) seasonOrder = 2; // Spring second
-        else if (semesterLower.includes('summer')) seasonOrder = 3; // Summer third
-        else if (semesterLower.includes('fall')) seasonOrder = 4;   // Fall fourth
+        let academicYearStart = year;
 
-        return `${year}-${seasonOrder}`; // e.g., "2020-1" for Winter 2020, "2021-2" for Spring 2021
+        // Determine season order and adjust academic year start for Spring/Summer
+        if (semesterLower.includes('winter')) {
+            seasonOrder = 1;
+            academicYearStart = year; // Winter 2020 belongs to AY starting 2020
+        } else if (semesterLower.includes('spring')) {
+            seasonOrder = 2;
+            academicYearStart = year - 1; // Spring 2021 belongs to AY starting 2020
+        } else if (semesterLower.includes('summer')) {
+            seasonOrder = 3;
+            academicYearStart = year - 1; // Summer 2021 belongs to AY starting 2020
+        } else if (semesterLower.includes('fall')) {
+             // Assuming Fall starts the *next* academic cycle relative to Summer
+             // Fall 2021 would belong to AY starting 2021
+            seasonOrder = 4;
+            academicYearStart = year;
+        } else {
+             seasonOrder = 9; // Unknown season type
+             academicYearStart = year;
+        }
+
+        // Format: YYYY-S (e.g., 2020-1, 2020-2, 2020-3, 2021-1)
+        return `${academicYearStart}-${seasonOrder}`;
       }
 
       function processScrapedData(data) {
@@ -4956,6 +4980,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 </script>
 </body>
 </html>
+
 
 
 
