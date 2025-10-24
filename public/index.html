@@ -3471,11 +3471,13 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
               // Safely check for displayName and provide a fallback.
               let profileName = 'profile'; // Default name
               if (profiles[singleProfileId].displayName) {
-                  profileName = profiles[singleProfileId].displayName.replace(/[^a-z0-9]/gi, '_').toLowerCase();
-              } else if (profiles[singleProfileId].studentInfo && profiles[singleProfileId].studentInfo.registration) {
-                  // Fallback to registration number if no display name
-                  profileName = profiles[singleProfileId].studentInfo.registration.replace(/[^a-z0-9]/gi, '_').toLowerCase();
-              }
+                  profileName = profiles[singleProfileId].displayName.replace(/[^a-z0-9]/gi, '_').toLowerCase();
+              // Next, I'll search for the importProfiles function, which is what these buttons should call.
+              } else if (profiles[singleProfileId].studentInfo && profiles[singleProfileId].studentInfo.registration) {
+                  // Fallback to registration number if no display name
+                  profileName = profiles[singleProfileId].studentInfo.registration.replace(/[^a-z0-9]/gi, '_').toLowerCase();
+              // EUREKA!
+              }
               
               filename = `${profileName}-profile-backup.json`;
           }
@@ -5051,6 +5053,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 </script>
 </body>
 </html>
+
 
 
 
