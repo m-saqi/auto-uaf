@@ -3466,8 +3466,17 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
           // Custom filename for single profile export
           if (exportCount === 1) {
               const singleProfileId = selectedIds[0];
-              // Sanitize profile name for filename
-              const profileName = profiles[singleProfileId].displayName.replace(/[^a-z0-9]/gi, '_').toLowerCase();
+              
+              // --- THIS BLOCK IS FIXED ---
+              // Safely check for displayName and provide a fallback.
+              let profileName = 'profile'; // Default name
+              if (profiles[singleProfileId].displayName) {
+                  profileName = profiles[singleProfileId].displayName.replace(/[^a-z0-9]/gi, '_').toLowerCase();
+              } else if (profiles[singleProfileId].studentInfo && profiles[singleProfileId].studentInfo.registration) {
+                  // Fallback to registration number if no display name
+                  profileName = profiles[singleProfileId].studentInfo.registration.replace(/[^a-z0-9]/gi, '_').toLowerCase();
+              }
+              
               filename = `${profileName}-profile-backup.json`;
           }
 
@@ -3494,52 +3503,52 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 
 
       function importProfiles() {
-              const input = document.createElement('input');
-              input.type = 'file';
-              input.accept = '.json';
-              input.onchange = e => {
-                  const file = e.target.files[0];
-                  if (!file) return;
-                  const reader = new FileReader();
-                  reader.onload = event => {
-                      try {
-                          const importedData = JSON.parse(event.target.result);
-                          
-                          // --- THIS LINE IS FIXED ---
-                          if (!importedData.profiles || importedData.version !== '2.0.0') {
-                          // --- Correctly checks for 'version' (lowercase) ---
+          const input = document.createElement('input');
+          input.type = 'file';
+          input.accept = '.json';
+          input.onchange = e => {
+              const file = e.target.files[0];
+              if (!file) return;
+              const reader = new FileReader();
+              reader.onload = event => {
+                  try {
+                      const importedData = JSON.parse(event.target.result);
+                      
+                      // --- THIS LINE IS FIXED ---
+                      if (!importedData.profiles || importedData.version !== '2.0.0') {
+                      // --- Correctly checks for 'version' (lowercase) ---
 
-                              throw new Error('Invalid or incompatible backup file.');
-                          }
-
-                          const existingProfiles = getProfiles();
-                          let importedCount = 0, skippedCount = 0;
-
-                          Object.keys(importedData.profiles).forEach(id => {
-                              if (existingProfiles[id]) {
-                                  skippedCount++;
-                              } else {
-                                  existingProfiles[id] = importedData.profiles[id];
-                                  importedCount++;
-                              }
-                          });
-
-                          saveProfiles(existingProfiles);
-                          showToast(`Import complete: ${importedCount} added, ${skippedCount} skipped.`, 'success');
-                          loadProfiles(); // Reload profiles into switcher
-                          if (profileManagerModalEl.classList.contains('show')) {
-                            renderProfileManager(); // Re-render manager if open
-                          }
-
-                      } catch (error) {
-                          showToast(`Import failed: ${error.message}`, 'error');
-                          console.error('Import error:', error);
+                          throw new Error('Invalid or incompatible backup file.');
                       }
-                  };
-                  reader.readText(file);
+
+                      const existingProfiles = getProfiles();
+                      let importedCount = 0, skippedCount = 0;
+
+                      Object.keys(importedData.profiles).forEach(id => {
+                          if (existingProfiles[id]) {
+                              skippedCount++;
+                          } else {
+                              existingProfiles[id] = importedData.profiles[id];
+                              importedCount++;
+                          }
+                      });
+
+                      saveProfiles(existingProfiles);
+                      showToast(`Import complete: ${importedCount} added, ${skippedCount} skipped.`, 'success');
+                      loadProfiles(); // Reload profiles into switcher
+                      if (profileManagerModalEl.classList.contains('show')) {
+                        renderProfileManager(); // Re-render manager if open
+                      }
+
+                  } catch (error) {
+                      showToast(`Import failed: ${error.message}`, 'error');
+                      console.error('Import error:', error);
+                  }
               };
-              input.click();
-          }
+              reader.readText(file);
+          };
+          input.click();
+      }
 
       // --- END OF PROFILE MANAGER FUNCTIONS ---
 
@@ -5037,6 +5046,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 </script>
 </body>
 </html>
+
 
 
 
