@@ -3115,16 +3115,31 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
       const ATTENDANCE_API_ENDPOINT = `/api/result-scraper?action=scrape_attendance`; // NEW API Endpoint
 
       function init() {
-        migrateOldProfiles(); // Check for and migrate old data first
-        initCustomCursor();
-        initTheme();
-        initContactForm();
-        createToastContainer();
-        initBackToTop();
-        initScrollAnimations();
-        loadProfiles();
-        initModalZIndexHandlers(); // Init modal stacking/blur effect
-      }
+        try { // <<< ADDED TRY
+          migrateOldProfiles(); // Check for and migrate old data first
+          initCustomCursor();
+          initTheme();
+          initContactForm();
+          createToastContainer();
+          initBackToTop();
+          initScrollAnimations();
+          loadProfiles(); // Load profiles (might fail)
+          initModalZIndexHandlers(); // Init modal stacking/blur effect
+        } catch (error) { // <<< ADDED CATCH
+            console.error("Initialization failed:", error);
+            // Attempt to show a toast, but createToastContainer might not have run if error was early
+            try {
+                createToastContainer(); // Ensure container exists
+                showToast("Error initializing application. Saved data might be corrupted.", "error");
+            } catch (toastError) {
+                console.error("Could not show initialization error toast:", toastError);
+            }
+            // Optionally clear potentially corrupted storage to allow recovery on next load
+            // Consider adding a button for the user to clear data if needed
+            // localStorage.removeItem('uafCalculatorProfiles_v2');
+            // localStorage.removeItem('uafCalculatorActiveProfile_v2');
+        }
+      }
 
       // --- Handle modal stacking/blur visual effects ---
       function initModalZIndexHandlers() {
@@ -3231,15 +3246,35 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
       }
 
       function loadProfiles() {
-        const profiles = getProfiles();
-        const activeProfileId = getActiveProfileId();
-        updateProfileSwitcher(profiles, activeProfileId);
+        try { // <<< ADDED TRY within loadProfiles for more specific error handling
+          const profiles = getProfiles();
+          const activeProfileId = getActiveProfileId();
+          updateProfileSwitcher(profiles, activeProfileId);
 
-        if (activeProfileId && profiles[activeProfileId]) {
-          loadProfile(activeProfileId);
-          addStatusMessage('Loaded active profile from session.', 'info');
-        }
-      }
+          if (activeProfileId && profiles[activeProfileId]) {
+            loadProfile(activeProfileId); // This calls calculateCGPA and displayCGPAResults
+            addStatusMessage('Loaded active profile from session.', 'info');
+          } else if (activeProfileId) {
+            // Active ID exists but profile doesn't - clear the invalid ID
+            setActiveProfileId('');
+            addStatusMessage('Cleared invalid active profile ID from session.', 'warning');
+          }
+        } catch (error) { // <<< ADDED CATCH
+          console.error("Failed to load profiles:", error);
+          showToast("Error loading saved profiles. Data might be corrupted.", "error");
+          // Clear potentially corrupted storage
+          localStorage.removeItem('uafCalculatorProfiles_v2');
+          localStorage.removeItem('uafCalculatorActiveProfile_v2');
+          // Attempt to recover by resetting UI elements related to profiles
+          try {
+              updateProfileSwitcher({}, ''); // Clear switcher
+              profileManagementDiv.style.display = 'none';
+              if(resultContainer) resultContainer.style.display = 'none'; // Hide results if loading failed
+          } catch (uiError) {
+              console.error("Error resetting UI after profile load failure:", uiError);
+          }
+        }
+      }
 
       function updateProfileSwitcher(profiles, activeProfileId) {
         const profileKeys = Object.keys(profiles);
@@ -5053,6 +5088,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 </script>
 </body>
 </html>
+
 
 
 
