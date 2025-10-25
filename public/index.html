@@ -782,88 +782,10 @@ a:hover {
   box-shadow: var(--shadow-hover);
 }
 
-    /* --- NEW STYLES for Collapsible Semesters --- */
-    .semester-card {
-      padding: 0; /* Remove padding from the card itself */
-      overflow: hidden; /* Prevents content bleed during animation */
-    }
-
-    .semester-header {
-      display: flex;
-      flex-direction: column; /* Stack name and stats */
-      justify-content: center;
-      align-items: center;
-      padding: 1.25rem 1.25rem 0.75rem; /* Padding for the header */
-      text-decoration: none;
-      color: inherit;
-      position: relative; /* For the chevron */
-      cursor: pointer;
-    }
-
-    .semester-header-title {
-      font-size: 1.1rem;
-      font-weight: 600;
-      color: var(--brand);
-      text-align: center;
-      margin-bottom: 0.75rem;
-    }
-
-    .semester-header-stats {
-      display: flex;
-      justify-content: space-around;
-      align-items: center;
-      width: 100%;
-      background: rgba(122, 106, 216, 0.05);
-      border-radius: var(--radius-sm);
-      padding: 0.5rem;
-    }
-    [data-theme="dark"] .semester-header-stats {
-        background: rgba(122, 106, 216, 0.1);
-    }
-
-    .stat-item-mini {
-      text-align: center;
-    }
-    .stat-item-mini .label {
-      font-size: 0.7rem;
-      color: var(--muted);
-      text-transform: uppercase;
-    }
-    .stat-item-mini .value {
-      font-size: 1.1rem;
-      font-weight: 600;
-      color: var(--text);
-    }
-    [data-theme="dark"] .stat-item-mini .value {
-      color: var(--text);
-    }
-    
-    .semester-toggle-icon {
-      position: absolute;
-      top: 8px; /* Position at the top */
-      left: 50%;
-      transform: translateX(-50%);
-      color: var(--muted);
-      font-size: 1rem;
-      transition: transform 0.3s ease; /* Smooth rotation */
-      z-index: 5; /* Place above header */
-    }
-    
-    .semester-toggle-icon.expanded {
-      transform: translateX(-50%) rotate(180deg); /* Rotate when open */
-    }
-
-    .semester-collapse-body {
-      padding: 0.75rem 1.25rem 1.25rem; /* Padding for the content */
-      position: relative; /* For the delete icon */
-    }
-    /* --- END NEW STYLES --- */
-    
-
 .delete-semester {
   position: absolute;
-  top: 0.75rem; /* Match new body padding */
-  right: 1.25rem; /* Match new body padding */
+  top: 1rem;
+  right: 1rem;
   cursor: pointer;
   color: #dc3545;
   font-size: 1.2rem;
@@ -1523,9 +1445,7 @@ a[aria-expanded="true"] .status-log-chevron {
     padding: 2rem 0;
   }
   .hero h1 {
-    /* This new font-size scales smoothly between 1.9rem (for 360dp) and 2.2rem (for larger phones) */
-    font-size: clamp(1.9rem, 7.5vw, 2.2rem) !important;
-    line-height: 1.2; /* Added for better spacing on small screens */
+    font-size: 2.2rem !important;
   }
   /* --- UPDATE: Removed width: 100% --- */
   .d-flex.gap-2 .btn {
@@ -1547,12 +1467,6 @@ a[aria-expanded="true"] .status-log-chevron {
     font-size: 0.8rem; /* Adjust the font size to make the icon smaller */
     padding: 0.3rem 0.6rem; /* Adjust padding to make the button smaller */
   }
-
-  .navbar .navbar-brand {
-    /* This scales the header font-size from 1rem (smallest) up to 1.15rem */
-    font-size: clamp(1rem, 4.5vw, 1.15rem);
-  }
-  
 }
 
 /* Ensure subject columns are 2-up on very small screens: change from col-12 col-md-6 -> col-6 col-md-6 */
@@ -1582,12 +1496,14 @@ a[aria-expanded="true"] .status-log-chevron {
     flex: 0 0 auto;
     width: 100%;
   }
+}
+
+@media (min-width: 768px) {
   .col-md-4 {
     flex: 0 0 auto;
     width: 48.3%;
   }
 }
-
 
 /* --- Mobile responsive table --- */
 @media screen and (max-width: 768px) {
@@ -3234,31 +3150,31 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
       const ATTENDANCE_API_ENDPOINT = `/api/result-scraper?action=scrape_attendance`; // NEW API Endpoint
 
       function init() {
-        try { // <<< ADDED TRY
-          migrateOldProfiles(); // Check for and migrate old data first
-          initCustomCursor();
-          initTheme();
-          initContactForm();
-          createToastContainer();
-          initBackToTop();
-          initScrollAnimations();
-          loadProfiles(); // Load profiles (might fail)
-          initModalZIndexHandlers(); // Init modal stacking/blur effect
-        } catch (error) { // <<< ADDED CATCH
-            console.error("Initialization failed:", error);
-            // Attempt to show a toast, but createToastContainer might not have run if error was early
-            try {
-                createToastContainer(); // Ensure container exists
-                showToast("Error initializing application. Saved data might be corrupted.", "error");
-            } catch (toastError) {
-                console.error("Could not show initialization error toast:", toastError);
-            }
-            // Optionally clear potentially corrupted storage to allow recovery on next load
-            // Consider adding a button for the user to clear data if needed
-            // localStorage.removeItem('uafCalculatorProfiles_v2');
-            // localStorage.removeItem('uafCalculatorActiveProfile_v2');
-        }
-      }
+        try { // <<< ADDED TRY
+          migrateOldProfiles(); // Check for and migrate old data first
+          initCustomCursor();
+          initTheme();
+          initContactForm();
+          createToastContainer();
+          initBackToTop();
+          initScrollAnimations();
+          loadProfiles(); // Load profiles (might fail)
+          initModalZIndexHandlers(); // Init modal stacking/blur effect
+        } catch (error) { // <<< ADDED CATCH
+            console.error("Initialization failed:", error);
+            // Attempt to show a toast, but createToastContainer might not have run if error was early
+            try {
+                createToastContainer(); // Ensure container exists
+                showToast("Error initializing application. Saved data might be corrupted.", "error");
+            } catch (toastError) {
+                console.error("Could not show initialization error toast:", toastError);
+            }
+            // Optionally clear potentially corrupted storage to allow recovery on next load
+            // Consider adding a button for the user to clear data if needed
+            // localStorage.removeItem('uafCalculatorProfiles_v2');
+            // localStorage.removeItem('uafCalculatorActiveProfile_v2');
+        }
+      }
 
 
       function setupAttendanceButton() {
@@ -3446,35 +3362,35 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
       }
 
       function loadProfiles() {
-        try { // <<< ADDED TRY within loadProfiles for more specific error handling
-          const profiles = getProfiles();
-          const activeProfileId = getActiveProfileId();
-          updateProfileSwitcher(profiles, activeProfileId);
+        try { // <<< ADDED TRY within loadProfiles for more specific error handling
+          const profiles = getProfiles();
+          const activeProfileId = getActiveProfileId();
+          updateProfileSwitcher(profiles, activeProfileId);
 
-          if (activeProfileId && profiles[activeProfileId]) {
-            loadProfile(activeProfileId); // This calls calculateCGPA and displayCGPAResults
-            addStatusMessage('Loaded active profile from session.', 'info');
-          } else if (activeProfileId) {
-            // Active ID exists but profile doesn't - clear the invalid ID
-            setActiveProfileId('');
-            addStatusMessage('Cleared invalid active profile ID from session.', 'warning');
-          }
-        } catch (error) { // <<< ADDED CATCH
-          console.error("Failed to load profiles:", error);
-          showToast("Error loading saved profiles. Data might be corrupted.", "error");
-          // Clear potentially corrupted storage
-          localStorage.removeItem('uafCalculatorProfiles_v2');
-          localStorage.removeItem('uafCalculatorActiveProfile_v2');
-          // Attempt to recover by resetting UI elements related to profiles
-          try {
-              updateProfileSwitcher({}, ''); // Clear switcher
-              profileManagementDiv.style.display = 'none';
-              if(resultContainer) resultContainer.style.display = 'none'; // Hide results if loading failed
-          } catch (uiError) {
-              console.error("Error resetting UI after profile load failure:", uiError);
-          }
-        }
-      }
+          if (activeProfileId && profiles[activeProfileId]) {
+            loadProfile(activeProfileId); // This calls calculateCGPA and displayCGPAResults
+            addStatusMessage('Loaded active profile from session.', 'info');
+          } else if (activeProfileId) {
+            // Active ID exists but profile doesn't - clear the invalid ID
+            setActiveProfileId('');
+            addStatusMessage('Cleared invalid active profile ID from session.', 'warning');
+          }
+        } catch (error) { // <<< ADDED CATCH
+          console.error("Failed to load profiles:", error);
+          showToast("Error loading saved profiles. Data might be corrupted.", "error");
+          // Clear potentially corrupted storage
+          localStorage.removeItem('uafCalculatorProfiles_v2');
+          localStorage.removeItem('uafCalculatorActiveProfile_v2');
+          // Attempt to recover by resetting UI elements related to profiles
+          try {
+              updateProfileSwitcher({}, ''); // Clear switcher
+              profileManagementDiv.style.display = 'none';
+              if(resultContainer) resultContainer.style.display = 'none'; // Hide results if loading failed
+          } catch (uiError) {
+              console.error("Error resetting UI after profile load failure:", uiError);
+          }
+        }
+      }
 
       function updateProfileSwitcher(profiles, activeProfileId) {
         const profileKeys = Object.keys(profiles);
@@ -3706,13 +3622,13 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
               // Safely check for displayName and provide a fallback.
               let profileName = 'profile'; // Default name
               if (profiles[singleProfileId].displayName) {
-                  profileName = profiles[singleProfileId].displayName.replace(/[^a-z0-9]/gi, '_').toLowerCase();
-              // Next, I'll search for the importProfiles function, which is what these buttons should call.
-              } else if (profiles[singleProfileId].studentInfo && profiles[singleProfileId].studentInfo.registration) {
-                  // Fallback to registration number if no display name
-                  profileName = profiles[singleProfileId].studentInfo.registration.replace(/[^a-z0-9]/gi, '_').toLowerCase();
-              // EUREKA!
-              }
+                  profileName = profiles[singleProfileId].displayName.replace(/[^a-z0-9]/gi, '_').toLowerCase();
+              // Next, I'll search for the importProfiles function, which is what these buttons should call.
+              } else if (profiles[singleProfileId].studentInfo && profiles[singleProfileId].studentInfo.registration) {
+                  // Fallback to registration number if no display name
+                  profileName = profiles[singleProfileId].studentInfo.registration.replace(/[^a-z0-9]/gi, '_').toLowerCase();
+              // EUREKA!
+              }
               
               filename = `${profileName}-profile-backup.json`;
           }
@@ -4341,77 +4257,43 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
           const semesterCard = document.createElement('div');
 
           const animationClass = isInitialLoad ? 'fade-in-on-scroll' : 'is-visible';
-          // Add 'overflow-hidden' to prevent content bleed during animation
-          semesterCard.className = `semester-card ${animationClass}`; 
+          semesterCard.className = `semester-card ${animationClass}`;
+
           semesterCard.dataset.semester = semesterName;
-          
-          // --- NEW COLLAPSIBLE STRUCTURE ---
-          const isMobile = window.innerWidth < 768; // Check if mobile
-          // Create a unique ID for the collapse target and its icon
-          const collapseId = `semester-collapse-${semesterName.replace(/[^a-zA-Z0-9]/g, '-')}`;
-          const chevronId = `chevron-${collapseId}`;
-
           semesterCard.innerHTML = `
-            <i class="fa-solid fa-chevron-down semester-toggle-icon ${isMobile ? '' : 'expanded'}" id="${chevronId}"></i>
-
-            <a class="semester-header" data-bs-toggle="collapse" href="#${collapseId}" role="button" aria-expanded="${isMobile ? 'false' : 'true'}" aria-controls="${collapseId}">
-              <div class="semester-header-title">
-                <i class="fa-solid fa-book-open me-2"></i>${semesterName}
-              </div>
-              <div class="semester-header-stats">
-                <div class="stat-item-mini">
-                  <div class="label">GPA</div>
-                  <div class="value">${formatNumber(semester.gpa).toFixed(4)}</div>
-                </div>
-                <div class="stat-item-mini">
-                  <div class="label">Percentage</div>
-                  <div class="value">${formatNumber(semester.percentage, 2).toFixed(2)}%</div>
-                </div>
-                <div class="stat-item-mini">
-                  <div class="label">Credits</div>
-                  <div class="value">${semester.totalCreditHours}</div>
-                </div>
-              </div>
-            </a>
-            
-            <div class="semester-collapse-body collapse ${isMobile ? '' : 'show'}" id="${collapseId}">
-              
-              <i class="fa-solid fa-trash delete-semester" title="Delete this semester" data-semester="${semesterName}"></i>
-              
-              <button class="custom-course-btn" data-semester="${semesterName}"><i class="fa-solid fa-plus"></i> Custom Course</button>
-              
-              <div class="table-responsive mt-3">
-                <table class="course-table">
-                  <thead>
-                    <tr><th>Course</th><th>Hrs</th><th>Marks</th><th>Grade</th><th>Action</th></tr>
-                  </thead>
-                  <tbody>
-                    ${semester.courses.map((course, index) => {
-                      const courseIdentifier = `${semesterName}-${course.code}-${course.total}-${index}`; // Unique ID
-                      const courseTitle = course.title || (course.isCustom ? 'Custom Course' : 'N/A');
-                      return `
-                        <tr data-course-identifier="${courseIdentifier}" draggable="true" class="${course.isExtraEnrolled ? 'table-warning' : ''} ${course.isDeleted ? 'table-danger text-decoration-line-through' : ''} ${course.isCustom ? 'table-info' : ''}">
-                          <td>
-                            <div class="course-code-container">
-                              <span class="fw-medium course-code clickable-info" data-course='${JSON.stringify(course).replace(/'/g, "&#39;")}'>
-                                ${course.code}
-                                <i class="fa-solid fa-info-circle ms-1 clickable-info small" data-course='${JSON.stringify(course).replace(/'/g, "&#39;")}' title="${courseTitle}"></i>
-                              </span>
-                              ${course.isExtraEnrolled ? '<sup class="extra-enrolled">Rep.</sup>' : ''}
-                              ${course.isCustom && course.source === 'attendance' ? '<sup class="extra-enrolled" style="color: #087990; background-color: #cff4fc;">Atnd.</sup>' : ''}
-                              ${course.isCustom && course.source !== 'attendance' ? '<span class="extra-enrolled">Custom</span>' : ''}
-                            </div>
-                          </td>
-                          <td>${course.creditHoursDisplay || course.creditHours}</td><td>${course.marks}</td>
-                          <td><span class="grade-badge grade-${course.grade}">${course.grade}</span></td>
-                          <td class="course-actions">${course.isDeleted ? `<i class="fa-solid fa-rotate-left restore-course" data-course='${JSON.stringify(course).replace(/'/g, "&#39;")}' data-semester="${semesterName}" title="Restore"></i>` : `<i class="fa-solid fa-trash delete-course" data-course='${JSON.stringify(course).replace(/'/g, "&#39;")}' data-semester="${semesterName}" title="Delete"></i>`}</td>
-                        </tr>`;
-                    }).join('')}
-                  </tbody>
-                </table>
+            <i class="fa-solid fa-trash delete-semester" title="Delete this semester" data-semester="${semesterName}"></i>
+            <div class="d-flex align-items-center justify-content-between mb-3">
+              <h5 class="mb-0"><i class="fa-solid fa-book-open me-2" style="color: var(--brand);"></i>${semesterName}</h5>
+              <div class="text-end" style="margin-right: 40px;">
+                <p class="mb-0 text-body-secondary small">GPA:</p>
+                <p class="mb-0 h4 fw-bold" style="color: var(--brand);">${formatNumber(semester.gpa).toFixed(4)}</p>
+                <p class="mb-0 text-body-secondary small">${formatNumber(semester.percentage, 2).toFixed(2)}%</p>
               </div>
             </div>
-          `;
+            <button class="custom-course-btn" data-semester="${semesterName}"><i class="fa-solid fa-plus"></i> Custom Course</button>
+            <div class="table-responsive"><table class="course-table"><thead><tr><th>Course</th><th>Hrs</th><th>Marks</th><th>Grade</th><th>Action</th></tr></thead>
+              <tbody>${semester.courses.map((course, index) => {
+                  const courseIdentifier = `${semesterName}-${course.code}-${course.total}-${index}`; // Unique ID
+                  const courseTitle = course.title || (course.isCustom ? 'Custom Course' : 'N/A');
+                  return `
+                  <tr data-course-identifier="${courseIdentifier}" draggable="true" class="${course.isExtraEnrolled ? 'table-warning' : ''} ${course.isDeleted ? 'table-danger text-decoration-line-through' : ''} ${course.isCustom ? 'table-info' : ''}">
+                    <td>
+                      <div class="course-code-container">
+                        <span class="fw-medium course-code clickable-info" data-course='${JSON.stringify(course).replace(/'/g, "&#39;")}'>
+                          ${course.code}
+                          <i class="fa-solid fa-info-circle ms-1 clickable-info small" data-course='${JSON.stringify(course).replace(/'/g, "&#39;")}' title="${courseTitle}"></i>
+                        </span>
+                        ${course.isExtraEnrolled ? '<sup class="extra-enrolled">Rep.</sup>' : ''}
+                        ${course.isCustom && course.source === 'attendance' ? '<sup class="extra-enrolled" style="color: #087990; background-color: #cff4fc;">Atnd.</sup>' : ''}
+                        ${course.isCustom && course.source !== 'attendance' ? '<span class="extra-enrolled">Custom</span>' : ''}
+                      </div>
+                    </td>
+                    <td>${course.creditHoursDisplay || course.creditHours}</td><td>${course.marks}</td>
+                    <td><span class="grade-badge grade-${course.grade}">${course.grade}</span></td>
+                    <td class="course-actions">${course.isDeleted ? `<i class="fa-solid fa-rotate-left restore-course" data-course='${JSON.stringify(course).replace(/'/g, "&#39;")}' data-semester="${semesterName}" title="Restore"></i>` : `<i class="fa-solid fa-trash delete-course" data-course='${JSON.stringify(course).replace(/'/g, "&#39;")}' data-semester="${semesterName}" title="Delete"></i>`}</td>
+                  </tr>`;
+              }).join('')}</tbody>
+            </table></div>`;
           semesterResults.appendChild(semesterCard);
         });
 
@@ -4534,26 +4416,6 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
             }, { threshold: 0.1 });
             observer.observe(el);
         });
-
-        // --- NEW CODE for Collapsible Semester Icons ---
-        document.querySelectorAll('.semester-collapse-body.collapse').forEach(collapseEl => {
-          // Get the ID of the chevron icon from the collapse element's ID
-          const chevronId = collapseEl.id.replace('semester-collapse', 'chevron');
-          const chevronEl = document.getElementById(chevronId);
-          
-          if (chevronEl) {
-            // On show, add 'expanded' class to icon
-            collapseEl.addEventListener('show.bs.collapse', () => {
-              chevronEl.classList.add('expanded');
-            });
-            // On hide, remove 'expanded' class
-            collapseEl.addEventListener('hide.bs.collapse', () => {
-              chevronEl.classList.remove('expanded');
-            });
-          }
-        });
-        // --- END NEW CODE ---
-        
         if (window.innerWidth >= 992) {
           initDragAndDrop();
         }
@@ -5513,29 +5375,4 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 </script>
 </body>
 </html>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
