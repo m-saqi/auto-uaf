@@ -872,7 +872,9 @@ a:hover {
       transition: all 0.3s ease;
     }
     .delete-semester:hover {
-      transform: scale(1.2);
+      transform: scale(1.15); /* Slightly reduced scale for subtlety */
+      background-color: rgba(220, 53, 69, 0.1); /* Add subtle red background */
+      border-radius: 4px; /* Optional: slightly round the background */
     }
     
     /* --- Mobile-Only Adjustments --- */
@@ -4378,7 +4380,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
           const collapseId = `semester-collapse-${semesterName.replace(/[^a-zA-Z0-9]/g, '-')}`;
           const chevronId = `chevron-${collapseId}`;
           
-          // Conditionally add collapse attributes only on mobile
+          // Conditionally add collapse attributes only on mobile FOR THE ICON
           const mobileCollapseAttrs = isMobile 
             ? `data-bs-toggle="collapse" href="#${collapseId}" role="button" aria-expanded="false" aria-controls="${collapseId}"`
             : '';
@@ -4386,9 +4388,10 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
           semesterCard.innerHTML = `
             <i class="fa-solid fa-trash delete-semester" title="Delete this semester" data-semester="${semesterName}"></i>
             
-            <i class="fa-solid fa-chevron-down semester-toggle-icon" id="${chevronId}" ${mobileCollapseAttrs}></i>
+            <i class="fa-solid fa-chevron-down semester-toggle-icon" id="${chevronId}" ${mobileCollapseAttrs}></i> 
 
-            <div class="semester-header" ${mobileCollapseAttrs}>
+            {/* Header no longer has collapse attributes */}
+            <div class="semester-header"> 
               <div class="semester-header-title">
                 <i class="fa-solid fa-book-open me-2"></i>${semesterName}
               </div>
@@ -4413,7 +4416,8 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
               
               <div class="table-responsive mt-3">
                 <table class="course-table">
-                  <thead>
+                  {/* ... Table content remains the same ... */}
+                   <thead>
                     <tr><th>Course</th><th>Hrs</th><th>Marks</th><th>Grade</th><th>Action</th></tr>
                   </thead>
                   <tbody>
@@ -4542,16 +4546,19 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
       }
 
       function attachResultEventListeners() {
-        document.querySelectorAll('.clickable-info').forEach(el => el.addEventListener('click', e => showCourseDetails(JSON.parse(e.currentTarget.dataset.course.replace(/&#39;/g, "'")))));
+        document.querySelectorAll('.clickable-info').forEach(el => el.addEventListener('click', e => {
+          e.stopPropagation(); // Prevent collapse when clicking info
+          showCourseDetails(JSON.parse(e.currentTarget.dataset.course.replace(/&#39;/g, "'")));
+        }));
         
         // --- FIX: Add stopPropagation to prevent collapse toggle ---
         document.querySelectorAll('.delete-semester').forEach(btn => btn.addEventListener('click', e => {
-          e.stopPropagation(); // Stop click from bubbling to header
+          e.stopPropagation(); // Stop click from bubbling to header/icon
           deleteSemester(e, e.currentTarget.dataset.semester);
         }));
 
         document.querySelectorAll('.custom-course-btn').forEach(btn => btn.addEventListener('click', e => {
-            e.stopPropagation(); // Stop click from bubbling to header
+            e.stopPropagation(); // Stop click from bubbling to header/icon
             openAddCourseModal(e.currentTarget.dataset.semester);
         }));
         
@@ -4563,7 +4570,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         document.querySelectorAll('.delete-course').forEach(btn => {
           const course = JSON.parse(btn.dataset.course.replace(/&#39;/g, "'"));
           btn.addEventListener('click', e => {
-            e.stopPropagation(); // Stop click from bubbling to header
+            e.stopPropagation(); // Stop click from bubbling to header/icon
             modifyCourseState(e, course, btn.dataset.semester, true);
           });
         });
@@ -4572,7 +4579,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         document.querySelectorAll('.restore-course').forEach(btn => {
           const course = JSON.parse(btn.dataset.course.replace(/&#39;/g, "'"));
           btn.addEventListener('click', e => {
-            e.stopPropagation(); // Stop click from bubbling to header
+            e.stopPropagation(); // Stop click from bubbling to header/icon
             modifyCourseState(e, course, btn.dataset.semester, false);
           });
         });
@@ -4595,19 +4602,30 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         const isMobile = window.innerWidth < 768;
         if (isMobile) {
           document.querySelectorAll('.semester-collapse-body.collapse').forEach(collapseEl => {
-            // Get the ID of the chevron icon from the collapse element's ID
-            const chevronId = `chevron-${collapseEl.id}`;
+            // Correctly derive chevron ID from collapse ID
+            const chevronId = `chevron-${collapseEl.id}`; 
             const chevronEl = document.getElementById(chevronId);
             
             if (chevronEl) {
-              // On show, add 'expanded' class to icon
+              // --- Event listeners for animation ---
+              // On show event, add 'expanded' class
               collapseEl.addEventListener('show.bs.collapse', () => {
                 chevronEl.classList.add('expanded');
               });
-              // On hide, remove 'expanded' class
+              // On hide event, remove 'expanded' class
               collapseEl.addEventListener('hide.bs.collapse', () => {
                 chevronEl.classList.remove('expanded');
               });
+
+              // --- Set initial state correctly ---
+              // If the collapse body starts with 'show' class, make sure icon is expanded
+              if (collapseEl.classList.contains('show')) {
+                 chevronEl.classList.add('expanded');
+              } else {
+                 chevronEl.classList.remove('expanded');
+              }
+            } else {
+               console.warn(`Could not find chevron icon with ID: ${chevronId}`);
             }
           });
         }
@@ -5568,5 +5586,6 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 </script>
 </body>
 </html>
+
 
 
