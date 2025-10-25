@@ -1445,7 +1445,9 @@ a[aria-expanded="true"] .status-log-chevron {
     padding: 2rem 0;
   }
   .hero h1 {
-    font-size: 2.2rem !important;
+    /* This new font-size scales smoothly between 1.9rem (for 360dp) and 2.2rem (for larger phones) */
+    font-size: clamp(1.9rem, 7.5vw, 2.2rem) !important;
+    line-height: 1.2; /* Added for better spacing on small screens */
   }
   /* --- UPDATE: Removed width: 100% --- */
   .d-flex.gap-2 .btn {
@@ -1467,6 +1469,12 @@ a[aria-expanded="true"] .status-log-chevron {
     font-size: 0.8rem; /* Adjust the font size to make the icon smaller */
     padding: 0.3rem 0.6rem; /* Adjust padding to make the button smaller */
   }
+
+  .navbar .navbar-brand {
+    /* This scales the header font-size from 1rem (smallest) up to 1.15rem */
+    font-size: clamp(1rem, 4.5vw, 1.15rem);
+  }
+  
 }
 
 /* Ensure subject columns are 2-up on very small screens: change from col-12 col-md-6 -> col-6 col-md-6 */
@@ -1496,14 +1504,12 @@ a[aria-expanded="true"] .status-log-chevron {
     flex: 0 0 auto;
     width: 100%;
   }
-}
-
-@media (min-width: 768px) {
   .col-md-4 {
     flex: 0 0 auto;
     width: 48.3%;
   }
 }
+
 
 /* --- Mobile responsive table --- */
 @media screen and (max-width: 768px) {
@@ -5375,6 +5381,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 </script>
 </body>
 </html>
+
 
 
 
