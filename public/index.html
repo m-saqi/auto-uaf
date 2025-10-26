@@ -5008,6 +5008,38 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         // --- END: NEW SCROLL-TO-ELEMENT LOGIC ---
       }
 
+      // --- START: NEW FUNCTION TO RENAME SEMESTER ---
+      function openRenameSemesterModal(oldSemesterName) {
+        if (!processedData.semesters[oldSemesterName]) return;
+
+        const newSemesterName = prompt("Enter a new name for this semester:", oldSemesterName);
+
+        if (newSemesterName && newSemesterName.trim() !== "" && newSemesterName !== oldSemesterName) {
+          const trimmedName = newSemesterName.trim();
+          
+          // Check if name already exists
+          if (processedData.semesters[trimmedName]) {
+            showToast(`Semester name "${trimmedName}" already exists.`, 'error');
+            return;
+          }
+
+          // Rename the semester
+          // We must update the key, the originalName, and the sortKey
+          processedData.semesters[trimmedName] = processedData.semesters[oldSemesterName]; // 1. Copy data to new key
+          delete processedData.semesters[oldSemesterName]; // 2. Delete old key
+          
+          processedData.semesters[trimmedName].originalName = trimmedName; // 3. Update originalName
+          processedData.semesters[trimmedName].sortKey = getSemesterOrderKey(trimmedName); // 4. Update sortKey
+          
+          recalculateAndDisplay(); // This saves and re-renders
+          showToast(`Semester renamed to "${trimmedName}"`, 'success');
+          addStatusMessage(`Renamed semester "${oldSemesterName}" to "${trimmedName}"`, 'info');
+        } else if (newSemesterName === "") {
+            showToast("Semester name cannot be empty.", 'warning');
+        }
+      }
+      // --- END: NEW FUNCTION ---
+      
       function copyDetailsToClipboard() {
           if (!processedData) return;
           const textToCopy = `Name: ${processedData.studentInfo.name}\nRegistration: ${processedData.studentInfo.registration}\nCGPA: ${totalCgpa.textContent}\nPercentage: ${totalPercentage.textContent}`;
@@ -5689,6 +5721,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 </script>
 </body>
 </html>
+
 
 
 
