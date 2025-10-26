@@ -4528,28 +4528,41 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         totalMarksObtained.textContent = cgpaData.totalMarksObtained.toFixed(0);
         totalMaxMarks.textContent = `/ ${cgpaData.totalMaxMarks.toFixed(0)}`;
 
-    const cgpaCircle = document.getElementById('cgpaCircle');
-    if(cgpaCircle) {
-        const cgpa = parseFloat(totalCgpa.textContent);
-        const percentage = (cgpa / 4.0) * 100;
-        setTimeout(() => {
-            cgpaCircle.style.strokeDasharray = `${percentage}, 100`;
-        }, 100);
-    }
+        const cgpaCircle = document.getElementById('cgpaCircle');
+        if(cgpaCircle) {
+            const cgpa = parseFloat(totalCgpa.textContent);
+            const percentage = (cgpa / 4.0) * 100;
+            setTimeout(() => {
+                cgpaCircle.style.strokeDasharray = `${percentage}, 100`;
+            }, 100);
+        }
 
         semesterResults.innerHTML = '';
         Object.keys(data.semesters).sort((a,b) => data.semesters[a].sortKey.localeCompare(data.semesters[b].sortKey)).forEach(semesterName => {
           const semester = data.semesters[semesterName];
           const semesterCard = document.createElement('div');
+          
+          // --- NEW: Give the card a data-semester attribute for scrolling ---
+          semesterCard.dataset.semester = semesterName;
 
           const animationClass = isInitialLoad ? 'fade-in-on-scroll' : 'is-visible';
           semesterCard.className = `semester-card ${animationClass}`;
 
           semesterCard.dataset.semester = semesterName;
+          
+          // --- NEW: Check if semester is a forecast/custom one ---
+          const isForecastOrCustom = semesterName.toLowerCase().startsWith('forecast') || 
+                                     !Object.values(processedData.courseHistory).flat().some(c => c.semester === semesterName && !c.data.isCustom);
+          
           semesterCard.innerHTML = `
             <i class="fa-solid fa-trash delete-semester" title="Delete this semester" data-semester="${semesterName}"></i>
             <div class="d-flex align-items-center justify-content-between mb-3">
-              <h5 class="mb-0"><i class="fa-solid fa-book-open me-2" style="color: var(--brand);"></i>${semesterName}</h5>
+              <h5 class="mb-0 d-flex align-items-center">
+                <i class="fa-solid fa-book-open me-2" style="color: var(--brand);"></i>
+                <span id="semester-name-${semester.sortKey}">${semesterName}</span>
+                
+                ${isForecastOrCustom ? `<i class="fa-solid fa-pencil edit-semester-name" title="Rename semester" data-semester="${semesterName}" style="cursor: pointer; margin-left: 10px; font-size: 0.9em; color: var(--muted);"></i>` : ''}
+                </h5>
               <div class="text-end" style="margin-right: 40px;">
                 <p class="mb-0 text-body-secondary small">GPA:</p>
                 <p class="mb-0 h4 fw-bold" style="color: var(--brand);">${formatNumber(semester.gpa).toFixed(4)}</p>
@@ -4587,18 +4600,11 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         attachResultEventListeners();
         renderGpaChart();
         
-        // Check if this profile has attendance courses and update button
-        // Note: This only works for the *last* import. A better way is to check if *any* exist.
         const hasAttendanceCourses = Object.values(data.semesters).some(s => s.courses.some(c => c.isCustom && c.source === 'attendance'));
         if (!hasAttendanceCourses) {
-             importedAttendanceCourses = []; // Clear revert list if no attendance courses exist
+             importedAttendanceCourses = [];
         }
-        // If hasAttendanceCourses is true, importedAttendanceCourses might still be empty (from a previous session)
-        // For simplicity, we only allow reverting the *last* import.
-        // If you want to revert *all*, the logic would be different.
-        // We will reset the button to its default state on *every* profile load.
-        // The revert list is only populated after a *new* import.
-        importedAttendanceCourses = []; // Clear revert list on profile load
+        importedAttendanceCourses = [];
         setupAttendanceButton();
       }
 
@@ -4682,6 +4688,13 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         document.querySelectorAll('.clickable-info').forEach(el => el.addEventListener('click', e => showCourseDetails(JSON.parse(e.currentTarget.dataset.course.replace(/&#39;/g, "'")))));
         document.querySelectorAll('.delete-semester').forEach(btn => btn.addEventListener('click', e => deleteSemester(e, e.currentTarget.dataset.semester)));
         document.querySelectorAll('.custom-course-btn').forEach(btn => btn.addEventListener('click', e => openAddCourseModal(e.currentTarget.dataset.semester)));
+        
+        // --- START: NEW LISTENER FOR PENCIL ICON ---
+        document.querySelectorAll('.edit-semester-name').forEach(btn => {
+          btn.addEventListener('click', e => openRenameSemesterModal(e.currentTarget.dataset.semester));
+        });
+        // --- END: NEW LISTENER ---
+
         if(document.getElementById('copyDetailsIconBtn')) {
             document.getElementById('copyDetailsIconBtn').addEventListener('click', copyDetailsToClipboard);
         }
@@ -4975,9 +4988,24 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
             sortKey: getSemesterOrderKey(newSemesterName),
             courses: []
         };
-        recalculateAndDisplay();
+        recalculateAndDisplay(); // This renders the new card
         showToast(`Added "${newSemesterName}"`, 'success');
         addStatusMessage(`Added forecast semester: ${newSemesterName}`, 'info');
+
+        // --- START: NEW SCROLL-TO-ELEMENT LOGIC ---
+        setTimeout(() => {
+          const newCard = document.querySelector(`[data-semester="${newSemesterName}"]`);
+          if (newCard) {
+            newCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            // Optional: Add a subtle flash animation
+            newCard.style.transition = 'background-color 0.5s ease-out';
+            newCard.style.backgroundColor = 'rgba(122, 106, 216, 0.1)';
+            setTimeout(() => {
+                newCard.style.backgroundColor = '';
+            }, 1000);
+          }
+        }, 100); // Small delay to ensure DOM is updated
+        // --- END: NEW SCROLL-TO-ELEMENT LOGIC ---
       }
 
       function copyDetailsToClipboard() {
@@ -5661,6 +5689,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 </script>
 </body>
 </html>
+
 
 
 
