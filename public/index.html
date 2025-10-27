@@ -5253,116 +5253,176 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         }
       }
 
-       async function fetchAttendanceData() {
+       // *** 1. ADD THIS NEW HELPER FUNCTION ***
+    // This function contains the new deduplication logic (Req 2)
+    // and is called by fetchAttendanceData either with fresh or cached data.
+    function processAttendanceData(data) {
+        if (!data || !data.resultData) {
+            showToast('No attendance data to process.', 'info');
+            return;
+        }
+
+        addStatusMessage(`Processing ${data.resultData.length} records from Attendance System...`, 'info');
+
+        // --- REQ 2: New Deduplication Logic ---
+        // 1. Create a global map of all existing LMS courses
+        // Key: "CHEM-401", Value: Set {"75|B", "80|A"}
+        const globalLmsCourseMap = new Map();
+        Object.values(processedData.semesters).forEach(sem => {
+            sem.courses.forEach(course => {
+                // Only check against courses not deleted and not *already* from attendance
+                if (!course.isDeleted && course.source !== 'attendance') {
+                    const code = course.code.toUpperCase().trim();
+                    // Use parseFloat for marks and handle potential 'N/A' grades
+                    const marks = parseFloat(course.marks);
+                    const grade = (course.grade || 'N/A').toUpperCase().trim();
+                    const key = `${marks}|${grade}`;
+                    
+                    if (!globalLmsCourseMap.has(code)) {
+                        globalLmsCourseMap.set(code, new Set());
+                    }
+                    globalLmsCourseMap.get(code).add(key);
+                }
+            });
+        });
+        // --- End of Map Build ---
+
+        // 2. Process ALL attendance courses, flagging duplicates based on the new global map
+        const allAttendanceCourses = [];
+        data.resultData.forEach(attCourse => {
+            const courseCode = (attCourse.CourseCode || '').toUpperCase().trim();
+            const semesterName = processSemesterName(attCourse.Semester);
+            const marks = parseFloat(attCourse.Totalmark || '0');
+            const grade = (attCourse.Grade || 'N/A').toUpperCase().trim();
+            const globalKey = `${marks}|${grade}`;
+
+            let isDuplicate = false;
+
+            // REQ 2: Check if this exact code, mark, and grade combo exists *anywhere* in the LMS data
+            if (globalLmsCourseMap.has(courseCode) && globalLmsCourseMap.get(courseCode).has(globalKey)) {
+                isDuplicate = true;
+            }
+
+            // Also check if it's *already* imported from attendance (original logic, still good)
+            const semesterExists = processedData.semesters[semesterName];
+            if (!isDuplicate && semesterExists && semesterExists.courses.some(c => 
+                    c.code.toUpperCase().trim() === courseCode && 
+                    c.isCustom && 
+                    c.source === 'attendance'
+                )) {
+                isDuplicate = true; // Already imported, treat as duplicate
+            }
+
+            allAttendanceCourses.push({
+                code: (attCourse.CourseCode || '').trim(), // Keep original case for display
+                title: attCourse.CourseName || 'N/A',
+                semester: semesterName,
+                marks: marks,
+                grade: (attCourse.Grade || 'N/A'), // Keep original case for display
+                teacher: attCourse.TeacherName || 'N/A',
+                mid: attCourse.Mid || '0',
+                assignment: attCourse.Assigment || '0', // Corrected typo from API
+                final: attCourse.Final || '0',
+                practical: attCourse.Practical || '0',
+                isDuplicate: isDuplicate 
+            });
+        });
+
+        if (allAttendanceCourses.length > 0) {
+            const importableCount = allAttendanceCourses.filter(c => !c.isDuplicate).length;
+            addStatusMessage(`${allAttendanceCourses.length} courses found, ${importableCount} are new/importable. Showing import dialog.`, 'info');
+            renderAttendanceImportModal(allAttendanceCourses);
+            attendanceImportModal.show();
+        } else {
+            showToast('No courses found in Attendance System.', 'info');
+            addStatusMessage('Attendance System search returned no courses.', 'success');
+        }
+    }
+
+
+    // *** 2. REPLACE YOUR OLD FUNCTION WITH THIS UPDATED ONE ***
+    async function fetchAttendanceData() {
         if (!processedData || !processedData.studentInfo || !processedData.studentInfo.registration) {
             showToast('Please fetch results first.', 'warning');
             return;
         }
         const regNum = processedData.studentInfo.registration;
+        const cacheKey = `uafAttendanceCache_${regNum}`;
+        const TEN_MINUTES_MS = 10 * 60 * 1000; // 10 minutes
+
+        // --- REQ 1: Caching Logic ---
+        try {
+            const cachedDataJSON = localStorage.getItem(cacheKey);
+            if (cachedDataJSON) {
+                const cachedData = JSON.parse(cachedDataJSON);
+                const cacheAge = Date.now() - cachedData.timestamp;
+
+                if (cacheAge < TEN_MINUTES_MS) {
+                    addStatusMessage(`Using cached attendance data (fetched ${Math.round(cacheAge / 1000 / 60)} mins ago).`, 'info');
+                    showToast('Using cached attendance data.', 'info');
+                    processAttendanceData(cachedData.data); // Process cached data
+                    return; // Stop execution, don't fetch
+                } else {
+                    addStatusMessage('Cached attendance data is stale (> 10 mins). Fetching new data.', 'info');
+                    localStorage.removeItem(cacheKey); // Clear stale data
+                }
+            }
+        } catch (e) {
+            console.error('Error reading cache:', e);
+            localStorage.removeItem(cacheKey); // Clear corrupted cache
+        }
+        // --- End of Caching Logic ---
+
 
         addStatusMessage(`Fetching results from Attendance System for: ${regNum}`, 'info');
-        showLoadingStage('fetching'); // Use existing loading stages
-         // Disable button temporarily
+        
+        // --- REQ 3: UI/UX Change (No 'fetching' stage) ---
+        // showLoadingStage('fetching'); // <<< REMOVED
         fetchAttendanceBtn.disabled = true;
         fetchAttendanceBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin me-2"></i>Fetching...';
-
 
         try {
             const response = await fetch(`${ATTENDANCE_API_ENDPOINT}&registrationNumber=${encodeURIComponent(regNum)}`);
             const data = await response.json();
 
             if (!response.ok || !data.success) {
-                 throw new Error(data.message || `Server responded with status ${response.status}`);
+                throw new Error(data.message || `Server responded with status ${response.status}`);
             }
-
+            
             addStatusMessage(`Successfully fetched ${data.resultData.length} records from Attendance System`, 'success');
-            showLoadingStage('processing'); // Indicate processing
 
-            // 1. Create a detailed map of LMS courses for cross-checking
-            // Key: "CHEM-101_Spring 2025", Value: { marks: 75, grade: "B" }
-            const lmsCourseMap = new Map();
-            Object.values(processedData.semesters).forEach(sem => {
-                const semKey = processSemesterName(sem.originalName); // Normalized semester name
-                sem.courses.forEach(course => {
-                    // Only add non-deleted, non-attendance-imported courses to the map
-                    if (!course.isDeleted && course.source !== 'attendance') {
-                        const courseKey = `${course.code.toUpperCase().trim()}_${semKey}`;
-                        // Store the best attempt if multiple are somehow in the same semester
-                        if (!lmsCourseMap.has(courseKey) || course.marks > lmsCourseMap.get(courseKey).marks) {
-                            lmsCourseMap.set(courseKey, {
-                                marks: course.marks,
-                                grade: course.grade
-                            });
-                        }
-                    }
-                });
-            });
-
-            // 2. Process ALL attendance courses, flagging duplicates
-            const allAttendanceCourses = [];
-            data.resultData.forEach(attCourse => {
-                const courseCode = (attCourse.CourseCode || '').toUpperCase().trim();
-                const semesterName = processSemesterName(attCourse.Semester); // Normalized semester name
-                const uniqueKey = `${courseCode}_${semesterName}`;
-                const marks = parseFloat(attCourse.Totalmark || '0');
-                const grade = attCourse.Grade || 'N/A';
-
-                let isDuplicate = false;
-                if (lmsCourseMap.has(uniqueKey)) {
-                    // User requested to cross-check marks and grades
-                    const lmsCourse = lmsCourseMap.get(uniqueKey);
-                    if (lmsCourse.marks === marks && lmsCourse.grade.trim().toUpperCase() === grade.trim().toUpperCase()) {
-                        isDuplicate = true;
-                    }
-                    // Note: If marks/grade differ, it's NOT a duplicate and should be importable as a potential "repeated" course.
-                }
-
-                // Also check if it's *already* imported from attendance
-                const semesterExists = processedData.semesters[semesterName];
-                if (semesterExists && semesterExists.courses.some(c => c.code === courseCode && c.isCustom && c.source === 'attendance')) {
-                    isDuplicate = true; // Already imported, treat as duplicate
-                }
-
-                allAttendanceCourses.push({
-                    code: courseCode,
-                    title: attCourse.CourseName || 'N/A',
-                    semester: semesterName,
-                    marks: marks,
-                    grade: grade,
-                    teacher: attCourse.TeacherName || 'N/A',
-                    mid: attCourse.Mid || '0',
-                    assignment: attCourse.Assigment || '0',
-                    final: attCourse.Final || '0',
-                    practical: attCourse.Practical || '0',
-                    isDuplicate: isDuplicate // The new flag
-                });
-            });
-
-
-            if (allAttendanceCourses.length > 0) {
-                 addStatusMessage(`${allAttendanceCourses.length} courses found in Attendance System. Showing import dialog.`, 'info');
-                renderAttendanceImportModal(allAttendanceCourses); // Pass ALL courses
-                attendanceImportModal.show();
-            } else {
-                showToast('No courses found in Attendance System.', 'info');
-                addStatusMessage('Attendance System search returned no courses.', 'success');
+            // --- REQ 1: Store in cache on successful fetch ---
+            try {
+                localStorage.setItem(cacheKey, JSON.stringify({ timestamp: Date.now(), data: data }));
+                addStatusMessage('Saved attendance data to cache.', 'info');
+            } catch (e) {
+                console.error('Error saving to cache:', e);
+                addStatusMessage('Could not save attendance data to cache (storage might be full).', 'warning');
             }
+
+            // --- REQ 3: UI/UX Change (No 'processing' stage) ---
+            // showLoadingStage('processing'); // <<< REMOVED
+
+            // Call the new helper function to process and render
+            processAttendanceData(data);
 
         } catch (error) {
             console.error("Attendance Fetch Error:", error);
-             let userMessage = 'Could not retrieve Attendance System results. The server may be offline or the registration number is incorrect.';
-             if (error.message.includes('timed out')) {
-                 userMessage = 'Connection to Attendance System timed out. Please try again later.';
-             } else if (error.message.includes('No results found')) {
-                 userMessage = error.message; // Use the specific error from the backend
-             }
-             addStatusMessage(`Error fetching from Attendance System: ${error.message}`, 'error');
+            let userMessage = 'Could not retrieve Attendance System results. The server may be offline or the registration number is incorrect.';
+            if (error.message.includes('timed out')) {
+                userMessage = 'Connection to Attendance System timed out. Please try again later.';
+            } else if (error.message.includes('No results found')) {
+                userMessage = error.message; 
+            }
+            addStatusMessage(`Error fetching from Attendance System: ${error.message}`, 'error');
             showToast(userMessage, 'error');
         } finally {
-            showLoadingStage(null); // Hide loading indicator
-             // Re-enable button
-            fetchAttendanceBtn.disabled = false;
-            fetchAttendanceBtn.innerHTML = '<i class="fa-solid fa-clipboard-user me-2"></i>Attendance System';
+            // --- REQ 3: UI/UX Change (No 'null' stage) ---
+            // showLoadingStage(null); // <<< REMOVED
+            
+            // This will correctly reset the button to "Attendance System" or "Revert"
+            // based on whether an import is currently active.
+            setupAttendanceButton();
         }
     }
 
@@ -5722,6 +5782,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 </script>
 </body>
 </html>
+
 
 
 
