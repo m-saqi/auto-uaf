@@ -2479,6 +2479,128 @@ a[aria-expanded="true"] .status-log-chevron {
     }
 }
 
+    /* --- Premium Grading Section Styles --- */
+#uaf-grading-info {
+  background-color: rgba(122, 106, 216, 0.03); /* Light brand color for the whole section */
+}
+
+[data-theme="dark"] #uaf-grading-info {
+  background-color: rgba(15, 20, 34, 0.5); /* Darker bg for this section in dark mode */
+}
+
+.premium-feature-card {
+  background: var(--card-bg);
+  border: 1px solid transparent;
+  background-clip: padding-box;
+  border-radius: var(--radius);
+  box-shadow: 0 10px 30px rgba(17, 24, 39, 0.05); /* Softer initial shadow */
+  transition: all 0.3s ease-in-out;
+  position: relative;
+  overflow: hidden;
+  height: 100%; /* Make cards in a row equal height */
+}
+
+[data-theme="dark"] .premium-feature-card {
+  background: rgba(15, 20, 34, 0.8); /* Dark card bg */
+  border-color: rgba(122, 106, 216, 0.2); /* Subtle border */
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+}
+
+.premium-feature-card:hover {
+  transform: translateY(-8px);
+  box-shadow: var(--shadow-hover);
+  border-color: var(--brand);
+}
+
+/* Subtle gradient glow on hover */
+.premium-feature-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  background: radial-gradient(80% 80% at 50% -10%, rgba(122, 106, 216, 0.15) 0%, rgba(122, 106, 216, 0) 100%);
+  transition: opacity 0.3s ease-in-out;
+}
+[data-theme="dark"] .premium-feature-card::before {
+  background: radial-gradient(80% 80% at 50% -10%, rgba(122, 106, 216, 0.25) 0%, rgba(122, 106, 216, 0) 100%);
+}
+
+.premium-feature-card:hover::before {
+  opacity: 1;
+}
+
+/* Special box for the formula */
+.formula-box {
+  background: linear-gradient(135deg, rgba(122, 106, 216, 0.05), rgba(122, 106, 216, 0.02));
+  border: 1px solid rgba(122, 106, 216, 0.3);
+  border-radius: var(--radius-sm);
+  padding: 1.25rem;
+  text-align: center;
+  margin-top: 1rem;
+}
+
+[data-theme="dark"] .formula-box {
+  background: linear-gradient(135deg, rgba(122, 106, 216, 0.1), rgba(122, 106, 216, 0.05));
+  border-color: rgba(122, 106, 216, 0.5);
+}
+
+.formula-box strong {
+  font-size: 1.1rem;
+  color: var(--brand);
+  font-weight: 700;
+  display: block;
+  letter-spacing: 0.5px;
+}
+
+[data-theme="dark"] .formula-box strong {
+  color: #c7bfff; /* Lighter brand color for dark mode */
+}
+
+/* Premium styled list for features */
+.premium-list-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  padding: 0.75rem 0;
+  border-bottom: 1px solid rgba(122, 106, 216, 0.1);
+}
+.premium-list-item:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+[data-theme="dark"] .premium-list-item {
+  border-color: rgba(122, 106, 216, 0.2);
+}
+
+.premium-list-item .icon {
+  font-size: 1.1rem;
+  margin-top: 0.3rem;
+  flex-shrink: 0;
+  width: 20px;
+  text-align: center;
+  color: var(--brand);
+}
+
+.premium-list-item .text-content strong {
+  font-size: 1.05rem;
+  color: var(--text);
+}
+[data-theme="dark"] .premium-list-item .text-content strong {
+  color: #ffffff;
+}
+.premium-list-item .text-content span {
+  font-size: 0.9rem;
+  color: var(--text-light);
+}
+[data-theme="dark"] .premium-list-item .text-content span {
+  color: var(--muted);
+}
+    
+
+    
 /* --- Z-index and Blur for modals --- */
 #renameProfileModal, #confirmationModal, #attendanceImportModal {
   z-index: 1060; /* Higher z-index to appear on top */
@@ -3132,13 +3254,14 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
   <div class="container">
     <div class="text-center mb-5 fade-in-on-scroll">
       <h2 class="fw-bold">The <span class="gradient-text">UAF Grading System</span> Explained</h2>
-      <p class="lead text-muted">A clear, precise breakdown of how your CGPA is calculated.</p>
+      <p class="lead text-muted">A precise breakdown of the official calculation policy.</p>
     </div>
 
     <div class="row g-4 g-lg-5 justify-content-center">
+
       <div class="col-lg-6">
-        <div class="card card-modern h-100 fade-in-on-scroll">
-          <div class="card-body p-4 p-md-5">
+        <div class="premium-feature-card fade-in-on-scroll">
+          <div class="card-body p-4 p-md-5 d-flex flex-column">
             <div class="d-flex align-items-center mb-3">
               <div class="feature-icon" style="width: 50px; height: 50px; font-size: 1.2rem; margin: 0 1rem 0 0;">
                 <i class="fa-solid fa-calculator"></i>
@@ -3147,21 +3270,21 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
             </div>
             <p class="text-muted">This calculator uses the <strong>official UAF 4.0 grading scale</strong>. Your CGPA is determined by a simple, powerful formula:</p>
             
-            <div class="alert alert-info text-center" style="background-color: rgba(122, 106, 216, 0.05); border-color: rgba(122, 106, 216, 0.2); color: var(--text);">
-              <strong class="d-block" style="font-size: 1.1rem; color: var(--brand);">CGPA = Total Quality Points ÷ Total Credit Hours</strong>
+            <div class="formula-box my-3">
+              <strong>CGPA = Total Quality Points ÷ Total Credit Hours</strong>
             </div>
             
             <hr class="my-4">
 
             <h5 class="fw-bold mb-3">How are <span class="gradient-text">Quality Points</span> Calculated?</h5>
-            <p class="text-muted mb-0">For each course, the grade (A, B, C, D, F) you receive is converted into Grade Points (from 4.0 to 0.0). These are then multiplied by the course's credit hours to find the Quality Points (QP) for that single course.</p>
+            <p class="text-muted mb-0">For each course, your grade (A, B, C, D, F) is converted into Grade Points (4.0 down to 0.0). These points are then multiplied by the course's credit hours to find the final Quality Points (QP) for that specific course.</p>
           </div>
         </div>
       </div>
 
       <div class="col-lg-6">
-        <div class="card card-modern h-100 fade-in-on-scroll">
-          <div class="card-body p-4 p-md-5">
+        <div class="premium-feature-card fade-in-on-scroll">
+          <div class="card-body p-4 p-md-5 d-flex flex-column">
             <div class="d-flex align-items-center mb-3">
               <div class="feature-icon" style="width: 50px; height: 50px; font-size: 1.2rem; margin: 0 1rem 0 0;">
                 <i class="fa-solid fa-star"></i>
@@ -3170,26 +3293,26 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
             </div>
             <p class="text-muted">Our tool automates the most complex parts of the UAF grading policy for you:</p>
             
-            <ul class="list-unstyled m-0">
-              <li class="d-flex align-items-start gap-3 mb-3">
-                <i class="fa-solid fa-check-circle text-success fa-lg mt-1"></i>
-                <div>
+            <ul class="list-unstyled m-0 mt-3">
+              <li class="premium-list-item">
+                <i class="icon fa-solid fa-layer-group"></i>
+                <div class="text-content">
                   <strong class="d-block">Repeated Courses Handled</strong>
-                  <span class="text-muted small">Only the <strong>highest grade attempt</strong> for any repeated course is included in the final CGPA calculation. All other attempts are automatically excluded.</span>
+                  <span>Only the <strong>highest grade attempt</strong> for any repeated course is included in the final CGPA calculation. All other attempts are automatically excluded.</span>
                 </div>
               </li>
-              <li class="d-flex align-items-start gap-3 mb-3">
-                <i class="fa-solid fa-check-circle text-success fa-lg mt-1"></i>
-                <div>
+              <li class="premium-list-item">
+                <i class="icon fa-solid fa-link"></i>
+                <div class="text-content">
                   <strong class="d-block">Comprehensive System Sync</strong>
-                  <span class="text-muted small">Pulls data from both the <strong>UAF LMS</strong> and the <strong>Attendance System</strong> to build the most complete picture of your academic record.</span>
+                  <span>Pulls data from both the <strong>UAF LMS</strong> and the <strong>Attendance System</strong> to build the most complete picture of your academic record.</span>
                 </div>
               </li>
-              <li class="d-flex align-items-start gap-3">
-                <i class="fa-solid fa-check-circle text-success fa-lg mt-1"></i>
-                <div>
+              <li class="premium-list-item">
+                <i class="icon fa-solid fa-shield-halved"></i>
+                <div class="text-content">
                   <strong class="d-block">Works for All Faculties</strong>
-                  <span class="text-muted small">The calculation logic is standard across all UAF departments, from Agriculture and Sciences to Engineering and Veterinary Sciences.</span>
+                  <span>The calculation logic is standard across all UAF departments, from Agriculture and Sciences to Engineering and Veterinary Sciences.</span>
                 </div>
               </li>
             </ul>
@@ -5793,6 +5916,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 </script>
 </body>
 </html>
+
 
 
 
