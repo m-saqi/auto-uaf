@@ -4530,7 +4530,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
           
           registrationNumber.value = processedData.studentInfo.registration;
           setActiveProfileId(profileId);
-          updateProfileSwitcher(profiles, profileId);
+          updateProfileSwitcher(profiles, activeProfileId);
         }
       }
 
@@ -5460,6 +5460,29 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 
       // --- NEW Function: Renders the B.Ed. tabbed interface ---
       function displayBedResults(data) {
+        // --- MODIFICATION (Request 2 & 3): Set Student Info and correct "Other CGPA" label ---
+        const studentNameHTML = `<i class="fa-solid fa-user-graduate me-2"></i>${data.studentInfo.name}`;
+        const studentRegHTML = data.studentInfo.registration;
+
+        // Update B.Ed. Tab Header
+        const bedHeader = document.querySelector('#bed-tab-content .student-info-header h2');
+        const bedReg = bedHeader ? bedHeader.nextElementSibling : null; 
+        if (bedHeader) bedHeader.innerHTML = studentNameHTML;
+        if (bedReg) bedReg.textContent = studentRegHTML;
+
+        // Update Other Tab Header
+        const otherHeader = document.querySelector('#other-tab-content .student-info-header h2');
+        const otherReg = otherHeader ? otherHeader.nextElementSibling : null;
+        if (otherHeader) otherHeader.innerHTML = studentNameHTML;
+        if (otherReg) otherReg.textContent = studentRegHTML;
+
+        // Update "Other CGPA" label to just "CGPA"
+        const otherCgpaLabel = document.getElementById('other-totalCgpa');
+        if (otherCgpaLabel && otherCgpaLabel.nextElementSibling) {
+            otherCgpaLabel.nextElementSibling.textContent = 'CGPA';
+        }
+        // --- END MODIFICATION ---
+
         // 1. Filter for B.Ed. results
         const bedSemesters = filterSemesters(data.semesters, true);
         const bedData = { ...data, semesters: bedSemesters };
@@ -5494,14 +5517,29 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         }
         displaySemesterCards('other-semesterResults', otherData);
 
-        // 5. Hide the GPA chart
-        gpaChartContainer.style.display = 'none';
+        // --- MODIFICATION (Request 1 - GPA Trend): Show and render chart ---
+        // 5. Render the GPA chart (it will be tab-aware)
+        renderGpaChart();
 
         // 6. Attach listeners to all new elements
         attachResultEventListeners();
 
         // 7. Setup attendance button
         setupAttendanceButton();
+        
+        // 8. Add tab switch listeners to update chart
+        const bedTabEl = document.getElementById('bed-tab');
+        const otherTabEl = document.getElementById('other-tab');
+
+        if (bedTabEl && !bedTabEl.dataset.chartListener) { // Use a data attribute to prevent re-binding
+            bedTabEl.addEventListener('shown.bs.tab', renderGpaChart);
+            bedTabEl.dataset.chartListener = 'true';
+        }
+        if (otherTabEl && !otherTabEl.dataset.chartListener) {
+            otherTabEl.addEventListener('shown.bs.tab', renderGpaChart);
+            otherTabEl.dataset.chartListener = 'true';
+        }
+        // --- END MODIFICATION ---
       }
 
       // --- NEW Function: Renders either Normal or B.Ed. UI ---
@@ -5585,8 +5623,27 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         }, 1000);
       }
 
+      // --- MODIFIED (Request 1 - GPA Trend): Make chart tab-aware ---
       function renderGpaChart() {
-          if (!processedData || Object.keys(processedData.semesters).length === 0) {
+          // --- NEW LOGIC ---
+          let dataForChart = processedData; // Default to full data
+
+          if (bedModeActive) {
+              const activeTabEl = document.querySelector('#bedTab .nav-link.active');
+              let activeTabId = activeTabEl ? activeTabEl.id : 'bed-tab'; // Default to B.Ed tab if none active
+              
+              let filteredSemesters;
+              if (activeTabId === 'bed-tab') {
+                  filteredSemesters = filterSemesters(processedData.semesters, true);
+              } else { // 'other-tab'
+                  filteredSemesters = filterSemesters(processedData.semesters, false);
+              }
+              dataForChart = { ...processedData, semesters: filteredSemesters };
+          }
+          // --- END NEW LOGIC ---
+
+
+          if (!dataForChart || Object.keys(dataForChart.semesters).length === 0) {
               gpaChartContainer.style.display = 'none';
               return;
           }
@@ -5595,7 +5652,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
               gpaChart.destroy();
           }
 
-          const sortedSemesters = Object.entries(processedData.semesters)
+          const sortedSemesters = Object.entries(dataForChart.semesters) // Use dataForChart
               .sort(([, a], [, b]) => a.sortKey.localeCompare(b.sortKey));
 
           const labels = sortedSemesters.map(([name]) => name);
@@ -5658,11 +5715,12 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                   }
               }
           });
-          gpaChartContainer.style.display = 'block';
+          gpaChartContainer.style.display = 'block'; // Ensure it's visible
       }
+      // --- END MODIFICATION ---
 
       function attachResultEventListeners() {
-        document.querySelectorAll('.clickable-info').forEach(el => el.addEventListener('click', e => showCourseDetails(JSON.parse(e.currentTarget.dataset.course.replace(/&#39;/g, "'")))));
+        document.querySelectorAll('.clickable-info').forEach(el => el.addEventListener('click', e => showCourseDetails(JSON.parse(e.currentTarget.dataset.course.replace(/&#39;/g, "&#39;")))));
         document.querySelectorAll('.delete-semester').forEach(btn => btn.addEventListener('click', e => deleteSemester(e, e.currentTarget.dataset.semester)));
         document.querySelectorAll('.custom-course-btn').forEach(btn => btn.addEventListener('click', e => openAddCourseModal(e.currentTarget.dataset.semester)));
         
@@ -6591,6 +6649,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     }
 
 
+     // --- MODIFIED (Request 1 - Attendance): Add B.Ed. tab validation ---
      function importSelectedAttendanceCourses() {
         importedAttendanceCourses = []; // Clear any previous import list
         const selectedCheckboxes = document.querySelectorAll('#attendanceCourseList .form-check-input:checked');
@@ -6604,6 +6663,22 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
             const index = checkbox.value;
             const creditHoursSelect = document.getElementById(`att-ch-${index}`);
             const creditHours = parseInt(creditHoursSelect.value);
+
+            // --- ADDED VALIDATION BLOCK ---
+            if (bedModeActive) {
+                const isBedCourse = BED_COURSES.has(courseData.code.toUpperCase().trim());
+                const currentTab = document.querySelector('#bedTab .nav-link.active').id;
+                
+                if (isBedCourse && currentTab === 'other-tab') {
+                    showToast(`Cannot import B.Ed. course (${courseData.code}) to "Other" tab.`, 'warning');
+                    return; // Skips this checkbox
+                }
+                if (!isBedCourse && currentTab === 'bed-tab') {
+                    showToast(`Cannot import non-B.Ed. course (${courseData.code}) to "B.Ed." tab.`, 'warning');
+                    return; // Skips this checkbox
+                }
+            }
+            // --- END OF VALIDATION ---
 
             if (!isNaN(creditHours) && creditHours > 0 && creditHours <= 10) {
                 const semesterName = courseData.semester; // This is already the normalized name
@@ -7109,3 +7184,4 @@ document.addEventListener('DOMContentLoaded', function() {
   
 </body>
 </html>
+
