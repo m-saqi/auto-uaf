@@ -2658,61 +2658,76 @@ a[aria-expanded="true"] .status-log-chevron {
     }
 }
 
-/* --- NEW: Shopify-Style Desktop Zoom --- */
+/* --- NEW & REVISED: Image Zoom Styles (Desktop & Mobile) --- */
 
-/* This media query ensures these styles ONLY apply to desktop (screen > 991px) */
+.zoomable-image-container {
+  position: relative;
+  overflow: hidden; /* Keep this to contain elements */
+  border-radius: 0.75rem; /* Match card style */
+  display: block; /* Ensure it behaves like a block */
+  line-height: 0; /* Prevent extra space below image */
+}
+
+.zoomable-image-container img#qpTableImage {
+  display: block; /* Ensure image behaves predictably */
+  width: 100%;   /* Make image fill container width */
+  height: auto;  /* Maintain aspect ratio */
+  max-width: 100%; /* Ensure it doesn't overflow container */
+  border-radius: 0.75rem; /* Match container */
+}
+
+/* --- Desktop Specific (Loupe) Styles --- */
 @media (min-width: 992px) {
   .zoomable-image-container {
-    position: relative;
-    overflow: hidden; /* This is crucial */
     cursor: zoom-in;
-    border-radius: 0.75rem;
   }
 
-  /* The "loupe" or zoomed-in window */
+  /* Hide mobile elements */
+  .zoomable-image-container::after { display: none !important; }
+
+  /* Loupe Window */
   .zoom-loupe {
     position: absolute;
-    display: none; /* Hidden by default */
-    width: 350px; /* Width of the zoom window */
-    height: 350px; /* Height of the zoom window */
+    top: 20px; /* Position from top */
+    left: 20px; /* Default position (left) */
+    width: 350px;
+    height: 350px;
     border: 3px solid var(--brand);
     border-radius: 0.75rem;
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
     background-repeat: no-repeat;
     z-index: 20;
-    pointer-events: none; /* Allows mouse to move "through" it */
-    background-color: #fff; /* Fallback color */
+    pointer-events: none;
+    background-color: #fff; /* Fallback */
+    display: none; /* Hidden until hover */
+    opacity: 0; /* Start faded out */
+    transition: opacity 0.2s ease-in-out; /* Fade effect */
+  }
+  .zoomable-image-container:hover .zoom-loupe {
+     opacity: 1; /* Fade in on hover */
   }
 
-  /*
-    The zoom-box that appears *over* the main image.
-    This is what the user hovers to trigger the swap.
-  */
+  /* Hover Box */
   .zoom-box {
     position: absolute;
-    display: none; /* Hidden by default */
     background: rgba(122, 106, 216, 0.2);
     border: 1px dashed var(--brand);
     pointer-events: none;
     z-index: 10;
+    display: none; /* Hidden until hover */
   }
 }
 
-/* --- NEW: Mobile Lightbox Styles --- */
-
-/* This media query ensures these styles ONLY apply to mobile (screen < 992px) */
+/* --- Mobile Specific (Lightbox) Styles --- */
 @media (max-width: 991.98px) {
   .zoomable-image-container {
-    cursor: pointer; /* Change cursor to pointer on mobile */
-    position: relative;
-  }
-  
-  /* Remove desktop-only controls */
-  .zoom-controls {
-    display: none;
+    cursor: pointer; /* Pointer indicates clickability */
   }
 
-  /* Add a "click to zoom" icon on mobile */
+  /* Hide desktop elements */
+  .zoom-loupe, .zoom-box { display: none !important; }
+
+  /* Mobile "click to zoom" icon */
   .zoomable-image-container::after {
     content: '\f00e'; /* FontAwesome zoom-in icon */
     font-family: 'Font Awesome 6 Free';
@@ -2726,76 +2741,84 @@ a[aria-expanded="true"] .status-log-chevron {
     border-radius: 5px;
     font-size: 1.1rem;
     z-index: 5;
-    pointer-events: none; /* Don't block the click */
+    pointer-events: none;
   }
-}
 
-/* The full-screen modal background */
-.image-lightbox {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0, 0, 0, 0.85);
-  backdrop-filter: blur(5px);
-  z-index: 1070; /* Higher than modals */
-  display: none; /* Hidden by default */
-  opacity: 0;
-  transition: opacity 0.3s ease;
-  overflow: hidden; /* The lightbox itself does not scroll */
-}
+  /* Lightbox Background */
+  .image-lightbox {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.85);
+    backdrop-filter: blur(5px);
+    z-index: 1070;
+    display: none;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    overflow: hidden; /* Prevent body scroll when open */
+  }
+  .image-lightbox.show {
+    display: flex; /* Use flex to center content */
+    align-items: center;
+    justify-content: center;
+    opacity: 1;
+  }
 
-/* Style for when the lightbox is shown */
-.image-lightbox.show {
-  display: block;
-  opacity: 1;
-}
+  /* Content area (for image and controls) */
+  .lightbox-content {
+    width: 100%;
+    height: 100%;
+    position: relative; /* Needed for positioning image inside */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    /* Transform origin for zooming */
+    transform-origin: center center;
+  }
 
-/* The container for the image, this is what pans and zooms */
-.lightbox-content {
-  width: 100%;
-  height: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transform-origin: center center;
-  /* Will be controlled by JS for zooming/panning */
-}
+  /* Image inside lightbox */
+  .lightbox-content img#lightboxImage {
+    /* Critical: Set initial size constraints */
+    display: block;
+    max-width: 95%; /* Slightly smaller margin */
+    max-height: 95%;
+    width: auto; /* Allow shrinking */
+    height: auto; /* Allow shrinking */
+    object-fit: contain;
+    border-radius: 5px;
+    /* Touch actions for panning/zooming */
+    touch-action: none;
+    user-select: none;
+    -webkit-user-drag: none;
+    /* Transition for smooth zoom/pan */
+    transition: transform 0.2s ease-out;
+  }
 
-.lightbox-content img {
-  max-width: 90%;
-  max-height: 90%;
-  object-fit: contain;
-  border-radius: 5px;
-  /* Disable all default touch behaviors */
-  touch-action: none;
-  user-select: none;
-  -webkit-user-drag: none;
-}
-
-/* The "X" close button */
-.lightbox-close-btn {
-  position: absolute;
-  top: 15px;
-  right: 15px;
-  background: rgba(0, 0, 0, 0.5);
-  color: white;
-  border: none;
-  font-size: 1.5rem;
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  cursor: pointer;
-  z-index: 1071;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: all 0.2s ease;
-}
-.lightbox-close-btn:hover {
-  background: rgba(255, 255, 255, 0.2);
-  transform: rotate(90deg);
+  /* Close Button */
+  .lightbox-close-btn {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    background: rgba(0, 0, 0, 0.5);
+    color: white;
+    border: none;
+    font-size: 1.5rem;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    cursor: pointer;
+    z-index: 1071;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+  }
+  .lightbox-close-btn:hover {
+    background: rgba(255, 255, 255, 0.2);
+    transform: rotate(90deg);
+  }
 }
     
     
@@ -6445,7 +6468,7 @@ document.addEventListener('DOMContentLoaded', function() {
   const qpTableImage = document.getElementById('qpTableImage');
   if (!qpTableContainer || !qpTableImage) return;
 
-  const imageSrc = qpTableImage.src;
+  const imageSrc = qpTableImage.src; // Get image source
 
   // --- Desktop "Shopify-Style" Loupe Zoom ---
   const loupe = document.getElementById('qpTableLoupe');
@@ -6454,78 +6477,110 @@ document.addEventListener('DOMContentLoaded', function() {
   // Loupe settings
   const loupeWidth = 350;
   const loupeHeight = 350;
-  const zoomLevel = 2.5; // How much to zoom in
-  let loupePosition = 'left'; // Default position
+  const zoomLevel = 2.5;
+  let loupePosition = 'left';
 
-  function initDesktopZoom() {
+  function setupDesktopZoom() {
     if (!loupe || !zoomBox) return;
 
-    // Set the loupe's background image and size
-    loupe.style.backgroundImage = `url(${imageSrc})`;
-    loupe.style.backgroundSize = `${qpTableImage.width * zoomLevel}px ${qpTableImage.height * zoomLevel}px`;
+    // We need image dimensions. Wait for image load if necessary.
+    const initializeLoupe = () => {
+        // Ensure calculations use loaded dimensions
+        const imgWidth = qpTableImage.naturalWidth > 0 ? qpTableImage.width : qpTableImage.offsetWidth;
+        const imgHeight = qpTableImage.naturalHeight > 0 ? qpTableImage.height : qpTableImage.offsetHeight;
+        
+        if (imgWidth === 0 || imgHeight === 0) {
+            console.warn("QP Table image dimensions not available yet for zoom setup.");
+            return; // Exit if dimensions aren't ready
+        }
 
-    // Set the size of the hover box
-    const boxWidth = loupeWidth / zoomLevel;
-    const boxHeight = loupeHeight / zoomLevel;
-    zoomBox.style.width = `${boxWidth}px`;
-    zoomBox.style.height = `${boxHeight}px`;
+        // Set loupe background and size (based on *rendered* size)
+        loupe.style.backgroundImage = `url(${imageSrc})`;
+        loupe.style.backgroundSize = `${imgWidth * zoomLevel}px ${imgHeight * zoomLevel}px`;
 
-    qpTableContainer.addEventListener('mouseenter', () => {
-      // Recalculate background size on enter, in case image resized
-      loupe.style.backgroundSize = `${qpTableImage.width * zoomLevel}px ${qpTableImage.height * zoomLevel}px`;
+        // Set zoom box size
+        const boxWidth = loupeWidth / zoomLevel;
+        const boxHeight = loupeHeight / zoomLevel;
+        zoomBox.style.width = `${boxWidth}px`;
+        zoomBox.style.height = `${boxHeight}px`;
+
+        // Attach mouse events only *after* setup
+        qpTableContainer.addEventListener('mouseenter', handleMouseEnter);
+        qpTableContainer.addEventListener('mouseleave', handleMouseLeave);
+        qpTableContainer.addEventListener('mousemove', handleMouseMove);
+    };
+
+    const handleMouseEnter = () => {
+      // Refresh background size in case of resize
+      const imgWidth = qpTableImage.width;
+      const imgHeight = qpTableImage.height;
+      if (imgWidth > 0 && imgHeight > 0) {
+         loupe.style.backgroundSize = `${imgWidth * zoomLevel}px ${imgHeight * zoomLevel}px`;
+      }
       loupe.style.display = 'block';
       zoomBox.style.display = 'block';
-    });
+    };
 
-    qpTableContainer.addEventListener('mouseleave', () => {
+    const handleMouseLeave = () => {
       loupe.style.display = 'none';
       zoomBox.style.display = 'none';
-    });
+    };
 
-    qpTableContainer.addEventListener('mousemove', (e) => {
-      const rect = qpTableContainer.getBoundingClientRect();
-      let x = e.clientX - rect.left;
-      let y = e.clientY - rect.top;
+    const handleMouseMove = (e) => {
+        const rect = qpTableContainer.getBoundingClientRect();
+        const imgWidth = qpTableImage.width;
+        const imgHeight = qpTableImage.height;
+        const boxWidth = parseFloat(zoomBox.style.width);
+        const boxHeight = parseFloat(zoomBox.style.height);
 
-      // Keep the box inside the image bounds
-      let boxTop = y - boxHeight / 2;
-      let boxLeft = x - boxWidth / 2;
+        if (!boxWidth || !boxHeight || !imgWidth || !imgHeight) return; // Exit if dimensions not set
 
-      boxTop = Math.max(0, Math.min(boxTop, rect.height - boxHeight));
-      boxLeft = Math.max(0, Math.min(boxLeft, rect.width - boxWidth));
+        let x = e.clientX - rect.left;
+        let y = e.clientY - rect.top;
 
-      // Update the hover box position
-      zoomBox.style.top = `${boxTop}px`;
-      zoomBox.style.left = `${boxLeft}px`;
+        // Keep box within image bounds
+        let boxTop = y - boxHeight / 2;
+        let boxLeft = x - boxWidth / 2;
+        boxTop = Math.max(0, Math.min(boxTop, imgHeight - boxHeight));
+        boxLeft = Math.max(0, Math.min(boxLeft, imgWidth - boxWidth));
 
-      // Update the loupe's background position
-      const bgPosX = -boxLeft * zoomLevel;
-      const bgPosY = -boxTop * zoomLevel;
-      loupe.style.backgroundPosition = `${bgPosX}px ${bgPosY}px`;
+        zoomBox.style.top = `${boxTop}px`;
+        zoomBox.style.left = `${boxLeft}px`;
 
-      // --- This is the "Swap" Logic ---
-      const loupeMargin = 20;
-      const loupeRightEdge = boxLeft + boxWidth + loupeWidth + loupeMargin;
-      
-      // Check if cursor is over the *loupe's* intended area
-      if (
-        (loupePosition === 'left' && x < loupeWidth + loupeMargin) ||
-        (loupePosition === 'right' && x > rect.width - (loupeWidth + loupeMargin))
-      ) {
-        // Cursor is over the loupe area, swap its position
-        loupePosition = (loupePosition === 'left') ? 'right' : 'left';
-      }
+        // Update loupe background
+        const bgPosX = -boxLeft * zoomLevel;
+        const bgPosY = -boxTop * zoomLevel;
+        loupe.style.backgroundPosition = `${bgPosX}px ${bgPosY}px`;
 
-      // Apply the loupe position
-      if (loupePosition === 'right') {
-        loupe.style.left = 'auto';
-        loupe.style.right = `${loupeMargin}px`;
-      } else {
-        loupe.style.right = 'auto';
-        loupe.style.left = `${loupeMargin}px`;
-      }
-      loupe.style.top = `20px`; // Fixed vertical position
-    });
+        // Swap Logic
+        const loupeMargin = 20;
+        // Check if cursor enters the *projected* area where the loupe would be
+        if (
+            (loupePosition === 'left' && x < loupeWidth + loupeMargin) ||
+            (loupePosition === 'right' && x > rect.width - (loupeWidth + loupeMargin))
+        ) {
+            loupePosition = (loupePosition === 'left') ? 'right' : 'left';
+        }
+
+        // Position Loupe
+        if (loupePosition === 'right') {
+            loupe.style.left = 'auto';
+            loupe.style.right = `${loupeMargin}px`;
+        } else {
+            loupe.style.right = 'auto';
+            loupe.style.left = `${loupeMargin}px`;
+        }
+        loupe.style.top = `20px`;
+    };
+
+    // Check if image is already loaded (e.g., cached)
+    if (qpTableImage.complete && qpTableImage.naturalWidth > 0) {
+      initializeLoupe();
+    } else {
+      // Otherwise, wait for the image to load
+      qpTableImage.onload = initializeLoupe;
+      qpTableImage.onerror = () => console.error("QP Table image failed to load.");
+    }
   }
 
 
@@ -6533,127 +6588,155 @@ document.addEventListener('DOMContentLoaded', function() {
   const lightbox = document.getElementById('imageLightbox');
   const lightboxContent = document.getElementById('lightboxContent');
   const lightboxClose = document.getElementById('lightboxClose');
+  let lightboxImage = null; // Will hold the image element in the lightbox
 
-  let scale = 1, panning = false,
-      pointX = 0, pointY = 0,
-      startX = 0, startY = 0,
-      lastDist = 0;
+  // State for panning and zooming
+  let scale = 1, isPanning = false, isPinching = false;
+  let start = { x: 0, y: 0 }; // Starting point for panning/pinching
+  let initialPinchDistance = 0;
+  let currentTransform = { scale: 1, translateX: 0, translateY: 0 };
 
-  function setTransform() {
-    lightboxContent.style.transform = `translate(${pointX}px, ${pointY}px) scale(${scale})`;
+  function applyTransform() {
+    if (!lightboxImage) return;
+    lightboxImage.style.transform = `translate(${currentTransform.translateX}px, ${currentTransform.translateY}px) scale(${currentTransform.scale})`;
   }
 
-  function initMobileZoom() {
+  function getDistance(p1, p2) {
+    return Math.hypot(p1.clientX - p2.clientX, p1.clientY - p2.clientY);
+  }
+
+  function getCenter(p1, p2) {
+      return {
+          x: (p1.clientX + p2.clientX) / 2,
+          y: (p1.clientY + p2.clientY) / 2
+      };
+  }
+
+  function setupMobileZoom() {
     if (!lightbox || !lightboxContent || !lightboxClose) return;
 
-    // 1. Open the Lightbox
+    // --- 1. Open Lightbox ---
     qpTableContainer.addEventListener('click', (e) => {
       e.preventDefault();
-      // Clone the image to put in the lightbox
+      // Clone image
       const imgClone = qpTableImage.cloneNode(true);
       imgClone.id = 'lightboxImage';
-      imgClone.style.maxWidth = '90%'; // Reset styles for lightbox
-      imgClone.style.maxHeight = '90%';
+      // Remove potentially problematic inline styles from desktop
+      imgClone.style.transform = '';
+      imgClone.style.maxWidth = '95%';
+      imgClone.style.maxHeight = '95%';
       lightboxContent.innerHTML = ''; // Clear previous
       lightboxContent.appendChild(imgClone);
-      
-      // Reset transform state
-      scale = 1;
-      pointX = 0;
-      pointY = 0;
-      setTransform();
+      lightboxImage = imgClone; // Store reference
+
+      // Reset state
+      currentTransform = { scale: 1, translateX: 0, translateY: 0 };
+      applyTransform(); // Apply initial transform
 
       lightbox.classList.add('show');
+      // Prevent body scroll when lightbox is open
+      document.body.style.overflow = 'hidden';
     });
 
-    // 2. Close the Lightbox
-    lightboxClose.addEventListener('click', () => {
+    // --- 2. Close Lightbox ---
+    const closeLightbox = () => {
       lightbox.classList.remove('show');
-    });
-    // Also close on background click
+      lightboxImage = null; // Clear reference
+      // Restore body scroll
+      document.body.style.overflow = '';
+    };
+    lightboxClose.addEventListener('click', closeLightbox);
     lightbox.addEventListener('click', (e) => {
-      if (e.target === lightbox) {
-        lightbox.classList.remove('show');
-      }
+      if (e.target === lightbox) closeLightbox();
     });
 
-    // 3. Handle Touch Events for Pan and Pinch-Zoom
+    // --- 3. Touch Events ---
     lightboxContent.addEventListener('touchstart', (e) => {
-      e.preventDefault();
-      startX = e.touches[0].clientX - pointX;
-      startY = e.touches[0].clientY - pointY;
-      lastDist = 0; // Reset pinch distance
-      panning = true;
-
-      if (e.touches.length === 2) {
-        // Start pinch
-        lastDist = Math.hypot(e.touches[0].clientX - e.touches[1].clientX, e.touches[0].clientY - e.touches[1].clientY);
+      if (!lightboxImage) return;
+      
+      if (e.touches.length === 1) {
+        // Start Pan
+        isPanning = true;
+        start.x = e.touches[0].clientX - currentTransform.translateX;
+        start.y = e.touches[0].clientY - currentTransform.translateY;
+      } else if (e.touches.length === 2) {
+        // Start Pinch
+        isPanning = false; // Stop panning if pinch starts
+        isPinching = true;
+        initialPinchDistance = getDistance(e.touches[0], e.touches[1]);
+        start.x = getCenter(e.touches[0], e.touches[1]).x;
+        start.y = getCenter(e.touches[0], e.touches[1]).y;
       }
-    });
+    }, { passive: false }); // Need passive: false to preventDefault
 
     lightboxContent.addEventListener('touchmove', (e) => {
-      e.preventDefault();
-      if (!panning) return;
+      if (!lightboxImage) return;
+      e.preventDefault(); // Prevent page scroll
 
-      if (e.touches.length === 1 && scale > 1) {
-        // Pan
-        pointX = e.touches[0].clientX - startX;
-        pointY = e.touches[0].clientY - startY;
-      } else if (e.touches.length === 2) {
-        // Pinch-Zoom
-        let newDist = Math.hypot(e.touches[0].clientX - e.touches[1].clientX, e.touches[0].clientY - e.touches[1].clientY);
-        
-        if (lastDist > 0) {
-          let scaleChange = (newDist - lastDist) / 100; // Sensitivity
-          scale += scaleChange;
-          
-          // Clamp scale
-          if (scale < 1) scale = 1;
-          if (scale > 10) scale = 10; // "Unlimited" up to 10x
-        }
-        lastDist = newDist;
+      if (isPanning && e.touches.length === 1) {
+        // Perform Pan
+        currentTransform.translateX = e.touches[0].clientX - start.x;
+        currentTransform.translateY = e.touches[0].clientY - start.y;
+        applyTransform();
+      } else if (isPinching && e.touches.length === 2) {
+        // Perform Pinch Zoom
+        const currentPinchDistance = getDistance(e.touches[0], e.touches[1]);
+        const scaleChange = currentPinchDistance / initialPinchDistance;
+        let newScale = currentTransform.scale * scaleChange;
+
+        // Clamp scale (adjust max zoom as needed)
+        newScale = Math.max(1, Math.min(newScale, 10)); // Min 1x, Max 10x
+
+        // Calculate zoom origin based on touch center
+        const rect = lightboxImage.getBoundingClientRect();
+        const touchCenterX = getCenter(e.touches[0], e.touches[1]).x - rect.left;
+        const touchCenterY = getCenter(e.touches[0], e.touches[1]).y - rect.top;
+
+        // Apply zoom and adjust position to zoom towards touch center
+        const scaleRatio = newScale / currentTransform.scale;
+        currentTransform.translateX -= (touchCenterX - currentTransform.translateX) * (scaleRatio - 1);
+        currentTransform.translateY -= (touchCenterY - currentTransform.translateY) * (scaleRatio - 1);
+        currentTransform.scale = newScale;
+
+        applyTransform();
+
+        // Update for next move event
+        initialPinchDistance = currentPinchDistance;
       }
-      
-      setTransform();
-    });
+    }, { passive: false });
 
     lightboxContent.addEventListener('touchend', (e) => {
-      panning = false;
-      lastDist = 0; // Reset pinch distance
-      if (scale === 1) {
-        // Reset position if zoomed all the way out
-        pointX = 0;
-        pointY = 0;
-        setTransform();
+      if (!lightboxImage) return;
+      
+      if (isPanning && e.touches.length === 0) {
+        isPanning = false;
+      }
+      if (isPinching && e.touches.length < 2) {
+        isPinching = false;
+        // If zooming out fully, reset position smoothly
+        if (currentTransform.scale <= 1.05) { // Threshold to snap back
+           currentTransform = { scale: 1, translateX: 0, translateY: 0 };
+           applyTransform();
+        }
       }
     });
-    
-    // 4. Handle Desktop Wheel Zoom (for completeness)
-    lightboxContent.addEventListener('wheel', (e) => {
-        e.preventDefault();
-        let delta = e.deltaY > 0 ? -0.1 : 0.1; // Zoom direction
-        scale += delta;
-        
-        // Clamp scale
-        if (scale < 1) scale = 1;
-        if (scale > 10) scale = 10;
 
-        if (scale === 1) {
-          pointX = 0;
-          pointY = 0;
+    lightboxContent.addEventListener('touchcancel', (e) => {
+        // Similar logic to touchend to reset state
+        if (isPanning) isPanning = false;
+        if (isPinching) isPinching = false;
+        if (currentTransform.scale <= 1.05) {
+            currentTransform = { scale: 1, translateX: 0, translateY: 0 };
+            applyTransform();
         }
-        setTransform();
     });
   }
-  
+
   // --- Device-specific Initialization ---
-  // Run the correct initializer based on screen width
   if (window.matchMedia("(min-width: 992px)").matches) {
-    // Desktop
-    initDesktopZoom();
+    setupDesktopZoom();
   } else {
-    // Mobile
-    initMobileZoom();
+    setupMobileZoom();
   }
 
 });
@@ -6704,6 +6787,7 @@ document.addEventListener('DOMContentLoaded', function() {
   
 </body>
 </html>
+
 
 
 
