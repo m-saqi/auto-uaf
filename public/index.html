@@ -4159,7 +4159,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js"></script>
 
 <script>
-            document.addEventListener('DOMContentLoaded', function() {
+                document.addEventListener('DOMContentLoaded', function() {
       // Elements
       const resultForm = document.getElementById('resultForm');
       const registrationNumber = document.getElementById('registrationNumber');
@@ -4299,6 +4299,10 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
       function setupAttendanceButton() {
         // Remove existing listener to avoid stacking
         const buttonContainer = fetchAttendanceBtn.parentElement; // Get parent container
+        if (!buttonContainer) { // Guard if button container not found
+             console.error("Attendance button container not found.");
+             return;
+        }
         const newBtn = fetchAttendanceBtn.cloneNode(true);
         buttonContainer.replaceChild(newBtn, fetchAttendanceBtn); // Replace in DOM
         fetchAttendanceBtn = newBtn; // Re-assign the global variable
@@ -5243,18 +5247,17 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
           // Consider replacing this with a simpler percentage-to-grade-point conversion if UAF uses one
           // For now, keeping the original complex logic:
           let qualityPoints = 0;
-          const maxMarks = { 10: 200, 9: 180, 8: 160, 7: 140, 6: 120, 5: 100, 4: 80, 3: 60, 2: 40, 1: 20 }[creditHours] || (creditHours * 20); // Estimate max marks if not standard CH
+          // This logic seems incorrect as it uses integer creditHours for keys.
+          // Re-implementing simplified percentage-based logic as a better fallback.
+          const maxMarks = { 10: 200, 9: 180, 8: 160, 7: 140, 6: 120, 5: 100, 4: 80, 3: 60, 2: 40, 1: 20 }[Math.round(creditHours)] || (creditHours * 20); // Estimate max marks if not standard CH
 
           if (marks >= maxMarks * 0.8) qualityPoints = 4.0 * creditHours;        // A (80%+)
-          else if (marks >= maxMarks * 0.65) qualityPoints = 3.0 * creditHours;   // B (65-79%) - Simplified
-          else if (marks >= maxMarks * 0.50) qualityPoints = 2.0 * creditHours;   // C (50-64%) - Simplified
-          else if (marks >= maxMarks * 0.40) qualityPoints = 1.0 * creditHours;   // D (40-49%) - Simplified
-          else qualityPoints = 0.0;                                            // F (<40%)
-
-          // The original complex formula:
-          // if (creditHours === 10) { if (marks >= 160) qualityPoints = 40; else if (marks >= 100) qualityPoints = 40 - ((160 - marks) * 0.33333); else if (marks < 100) qualityPoints = 20 - ((100 - marks) * 0.5); if (marks < 80) qualityPoints = 0; }
-          // else if (creditHours === 9) { if (marks >= 144) qualityPoints = 36; else if (marks >= 90) qualityPoints = 36 - ((144 - marks) * 0.33333); else if (marks < 90) qualityPoints = 18 - ((90 - marks) * 0.5); if (marks < 72) qualityPoints = 0; }
-          // ... and so on for other credit hours ...
+          else if (marks >= maxMarks * 0.75) qualityPoints = 3.5 * creditHours;  // B+ (75-79%) - Guessed
+          else if (marks >= maxMarks * 0.65) qualityPoints = 3.0 * creditHours;  // B (65-74%) - Guessed
+          else if (marks >= maxMarks * 0.60) qualityPoints = 2.5 * creditHours;  // C+ (60-64%) - Guessed
+          else if (marks >= maxMarks * 0.50) qualityPoints = 2.0 * creditHours;  // C (50-59%) - Guessed
+          else if (marks >= maxMarks * 0.40) qualityPoints = 1.0 * creditHours;  // D (40-49%) - Guessed
+          else qualityPoints = 0.0;                                           // F (<40%)
           
           // Rounding to 2 decimal places is standard for QP
           return parseFloat(Math.max(0, qualityPoints).toFixed(2));
@@ -5262,14 +5265,13 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 
       function calculateCustomGrade(marks, creditHours) {
           // Simplified grade calculation based on percentage - ADJUST thresholds as per UAF rules
-          const maxMarks = { 10: 200, 9: 180, 8: 160, 7: 140, 6: 120, 5: 100, 4: 80, 3: 60, 2: 40, 1: 20 }[creditHours] || (creditHours * 20); // Estimate if not standard
+          const maxMarks = { 10: 200, 9: 180, 8: 160, 7: 140, 6: 120, 5: 100, 4: 80, 3: 60, 2: 40, 1: 20 }[Math.round(creditHours)] || (creditHours * 20); // Estimate if not standard
           const percentage = (marks / maxMarks) * 100;
 
           if (percentage >= 80) return 'A';
-          // Add B+, C+ if applicable based on UAF rules
-          // Example: else if (percentage >= 75) return 'B+';
-          else if (percentage >= 65) return 'B';
-          // Example: else if (percentage >= 60) return 'C+';
+          else if (percentage >= 75) return 'B+'; // Guessed
+          else if (percentage >= 65) return 'B';  // Guessed
+          else if (percentage >= 60) return 'C+'; // Guessed
           else if (percentage >= 50) return 'C';
           else if (percentage >= 40) return 'D';
           else return 'F';
@@ -5324,7 +5326,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                         // Assuming 1 CH 'P' grade maps to 100 max marks for percentage calc
                         maxMarks = (creditHours === 1) ? 100 : marks; // Use marks as max otherwise for 'P'
                     } else {
-                         maxMarks = { 10: 200, 9: 180, 8: 160, 7: 140, 6: 120, 5: 100, 4: 80, 3: 60, 2: 40, 1: 20 }[creditHours] || (creditHours * 20); // Estimate if non-standard
+                         maxMarks = { 10: 200, 9: 180, 8: 160, 7: 140, 6: 120, 5: 100, 4: 80, 3: 60, 2: 40, 1: 20 }[Math.round(creditHours)] || (creditHours * 20); // Estimate if non-standard
                     }
                     semester.totalMaxMarks += maxMarks;
 
@@ -5366,8 +5368,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
           const semester = data.semesters[semesterName];
           // Don't render semesters with only deleted courses unless needed
           const nonDeletedCourses = semester.courses.filter(c => !c.isDeleted);
-          if (nonDeletedCourses.length === 0) { // Skip rendering if no active courses
-              // Optionally add logic here if you *want* to show semesters with only deleted courses
+          if (nonDeletedCourses.length === 0 && semester.courses.length > 0) { // Skip rendering if no active courses, but courses existed
               return;
           }
           
@@ -5397,7 +5398,8 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
             </div>
             <button class="custom-course-btn" data-semester="${semesterName}"><i class="fa-solid fa-plus"></i> Custom Course</button>
             <div class="table-responsive"><table class="course-table"><thead><tr><th>Course</th><th>Hrs</th><th>Marks</th><th>Grade</th><th>Action</th></tr></thead>
-              <tbody>${semester.courses.map((course, index) => {
+              <tbody>
+              ${semester.courses.length > 0 ? semester.courses.map((course, index) => {
                   // Generate a unique ID based on more stable properties + index as fallback
                   const courseIdentifier = `${semesterName}-${course.code}-${course.creditHours}-${course.marks}-${index}`;
                   const courseTitle = course.title || (course.isCustom ? 'Custom Course' : 'N/A');
@@ -5420,7 +5422,8 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                     <td><span class="grade-badge grade-${course.grade}">${course.grade}</span></td>
                     <td class="course-actions">${course.isDeleted ? `<i class="fa-solid fa-rotate-left restore-course" data-course='${escapedCourseData}' data-semester="${semesterName}" title="Restore"></i>` : `<i class="fa-solid fa-trash delete-course" data-course='${escapedCourseData}' data-semester="${semesterName}" title="Delete"></i>`}</td>
                   </tr>`;
-              }).join('')}</tbody>
+              }).join('') : '<tr><td colspan="5" class="text-center text-muted small p-3">No courses added yet.</td></tr>'}
+              </tbody>
             </table></div>`;
           container.appendChild(semesterCard);
         });
@@ -5561,6 +5564,8 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
           displayCGPAResults(data, cgpaData); // Renders card, chart, buttons via setupFeatureButtons
         }
          // Common student info header update (Needed because B.Ed mode also needs it)
+         // This element is only in the *standard* container, so we update it here
+         // The B.Ed. container has its own static headers
          studentName.innerHTML = `<i class="fa-solid fa-user-graduate me-2"></i>${data.studentInfo.name || 'N/A'}`;
          studentReg.textContent = data.studentInfo.registration || 'N/A';
       }
@@ -5739,41 +5744,31 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         resultAreas.forEach(area => {
             if (!area) return;
 
+            // Simple re-attachment (less complex than full delegation)
             // Remove previous listeners if any (simple approach)
-            // A more robust approach would track listeners, but this works for now
             const newArea = area.cloneNode(true);
             area.parentNode.replaceChild(newArea, area);
 
-            // Re-select elements within the new cloned area if needed
-            // Example: const semesterResultsInArea = newArea.querySelector('#semesterResults');
-
-            newArea.addEventListener('click', (e) => {
-                const target = e.target;
-                const closestCard = target.closest('.semester-card');
-                const semesterName = closestCard?.dataset.semester;
-
-                if (target.classList.contains('clickable-info') && target.dataset.course) {
-                    try {
-                        showCourseDetails(JSON.parse(target.dataset.course.replace(/&#39;/g, "'")));
-                    } catch (err) { console.error("Error parsing course data for details:", err); }
-                } else if (target.classList.contains('delete-semester') && semesterName) {
-                    deleteSemester(e, semesterName);
-                } else if (target.classList.contains('custom-course-btn') && semesterName) {
-                    openAddCourseModal(semesterName);
-                } else if (target.classList.contains('edit-semester-name') && semesterName) {
-                    openRenameSemesterModal(semesterName);
-                } else if (target.classList.contains('delete-course') && semesterName && target.dataset.course) {
-                     try {
-                        const course = JSON.parse(target.dataset.course.replace(/&#39;/g, "'"));
-                        modifyCourseState(e, course, semesterName, true);
-                    } catch (err) { console.error("Error parsing course data for delete:", err); }
-                } else if (target.classList.contains('restore-course') && semesterName && target.dataset.course) {
-                     try {
-                        const course = JSON.parse(target.dataset.course.replace(/&#39;/g, "'"));
-                        modifyCourseState(e, course, semesterName, false);
-                    } catch (err) { console.error("Error parsing course data for restore:", err); }
-                }
-            });
+            // Re-select elements within the new cloned area and attach listeners
+            newArea.querySelectorAll('.clickable-info').forEach(el => el.addEventListener('click', e => {
+                try { showCourseDetails(JSON.parse(e.currentTarget.dataset.course.replace(/&#39;/g, "'"))); }
+                catch (err) { console.error("Error parsing course data for details:", err); }
+            }));
+            newArea.querySelectorAll('.delete-semester').forEach(btn => btn.addEventListener('click', e => deleteSemester(e, e.currentTarget.dataset.semester)));
+            newArea.querySelectorAll('.custom-course-btn').forEach(btn => btn.addEventListener('click', e => openAddCourseModal(e.currentTarget.dataset.semester)));
+            newArea.querySelectorAll('.edit-semester-name').forEach(btn => btn.addEventListener('click', e => openRenameSemesterModal(e.currentTarget.dataset.semester)));
+            newArea.querySelectorAll('.delete-course').forEach(btn => btn.addEventListener('click', e => {
+                 try {
+                    const course = JSON.parse(btn.dataset.course.replace(/&#39;/g, "'"));
+                    modifyCourseState(e, course, btn.dataset.semester, true);
+                } catch (err) { console.error("Error parsing course data for delete:", err); }
+            }));
+            newArea.querySelectorAll('.restore-course').forEach(btn => btn.addEventListener('click', e => {
+                 try {
+                    const course = JSON.parse(btn.dataset.course.replace(/&#39;/g, "'"));
+                    modifyCourseState(e, course, btn.dataset.semester, false);
+                } catch (err) { console.error("Error parsing course data for restore:", err); }
+            }));
         });
 
 
@@ -5816,7 +5811,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                   if (!sourceCard) return; // Should not happen
 
                   const sourceSemester = sourceCard.dataset.semester;
-                  const courseIdentifier = targetRow.dataset.courseIdentifier;
+                  const courseIdentifier = targetRow.dataset.courseIdentifier; // Use the stable identifier
                   e.dataTransfer.setData('text/plain', JSON.stringify({ courseIdentifier, sourceSemester }));
                   e.dataTransfer.effectAllowed = "move"; // Indicate it's a move operation
               });
@@ -5843,11 +5838,18 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                   e.preventDefault();
                   e.currentTarget.classList.remove('drag-over');
 
-                  const data = JSON.parse(e.dataTransfer.getData('text/plain'));
+                  let data;
+                  try {
+                       data = JSON.parse(e.dataTransfer.getData('text/plain'));
+                  } catch(err) {
+                       console.error("Failed to parse drag data:", err);
+                       return;
+                  }
+                  
                   const targetSemester = e.currentTarget.dataset.semester;
 
-                  if (data.sourceSemester === targetSemester) {
-                      return; // No change if dropped in the same semester
+                  if (!data || !data.courseIdentifier || !data.sourceSemester || data.sourceSemester === targetSemester) {
+                      return; // No change if dropped in the same semester or data is invalid
                   }
 
                   let courseToMove = null;
@@ -5858,9 +5860,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                   if (sourceSemesterObj?.courses) {
                        courseIndex = sourceSemesterObj.courses.findIndex((course, index) => {
                            // Rebuild the identifier based on stored data for comparison
-                           const identifier = `${data.sourceSemester}-${course.code}-${course.total}-${index}`; // Assuming 'total' was part of identifier, adjust if not
-                           // If 'total' wasn't used, use a different stable property like marks or grade
-                           // const identifier = `${data.sourceSemester}-${course.code}-${course.marks}-${index}`;
+                           const identifier = `${data.sourceSemester}-${course.code}-${course.creditHours}-${course.marks}-${index}`;
                            return identifier === data.courseIdentifier;
                        });
                        if (courseIndex > -1) {
@@ -5892,7 +5892,6 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                        // Ensure target semester exists
                       if (!processedData.semesters[targetSemester]) {
                            console.error(`Target semester ${targetSemester} not found in processedData.`);
-                           // Optionally put the course back or show error
                            sourceSemesterObj.courses.splice(courseIndex, 0, movedCourse); // Put back
                            showToast('Error: Target semester not found.', 'error');
                            return;
@@ -5906,8 +5905,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                   } else {
                       showToast('Could not move course. Data might be out of sync or identifier mismatch.', 'error');
                       console.error('Course mismatch or not found for drag/drop. Identifier:', data.courseIdentifier, 'Source Semester:', data.sourceSemester);
-                       // Re-render to ensure UI consistency if drag failed unexpectedly
-                       recalculateAndDisplay();
+                       recalculateAndDisplay(); // Re-render to ensure UI consistency
                   }
               });
           });
@@ -6185,7 +6183,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
             showToast("Semester name cannot be empty.", 'warning');
         } else if (newSemesterName !== null && newSemesterName.trim() === oldSemesterName) {
              // No change, do nothing or show info message
-             showToast("Semester name not changed.", "info");
+             // showToast("Semester name not changed.", "info"); // This might be annoying, commented out
         }
       }
 
@@ -6356,37 +6354,49 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
           renderProfileManager();
           profileManagerModal.show();
       });
-      document.getElementById('selectAllProfiles').addEventListener('change', e => {
-          document.querySelectorAll('.profile-checkbox').forEach(cb => cb.checked = e.target.checked);
-          const anyChecked = e.target.checked;
-           document.getElementById('bulkActionsBtn').disabled = !anyChecked;
-           exportProfilesBtnModal.disabled = !anyChecked; // Also enable/disable export in modal
-      });
+      
+      // Ensure 'selectAllProfiles' element exists before adding listener
+      const selectAllProfilesCheckbox = document.getElementById('selectAllProfiles');
+      if (selectAllProfilesCheckbox) {
+          selectAllProfilesCheckbox.addEventListener('change', e => {
+              document.querySelectorAll('.profile-checkbox').forEach(cb => cb.checked = e.target.checked);
+              const anyChecked = e.target.checked;
+               document.getElementById('bulkActionsBtn').disabled = !anyChecked;
+               exportProfilesBtnModal.disabled = !anyChecked; // Also enable/disable export in modal
+          });
+      }
 
-        document.getElementById('profileManagerList').addEventListener('change', e => {
-            if (e.target.classList.contains('profile-checkbox')) {
-                const anyChecked = !!document.querySelector('#profileManagerList .profile-checkbox:checked'); // Check within the list
-                document.getElementById('bulkActionsBtn').disabled = !anyChecked;
-                exportProfilesBtnModal.disabled = !anyChecked;
+      // Ensure 'profileManagerList' element exists before adding listener
+      const profileManagerListEl = document.getElementById('profileManagerList');
+      if (profileManagerListEl) {
+          profileManagerListEl.addEventListener('change', e => {
+              if (e.target.classList.contains('profile-checkbox')) {
+                  const anyChecked = !!document.querySelector('#profileManagerList .profile-checkbox:checked'); // Check within the list
+                  document.getElementById('bulkActionsBtn').disabled = !anyChecked;
+                  exportProfilesBtnModal.disabled = !anyChecked;
 
-                 // Update "Select All" checkbox state
-                const allCheckboxes = document.querySelectorAll('#profileManagerList .profile-checkbox');
-                const checkedCheckboxes = document.querySelectorAll('#profileManagerList .profile-checkbox:checked');
-                const allChecked = allCheckboxes.length > 0 && checkedCheckboxes.length === allCheckboxes.length;
+                   // Update "Select All" checkbox state
+                  const allCheckboxes = document.querySelectorAll('#profileManagerList .profile-checkbox');
+                  const checkedCheckboxes = document.querySelectorAll('#profileManagerList .profile-checkbox:checked');
+                  const allChecked = allCheckboxes.length > 0 && checkedCheckboxes.length === allCheckboxes.length;
 
-                const selectAllInput = document.getElementById('selectAllProfiles');
-                selectAllInput.checked = allChecked;
-                selectAllInput.indeterminate = !allChecked && anyChecked;
+                  const selectAllInput = document.getElementById('selectAllProfiles');
+                  if (selectAllInput) {
+                      selectAllInput.checked = allChecked;
+                      selectAllInput.indeterminate = !allChecked && anyChecked;
+                  }
+              }
+          });
+      }
 
-            }
-        });
-
-      document.getElementById('deleteSelectedBtn').addEventListener('click', handleBulkAction);
+      // Ensure 'deleteSelectedBtn' element exists
+      const deleteSelectedBtnEl = document.getElementById('deleteSelectedBtn');
+      if (deleteSelectedBtnEl) {
+          deleteSelectedBtnEl.addEventListener('click', handleBulkAction);
+      }
 
       init(); // Initialize everything
     });
-
-
 
 </script>
 
@@ -6698,6 +6708,7 @@ document.addEventListener('DOMContentLoaded', function() {
   
 </body>
 </html>
+
 
 
 
