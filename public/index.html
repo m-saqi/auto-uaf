@@ -2416,45 +2416,6 @@ a[aria-expanded="true"] .status-log-chevron {
   }
 }
 
-
-    /* --- NEW: B.Ed. Tab Styles --- */
-#bedTab {
-  border-bottom: 3px solid rgba(122, 106, 216, 0.2);
-  margin-bottom: 1.5rem;
-}
-
-#bedTab .nav-link {
-  font-weight: 600;
-  font-size: 1.1rem;
-  color: var(--muted);
-  border: none;
-  border-bottom: 3px solid transparent;
-  padding-bottom: 1rem;
-  transition: all 0.3s ease;
-}
-
-#bedTab .nav-link.active {
-  color: var(--brand);
-  border-bottom-color: var(--brand);
-  background-color: transparent;
-}
-
-#bedTab .nav-link:hover:not(.active) {
-  color: var(--text);
-  border-bottom-color: rgba(122, 106, 216, 0.5);
-}
-
-[data-theme="dark"] #bedTab {
-  border-bottom-color: rgba(122, 106, 216, 0.3);
-}
-
-[data-theme="dark"] #bedTab .nav-link.active {
-  color: #fff;
-}
-/* --- End of B.Ed. Tab Styles --- */
-    
-    
-
 /* Animation for hero text */
 .hero-text-gradient {
   background: linear-gradient(90deg, var(--brand-primary), var(--brand-secondary), var(--accent), var(--brand-primary));
@@ -3116,25 +3077,6 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     </div>
   </div>
 
-
-  <div class="modal fade confirmation-modal" id="bedConfirmationModal" tabindex="-1" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
-  <div class="modal-dialog modal-dialog-centered">
-    <div class="modal-content">
-      <div class="modal-body">
-        <i class="fa-solid fa-graduation-cap mb-3" style="font-size: 2.5rem; color: var(--brand);"></i>
-        <h5 class="modal-title mb-2">B.Ed. Courses Detected</h5>
-        <p class="text-muted small">We found courses related to the B.Ed. (Bachelor of Education) program in your results.</p>
-        <p class="mb-0"><strong>Have you enrolled in the B.Ed. program?</strong></p>
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary-action rounded-pill" id="bedConfirmNo">No, Show All</button>
-        <button type="button" class="btn btn-primary-action rounded-pill" id="bedConfirmYes">Yes, Separate B.Ed.</button>
-      </div>
-    </div>
-  </div>
-</div>
-  
-
   <div class="modal fade confirmation-modal" id="confirmationModal" tabindex="-1" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
     <div class="modal-dialog modal-dialog-centered modal-sm">
       <div class="modal-content">
@@ -3410,92 +3352,6 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
       <div id="semesterResults" class="semester-grid"></div>
     </div>
 </div>
-
-          <div id="bedResultContainer" style="display: none;">
-  <nav class="nav nav-tabs nav-fill" id="bedTab" role="tablist">
-    <a class="nav-link active" id="bed-tab" data-bs-toggle="tab" href="#bed-tab-content" role="tab" aria-controls="bed-tab-content" aria-selected="true">
-      <i class="fa-solid fa-graduation-cap me-2"></i>B.Ed. Program
-    </a>
-    <a class="nav-link" id="other-tab" data-bs-toggle="tab" href="#other-tab-content" role="tab" aria-controls="other-tab-content" aria-selected="false">
-      <i class="fa-solid fa-book me-2"></i>Other Programs
-    </a>
-  </nav>
-
-  <div class="tab-content" id="bedTabContent">
-    <div class="tab-pane fade show active" id="bed-tab-content" role="tabpanel" aria-labelledby="bed-tab">
-      <div class="gpa-result-card-premium fade-in-on-scroll is-visible">
-        <div class="student-info-header">
-          <h2 class="mb-0 fw-bold"><i class="fa-solid fa-graduation-cap me-2"></i>B.Ed. Program Summary</h2>
-        </div>
-        <div class="cgpa-dashboard">
-          <div class="cgpa-progress-circle">
-            <svg viewBox="0 0 36 36">
-              <path class="circle-bg" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
-              <path id="bed-cgpaCircle" class="circle" stroke-dasharray="0, 100" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
-            </svg>
-            <div class="cgpa-progress-text">
-              <span id="bed-totalCgpa" class="cgpa-value">0.00</span>
-              <span class="cgpa-label">B.Ed. CGPA</span>
-            </div>
-          </div>
-        </div>
-        <div class="secondary-stats">
-          <div class="stat-item">
-            <span class="stat-label">Percentage</span>
-            <span class="stat-value" id="bed-totalPercentage">0.00%</span>
-          </div>
-          <div class="stat-divider"></div>
-          <div class="stat-item">
-            <span class="stat-label">Total Marks</span>
-            <span class="stat-value">
-              <span id="bed-totalMarksObtained">0</span><span id="bed-totalMaxMarks" class="stat-sub-value">/ 0</span>
-            </span>
-          </div>
-        </div>
-      </div>
-      <div class="semester-results-container">
-        <div id="bed-semesterResults" class="semester-grid"></div>
-      </div>
-    </div>
-
-    <div class="tab-pane fade" id="other-tab-content" role="tabpanel" aria-labelledby="other-tab">
-      <div class="gpa-result-card-premium fade-in-on-scroll is-visible">
-        <div class="student-info-header">
-          <h2 class="mb-0 fw-bold"><i class="fa-solid fa-book me-2"></i>Other Programs Summary</h2>
-        </div>
-        <div class="cgpa-dashboard">
-          <div class="cgpa-progress-circle">
-            <svg viewBox="0 0 36 36">
-              <path class="circle-bg" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
-              <path id="other-cgpaCircle" class="circle" stroke-dasharray="0, 100" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
-            </svg>
-            <div class="cgpa-progress-text">
-              <span id="other-totalCgpa" class="cgpa-value">0.00</span>
-              <span class="cgpa-label">Other CGPA</span>
-            </div>
-          </div>
-        </div>
-        <div class="secondary-stats">
-          <div class="stat-item">
-            <span class="stat-label">Percentage</span>
-            <span class="stat-value" id="other-totalPercentage">0.00%</span>
-          </div>
-          <div class="stat-divider"></div>
-          <div class="stat-item">
-            <span class="stat-label">Total Marks</span>
-            <span class="stat-value">
-              <span id="other-totalMarksObtained">0</span><span id="other-totalMaxMarks" class="stat-sub-value">/ 0</span>
-            </span>
-          </div>
-        </div>
-      </div>
-      <div class="semester-results-container">
-        <div id="other-semesterResults" class="semester-grid"></div>
-      </div>
-    </div>
-  </div>
-</div>
-          
 
 <div class="card card-modern mt-4 fade-in-on-scroll">
     <div class="card-header p-0">
@@ -4159,7 +4015,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js"></script>
 
 <script>
-        document.addEventListener('DOMContentLoaded', function() {
+    document.addEventListener('DOMContentLoaded', function() {
       // Elements
       const resultForm = document.getElementById('resultForm');
       const registrationNumber = document.getElementById('registrationNumber');
@@ -4221,16 +4077,6 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
       let confirmationCallback = null;
       let importedAttendanceCourses = []; // Tracks courses from the last import
 
-      // --- NEW B.Ed. Variables ---
-      const BED_COURSES = new Set([
-        'EDU-501', 'EDU-503', 'EDU-505', 'EDU-507', 'EDU-509', 'EDU-511', 'EDU-513',
-        'EDU-502', 'EDU-504', 'EDU-506', 'EDU-508', 'EDU-510', 'EDU-512', 'EDU-516',
-        'EDU-601', 'EDU-604', 'EDU-605', 'EDU-607', 'EDU-608', 'EDU-623'
-      ]);
-      let bedConfirmationModal; // Will be initialized in init()
-      let bedModeActive = false;
-      // --- End of NEW B.Ed. Variables ---
-
       const API_ENDPOINT = `/api/result-scraper?action=scrape_single`;
       const ATTENDANCE_API_ENDPOINT = `/api/result-scraper?action=scrape_attendance`; // NEW API Endpoint
 
@@ -4245,26 +4091,6 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
           initScrollAnimations();
           loadProfiles(); // Load profiles (might fail)
           initModalZIndexHandlers(); // Init modal stacking/blur effect
-
-          // --- NEW B.Ed. Modal Init ---
-          // Check if the modal element exists before trying to create a new instance
-          const bedModalEl = document.getElementById('bedConfirmationModal');
-          if (bedModalEl) {
-              bedConfirmationModal = new bootstrap.Modal(bedModalEl);
-              // Add listeners that will be updated with data later
-              document.getElementById('bedConfirmYes').addEventListener('click', () => {
-                // This will be overridden, but good to have a default
-                console.log("B.Ed. Yes clicked");
-              });
-              document.getElementById('bedConfirmNo').addEventListener('click', () => {
-                // This will be overridden
-                 console.log("B.Ed. No clicked");
-              });
-          } else {
-              console.warn("B.Ed. confirmation modal HTML not found.");
-          }
-          // --- End of NEW B.Ed. Modal Init ---
-
         } catch (error) { // <<< ADDED CATCH
             console.error("Initialization failed:", error);
             // Attempt to show a toast, but createToastContainer might not have run if error was early
@@ -4275,6 +4101,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                 console.error("Could not show initialization error toast:", toastError);
             }
             // Optionally clear potentially corrupted storage to allow recovery on next load
+            // Consider adding a button for the user to clear data if needed
             // localStorage.removeItem('uafCalculatorProfiles_v2');
             // localStorage.removeItem('uafCalculatorActiveProfile_v2');
         }
@@ -4523,11 +4350,8 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         if (profiles[profileId]) {
           processedData = profiles[profileId];
           isInitialLoad = true;
-
-          bedModeActive = processedData.bedMode || false; // --- NEW: Load B.Ed. preference
-
-          renderResults(processedData); // --- MODIFIED: Call new render function
-          
+          const cgpaData = calculateCGPA(processedData);
+          displayCGPAResults(processedData, cgpaData);
           registrationNumber.value = processedData.studentInfo.registration;
           setActiveProfileId(profileId);
           updateProfileSwitcher(profiles, profileId);
@@ -4698,7 +4522,6 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
           updateProfileSwitcher(profiles, getActiveProfileId());
           if (!getActiveProfileId()) {
               resultContainer.style.display = 'none';
-              document.getElementById('bedResultContainer').style.display = 'none'; // Hide B.Ed. container
               registrationNumber.value = '';
           }
       }
@@ -4814,7 +4637,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
               reader.readAsText(file);
           };
           input.click();
-      }
+  }
 
       // --- END OF PROFILE MANAGER FUNCTIONS ---
 
@@ -5083,20 +4906,12 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         const studentInfo = { name: data.resultData[0]?.StudentName || '', registration: data.resultData[0]?.RegistrationNo || '' };
         const semesters = {};
         const courseHistory = {};
-        
-        let hasBedCourses = false; // --- NEW B.Ed. Flag ---
 
         data.resultData.forEach(course => {
           const originalSemester = course.Semester || 'Unknown Semester';
           const semesterName = processSemesterName(originalSemester);
           const courseCode = (course.CourseCode || '').trim().toUpperCase();
           const historyKey = courseCode;
-
-          // --- NEW B.Ed. Check ---
-          if (BED_COURSES.has(courseCode)) {
-            hasBedCourses = true;
-          }
-          // --- End of NEW B.Ed. Check ---
 
           if (!semesters[semesterName]) {
             // Pass the *processed* semesterName to getSemesterOrderKey
@@ -5170,8 +4985,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
           }
         });
 
-        // --- NEW: Return the flag ---
-        return { studentInfo, semesters, courseHistory, hasBedCourses };
+        return { studentInfo, semesters, courseHistory };
       }
 
       function calculateQualityPoints(marks, creditHours, grade) {
@@ -5348,22 +5162,32 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 
       function formatNumber(value, places = 4) { return parseFloat(value.toFixed(places)); }
 
-      // --- NEW Function: Renders semester cards into a specific container ---
-      function displaySemesterCards(containerId, data) {
-        const container = document.getElementById(containerId);
-        if (!container) return;
+      function displayCGPAResults(data, cgpaData) {
+        processedData = data;
+        resultContainer.style.display = 'block';
 
-        container.innerHTML = '';
+        studentName.innerHTML = `<i class="fa-solid fa-user-graduate me-2"></i>${data.studentInfo.name}`;
+        studentReg.textContent = data.studentInfo.registration;
+        totalCgpa.textContent = formatNumber(cgpaData.cgpa).toFixed(4);
+        totalPercentage.textContent = `${formatNumber(cgpaData.percentage, 2).toFixed(2)}%`;
+        totalMarksObtained.textContent = cgpaData.totalMarksObtained.toFixed(0);
+        totalMaxMarks.textContent = `/ ${cgpaData.totalMaxMarks.toFixed(0)}`;
+
+        const cgpaCircle = document.getElementById('cgpaCircle');
+        if(cgpaCircle) {
+            const cgpa = parseFloat(totalCgpa.textContent);
+            const percentage = (cgpa / 4.0) * 100;
+            setTimeout(() => {
+                cgpaCircle.style.strokeDasharray = `${percentage}, 100`;
+            }, 100);
+        }
+
+        semesterResults.innerHTML = '';
         Object.keys(data.semesters).sort((a,b) => data.semesters[a].sortKey.localeCompare(data.semesters[b].sortKey)).forEach(semesterName => {
           const semester = data.semesters[semesterName];
-          // --- B.Ed. Fix: Don't render empty semesters ---
-          if (!semester.courses || semester.courses.length === 0) {
-              return;
-          }
-          // --- End of Fix ---
-          
           const semesterCard = document.createElement('div');
           
+          // --- NEW: Give the card a data-semester attribute for scrolling ---
           semesterCard.dataset.semester = semesterName;
 
           const animationClass = isInitialLoad ? 'fade-in-on-scroll' : 'is-visible';
@@ -5371,6 +5195,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 
           semesterCard.dataset.semester = semesterName;
           
+          // --- NEW: Check if semester is a forecast/custom one ---
           const isForecastOrCustom = semesterName.toLowerCase().startsWith('forecast') || 
                                      !Object.values(processedData.courseHistory).flat().some(c => c.semester === semesterName && !c.data.isCustom);
           
@@ -5392,7 +5217,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
             <button class="custom-course-btn" data-semester="${semesterName}"><i class="fa-solid fa-plus"></i> Custom Course</button>
             <div class="table-responsive"><table class="course-table"><thead><tr><th>Course</th><th>Hrs</th><th>Marks</th><th>Grade</th><th>Action</th></tr></thead>
               <tbody>${semester.courses.map((course, index) => {
-                  const courseIdentifier = `${semesterName}-${course.code}-${course.total}-${index}`;
+                  const courseIdentifier = `${semesterName}-${course.code}-${course.total}-${index}`; // Unique ID
                   const courseTitle = course.title || (course.isCustom ? 'Custom Course' : 'N/A');
                   return `
                   <tr data-course-identifier="${courseIdentifier}" draggable="true" class="${course.isExtraEnrolled ? 'table-warning' : ''} ${course.isDeleted ? 'table-danger text-decoration-line-through' : ''} ${course.isCustom ? 'table-info' : ''}">
@@ -5413,41 +5238,11 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                   </tr>`;
               }).join('')}</tbody>
             </table></div>`;
-          container.appendChild(semesterCard);
+          semesterResults.appendChild(semesterCard);
         });
 
         isInitialLoad = false;
-        // Note: We call attachResultEventListeners() *after* this function finishes
-      }
-
-      function displayCGPAResults(data, cgpaData) {
-        processedData = data;
-        resultContainer.style.display = 'block';
-
-        // 1. Update the main CGPA card
-        studentName.innerHTML = `<i class="fa-solid fa-user-graduate me-2"></i>${data.studentInfo.name}`;
-        studentReg.textContent = data.studentInfo.registration;
-        totalCgpa.textContent = formatNumber(cgpaData.cgpa).toFixed(4);
-        totalPercentage.textContent = `${formatNumber(cgpaData.percentage, 2).toFixed(2)}%`;
-        totalMarksObtained.textContent = cgpaData.totalMarksObtained.toFixed(0);
-        totalMaxMarks.textContent = `/ ${cgpaData.totalMaxMarks.toFixed(0)}`;
-
-        const cgpaCircle = document.getElementById('cgpaCircle');
-        if(cgpaCircle) {
-            const cgpa = parseFloat(totalCgpa.textContent);
-            const percentage = (cgpa / 4.0) * 100;
-            setTimeout(() => {
-                cgpaCircle.style.strokeDasharray = `${percentage}, 100`;
-            }, 100);
-        }
-
-        // 2. Render the semester cards into the *standard* container
-        displaySemesterCards('semesterResults', data);
-
-        // 3. Attach listeners
         attachResultEventListeners();
-
-        // 4. Render chart and setup buttons
         renderGpaChart();
         
         const hasAttendanceCourses = Object.values(data.semesters).some(s => s.courses.some(c => c.isCustom && c.source === 'attendance'));
@@ -5456,133 +5251,6 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         }
         importedAttendanceCourses = [];
         setupAttendanceButton();
-      }
-
-      // --- NEW Function: Renders the B.Ed. tabbed interface ---
-      function displayBedResults(data) {
-        // 1. Filter for B.Ed. results
-        const bedSemesters = filterSemesters(data.semesters, true);
-        const bedData = { ...data, semesters: bedSemesters };
-        const bedCgpa = calculateCGPA(bedData);
-
-        // 2. Filter for "Other" results
-        const otherSemesters = filterSemesters(data.semesters, false);
-        const otherData = { ...data, semesters: otherSemesters };
-        const otherCgpa = calculateCGPA(otherData);
-
-        // 3. Render the "B.Ed." tab content
-        document.getElementById('bed-totalCgpa').textContent = bedCgpa.cgpa.toFixed(4);
-        document.getElementById('bed-totalPercentage').textContent = `${bedCgpa.percentage.toFixed(2)}%`;
-        document.getElementById('bed-totalMarksObtained').textContent = bedCgpa.totalMarksObtained.toFixed(0);
-        document.getElementById('bed-totalMaxMarks').textContent = `/ ${bedCgpa.totalMaxMarks.toFixed(0)}`;
-        const bedCircle = document.getElementById('bed-cgpaCircle');
-        if (bedCircle) {
-            const bedPercentage = (bedCgpa.cgpa / 4.0) * 100;
-            setTimeout(() => bedCircle.style.strokeDasharray = `${bedPercentage}, 100`, 100);
-        }
-        displaySemesterCards('bed-semesterResults', bedData);
-
-        // 4. Render the "Other" tab content
-        document.getElementById('other-totalCgpa').textContent = otherCgpa.cgpa.toFixed(4);
-        document.getElementById('other-totalPercentage').textContent = `${otherCgpa.percentage.toFixed(2)}%`;
-        document.getElementById('other-totalMarksObtained').textContent = otherCgpa.totalMarksObtained.toFixed(0);
-        document.getElementById('other-totalMaxMarks').textContent = `/ ${otherCgpa.totalMaxMarks.toFixed(0)}`;
-        const otherCircle = document.getElementById('other-cgpaCircle');
-        if (otherCircle) {
-            const otherPercentage = (otherCgpa.cgpa / 4.0) * 100;
-            setTimeout(() => otherCircle.style.strokeDasharray = `${otherPercentage}, 100`, 100);
-        }
-        displaySemesterCards('other-semesterResults', otherData);
-
-        // 5. Hide the GPA chart
-        gpaChartContainer.style.display = 'none';
-
-        // 6. Attach listeners to all new elements
-        attachResultEventListeners();
-
-        // 7. Setup attendance button
-        setupAttendanceButton();
-      }
-
-      // --- NEW Function: Renders either Normal or B.Ed. UI ---
-      function renderResults(data) {
-        const bedResultContainer = document.getElementById('bedResultContainer');
-        const standardResultContainer = document.getElementById('resultContainer');
-
-        if (bedModeActive) {
-          // Show B.Ed. Tabbed View
-          standardResultContainer.style.display = 'none';
-          bedResultContainer.style.display = 'block';
-          displayBedResults(data);
-        } else {
-          // Show Normal View
-          standardResultContainer.style.display = 'block';
-          bedResultContainer.style.display = 'none';
-          const cgpaData = calculateCGPA(data); // Calculate single, overall CGPA
-          displayCGPAResults(data, cgpaData); // Call original display function
-        }
-      }
-
-      // --- NEW Function: Filters semesters into B.Ed. or Other ---
-      function filterSemesters(semesters, includeBed) {
-        const filteredSemesters = {};
-        
-        Object.entries(semesters).forEach(([semesterName, semester]) => {
-          const newCourseList = [];
-          semester.courses.forEach(course => {
-            const isBedCourse = BED_COURSES.has(course.code.toUpperCase().trim());
-            
-            if (includeBed && isBedCourse) {
-              newCourseList.push(course);
-            } else if (!includeBed && !isBedCourse) {
-              newCourseList.push(course);
-            }
-          });
-
-          if (newCourseList.length > 0) {
-            filteredSemesters[semesterName] = {
-              ...semester, // Copy originalName, sortKey
-              courses: newCourseList
-            };
-          }
-        });
-        return filteredSemesters;
-      }
-
-      // --- NEW Function: Handles B.Ed. Modal Choice ---
-      function handleBedConfirm(isBedStudent, processed) {
-        if(bedConfirmationModal) bedConfirmationModal.hide();
-        bedModeActive = isBedStudent;
-        processed.bedMode = isBedStudent; // Save preference to profile
-
-        // This logic is moved from fetchResult()
-        const profiles = getProfiles();
-        const studentInfo = processed.studentInfo;
-        let baseName = `${studentInfo.name} (${studentInfo.registration})`;
-        let finalName = baseName;
-        let copyNum = 1;
-
-        const allDisplayNames = Object.values(profiles).map(p => p.displayName);
-
-        while(allDisplayNames.includes(finalName)) {
-            finalName = `${baseName} - ${copyNum++}`;
-        }
-
-        processed.displayName = finalName;
-        processed.createdAt = new Date().toISOString();
-        processed.lastModified = new Date().toISOString();
-        const newProfileId = `profile_${Date.now()}`;
-        profiles[newProfileId] = processed;
-        saveProfiles(profiles);
-        setActiveProfileId(newProfileId);
-
-        showLoadingStage('complete');
-        setTimeout(() => {
-          renderResults(processed); // --- MODIFIED: Call new render function
-          showLoadingStage(null);
-          showToast('New profile created successfully!', 'success');
-          updateProfileSwitcher(profiles, newProfileId);
-        }, 1000);
       }
 
       function renderGpaChart() {
@@ -5749,24 +5417,6 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 
 
                   if (courseToMove && courseIndex > -1) {
-                      // --- B.Ed. Drag/Drop Logic ---
-                      const isBedCourse = BED_COURSES.has(courseToMove.code.toUpperCase().trim());
-                      const targetIsBedTab = e.currentTarget.closest('#bed-tab-content');
-                      const targetIsOtherTab = e.currentTarget.closest('#other-tab-content');
-                      
-                      // Check if the drop is valid in B.Ed. mode
-                      if (bedModeActive) {
-                          if (isBedCourse && targetIsOtherTab) {
-                              showToast(`Cannot move B.Ed. course (${courseToMove.code}) to "Other" tab.`, 'warning');
-                              return;
-                          }
-                          if (!isBedCourse && targetIsBedTab) {
-                              showToast(`Cannot move non-B.Ed. course (${courseToMove.code}) to "B.Ed." tab.`, 'warning');
-                              return;
-                          }
-                      }
-                      // --- End of B.Ed. Logic ---
-
                       sourceSemesterCourses.splice(courseIndex, 1); // Remove from source
                       processedData.semesters[targetSemester].courses.push(courseToMove); // Add to target
                       recalculateAndDisplay(); // Update UI
@@ -5876,22 +5526,6 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
              showToast('Marks must be between 0 and 100', 'error');
              return;
         }
-        
-        // --- B.Ed. Validation ---
-        if (bedModeActive) {
-            const isBedCourse = BED_COURSES.has(courseCode);
-            const currentTab = document.querySelector('#bedTab .nav-link.active').id;
-            
-            if (isBedCourse && currentTab === 'other-tab') {
-                showToast(`Cannot add B.Ed. course (${courseCode}) to "Other" tab.`, 'warning');
-                return;
-            }
-            if (!isBedCourse && currentTab === 'bed-tab') {
-                showToast(`Cannot add non-B.Ed. course (${courseCode}) to "B.Ed." tab.`, 'warning');
-                return;
-            }
-        }
-        // --- End of B.Ed. Validation ---
 
         const grade = calculateCustomGrade(marks, creditHours);
         const qualityPoints = calculateQualityPoints(marks, creditHours, grade);
@@ -5983,9 +5617,9 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 
 
       function recalculateAndDisplay() {
+        const cgpaData = calculateCGPA(processedData);
+        displayCGPAResults(processedData, cgpaData);
         saveActiveProfile();
-        // Re-render the entire UI based on the current mode and modified data
-        renderResults(processedData);
       }
 
       function addForecastSemester() {
@@ -6067,38 +5701,13 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
             showToast('No data to download', 'error');
             return;
         }
-
-        // --- B.Ed. PDF Logic ---
-        // Determine which dataset to use for the PDF
-        let dataToPrint, titleSuffix;
-        if (bedModeActive) {
-            const activeTabId = document.querySelector('#bedTab .nav-link.active').id;
-            if (activeTabId === 'bed-tab') {
-                const bedSemesters = filterSemesters(processedData.semesters, true);
-                dataToPrint = { ...processedData, semesters: bedSemesters };
-                titleSuffix = 'B.Ed. Program';
-            } else { // 'other-tab'
-                const otherSemesters = filterSemesters(processedData.semesters, false);
-                dataToPrint = { ...processedData, semesters: otherSemesters };
-                titleSuffix = 'Other Programs';
-            }
-        } else {
-            // Normal mode, print all
-            dataToPrint = processedData;
-            titleSuffix = 'Overall';
-        }
-        // --- End of B.Ed. PDF Logic ---
-
-
-        addStatusMessage(`Generating premium PDF report (${titleSuffix})...`, 'info');
+        addStatusMessage('Generating premium PDF report...', 'info');
         showLoadingStage('processing');
 
         try {
             const { jsPDF } = window.jspdf;
             const pdf = new jsPDF({ orientation: 'p', unit: 'mm', format: 'a4' });
-            
-            // --- Use the *calculated* CGPA for the selected dataset ---
-            const cgpaData = calculateCGPA(dataToPrint);
+            const cgpaData = calculateCGPA(processedData);
 
             const pageMargin = 15;
             const pageWidth = pdf.internal.pageSize.getWidth();
@@ -6122,7 +5731,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                 pdf.setFontSize(12);
                 pdf.setTextColor(colors.textLight);
                 pdf.setFont('helvetica', 'normal');
-                pdf.text(`Unofficial Academic Transcript (${titleSuffix})`, pageWidth / 2, 28, { align: 'center' }); // --- Use titleSuffix ---
+                pdf.text("Unofficial Academic Transcript", pageWidth / 2, 28, { align: 'center' });
 
                 pdf.setDrawColor(colors.primary);
                 pdf.setLineWidth(0.5);
@@ -6151,19 +5760,19 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
             pdf.setFontSize(12);
             pdf.setFont('helvetica', 'bold');
             pdf.setTextColor(colors.primary);
-            pdf.text(dataToPrint.studentInfo.name, pageMargin + 5, topBoxY + 25, { maxWidth: leftBoxWidth - 10 });
+            pdf.text(processedData.studentInfo.name, pageMargin + 5, topBoxY + 25, { maxWidth: leftBoxWidth - 10 });
 
             pdf.setFontSize(8);
             pdf.setFont('helvetica', 'normal');
             pdf.setTextColor(colors.textLight);
-            pdf.text(dataToPrint.studentInfo.registration, pageMargin + 5, topBoxY + 30);
+            pdf.text(processedData.studentInfo.registration, pageMargin + 5, topBoxY + 30);
 
             pdf.setFillColor(colors.fillLight);
             pdf.roundedRect(rightBoxX, topBoxY, rightBoxWidth, boxHeight, 3, 3, 'F');
             pdf.setFontSize(11);
             pdf.setFont('helvetica', 'bold');
             pdf.setTextColor(colors.textDark);
-            pdf.text(`${titleSuffix} Academic Summary`, rightBoxX + 5, topBoxY + 8); // --- Use titleSuffix ---
+            pdf.text("Overall Academic Summary", rightBoxX + 5, topBoxY + 8);
             pdf.line(rightBoxX + 5, topBoxY + 11, rightBoxX + rightBoxWidth - 5, topBoxY + 11);
 
             pdf.setFontSize(22);
@@ -6172,7 +5781,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
             pdf.text(formatNumber(cgpaData.cgpa, 4).toFixed(4), rightBoxX + 5, topBoxY + 25);
             pdf.setFontSize(8);
             pdf.setTextColor(colors.textLight);
-            pdf.text(`${titleSuffix.toUpperCase()} CGPA`, rightBoxX + 5, topBoxY + 29); // --- Use titleSuffix ---
+            pdf.text("OVERALL CGPA", rightBoxX + 5, topBoxY + 29);
 
             const statsStartX = rightBoxX + 40;
             pdf.setFont('helvetica', 'bold');
@@ -6189,11 +5798,11 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
             lastY = topBoxY + boxHeight;
 
             let semesterIndex = 0;
-            Object.keys(dataToPrint.semesters) // --- Use dataToPrint ---
-                .sort((a, b) => dataToPrint.semesters[a].sortKey.localeCompare(dataToPrint.semesters[b].sortKey))
+            Object.keys(processedData.semesters)
+                .sort((a, b) => processedData.semesters[a].sortKey.localeCompare(processedData.semesters[b].sortKey))
                 .forEach(semesterName => {
                     semesterIndex++;
-                    const semester = dataToPrint.semesters[semesterName]; // --- Use dataToPrint ---
+                    const semester = processedData.semesters[semesterName];
                     const activeCourses = semester.courses.filter(c => !c.isDeleted);
                     if (activeCourses.length === 0) return;
 
@@ -6275,9 +5884,8 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                 pdf.text(`Page ${i} of ${totalPages}`, pageWidth - pageMargin, pageHeight - 10, { align: 'right' });
             }
 
-            // --- Use titleSuffix for filename ---
-            const safeSuffix = titleSuffix.replace(/ /g, '_');
-            pdf.save(`UAF_Transcript_${dataToPrint.studentInfo.registration}_${safeSuffix}.pdf`);
+
+            pdf.save(`UAF_Transcript_${processedData.studentInfo.registration}.pdf`);
             addStatusMessage('Premium PDF report generated successfully', 'success');
             showToast('PDF downloaded!', 'success');
         } catch (e) {
@@ -6681,7 +6289,6 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         if (!regNum) { showToast('Please enter a registration number', 'error'); return; }
 
         resultContainer.style.display = 'none';
-        document.getElementById('bedResultContainer').style.display = 'none'; // --- NEW: Hide B.Ed. container
         showLoadingStage('connecting');
         addStatusMessage(`Fetching result for: ${regNum}`, 'info');
         semesterResults.innerHTML = '';
@@ -6701,19 +6308,36 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
           if (data.resultData && data.resultData.length > 0) {
             addStatusMessage('Result fetched successfully from UAF LMS', 'success');
             isInitialLoad = true;
-            const processed = processScrapedData(data); // This now contains `hasBedCourses`
+            const processed = processScrapedData(data);
+            const cgpaData = calculateCGPA(processed);
 
-            // --- NEW B.Ed. Logic ---
-            if (processed.hasBedCourses) {
-              // Show the modal and attach handlers
-              document.getElementById('bedConfirmYes').onclick = () => handleBedConfirm(true, processed);
-              document.getElementById('bedConfirmNo').onclick = () => handleBedConfirm(false, processed);
-              if (bedConfirmationModal) bedConfirmationModal.show();
-            } else {
-              // No B.Ed. courses, proceed as normal
-              handleBedConfirm(false, processed);
+            const profiles = getProfiles();
+            const studentInfo = processed.studentInfo;
+            let baseName = `${studentInfo.name} (${studentInfo.registration})`;
+            let finalName = baseName;
+            let copyNum = 1;
+
+            const allDisplayNames = Object.values(profiles).map(p => p.displayName);
+
+            while(allDisplayNames.includes(finalName)) {
+                finalName = `${baseName} - ${copyNum++}`;
             }
-            // --- End of NEW B.Ed. Logic ---
+
+            processed.displayName = finalName;
+            processed.createdAt = new Date().toISOString();
+            processed.lastModified = new Date().toISOString();
+            const newProfileId = `profile_${Date.now()}`;
+            profiles[newProfileId] = processed;
+            saveProfiles(profiles);
+            setActiveProfileId(newProfileId);
+
+            showLoadingStage('complete');
+            setTimeout(() => {
+              displayCGPAResults(processed, cgpaData);
+              showLoadingStage(null);
+              showToast('New profile created successfully!', 'success');
+              updateProfileSwitcher(profiles, newProfileId);
+            }, 1000);
 
           } else {
             // Even if success is true, resultData might be empty
@@ -6799,7 +6423,6 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 
       init();
     });
-
 </script>
 
           <script>
