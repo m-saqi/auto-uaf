@@ -4159,7 +4159,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js"></script>
 
 <script>
-                document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', function() {
       // Elements
       const resultForm = document.getElementById('resultForm');
       const registrationNumber = document.getElementById('registrationNumber');
@@ -4170,7 +4170,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
       const contactForm = document.getElementById('contact-form');
       const downloadLogBtn = document.getElementById('downloadLogBtn');
       const clearLogBtn = document.getElementById('clearLogBtn');
-      const semesterResults = document.getElementById('semesterResults'); // Standard semester results container
+      const semesterResults = document.getElementById('semesterResults');
       const studentName = document.getElementById('studentName');
       const studentReg = document.getElementById('studentReg');
       const totalCgpa = document.getElementById('totalCgpa');
@@ -4212,16 +4212,9 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
       const importProfilesBtnModal = document.getElementById('importProfilesBtnModal'); // In modal
       const exportProfilesBtnModal = document.getElementById('exportProfilesBtnModal'); // In modal
 
-      // B.Ed. Specific Elements
-      const bedResultContainer = document.getElementById('bedResultContainer');
-      const bedSemesterResults = document.getElementById('bed-semesterResults');
-      const otherSemesterResults = document.getElementById('other-semesterResults');
-      const bedTab = document.getElementById('bed-tab');
-      const otherTab = document.getElementById('other-tab');
-
       // State
       let allLogs = [];
-      let processedData = null; // Holds the full, unfiltered data for the current profile
+      let processedData = null;
       let deletedSemesters = {};
       let gpaChart = null;
       let isInitialLoad = true;
@@ -4235,7 +4228,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         'EDU-601', 'EDU-604', 'EDU-605', 'EDU-607', 'EDU-608', 'EDU-623'
       ]);
       let bedConfirmationModal; // Will be initialized in init()
-      let bedModeActive = false; // Controls which UI is displayed
+      let bedModeActive = false;
       // --- End of NEW B.Ed. Variables ---
 
       const API_ENDPOINT = `/api/result-scraper?action=scrape_single`;
@@ -4260,25 +4253,17 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
               bedConfirmationModal = new bootstrap.Modal(bedModalEl);
               // Add listeners that will be updated with data later
               document.getElementById('bedConfirmYes').addEventListener('click', () => {
-                // This will be overridden when data is fetched
-                console.log("B.Ed. Yes clicked (placeholder)");
+                // This will be overridden, but good to have a default
+                console.log("B.Ed. Yes clicked");
               });
               document.getElementById('bedConfirmNo').addEventListener('click', () => {
                 // This will be overridden
-                 console.log("B.Ed. No clicked (placeholder)");
+                 console.log("B.Ed. No clicked");
               });
           } else {
               console.warn("B.Ed. confirmation modal HTML not found.");
           }
           // --- End of NEW B.Ed. Modal Init ---
-
-          // --- NEW: Add Tab Listeners for Dynamic Chart Update ---
-          if (bedTab && otherTab) {
-              bedTab.addEventListener('shown.bs.tab', () => renderGpaChart());
-              otherTab.addEventListener('shown.bs.tab', () => renderGpaChart());
-          }
-          // --- End of Tab Listeners ---
-
 
         } catch (error) { // <<< ADDED CATCH
             console.error("Initialization failed:", error);
@@ -4298,14 +4283,9 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 
       function setupAttendanceButton() {
         // Remove existing listener to avoid stacking
-        const buttonContainer = fetchAttendanceBtn.parentElement; // Get parent container
-        if (!buttonContainer) { // Guard if button container not found
-             console.error("Attendance button container not found.");
-             return;
-        }
         const newBtn = fetchAttendanceBtn.cloneNode(true);
-        buttonContainer.replaceChild(newBtn, fetchAttendanceBtn); // Replace in DOM
-        fetchAttendanceBtn = newBtn; // Re-assign the global variable
+        fetchAttendanceBtn.parentNode.replaceChild(newBtn, fetchAttendanceBtn);
+        fetchAttendanceBtn = newBtn; // Re-assign the global variable (Now works with 'let')
 
         if (importedAttendanceCourses.length > 0) {
             fetchAttendanceBtn.innerHTML = '<i class="fa-solid fa-rotate-left me-2"></i>Revert Import';
@@ -4316,20 +4296,13 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
             fetchAttendanceBtn.innerHTML = '<i class="fa-solid fa-clipboard-user me-2"></i>Attendance System';
             fetchAttendanceBtn.className = 'btn btn-success-action';
             fetchAttendanceBtn.addEventListener('click', fetchAttendanceData);
-            // Only disable if there is no processedData loaded
+            // Only disable if there is no processedData
             fetchAttendanceBtn.disabled = !processedData;
         }
-
-         // Ensure button container is visible if results are shown
-         if (resultContainer.style.display !== 'none' || bedResultContainer.style.display !== 'none') {
-              buttonContainer.style.display = 'block'; // Or 'flex', 'inline-block' etc. depending on your layout
-         } else {
-              buttonContainer.style.display = 'none';
-         }
       }
 
       function revertAttendanceImport() {
-        if (!processedData || importedAttendanceCourses.length === 0) return;
+        if (importedAttendanceCourses.length === 0) return;
 
         let revertedCount = 0;
         importedAttendanceCourses.forEach(imported => {
@@ -4349,8 +4322,8 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         addStatusMessage(`Reverted import of ${revertedCount} courses`, 'info');
         
         importedAttendanceCourses = []; // Clear the list
-        recalculateAndDisplay(); // This saves the profile and re-renders
-        // setupAttendanceButton() is called inside recalculateAndDisplay -> renderResults
+        recalculateAndDisplay(); // This saves the profile
+        setupAttendanceButton(); // Reset the button
       }
 
       function updateAttendanceCounts() {
@@ -4427,23 +4400,20 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 
                   Object.keys(oldProfiles).forEach(oldId => {
                       const oldProfile = oldProfiles[oldId];
-                      // Added check for oldProfile.studentInfo
-                      if (oldProfile.studentInfo) {
-                          const alreadyExists = Object.values(newProfiles).some(
-                              p => p.studentInfo && p.studentInfo.registration === oldProfile.studentInfo.registration
-                          );
+                      const alreadyExists = Object.values(newProfiles).some(
+                          p => p.studentInfo.registration === oldProfile.studentInfo.registration
+                      );
 
-                          if (!alreadyExists) {
-                              const newProfile = {
-                                  ...oldProfile,
-                                  displayName: `${oldProfile.studentInfo.name} (${oldProfile.studentInfo.registration})`,
-                                  createdAt: new Date().toISOString(),
-                                  lastModified: new Date().toISOString()
-                              };
-                              const newId = `profile_${Date.now()}_${migratedCount}`;
-                              newProfiles[newId] = newProfile;
-                              migratedCount++;
-                          }
+                      if (!alreadyExists && oldProfile.studentInfo) {
+                          const newProfile = {
+                              ...oldProfile,
+                              displayName: `${oldProfile.studentInfo.name} (${oldProfile.studentInfo.registration})`,
+                              createdAt: new Date().toISOString(),
+                              lastModified: new Date().toISOString()
+                          };
+                          const newId = `profile_${Date.now()}_${migratedCount}`;
+                          newProfiles[newId] = newProfile;
+                          migratedCount++;
                       }
                   });
 
@@ -4455,12 +4425,9 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                   localStorage.removeItem('uafCalculatorProfiles'); // Remove old data after migration
               } catch (e) {
                   console.error("Failed to migrate old profiles:", e);
-                  // Optionally clear the potentially corrupted old data
-                  localStorage.removeItem('uafCalculatorProfiles');
               }
           }
       }
-
 
       function initScrollAnimations() {
         const observer = new IntersectionObserver((entries) => {
@@ -4475,24 +4442,11 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
       }
 
       function getProfiles() {
-          try {
-              return JSON.parse(localStorage.getItem('uafCalculatorProfiles_v2') || '{}');
-          } catch (e) {
-              console.error("Error parsing profiles from localStorage:", e);
-              // If parsing fails, return an empty object and clear the corrupted data
-              localStorage.removeItem('uafCalculatorProfiles_v2');
-              showToast("Error loading saved profiles. Data might be corrupted.", "error");
-              return {};
-          }
+        return JSON.parse(localStorage.getItem('uafCalculatorProfiles_v2') || '{}');
       }
 
       function saveProfiles(profiles) {
-          try {
-              localStorage.setItem('uafCalculatorProfiles_v2', JSON.stringify(profiles));
-          } catch (e) {
-              console.error("Error saving profiles to localStorage:", e);
-              showToast("Could not save profile changes. Storage might be full.", "error");
-          }
+        localStorage.setItem('uafCalculatorProfiles_v2', JSON.stringify(profiles));
       }
 
       function getActiveProfileId() {
@@ -4504,22 +4458,11 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
       }
 
       function getBackupInfo() {
-          try {
-              return JSON.parse(localStorage.getItem('uafCalculatorBackupInfo') || '{}');
-          } catch (e) {
-              console.error("Error parsing backup info from localStorage:", e);
-              localStorage.removeItem('uafCalculatorBackupInfo'); // Clear corrupted data
-              return {};
-          }
+          return JSON.parse(localStorage.getItem('uafCalculatorBackupInfo') || '{}');
       }
 
       function saveBackupInfo(info) {
-          try {
-              localStorage.setItem('uafCalculatorBackupInfo', JSON.stringify(info));
-          } catch (e) {
-              console.error("Error saving backup info to localStorage:", e);
-              // Don't necessarily show a toast for this minor error
-          }
+          localStorage.setItem('uafCalculatorBackupInfo', JSON.stringify(info));
       }
 
       function loadProfiles() {
@@ -4529,7 +4472,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
           updateProfileSwitcher(profiles, activeProfileId);
 
           if (activeProfileId && profiles[activeProfileId]) {
-            loadProfile(activeProfileId); // This calls renderResults
+            loadProfile(activeProfileId); // This calls calculateCGPA and displayCGPAResults
             addStatusMessage('Loaded active profile from session.', 'info');
           } else if (activeProfileId) {
             // Active ID exists but profile doesn't - clear the invalid ID
@@ -4547,7 +4490,6 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
               updateProfileSwitcher({}, ''); // Clear switcher
               profileManagementDiv.style.display = 'none';
               if(resultContainer) resultContainer.style.display = 'none'; // Hide results if loading failed
-              if(bedResultContainer) bedResultContainer.style.display = 'none'; // Hide B.Ed results
           } catch (uiError) {
               console.error("Error resetting UI after profile load failure:", uiError);
           }
@@ -4558,11 +4500,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         const profileKeys = Object.keys(profiles);
         if (profileKeys.length > 0) {
           profileSwitcher.innerHTML = '<option value="">Select a saved profile...</option>';
-          profileKeys.sort((a, b) => { // Sort by lastModified descending
-              const dateA = new Date(profiles[a]?.lastModified || 0);
-              const dateB = new Date(profiles[b]?.lastModified || 0);
-              return dateB - dateA;
-          }).forEach(profileId => {
+          profileKeys.forEach(profileId => {
             const profile = profiles[profileId];
             if (profile && profile.studentInfo) {
                 const option = document.createElement('option');
@@ -4586,21 +4524,13 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
           processedData = profiles[profileId];
           isInitialLoad = true;
 
-          bedModeActive = processedData.bedMode || false; // Load B.Ed. preference
+          bedModeActive = processedData.bedMode || false; // --- NEW: Load B.Ed. preference
 
-          renderResults(processedData); // Call new render function
+          renderResults(processedData); // --- MODIFIED: Call new render function
           
           registrationNumber.value = processedData.studentInfo.registration;
           setActiveProfileId(profileId);
-          updateProfileSwitcher(profiles, profileId); // Ensure switcher reflects loaded profile
-        } else {
-            console.error(`Profile with ID ${profileId} not found.`);
-            showToast("Failed to load selected profile.", "error");
-            // Optionally clear active ID if it's invalid
-            if (getActiveProfileId() === profileId) {
-                setActiveProfileId('');
-                updateProfileSwitcher(profiles, '');
-            }
+          updateProfileSwitcher(profiles, profileId);
         }
       }
 
@@ -4609,14 +4539,6 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         if (profileId) {
           loadProfile(profileId);
           showToast(`Switched to profile: ${getProfiles()[profileId].displayName}`, 'info');
-        } else {
-            // Handle "Select a saved profile..." option
-            processedData = null;
-            resultContainer.style.display = 'none';
-            bedResultContainer.style.display = 'none';
-            registrationNumber.value = '';
-            setActiveProfileId('');
-            setupAttendanceButton(); // Disable attendance button if no data
         }
       }
 
@@ -4626,7 +4548,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
             const profiles = getProfiles();
             if (profiles[activeProfileId]) {
                 processedData.lastModified = new Date().toISOString();
-                profiles[activeProfileId] = processedData; // Save the entire current state
+                profiles[activeProfileId] = processedData;
                 saveProfiles(profiles);
             }
         }
@@ -4653,15 +4575,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
           }
 
           const profiles = getProfiles();
-          // Ensure profile still exists before renaming
-          if (!profiles[profileId]) {
-              showToast("Profile not found. It might have been deleted.", "error");
-              renameProfileModal.hide();
-              renderProfileManager(); // Refresh manager list
-              return;
-          }
-
-          const nameExists = Object.entries(profiles).some(([id, p]) => p.displayName === newName && id !== profileId);
+          const nameExists = Object.values(profiles).some((p, id) => p.displayName === newName && id !== profileId);
           if (nameExists) {
               showToast('A profile with this name already exists.', 'error');
               return;
@@ -4710,39 +4624,22 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 
         if (profileKeys.length === 0) {
             profileListEl.innerHTML = '<li class="text-center text-muted p-4">No profiles saved yet.</li>';
-             // Disable bulk actions when no profiles exist
-            document.getElementById('bulkActionsBtn').disabled = true;
-            document.getElementById('selectAllProfiles').checked = false;
-            document.getElementById('selectAllProfiles').disabled = true;
-            exportProfilesBtnModal.disabled = true; // Disable export in modal too
             return;
         }
 
-        // Enable select all checkbox if profiles exist
-        document.getElementById('selectAllProfiles').disabled = false;
-
-        profileListEl.innerHTML = profileKeys.sort((a, b) => { // Sort by lastModified descending
-            const dateA = new Date(profiles[a]?.lastModified || 0);
-            const dateB = new Date(profiles[b]?.lastModified || 0);
-            return dateB - dateA;
-        }).map(id => {
+        profileListEl.innerHTML = profileKeys.map(id => {
             const profile = profiles[id];
-            // Handle cases where profile might be incomplete (e.g., failed migration)
-            if (!profile || !profile.studentInfo || !profile.semesters) {
-                console.warn(`Skipping rendering incomplete profile with ID: ${id}`);
-                return ''; // Don't render this item
-            }
-            const cgpaData = calculateCGPA(profile); // calculateCGPA should handle empty semesters gracefully
+            const cgpaData = calculateCGPA(profile);
             const semesterCount = Object.keys(profile.semesters).length;
-            const courseCount = Object.values(profile.semesters).reduce((sum, s) => sum + (s.courses?.length || 0), 0);
+            const courseCount = Object.values(profile.semesters).reduce((sum, s) => sum + s.courses.length, 0);
             const lastModified = profile.lastModified ? new Date(profile.lastModified).toLocaleString() : 'N/A';
 
             return `
               <li class="profile-item" data-profile-id="${id}">
                   <input class="form-check-input profile-checkbox" type="checkbox" value="${id}">
                   <div class="profile-item-details">
-                      <div class="profile-item-name">${profile.displayName || 'Unnamed Profile'}</div>
-                      <div class="profile-item-meta"><i class="fa-solid fa-id-card"></i> ${profile.studentInfo.registration || 'N/A'}</div>
+                      <div class="profile-item-name">${profile.displayName}</div>
+                      <div class="profile-item-meta"><i class="fa-solid fa-id-card"></i> ${profile.studentInfo.registration}</div>
                       <div class="profile-item-meta"><i class="fa-solid fa-graduation-cap"></i> CGPA: ${cgpaData.cgpa.toFixed(4)}</div>
                       <div class="profile-item-meta"><i class="fa-solid fa-book"></i> ${semesterCount} Semesters, ${courseCount} Courses</div>
                       <div class="profile-item-meta"><i class="fa-solid fa-clock"></i> ${lastModified}</div>
@@ -4766,22 +4663,10 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         }));
         profileListEl.querySelectorAll('.action-delete').forEach(btn => btn.addEventListener('click', e => {
             const profileId = e.currentTarget.closest('.profile-item').dataset.profileId;
-             // Ensure profile exists before showing confirmation
-            const profiles = getProfiles(); // Get fresh list
-            if (profiles[profileId]) {
-                showConfirmationModal('Delete Profile?', `Are you sure you want to delete "${profiles[profileId].displayName}"?`, () => {
-                    deleteProfiles([profileId]);
-                });
-            } else {
-                showToast("Profile not found. It might have already been deleted.", "error");
-                renderProfileManager(); // Refresh list
-            }
+            showConfirmationModal('Delete Profile?', `Are you sure you want to delete "${profiles[profileId].displayName}"?`, () => {
+                deleteProfiles([profileId]);
+            });
         }));
-
-        // Reset bulk action buttons state
-        document.getElementById('bulkActionsBtn').disabled = true;
-        document.getElementById('selectAllProfiles').checked = false;
-        exportProfilesBtnModal.disabled = true;
       }
 
       function handleBulkAction() {
@@ -4798,33 +4683,23 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
       function deleteProfiles(idsToDelete) {
           const profiles = getProfiles();
           let deletedCount = 0;
-          let activeProfileDeleted = false;
           idsToDelete.forEach(id => {
               if (profiles[id]) {
                   delete profiles[id];
                   deletedCount++;
                   if (getActiveProfileId() === id) {
-                     activeProfileDeleted = true;
-                      setActiveProfileId(''); // Clear active ID
+                      setActiveProfileId('');
                   }
               }
           });
           saveProfiles(profiles);
           showToast(`Successfully deleted ${deletedCount} profile(s).`, 'success');
-
-          // Update UI
-          updateProfileSwitcher(profiles, getActiveProfileId()); // Update dropdown
-          if (profileManagerModalEl.classList.contains('show')) {
-              renderProfileManager(); // Update manager list if open
-          }
-
-          // If the currently displayed profile was deleted, clear the UI
-          if (activeProfileDeleted) {
-              processedData = null; // Clear loaded data
+          renderProfileManager();
+          updateProfileSwitcher(profiles, getActiveProfileId());
+          if (!getActiveProfileId()) {
               resultContainer.style.display = 'none';
-              bedResultContainer.style.display = 'none';
-              registrationNumber.value = ''; // Clear input field
-              setupAttendanceButton(); // Update attendance button state
+              document.getElementById('bedResultContainer').style.display = 'none'; // Hide B.Ed. container
+              registrationNumber.value = '';
           }
       }
 
@@ -4851,11 +4726,16 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
           if (exportCount === 1) {
               const singleProfileId = selectedIds[0];
               
+              // --- THIS BLOCK IS FIXED ---
+              // Safely check for displayName and provide a fallback.
               let profileName = 'profile'; // Default name
-              if (profiles[singleProfileId]?.displayName) {
+              if (profiles[singleProfileId].displayName) {
                   profileName = profiles[singleProfileId].displayName.replace(/[^a-z0-9]/gi, '_').toLowerCase();
-              } else if (profiles[singleProfileId]?.studentInfo?.registration) {
+              // Next, I'll search for the importProfiles function, which is what these buttons should call.
+              } else if (profiles[singleProfileId].studentInfo && profiles[singleProfileId].studentInfo.registration) {
+                  // Fallback to registration number if no display name
                   profileName = profiles[singleProfileId].studentInfo.registration.replace(/[^a-z0-9]/gi, '_').toLowerCase();
+              // EUREKA!
               }
               
               filename = `${profileName}-profile-backup.json`;
@@ -4879,9 +4759,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 
           saveBackupInfo({ lastBackup: new Date().toISOString() });
           showToast(`${exportCount} profile(s) exported.`, 'success');
-          if (profileManagerModalEl.classList.contains('show')) {
-             renderProfileManager(); // Update last backup date if manager is open
-          }
+          renderProfileManager(); // Update last backup date
       }
 
 
@@ -4903,35 +4781,19 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 
                       const existingProfiles = getProfiles();
                       let importedCount = 0, skippedCount = 0;
-                      let firstImportedId = null; // To potentially load the first imported profile
 
                       Object.keys(importedData.profiles).forEach(id => {
                           if (existingProfiles[id]) {
                               skippedCount++;
                           } else {
-                              // Basic validation for the imported profile structure
-                              if (importedData.profiles[id]?.studentInfo?.registration && importedData.profiles[id]?.semesters) {
-                                  existingProfiles[id] = importedData.profiles[id];
-                                  importedCount++;
-                                  if (!firstImportedId) firstImportedId = id; // Store the ID of the first successfully imported profile
-                              } else {
-                                  console.warn(`Skipping import of profile ID ${id} due to missing data.`);
-                                  skippedCount++;
-                              }
+                              existingProfiles[id] = importedData.profiles[id];
+                              importedCount++;
                           }
                       });
 
                       saveProfiles(existingProfiles);
                       showToast(`Import complete: ${importedCount} added, ${skippedCount} skipped.`, 'success');
-                      
-                      // Reload profiles into switcher and potentially load the first new one
-                      updateProfileSwitcher(existingProfiles, getActiveProfileId() || firstImportedId);
-                      if (firstImportedId && !getActiveProfileId()) {
-                           loadProfile(firstImportedId); // Load the first imported profile if none was active
-                      } else {
-                           loadProfiles(); // Otherwise, just refresh the list/current profile
-                      }
-
+                      loadProfiles(); // Reload profiles into switcher
                       if (profileManagerModalEl.classList.contains('show')) {
                         renderProfileManager(); // Re-render manager if open
                       }
@@ -4942,10 +4804,12 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                   }
               };
 
+              // --- FIX: Add onerror handler for file read errors ---
               reader.onerror = event => {
                   showToast('Failed to read the file. Please check the file and try again.', 'error');
                   console.error('FileReader error:', event.target.error);
               };
+              // --- End of Fix ---
 
               reader.readAsText(file);
           };
@@ -4954,8 +4818,20 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 
       // --- END OF PROFILE MANAGER FUNCTIONS ---
 
-      // This function is no longer needed as rendering handles totals directly
-      // function updateTotalsDisplay() { ... }
+      function updateTotalsDisplay() {
+        const cgpaData = calculateCGPA(processedData);
+        if (!cgpaData) return;
+
+        studentName.innerHTML = `<i class="fa-solid fa-user-graduate me-2"></i>${processedData.studentInfo.name}`;
+        studentReg.textContent = processedData.studentInfo.registration;
+        totalCgpa.textContent = formatNumber(cgpaData.cgpa).toFixed(4);
+        totalPercentage.textContent = `${formatNumber(cgpaData.percentage, 2).toFixed(2)}%`;
+        totalMarksObtained.textContent = cgpaData.totalMarksObtained.toFixed(0);
+        totalMaxMarks.textContent = `/ ${cgpaData.totalMaxMarks.toFixed(0)}`;
+
+        renderGpaChart();
+        saveActiveProfile();
+      }
 
       function initBackToTop() {
         window.addEventListener('scroll', () => backToTopButton.classList.toggle('visible', window.pageYOffset > 300));
@@ -4972,7 +4848,6 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 
       function showToast(message, type = 'success') {
         const toastContainer = document.getElementById('toast-container');
-        if (!toastContainer) return; // Guard against missing container
         const toast = document.createElement('div');
         toast.className = `toast toast-${type}`;
         const icons = { success: 'fa-circle-check', error: 'fa-circle-exclamation', warning: 'fa-triangle-exclamation', info: 'fa-circle-info' };
@@ -4999,7 +4874,6 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
           document.documentElement.setAttribute('data-theme', theme);
           localStorage.setItem(THEME_KEY, theme);
           themeToggle.innerHTML = theme === 'dark' ? '<i class="fa-solid fa-sun"></i>' : '<i class="fa-solid fa-moon"></i>';
-          renderGpaChart(); // Re-render chart with new theme colors
         };
         const currentTheme = localStorage.getItem(THEME_KEY) || 'light';
         applyTheme(currentTheme);
@@ -5017,8 +4891,6 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
           const data = new FormData(contactForm);
           const statusEl = document.getElementById('contact-form-status');
           try {
-            statusEl.textContent = 'Sending...'; // Provide feedback
-            statusEl.className = 'text-info small';
             const res = await fetch(contactForm.action, { method: 'POST', body: data, headers: { 'Accept': 'application/json' } });
             if (res.ok) {
               statusEl.textContent = "Thanks! We'll get back to you soon.";
@@ -5027,13 +4899,10 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
               contactForm.classList.remove('was-validated');
               showToast('Message sent successfully!', 'success');
             } else {
-              // Try to get error message from Formspree response if available
-              const errorData = await res.json().catch(() => ({})); // Prevent error if response is not JSON
-              throw new Error(errorData.error || 'Form submission failed');
+              throw new Error('Form submission failed');
             }
-          } catch(err) {
-            console.error("Contact form error:", err);
-            statusEl.textContent = `Oops! There was a problem: ${err.message}. Please try again.`;
+          } catch {
+            statusEl.textContent = "Oops! There was a problem. Please try again.";
             statusEl.className = "text-danger small";
             showToast('Failed to send message.', 'error');
           }
@@ -5047,7 +4916,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         messageEl.className = `status-line status-${type}`;
         messageEl.textContent = `[${timestamp}] ${message}`;
         statusLog.prepend(messageEl);
-        statusLog.scrollTop = 0; // Keep latest message visible
+        statusLog.scrollTop = 0;
       }
 
       function showLoadingStage(stage) {
@@ -5065,9 +4934,8 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
       function downloadLog() {
         addStatusMessage('Preparing log file for download...', 'info');
         let logContent = "UAF CGPA Calculator - M SAQLAIN - Activity Log\n============================================\n\n";
-        // Iterate in reverse to get chronological order in the file
-        allLogs.slice().reverse().forEach(log => logContent += `[${log.timestamp}] ${log.message}\n`);
-        const blob = new Blob([logContent], { type: 'text/plain;charset=utf-8' });
+        allLogs.forEach(log => logContent += `[${log.timestamp}] ${log.message}\n`);
+        const blob = new Blob([logContent], { type: 'text/plain' });
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
@@ -5081,13 +4949,18 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
       }
 
       function clearLog() {
-        statusLog.innerHTML = ''; // Clear display
-        allLogs = []; // Clear stored logs
-        addStatusMessage('Log cleared', 'info'); // Add a message indicating clearance
+        statusLog.innerHTML = '';
+        allLogs = [];
+        addStatusMessage('Log cleared', 'info');
         showToast('Log cleared', 'info');
       }
 
-
+      // --- 
+      // --- UPDATED processSemesterName Function ---
+      // --- 
+      // ---
+      // --- UPDATED processSemesterName Function ---
+      // ---
       function processSemesterName(semester) {
           if (!semester) return 'Unknown Semester';
 
@@ -5105,61 +4978,103 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
               season = 'Spring';
               if (yearRangeMatch) {
                   year = yearRangeMatch[2]; // "25" or "2025"
-                  if (year.length === 2) year = `20${year}`;
+                  // Ensure it's a 4-digit year
+                  if (year.length === 2) {
+                      year = `20${year}`; // "25" -> "2025"
+                  }
               } else if (singleYearMatch) {
-                   year = (parseInt(singleYearMatch[1]) + 1).toString(); // UAF Spring uses the *end* year
+                  // If only a single year is present for Spring, assume it's the latter year
+                  year = (parseInt(singleYearMatch[1]) + 1).toString();
               }
           } else if (semesterLower.includes('winter')) {
               season = 'Winter';
-              if (yearRangeMatch) year = yearRangeMatch[1];
-              else if (singleYearMatch) year = singleYearMatch[1];
+              if (yearRangeMatch) {
+                  year = yearRangeMatch[1]; // "2024"
+              } else if (singleYearMatch) {
+                  year = singleYearMatch[1];
+              }
           } else if (semesterLower.includes('summer')) {
               season = 'Summer';
-              if (yearRangeMatch) year = yearRangeMatch[1];
-              else if (singleYearMatch) year = singleYearMatch[1];
+              // Summer usually belongs to the first year of the range or the single year mentioned
+              if (yearRangeMatch) {
+                  year = yearRangeMatch[1]; // "2024"
+              } else if (singleYearMatch) {
+                  year = singleYearMatch[1];
+              }
           } else if (semesterLower.includes('fall')) {
               season = 'Fall';
-              if (yearRangeMatch) year = yearRangeMatch[1];
-              else if (singleYearMatch) year = singleYearMatch[1];
+              // Fall usually belongs to the first year of the range or the single year mentioned
+              if (yearRangeMatch) {
+                  year = yearRangeMatch[1]; // "2024"
+              } else if (singleYearMatch) {
+                  year = singleYearMatch[1];
+              }
           }
 
+          // If a season and year were found, return them
           if (season !== 'Unknown' && year) {
               return `${season} ${year}`;
           }
 
-          // Fallback for attendance system format "SeasonYY"
+          // Fallback logic for non-standard formats like "Winter20", "Spring24" etc. from attendance
+          // Converts "SeasonYY" directly to "Season 20YY"
           const attendanceMatch = semesterLower.match(/^(winter|spring|summer|fall)(\d{2})$/);
           if (attendanceMatch) {
-              const season = attendanceMatch[1].charAt(0).toUpperCase() + attendanceMatch[1].slice(1);
-              return `${season} 20${attendanceMatch[2]}`;
+              const season = attendanceMatch[1].charAt(0).toUpperCase() + attendanceMatch[1].slice(1); // Capitalize season
+              const yearYY = attendanceMatch[2];
+              return `${season} 20${yearYY}`; // e.g., Spring 2024
           }
 
-          // Final fallback: Capitalize first letter if possible
-          return semester.length > 0 ? semester.charAt(0).toUpperCase() + semester.slice(1) : 'Unknown Semester';
+          // Default fallback (original string, capitalized) if no other pattern matches
+          return semester.charAt(0).toUpperCase() + semester.slice(1);
       }
 
       function getSemesterOrderKey(processedSemesterName) {
-        if (!processedSemesterName) return '9999-9';
+        // Takes the processed name like "Winter 2020" or "Spring 2021"
+        if (!processedSemesterName) return '9999-9'; // Ensure unknowns sort last
+
         const semesterLower = processedSemesterName.toLowerCase();
 
+        // Handle Forecast semesters - place them far in the future
         if (semesterLower.startsWith('forecast')) {
             const num = parseInt(semesterLower.split(' ')[1] || '1');
+            // Ensure proper numerical sorting for multiple forecasts
             return `3000-${num.toString().padStart(2, '0')}`;
         }
 
-        const yearMatch = semesterLower.match(/\b(\d{4})\b/);
-        if (!yearMatch) return '9999-9';
-        const year = parseInt(yearMatch[1]);
+        let year = 0;
+        let seasonOrder = 9; // Default for unknowns
+
+        const yearMatch = semesterLower.match(/\b(\d{4})\b/); // Match the 4-digit year
+        if (yearMatch) {
+            year = parseInt(yearMatch[1]);
+        } else {
+            return '9999-9'; // Cannot determine year, sort last
+        }
+
         let academicYearStart = year;
-        let seasonOrder = 9;
 
-        // UAF Sequence: Fall -> Winter -> Spring -> Summer
-        if (semesterLower.includes('fall')) { seasonOrder = 1; academicYearStart = year; }
-        else if (semesterLower.includes('winter')) { seasonOrder = 2; academicYearStart = year; } // Winter 2020 is start of 2020 AY block
-        else if (semesterLower.includes('spring')) { seasonOrder = 3; academicYearStart = year - 1; } // Spring 2021 is part of 2020 AY block
-        else if (semesterLower.includes('summer')) { seasonOrder = 4; academicYearStart = year - 1; } // Summer 2021 is part of 2020 AY block
-        else { seasonOrder = 9; academicYearStart = year; }
+        // Determine season order and adjust academic year start for Spring/Summer
+        if (semesterLower.includes('winter')) {
+            seasonOrder = 1;
+            academicYearStart = year; // Winter 2020 belongs to AY starting 2020
+        } else if (semesterLower.includes('spring')) {
+            seasonOrder = 2;
+            academicYearStart = year - 1; // Spring 2021 belongs to AY starting 2020
+        } else if (semesterLower.includes('summer')) {
+            seasonOrder = 3;
+            academicYearStart = year - 1; // Summer 2021 belongs to AY starting 2020
+        } else if (semesterLower.includes('fall')) {
+             // Assuming Fall starts the *next* academic cycle relative to Summer
+             // Fall 2021 would belong to AY starting 2021
+            seasonOrder = 4;
+            academicYearStart = year;
+        } else {
+             seasonOrder = 9; // Unknown season type
+             academicYearStart = year;
+        }
 
+        // Format: YYYY-S (e.g., 2020-1, 2020-2, 2020-3, 2021-1)
         return `${academicYearStart}-${seasonOrder}`;
       }
 
@@ -5168,171 +5083,257 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         const studentInfo = { name: data.resultData[0]?.StudentName || '', registration: data.resultData[0]?.RegistrationNo || '' };
         const semesters = {};
         const courseHistory = {};
-        let hasBedCourses = false;
+        
+        let hasBedCourses = false; // --- NEW B.Ed. Flag ---
 
         data.resultData.forEach(course => {
           const originalSemester = course.Semester || 'Unknown Semester';
           const semesterName = processSemesterName(originalSemester);
           const courseCode = (course.CourseCode || '').trim().toUpperCase();
-          if (!courseCode) return; // Skip if no course code
+          const historyKey = courseCode;
 
-          if (BED_COURSES.has(courseCode)) hasBedCourses = true;
+          // --- NEW B.Ed. Check ---
+          if (BED_COURSES.has(courseCode)) {
+            hasBedCourses = true;
+          }
+          // --- End of NEW B.Ed. Check ---
 
           if (!semesters[semesterName]) {
+            // Pass the *processed* semesterName to getSemesterOrderKey
             semesters[semesterName] = { originalName: originalSemester, sortKey: getSemesterOrderKey(semesterName), courses: [] };
           }
 
           const creditHoursStr = course.CreditHours || '0';
-          const creditHoursMatch = creditHoursStr.match(/^(\d+(\.\d+)?)/); // Match digits at the start, allow decimals
-          const creditHours = creditHoursMatch ? parseFloat(creditHoursMatch[1]) : 0;
+          const creditHours = parseInt(creditHoursStr.match(/\d+/)?.[0] || '0');
           const marks = parseFloat(course.Total || '0');
-          const grade = (course.Grade || '').trim().toUpperCase(); // Normalize grade early
 
-          let qualityPoints = calculateQualityPoints(marks, creditHours, grade);
+          // Pass the grade to the QP calculation
+          let qualityPoints = calculateQualityPoints(marks, creditHours, course.Grade);
 
+          // This 'if' block is now redundant if 'F' is handled in calculateQualityPoints,
+          // but we can leave it as a safeguard.
+          if (course.Grade === 'F') {
+            qualityPoints = 0;
+          }
+
+          // --- 
+          // --- UPDATED courseData Object ---
+          // --- 
           const courseData = {
-            code: courseCode, title: course.CourseTitle || '', creditHours, creditHoursDisplay: creditHoursStr,
-            marks, qualityPoints, grade, teacher: course.TeacherName || '', mid: course.Mid || '0',
-            assignment: course.Assignment || '0', final: course.Final || '0', practical: course.Practical || '0',
-            isExtraEnrolled: false, isRepeated: false, isDeleted: false, isCustom: false, originalSemester
+            code: courseCode,
+            title: course.CourseTitle || '',
+            creditHours: creditHours,
+            creditHoursDisplay: creditHoursStr,
+            marks: marks,
+            qualityPoints: qualityPoints,
+            grade: course.Grade || '',
+            teacher: course.TeacherName || '',
+            mid: course.Mid || '0',
+            assignment: course.Assignment || '0',
+            final: course.Final || '0',
+            practical: course.Practical || '0',
+            isExtraEnrolled: false,
+            isRepeated: false,
+            isDeleted: false,
+            isCustom: false,
+            originalSemester: originalSemester // <-- THIS LINE WAS ADDED
           };
 
-          if (!courseHistory[courseCode]) courseHistory[courseCode] = [];
-          courseHistory[courseCode].push({ semester: semesterName, semesterSortKey: semesters[semesterName].sortKey, marks: marks, data: courseData });
+          if (!courseHistory[historyKey]) {
+            courseHistory[historyKey] = [];
+          }
+          courseHistory[historyKey].push({ semester: semesterName, semesterSortKey: getSemesterOrderKey(semesterName), marks: marks, data: courseData });
           semesters[semesterName].courses.push(courseData);
         });
 
-        // Handle repeated courses *after* processing all courses
         Object.values(courseHistory).forEach(history => {
           if (history.length > 1) {
-            history.sort((a, b) => a.semesterSortKey.localeCompare(b.semesterSortKey)); // Sort attempts chronologically
+            history.sort((a, b) => a.semesterSortKey.localeCompare(b.semesterSortKey));
+
             const passedCourses = history.filter(item => item.data.grade !== 'F');
             let bestAttempt;
 
             if (passedCourses.length > 0) {
-              bestAttempt = passedCourses.reduce((prev, current) => (prev.marks >= current.marks) ? prev : current); // Use >= to favor later attempt in case of tie
-            } else { // All attempts are 'F'
-              bestAttempt = history[history.length - 1]; // Count the last 'F' attempt
+              bestAttempt = passedCourses.reduce((prev, current) => (prev.marks > current.marks) ? prev : current);
+            } else {
+              bestAttempt = history.reduce((prev, current) => (prev.marks > current.marks) ? prev : current);
             }
 
             history.forEach(item => {
               item.data.isRepeated = true;
               if (item !== bestAttempt) {
-                item.data.isExtraEnrolled = true; // Mark non-best attempts
+                item.data.isExtraEnrolled = true;
               } else {
-                 item.data.isExtraEnrolled = false; // Ensure the best attempt is not marked as extra
+                item.data.isExtraEnrolled = false;
               }
             });
           }
         });
 
+        // --- NEW: Return the flag ---
         return { studentInfo, semesters, courseHistory, hasBedCourses };
       }
 
-
       function calculateQualityPoints(marks, creditHours, grade) {
-          marks = parseFloat(marks);
-          creditHours = parseFloat(creditHours); // Allow fractional credit hours
-          if (isNaN(marks) || isNaN(creditHours) || creditHours <= 0) return 0; // Guard against invalid input
+        marks = parseFloat(marks);
+        creditHours = parseInt(creditHours);
+        
+        // Handle P/F grades first (Request 2)
+        grade = (grade || '').trim().toUpperCase();
+        if (grade === 'P') {
+            return parseFloat(creditHours) * 4.0;
+        }
+        if (grade === 'F') {
+            return 0;
+        }
 
-          grade = (grade || '').trim().toUpperCase();
-          
-          // Grade-based calculation takes precedence if grade is provided and valid
-          const gradePointMap = { 'A': 4.0, 'B+': 3.5, 'B': 3.0, 'C+': 2.5, 'C': 2.0, 'D': 1.0, 'F': 0.0, 'P': 4.0 }; // Added B+, C+
-          if (grade && gradePointMap.hasOwnProperty(grade)) {
-              return gradePointMap[grade] * creditHours;
-          }
-
-          // Fallback to marks-based calculation (original logic, seems complex/potentially inaccurate)
-          // Consider replacing this with a simpler percentage-to-grade-point conversion if UAF uses one
-          // For now, keeping the original complex logic:
-          let qualityPoints = 0;
-          // This logic seems incorrect as it uses integer creditHours for keys.
-          // Re-implementing simplified percentage-based logic as a better fallback.
-          const maxMarks = { 10: 200, 9: 180, 8: 160, 7: 140, 6: 120, 5: 100, 4: 80, 3: 60, 2: 40, 1: 20 }[Math.round(creditHours)] || (creditHours * 20); // Estimate max marks if not standard CH
-
-          if (marks >= maxMarks * 0.8) qualityPoints = 4.0 * creditHours;        // A (80%+)
-          else if (marks >= maxMarks * 0.75) qualityPoints = 3.5 * creditHours;  // B+ (75-79%) - Guessed
-          else if (marks >= maxMarks * 0.65) qualityPoints = 3.0 * creditHours;  // B (65-74%) - Guessed
-          else if (marks >= maxMarks * 0.60) qualityPoints = 2.5 * creditHours;  // C+ (60-64%) - Guessed
-          else if (marks >= maxMarks * 0.50) qualityPoints = 2.0 * creditHours;  // C (50-59%) - Guessed
-          else if (marks >= maxMarks * 0.40) qualityPoints = 1.0 * creditHours;  // D (40-49%) - Guessed
-          else qualityPoints = 0.0;                                           // F (<40%)
-          
-          // Rounding to 2 decimal places is standard for QP
-          return parseFloat(Math.max(0, qualityPoints).toFixed(2));
+        // Keep existing marks-based logic as a fallback
+        let qualityPoints = 0;
+        if (creditHours === 10) {
+            if (marks >= 160) qualityPoints = 40;
+            else if (marks >= 100) qualityPoints = 40 - ((160 - marks) * 0.33333);
+            else if (marks < 100) qualityPoints = 20 - ((100 - marks) * 0.5);
+            if (marks < 80) qualityPoints = 0;
+        } else if (creditHours === 9) {
+            if (marks >= 144) qualityPoints = 36;
+            else if (marks >= 90) qualityPoints = 36 - ((144 - marks) * 0.33333);
+            else if (marks < 90) qualityPoints = 18 - ((90 - marks) * 0.5);
+            if (marks < 72) qualityPoints = 0;
+        } else if (creditHours === 8) {
+            if (marks >= 128) qualityPoints = 32;
+            else if (marks >= 80) qualityPoints = 32 - ((128 - marks) * 0.33333);
+            else if (marks < 80) qualityPoints = 16 - ((80 - marks) * 0.5);
+            if (marks < 64) qualityPoints = 0;
+        } else if (creditHours === 7) {
+            if (marks >= 112) qualityPoints = 28;
+            else if (marks >= 70) qualityPoints = 28 - ((112 - marks) * 0.33333);
+            else if (marks < 70) qualityPoints = 14 - ((70 - marks) * 0.5);
+            if (marks < 56) qualityPoints = 0;
+        } else if (creditHours === 6) {
+            if (marks >= 96) qualityPoints = 24;
+            else if (marks >= 60) qualityPoints = 24 - ((96 - marks) * 0.33333);
+            else if (marks < 60) qualityPoints = 12 - ((60 - marks) * 0.5);
+            if (marks < 48) qualityPoints = 0;
+        } else if (creditHours === 5) {
+            if (marks >= 80) qualityPoints = 20;
+            else if (marks >= 50) qualityPoints = 20 - ((80 - marks) * 0.33333);
+            else if (marks < 50) qualityPoints = 10 - ((50 - marks) * 0.5);
+            if (marks < 40) qualityPoints = 0;
+        } else if (creditHours === 4) {
+            if (marks >= 64) qualityPoints = 16;
+            else if (marks >= 40) qualityPoints = 16 - ((64 - marks) * 0.33333);
+            else if (marks < 40) qualityPoints = 8 - ((40 - marks) * 0.5);
+            if (marks < 32) qualityPoints = 0;
+        } else if (creditHours === 3) {
+            if (marks >= 48) qualityPoints = 12;
+            else if (marks >= 30) qualityPoints = 12 - ((48 - marks) * 0.33333);
+            else if (marks < 30) qualityPoints = 6 - ((30 - marks) * 0.5);
+            if (marks < 24) qualityPoints = 0;
+        } else if (creditHours === 2) {
+            if (marks >= 32) qualityPoints = 8;
+            else if (marks >= 20) qualityPoints = 8 - ((32 - marks) * 0.33333);
+            else if (marks < 20) qualityPoints = 4 - ((20 - marks) * 0.5);
+            if (marks < 16) qualityPoints = 0;
+        } else if (creditHours === 1) {
+            if (marks >= 16) qualityPoints = 4;
+            else if (marks >= 10) qualityPoints = 4 - ((16 - marks) * 0.33333);
+            else if (marks < 10) qualityPoints = 2 - ((10 - marks) * 0.5);
+            if (marks < 8) qualityPoints = 0;
+        }
+        return parseFloat(Math.max(0, qualityPoints).toFixed(2));
       }
 
       function calculateCustomGrade(marks, creditHours) {
-          // Simplified grade calculation based on percentage - ADJUST thresholds as per UAF rules
-          const maxMarks = { 10: 200, 9: 180, 8: 160, 7: 140, 6: 120, 5: 100, 4: 80, 3: 60, 2: 40, 1: 20 }[Math.round(creditHours)] || (creditHours * 20); // Estimate if not standard
-          const percentage = (marks / maxMarks) * 100;
-
-          if (percentage >= 80) return 'A';
-          else if (percentage >= 75) return 'B+'; // Guessed
-          else if (percentage >= 65) return 'B';  // Guessed
-          else if (percentage >= 60) return 'C+'; // Guessed
-          else if (percentage >= 50) return 'C';
-          else if (percentage >= 40) return 'D';
-          else return 'F';
+        const grading = { 10: { A: 160, B: 100, D: 80 }, 9: { A: 144, B: 90, D: 72 }, 8: { A: 128, B: 80, D: 64 }, 7: { A: 112, B: 70, D: 56 }, 6: { A: 96, B: 60, D: 48 }, 5: { A: 80, B: 50, D: 40 }, 4: { A: 64, B: 52, C: 40, D: 32 }, 3: { A: 48, B: 39, C: 30, D: 24 }, 2: { A: 32, B: 26, C: 20, D: 16 }, 1: { A: 16, B: 13, C: 10, D: 8 } };
+        const scale = grading[creditHours];
+        if (!scale) return 'F';
+        if (marks >= scale.A) return 'A'; if (marks >= scale.B) return 'B';
+        if (scale.C && marks >= scale.C) return 'C'; if (marks >= scale.D) return 'D';
+        return 'F';
       }
 
       function calculateCGPA(data) {
-        if (!data || !data.semesters) return { cgpa: 0, percentage: 0, totalQualityPoints: 0, totalCreditHours: 0, totalMarksObtained: 0, totalMaxMarks: 0 }; // Return zeroed object if no semesters
-
+        if (!data) return null;
         let totalQualityPoints = 0, totalCreditHours = 0, totalMarksObtained = 0, totalMaxMarks = 0;
         
-        // --- Recalculate Repeated Status Before CGPA Calculation ---
+        // Re-evaluate course history for repeated courses *every time* we calculate
         const courseHistory = {};
         Object.entries(data.semesters).forEach(([semesterName, semester]) => {
             semester.courses.forEach(course => {
-                if (course.isDeleted) return;
+                if (course.isDeleted) return; // Skip deleted courses entirely
+                
                 const historyKey = course.code.toUpperCase().trim();
-                if (!courseHistory[historyKey]) courseHistory[historyKey] = [];
+                if (!courseHistory[historyKey]) {
+                    courseHistory[historyKey] = [];
+                }
                 courseHistory[historyKey].push({
-                    semester: semesterName, semesterSortKey: semester.sortKey, marks: course.marks, data: course
+                    semester: semesterName,
+                    semesterSortKey: semester.sortKey,
+                    marks: course.marks,
+                    data: course // Direct reference to the course object
                 });
             });
         });
-        Object.values(courseHistory).flat().forEach(item => item.data.isExtraEnrolled = false); // Reset flags
+
+        // Reset all 'isExtraEnrolled' flags
+        Object.values(courseHistory).flat().forEach(item => item.data.isExtraEnrolled = false);
+
+        // Set 'isExtraEnrolled' flags based on current data
         Object.values(courseHistory).forEach(history => {
             if (history.length > 1) {
                 history.sort((a, b) => a.semesterSortKey.localeCompare(b.semesterSortKey));
                 const passedCourses = history.filter(item => item.data.grade !== 'F');
                 let bestAttempt;
-                if (passedCourses.length > 0) bestAttempt = passedCourses.reduce((prev, current) => (prev.marks >= current.marks) ? prev : current);
-                else bestAttempt = history[history.length - 1];
-                history.forEach(item => { item.data.isRepeated = true; if (item !== bestAttempt) item.data.isExtraEnrolled = true; else item.data.isExtraEnrolled = false; });
-            } else if (history.length === 1) { history[0].data.isRepeated = false; }
-        });
-        // --- End Recalculation ---
 
-        // Calculate totals based on the updated flags
+                if (passedCourses.length > 0) {
+                    bestAttempt = passedCourses.reduce((prev, current) => (prev.marks > current.marks) ? prev : current);
+                } else { // All attempts are 'F'
+                    bestAttempt = history.reduce((prev, current) => (prev.marks > current.marks) ? prev : current);
+                }
+
+                history.forEach(item => {
+                    item.data.isRepeated = true; // Mark all as repeated
+                    if (item !== bestAttempt) {
+                        item.data.isExtraEnrolled = true; // Mark non-best attempts
+                    }
+                });
+            } else if (history.length === 1) {
+                 history[0].data.isRepeated = false; // Not repeated if only one instance
+            }
+        });
+
+
+        // Now calculate totals
         Object.values(data.semesters).forEach(semester => {
-            semester.totalQualityPoints = 0; semester.totalCreditHours = 0;
-            semester.totalMarksObtained = 0; semester.totalMaxMarks = 0;
+            semester.totalQualityPoints = 0;
+            semester.totalCreditHours = 0;
+            semester.totalMarksObtained = 0;
+            semester.totalMaxMarks = 0;
             semester.courses.forEach(course => {
                 if (!course.isExtraEnrolled && !course.isDeleted) {
-                    const creditHours = parseFloat(course.creditHours) || 0; // Ensure CH is a number
-                    const qualityPoints = parseFloat(course.qualityPoints) || 0; // Ensure QP is a number
-                    const marks = parseFloat(course.marks) || 0; // Ensure marks is a number
-                    
-                    semester.totalQualityPoints += qualityPoints;
-                    semester.totalCreditHours += creditHours;
-                    semester.totalMarksObtained += marks;
+                    semester.totalQualityPoints += course.qualityPoints;
+                    semester.totalCreditHours += course.creditHours;
+                    semester.totalMarksObtained += course.marks;
 
-                    let maxMarks = 0;
-                    if (course.grade === 'P') {
-                        // Assuming 1 CH 'P' grade maps to 100 max marks for percentage calc
-                        maxMarks = (creditHours === 1) ? 100 : marks; // Use marks as max otherwise for 'P'
+                    let maxMarks;
+                    if ((course.grade || '').trim().toUpperCase() === 'P') {
+                        // Assume 'P' grade courses with 1CH have 100 max marks, as requested
+                        if (course.creditHours === 1) {
+                            maxMarks = 100;
+                        } else {
+                            // Fallback for 'P' grade on other CH (if it ever happens)
+                            // We assume the total marks obtained are the max marks for percentage
+                            maxMarks = course.marks; 
+                        }
                     } else {
-                         maxMarks = { 10: 200, 9: 180, 8: 160, 7: 140, 6: 120, 5: 100, 4: 80, 3: 60, 2: 40, 1: 20 }[Math.round(creditHours)] || (creditHours * 20); // Estimate if non-standard
+                         maxMarks = { 10: 200, 9: 180, 8: 160, 7: 140, 6: 120, 5: 100, 4: 80, 3: 60, 2: 40, 1: 20 }[course.creditHours] || 0;
                     }
+
                     semester.totalMaxMarks += maxMarks;
 
-                    totalQualityPoints += qualityPoints;
-                    totalCreditHours += creditHours;
-                    totalMarksObtained += marks;
+                    totalQualityPoints += course.qualityPoints;
+                    totalCreditHours += course.creditHours;
+                    totalMarksObtained += course.marks;
                     totalMaxMarks += maxMarks;
                 }
             });
@@ -5345,51 +5346,43 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         return { cgpa, percentage, totalQualityPoints, totalCreditHours, totalMarksObtained, totalMaxMarks };
       }
 
-
-      function formatNumber(value, places = 4) { 
-          const num = parseFloat(value);
-          return isNaN(num) ? 0 : parseFloat(num.toFixed(places)); // Return 0 if NaN
-      }
+      function formatNumber(value, places = 4) { return parseFloat(value.toFixed(places)); }
 
       // --- NEW Function: Renders semester cards into a specific container ---
       function displaySemesterCards(containerId, data) {
         const container = document.getElementById(containerId);
-        if (!container || !data || !data.semesters) return; // Add guards
+        if (!container) return;
 
-        container.innerHTML = ''; // Clear previous content
-        const semesterKeys = Object.keys(data.semesters);
-
-        if (semesterKeys.length === 0) {
-             container.innerHTML = '<p class="text-center text-muted p-3">No courses found for this category.</p>';
-             return;
-        }
-
-        semesterKeys.sort((a,b) => data.semesters[a].sortKey.localeCompare(data.semesters[b].sortKey)).forEach(semesterName => {
+        container.innerHTML = '';
+        Object.keys(data.semesters).sort((a,b) => data.semesters[a].sortKey.localeCompare(data.semesters[b].sortKey)).forEach(semesterName => {
           const semester = data.semesters[semesterName];
-          // Don't render semesters with only deleted courses unless needed
-          const nonDeletedCourses = semester.courses.filter(c => !c.isDeleted);
-          if (nonDeletedCourses.length === 0 && semester.courses.length > 0) { // Skip rendering if no active courses, but courses existed
+          // --- B.Ed. Fix: Don't render empty semesters ---
+          if (!semester.courses || semester.courses.length === 0) {
               return;
           }
+          // --- End of Fix ---
           
           const semesterCard = document.createElement('div');
+          
           semesterCard.dataset.semester = semesterName;
+
           const animationClass = isInitialLoad ? 'fade-in-on-scroll' : 'is-visible';
           semesterCard.className = `semester-card ${animationClass}`;
+
+          semesterCard.dataset.semester = semesterName;
           
-          const isForecastOrCustomOnly = semesterName.toLowerCase().startsWith('forecast') ||
-                                         semester.courses.every(c => c.isCustom) || // Check if ALL courses are custom
-                                         !Object.values(data.courseHistory || {}).flat().some(c => c.semester === semesterName && !c.data.isCustom);
-
-
+          const isForecastOrCustom = semesterName.toLowerCase().startsWith('forecast') || 
+                                     !Object.values(processedData.courseHistory).flat().some(c => c.semester === semesterName && !c.data.isCustom);
+          
           semesterCard.innerHTML = `
             <i class="fa-solid fa-trash delete-semester" title="Delete this semester" data-semester="${semesterName}"></i>
             <div class="d-flex align-items-center justify-content-between mb-3">
               <h5 class="mb-0 d-flex align-items-center">
                 <i class="fa-solid fa-book-open me-2" style="color: var(--brand);"></i>
                 <span id="semester-name-${semester.sortKey}">${semesterName}</span>
-                ${isForecastOrCustomOnly ? `<i class="fa-solid fa-pencil edit-semester-name" title="Rename semester" data-semester="${semesterName}" style="cursor: pointer; margin-left: 10px; font-size: 0.9em; color: var(--muted);"></i>` : ''}
-              </h5>
+                
+                ${isForecastOrCustom ? `<i class="fa-solid fa-pencil edit-semester-name" title="Rename semester" data-semester="${semesterName}" style="cursor: pointer; margin-left: 10px; font-size: 0.9em; color: var(--muted);"></i>` : ''}
+                </h5>
               <div class="text-end" style="margin-right: 40px;">
                 <p class="mb-0 text-body-secondary small">GPA:</p>
                 <p class="mb-0 h4 fw-bold" style="color: var(--brand);">${formatNumber(semester.gpa).toFixed(4)}</p>
@@ -5398,20 +5391,16 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
             </div>
             <button class="custom-course-btn" data-semester="${semesterName}"><i class="fa-solid fa-plus"></i> Custom Course</button>
             <div class="table-responsive"><table class="course-table"><thead><tr><th>Course</th><th>Hrs</th><th>Marks</th><th>Grade</th><th>Action</th></tr></thead>
-              <tbody>
-              ${semester.courses.length > 0 ? semester.courses.map((course, index) => {
-                  // Generate a unique ID based on more stable properties + index as fallback
-                  const courseIdentifier = `${semesterName}-${course.code}-${course.creditHours}-${course.marks}-${index}`;
+              <tbody>${semester.courses.map((course, index) => {
+                  const courseIdentifier = `${semesterName}-${course.code}-${course.total}-${index}`;
                   const courseTitle = course.title || (course.isCustom ? 'Custom Course' : 'N/A');
-                  const escapedCourseData = JSON.stringify(course).replace(/'/g, "&#39;"); // Escape single quotes for data attribute
-
                   return `
                   <tr data-course-identifier="${courseIdentifier}" draggable="true" class="${course.isExtraEnrolled ? 'table-warning' : ''} ${course.isDeleted ? 'table-danger text-decoration-line-through' : ''} ${course.isCustom ? 'table-info' : ''}">
                     <td>
                       <div class="course-code-container">
-                        <span class="fw-medium course-code clickable-info" data-course='${escapedCourseData}'>
+                        <span class="fw-medium course-code clickable-info" data-course='${JSON.stringify(course).replace(/'/g, "&#39;")}'>
                           ${course.code}
-                          <i class="fa-solid fa-info-circle ms-1 clickable-info small" data-course='${escapedCourseData}' title="${courseTitle}"></i>
+                          <i class="fa-solid fa-info-circle ms-1 clickable-info small" data-course='${JSON.stringify(course).replace(/'/g, "&#39;")}' title="${courseTitle}"></i>
                         </span>
                         ${course.isExtraEnrolled ? '<sup class="extra-enrolled">Rep.</sup>' : ''}
                         ${course.isCustom && course.source === 'attendance' ? '<sup class="extra-enrolled" style="color: #087990; background-color: #cff4fc;">Atnd.</sup>' : ''}
@@ -5420,25 +5409,24 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                     </td>
                     <td>${course.creditHoursDisplay || course.creditHours}</td><td>${course.marks}</td>
                     <td><span class="grade-badge grade-${course.grade}">${course.grade}</span></td>
-                    <td class="course-actions">${course.isDeleted ? `<i class="fa-solid fa-rotate-left restore-course" data-course='${escapedCourseData}' data-semester="${semesterName}" title="Restore"></i>` : `<i class="fa-solid fa-trash delete-course" data-course='${escapedCourseData}' data-semester="${semesterName}" title="Delete"></i>`}</td>
+                    <td class="course-actions">${course.isDeleted ? `<i class="fa-solid fa-rotate-left restore-course" data-course='${JSON.stringify(course).replace(/'/g, "&#39;")}' data-semester="${semesterName}" title="Restore"></i>` : `<i class="fa-solid fa-trash delete-course" data-course='${JSON.stringify(course).replace(/'/g, "&#39;")}' data-semester="${semesterName}" title="Delete"></i>`}</td>
                   </tr>`;
-              }).join('') : '<tr><td colspan="5" class="text-center text-muted small p-3">No courses added yet.</td></tr>'}
-              </tbody>
+              }).join('')}</tbody>
             </table></div>`;
           container.appendChild(semesterCard);
         });
 
-        isInitialLoad = false; // Mark initial load as complete after rendering
+        isInitialLoad = false;
+        // Note: We call attachResultEventListeners() *after* this function finishes
       }
 
-
       function displayCGPAResults(data, cgpaData) {
-        processedData = data; // Store the full data
+        processedData = data;
         resultContainer.style.display = 'block';
 
-        // 1. Update the main CGPA card (student info, overall CGPA etc.)
-        studentName.innerHTML = `<i class="fa-solid fa-user-graduate me-2"></i>${data.studentInfo.name || 'N/A'}`;
-        studentReg.textContent = data.studentInfo.registration || 'N/A';
+        // 1. Update the main CGPA card
+        studentName.innerHTML = `<i class="fa-solid fa-user-graduate me-2"></i>${data.studentInfo.name}`;
+        studentReg.textContent = data.studentInfo.registration;
         totalCgpa.textContent = formatNumber(cgpaData.cgpa).toFixed(4);
         totalPercentage.textContent = `${formatNumber(cgpaData.percentage, 2).toFixed(2)}%`;
         totalMarksObtained.textContent = cgpaData.totalMarksObtained.toFixed(0);
@@ -5446,35 +5434,40 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 
         const cgpaCircle = document.getElementById('cgpaCircle');
         if(cgpaCircle) {
-            const cgpaVal = parseFloat(totalCgpa.textContent);
-            const percentageVal = isNaN(cgpaVal) ? 0 : (cgpaVal / 4.0) * 100;
+            const cgpa = parseFloat(totalCgpa.textContent);
+            const percentage = (cgpa / 4.0) * 100;
             setTimeout(() => {
-                cgpaCircle.style.strokeDasharray = `${percentageVal}, 100`;
+                cgpaCircle.style.strokeDasharray = `${percentage}, 100`;
             }, 100);
         }
 
         // 2. Render the semester cards into the *standard* container
         displaySemesterCards('semesterResults', data);
 
-        // 3. Attach common event listeners (delete semester, add course, info popup, drag/drop etc.)
+        // 3. Attach listeners
         attachResultEventListeners();
 
-        // 4. Render GPA chart (using the full data) and setup buttons (Attendance, PDF, Forecast)
+        // 4. Render chart and setup buttons
         renderGpaChart();
-        setupFeatureButtons(); // Centralized function to handle feature buttons visibility/state
+        
+        const hasAttendanceCourses = Object.values(data.semesters).some(s => s.courses.some(c => c.isCustom && c.source === 'attendance'));
+        if (!hasAttendanceCourses) {
+             importedAttendanceCourses = [];
+        }
+        importedAttendanceCourses = [];
+        setupAttendanceButton();
       }
 
-
-      // --- UPDATED Function: Renders the B.Ed. tabbed interface ---
+      // --- NEW Function: Renders the B.Ed. tabbed interface ---
       function displayBedResults(data) {
         // 1. Filter for B.Ed. results
         const bedSemesters = filterSemesters(data.semesters, true);
-        const bedData = { ...data, semesters: bedSemesters, courseHistory: data.courseHistory }; // Pass courseHistory
+        const bedData = { ...data, semesters: bedSemesters };
         const bedCgpa = calculateCGPA(bedData);
 
         // 2. Filter for "Other" results
         const otherSemesters = filterSemesters(data.semesters, false);
-        const otherData = { ...data, semesters: otherSemesters, courseHistory: data.courseHistory }; // Pass courseHistory
+        const otherData = { ...data, semesters: otherSemesters };
         const otherCgpa = calculateCGPA(otherData);
 
         // 3. Render the "B.Ed." tab content
@@ -5489,17 +5482,11 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         }
         displaySemesterCards('bed-semesterResults', bedData);
 
-        // 4. Render the "Other" tab content - FIX Label
+        // 4. Render the "Other" tab content
         document.getElementById('other-totalCgpa').textContent = otherCgpa.cgpa.toFixed(4);
         document.getElementById('other-totalPercentage').textContent = `${otherCgpa.percentage.toFixed(2)}%`;
         document.getElementById('other-totalMarksObtained').textContent = otherCgpa.totalMarksObtained.toFixed(0);
         document.getElementById('other-totalMaxMarks').textContent = `/ ${otherCgpa.totalMaxMarks.toFixed(0)}`;
-        // --- FIX: Change the label text directly ---
-        const otherCgpaLabel = document.querySelector('#other-tab-content .cgpa-label');
-        if (otherCgpaLabel) {
-            otherCgpaLabel.textContent = 'CGPA'; // Set label to just CGPA
-        }
-        // --- End Fix ---
         const otherCircle = document.getElementById('other-cgpaCircle');
         if (otherCircle) {
             const otherPercentage = (otherCgpa.cgpa / 4.0) * 100;
@@ -5507,81 +5494,40 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         }
         displaySemesterCards('other-semesterResults', otherData);
 
-        // 5. Render GPA chart initially (will update on tab change)
-        renderGpaChart();
+        // 5. Hide the GPA chart
+        gpaChartContainer.style.display = 'none';
 
-        // 6. Attach listeners AFTER cards are rendered
+        // 6. Attach listeners to all new elements
         attachResultEventListeners();
 
-        // 7. Setup feature buttons (Attendance, PDF, Forecast)
-        setupFeatureButtons();
+        // 7. Setup attendance button
+        setupAttendanceButton();
       }
 
-      // --- NEW Function: Centralizes visibility/state for feature buttons ---
-      function setupFeatureButtons() {
-         const hasResults = processedData && processedData.semesters && Object.keys(processedData.semesters).length > 0;
-
-         // Attendance Button (logic moved to setupAttendanceButton)
-         setupAttendanceButton();
-
-         // PDF and Forecast Buttons
-         downloadPdfBtn.style.display = hasResults ? 'inline-block' : 'none';
-         addForecastSemesterBtn.style.display = hasResults ? 'inline-block' : 'none';
-
-         // Make sure the container for these buttons is visible
-         const actionButtonsContainer = document.querySelector('.action-buttons-aligned');
-         if(actionButtonsContainer) {
-             actionButtonsContainer.style.display = hasResults ? 'flex' : 'none';
-         }
-      }
-
-      // --- UPDATED Function: Renders either Normal or B.Ed. UI ---
+      // --- NEW Function: Renders either Normal or B.Ed. UI ---
       function renderResults(data) {
-        if (!data || !data.studentInfo || !data.semesters) {
-            console.error("Incomplete data passed to renderResults", data);
-            showToast("Error displaying results. Profile data might be incomplete.", "error");
-            resultContainer.style.display = 'none';
-            bedResultContainer.style.display = 'none';
-            setupFeatureButtons(); // Hide buttons if no data
-            return;
-        }
-
-        bedModeActive = data.bedMode || false; // Ensure mode is set from profile data
+        const bedResultContainer = document.getElementById('bedResultContainer');
+        const standardResultContainer = document.getElementById('resultContainer');
 
         if (bedModeActive) {
           // Show B.Ed. Tabbed View
-          resultContainer.style.display = 'none';
+          standardResultContainer.style.display = 'none';
           bedResultContainer.style.display = 'block';
-          displayBedResults(data); // Renders tabs, chart, buttons via setupFeatureButtons
-          // Ensure correct tab is active (e.g., default to B.Ed tab)
-          const bedTabTrigger = new bootstrap.Tab(document.getElementById('bed-tab'));
-          bedTabTrigger.show();
+          displayBedResults(data);
         } else {
           // Show Normal View
-          resultContainer.style.display = 'block';
+          standardResultContainer.style.display = 'block';
           bedResultContainer.style.display = 'none';
           const cgpaData = calculateCGPA(data); // Calculate single, overall CGPA
-          displayCGPAResults(data, cgpaData); // Renders card, chart, buttons via setupFeatureButtons
+          displayCGPAResults(data, cgpaData); // Call original display function
         }
-         // Common student info header update (Needed because B.Ed mode also needs it)
-         // This element is only in the *standard* container, so we update it here
-         // The B.Ed. container has its own static headers
-         studentName.innerHTML = `<i class="fa-solid fa-user-graduate me-2"></i>${data.studentInfo.name || 'N/A'}`;
-         studentReg.textContent = data.studentInfo.registration || 'N/A';
       }
 
       // --- NEW Function: Filters semesters into B.Ed. or Other ---
       function filterSemesters(semesters, includeBed) {
         const filteredSemesters = {};
-        if (!semesters) return filteredSemesters; // Guard against undefined semesters
-
+        
         Object.entries(semesters).forEach(([semesterName, semester]) => {
-          // Ensure semester.courses is an array
-          if (!Array.isArray(semester.courses)) {
-              console.warn(`Semester ${semesterName} has invalid courses data.`);
-              return; // Skip this semester if courses are not an array
-          }
-
           const newCourseList = [];
           semester.courses.forEach(course => {
             const isBedCourse = BED_COURSES.has(course.code.toUpperCase().trim());
@@ -5603,12 +5549,13 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         return filteredSemesters;
       }
 
-      // --- UPDATED Function: Handles B.Ed. Modal Choice ---
+      // --- NEW Function: Handles B.Ed. Modal Choice ---
       function handleBedConfirm(isBedStudent, processed) {
         if(bedConfirmationModal) bedConfirmationModal.hide();
-        bedModeActive = isBedStudent; // Set global mode flag
-        processed.bedMode = isBedStudent; // Save preference to profile data
+        bedModeActive = isBedStudent;
+        processed.bedMode = isBedStudent; // Save preference to profile
 
+        // This logic is moved from fetchResult()
         const profiles = getProfiles();
         const studentInfo = processed.studentInfo;
         let baseName = `${studentInfo.name} (${studentInfo.registration})`;
@@ -5617,60 +5564,38 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 
         const allDisplayNames = Object.values(profiles).map(p => p.displayName);
 
-        // Ensure unique display name
         while(allDisplayNames.includes(finalName)) {
-            finalName = `${baseName} - Copy ${copyNum++}`;
+            finalName = `${baseName} - ${copyNum++}`;
         }
 
         processed.displayName = finalName;
         processed.createdAt = new Date().toISOString();
         processed.lastModified = new Date().toISOString();
-        const newProfileId = `profile_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`; // More unique ID
+        const newProfileId = `profile_${Date.now()}`;
         profiles[newProfileId] = processed;
         saveProfiles(profiles);
         setActiveProfileId(newProfileId);
 
         showLoadingStage('complete');
         setTimeout(() => {
-          renderResults(processed); // Calls the appropriate display function
+          renderResults(processed); // --- MODIFIED: Call new render function
           showLoadingStage(null);
           showToast('New profile created successfully!', 'success');
           updateProfileSwitcher(profiles, newProfileId);
         }, 1000);
       }
 
-      // --- UPDATED Function: Renders GPA chart dynamically ---
       function renderGpaChart() {
-          if (!processedData || !processedData.semesters || Object.keys(processedData.semesters).length === 0) {
+          if (!processedData || Object.keys(processedData.semesters).length === 0) {
               gpaChartContainer.style.display = 'none';
               return;
           }
 
-          let dataToChart;
-          // Determine which data to use based on B.Ed. mode and active tab
-          if (bedModeActive) {
-              const activeTabId = document.querySelector('#bedTab .nav-link.active')?.id;
-              if (activeTabId === 'bed-tab') {
-                  dataToChart = filterSemesters(processedData.semesters, true);
-              } else { // 'other-tab' or null (default to other)
-                  dataToChart = filterSemesters(processedData.semesters, false);
-              }
-          } else {
-              // Normal mode, use all semesters
-              dataToChart = processedData.semesters;
-          }
-
-          if (Object.keys(dataToChart).length === 0) {
-              gpaChartContainer.style.display = 'none'; // Hide if the filtered data is empty
-              return;
-          }
-
-
           if (gpaChart) {
-              gpaChart.destroy(); // Destroy previous chart instance
+              gpaChart.destroy();
           }
 
-          const sortedSemesters = Object.entries(dataToChart)
+          const sortedSemesters = Object.entries(processedData.semesters)
               .sort(([, a], [, b]) => a.sortKey.localeCompare(b.sortKey));
 
           const labels = sortedSemesters.map(([name]) => name);
@@ -5700,7 +5625,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
               },
               options: {
                   responsive: true,
-                  maintainAspectRatio: false, // Allow chart to fill container height
+                  maintainAspectRatio: false,
                   scales: {
                       y: {
                           beginAtZero: true,
@@ -5716,9 +5641,9 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                   plugins: {
                       legend: { display: false },
                       tooltip: {
-                          backgroundColor: isDarkMode ? '#1f2937' : '#fff', // Use Tailwind-like colors if possible
-                          titleColor: isDarkMode ? '#f9fafb' : '#111827',
-                          bodyColor: isDarkMode ? '#d1d5db' : '#374151',
+                          backgroundColor: isDarkMode ? '#1b1f24' : '#fff',
+                          titleColor: isDarkMode ? '#fff' : '#1b1f24',
+                          bodyColor: isDarkMode ? '#d1d5db' : '#4b5563',
                           borderColor: 'rgba(122, 106, 216, 0.5)',
                           borderWidth: 1,
                           padding: 10,
@@ -5728,51 +5653,36 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                       }
                   },
                   animation: {
-                      duration: 800, // Slightly faster animation
-                      easing: 'easeOutQuad'
+                      duration: 1000,
+                      easing: 'easeInOutQuart'
                   }
               }
           });
-          gpaChartContainer.style.display = 'block'; // Make sure chart is visible
+          gpaChartContainer.style.display = 'block';
       }
 
-
       function attachResultEventListeners() {
-        // Use event delegation on parent containers for better performance, especially in B.Ed mode
-        const resultAreas = [resultContainer, bedResultContainer];
-
-        resultAreas.forEach(area => {
-            if (!area) return;
-
-            // Simple re-attachment (less complex than full delegation)
-            // Remove previous listeners if any (simple approach)
-            const newArea = area.cloneNode(true);
-            area.parentNode.replaceChild(newArea, area);
-
-            // Re-select elements within the new cloned area and attach listeners
-            newArea.querySelectorAll('.clickable-info').forEach(el => el.addEventListener('click', e => {
-                try { showCourseDetails(JSON.parse(e.currentTarget.dataset.course.replace(/&#39;/g, "'"))); }
-                catch (err) { console.error("Error parsing course data for details:", err); }
-            }));
-            newArea.querySelectorAll('.delete-semester').forEach(btn => btn.addEventListener('click', e => deleteSemester(e, e.currentTarget.dataset.semester)));
-            newArea.querySelectorAll('.custom-course-btn').forEach(btn => btn.addEventListener('click', e => openAddCourseModal(e.currentTarget.dataset.semester)));
-            newArea.querySelectorAll('.edit-semester-name').forEach(btn => btn.addEventListener('click', e => openRenameSemesterModal(e.currentTarget.dataset.semester)));
-            newArea.querySelectorAll('.delete-course').forEach(btn => btn.addEventListener('click', e => {
-                 try {
-                    const course = JSON.parse(btn.dataset.course.replace(/&#39;/g, "'"));
-                    modifyCourseState(e, course, btn.dataset.semester, true);
-                } catch (err) { console.error("Error parsing course data for delete:", err); }
-            }));
-            newArea.querySelectorAll('.restore-course').forEach(btn => btn.addEventListener('click', e => {
-                 try {
-                    const course = JSON.parse(btn.dataset.course.replace(/&#39;/g, "'"));
-                    modifyCourseState(e, course, btn.dataset.semester, false);
-                } catch (err) { console.error("Error parsing course data for restore:", err); }
-            }));
+        document.querySelectorAll('.clickable-info').forEach(el => el.addEventListener('click', e => showCourseDetails(JSON.parse(e.currentTarget.dataset.course.replace(/&#39;/g, "'")))));
+        document.querySelectorAll('.delete-semester').forEach(btn => btn.addEventListener('click', e => deleteSemester(e, e.currentTarget.dataset.semester)));
+        document.querySelectorAll('.custom-course-btn').forEach(btn => btn.addEventListener('click', e => openAddCourseModal(e.currentTarget.dataset.semester)));
+        
+        // --- START: NEW LISTENER FOR PENCIL ICON ---
+        document.querySelectorAll('.edit-semester-name').forEach(btn => {
+          btn.addEventListener('click', e => openRenameSemesterModal(e.currentTarget.dataset.semester));
         });
+        // --- END: NEW LISTENER ---
 
-
-        // Add fade-in animation observer for newly rendered cards
+        if(document.getElementById('copyDetailsIconBtn')) {
+            document.getElementById('copyDetailsIconBtn').addEventListener('click', copyDetailsToClipboard);
+        }
+        document.querySelectorAll('.delete-course').forEach(btn => {
+          const course = JSON.parse(btn.dataset.course.replace(/&#39;/g, "'"));
+          btn.addEventListener('click', e => modifyCourseState(e, course, btn.dataset.semester, true));
+        });
+        document.querySelectorAll('.restore-course').forEach(btn => {
+          const course = JSON.parse(btn.dataset.course.replace(/&#39;/g, "'"));
+          btn.addEventListener('click', e => modifyCourseState(e, course, btn.dataset.semester, false));
+        });
         document.querySelectorAll('.semester-card.fade-in-on-scroll:not(.is-visible)').forEach(el => {
             const observer = new IntersectionObserver(entries => {
                 if (entries[0].isIntersecting) {
@@ -5782,54 +5692,31 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
             }, { threshold: 0.1 });
             observer.observe(el);
         });
-
-        // Initialize Drag and Drop if applicable
         if (window.innerWidth >= 992) {
-          initDragAndDrop(); // This needs to be called *after* cards are in the DOM
+          initDragAndDrop();
         }
       }
 
-
       function initDragAndDrop() {
-           // Find all potential draggable rows within *both* result containers
-          const draggables = document.querySelectorAll('#resultContainer tr[draggable="true"], #bedResultContainer tr[draggable="true"]');
-          // Find all potential droppable semester cards within *both* result containers
-          const droppables = document.querySelectorAll('#resultContainer .semester-card, #bedResultContainer .semester-card');
+          const draggables = document.querySelectorAll('.course-table tr[draggable="true"]');
+          const droppables = document.querySelectorAll('.semester-card');
 
           draggables.forEach(draggable => {
-              // Prevent adding duplicate listeners if called multiple times
-              if (draggable.dataset.dragListenerAttached) return;
-              draggable.dataset.dragListenerAttached = 'true';
-
               draggable.addEventListener('dragstart', e => {
-                  // Check if the event target is actually the row
-                  const targetRow = e.target.closest('tr[draggable="true"]');
-                  if (!targetRow) return;
-
-                  targetRow.classList.add('dragging');
-                  const sourceCard = targetRow.closest('.semester-card');
-                  if (!sourceCard) return; // Should not happen
-
-                  const sourceSemester = sourceCard.dataset.semester;
-                  const courseIdentifier = targetRow.dataset.courseIdentifier; // Use the stable identifier
+                  e.target.classList.add('dragging');
+                  const sourceSemester = e.target.closest('.semester-card').dataset.semester;
+                  const courseIdentifier = e.target.dataset.courseIdentifier;
                   e.dataTransfer.setData('text/plain', JSON.stringify({ courseIdentifier, sourceSemester }));
-                  e.dataTransfer.effectAllowed = "move"; // Indicate it's a move operation
               });
               draggable.addEventListener('dragend', e => {
-                   const targetRow = e.target.closest('tr[draggable="true"]');
-                   if(targetRow) targetRow.classList.remove('dragging');
+                  e.target.classList.remove('dragging');
               });
           });
 
           droppables.forEach(droppable => {
-              // Prevent adding duplicate listeners
-              if (droppable.dataset.dropListenerAttached) return;
-              droppable.dataset.dropListenerAttached = 'true';
-
               droppable.addEventListener('dragover', e => {
-                  e.preventDefault(); // Necessary to allow drop
+                  e.preventDefault();
                   e.currentTarget.classList.add('drag-over');
-                  e.dataTransfer.dropEffect = "move";
               });
               droppable.addEventListener('dragleave', e => {
                   e.currentTarget.classList.remove('drag-over');
@@ -5838,43 +5725,36 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                   e.preventDefault();
                   e.currentTarget.classList.remove('drag-over');
 
-                  let data;
-                  try {
-                       data = JSON.parse(e.dataTransfer.getData('text/plain'));
-                  } catch(err) {
-                       console.error("Failed to parse drag data:", err);
-                       return;
-                  }
-                  
+                  const data = JSON.parse(e.dataTransfer.getData('text/plain'));
                   const targetSemester = e.currentTarget.dataset.semester;
 
-                  if (!data || !data.courseIdentifier || !data.sourceSemester || data.sourceSemester === targetSemester) {
-                      return; // No change if dropped in the same semester or data is invalid
+                  if (data.sourceSemester === targetSemester) {
+                      return;
                   }
 
                   let courseToMove = null;
                   let courseIndex = -1;
 
-                  // Find the course in the processedData structure using the identifier
-                  const sourceSemesterObj = processedData.semesters[data.sourceSemester];
-                  if (sourceSemesterObj?.courses) {
-                       courseIndex = sourceSemesterObj.courses.findIndex((course, index) => {
-                           // Rebuild the identifier based on stored data for comparison
-                           const identifier = `${data.sourceSemester}-${course.code}-${course.creditHours}-${course.marks}-${index}`;
-                           return identifier === data.courseIdentifier;
-                       });
-                       if (courseIndex > -1) {
-                           courseToMove = sourceSemesterObj.courses[courseIndex];
-                       }
+                  // Find the course based on its unique identifier
+                  const sourceSemesterCourses = processedData.semesters[data.sourceSemester]?.courses;
+                  if (sourceSemesterCourses) {
+                      courseIndex = sourceSemesterCourses.findIndex((course, index) => {
+                          const identifier = `${data.sourceSemester}-${course.code}-${course.total}-${index}`;
+                          return identifier === data.courseIdentifier;
+                      });
+                      if (courseIndex !== -1) {
+                          courseToMove = sourceSemesterCourses[courseIndex];
+                      }
                   }
 
 
                   if (courseToMove && courseIndex > -1) {
-                      // B.Ed. Drag/Drop Validation
+                      // --- B.Ed. Drag/Drop Logic ---
                       const isBedCourse = BED_COURSES.has(courseToMove.code.toUpperCase().trim());
                       const targetIsBedTab = e.currentTarget.closest('#bed-tab-content');
                       const targetIsOtherTab = e.currentTarget.closest('#other-tab-content');
                       
+                      // Check if the drop is valid in B.Ed. mode
                       if (bedModeActive) {
                           if (isBedCourse && targetIsOtherTab) {
                               showToast(`Cannot move B.Ed. course (${courseToMove.code}) to "Other" tab.`, 'warning');
@@ -5885,80 +5765,100 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                               return;
                           }
                       }
+                      // --- End of B.Ed. Logic ---
 
-                      // Move the course in the data structure
-                      const [movedCourse] = sourceSemesterObj.courses.splice(courseIndex, 1); // Remove from source
-                      
-                       // Ensure target semester exists
-                      if (!processedData.semesters[targetSemester]) {
-                           console.error(`Target semester ${targetSemester} not found in processedData.`);
-                           sourceSemesterObj.courses.splice(courseIndex, 0, movedCourse); // Put back
-                           showToast('Error: Target semester not found.', 'error');
-                           return;
-                      }
-
-                      processedData.semesters[targetSemester].courses.push(movedCourse); // Add to target
-
+                      sourceSemesterCourses.splice(courseIndex, 1); // Remove from source
+                      processedData.semesters[targetSemester].courses.push(courseToMove); // Add to target
                       recalculateAndDisplay(); // Update UI
-                      showToast(`Moved ${movedCourse.code} to ${targetSemester}`, 'success');
-                      addStatusMessage(`Moved course ${movedCourse.code} from ${data.sourceSemester} to ${targetSemester}`, 'info');
+                      showToast(`Moved ${courseToMove.code} to ${targetSemester}`, 'success');
+                      addStatusMessage(`Moved course ${courseToMove.code} from ${data.sourceSemester} to ${targetSemester}`, 'info');
                   } else {
-                      showToast('Could not move course. Data might be out of sync or identifier mismatch.', 'error');
-                      console.error('Course mismatch or not found for drag/drop. Identifier:', data.courseIdentifier, 'Source Semester:', data.sourceSemester);
-                       recalculateAndDisplay(); // Re-render to ensure UI consistency
+                      showToast('Could not move course. Data might be out of sync.', 'error');
+                      console.error('Course mismatch or not found. Identifier:', data.courseIdentifier, 'Index:', courseIndex);
                   }
               });
           });
       }
 
-
+      // ---
+      // --- REVISED showCourseDetails Function (UI/UX Improv. & Fixes) ---
+      // ---
       function showCourseDetails(course) {
-          if (!course) return; // Guard against null/undefined course data
+        // --- Fix 1: Semester Name Formatting ---
+        let formattedSemester = course.originalSemester || 'Unknown Semester';
+        // Remove " Semester" and format year range (e.g., "Winter Semester 2020-2021" -> "Winter 2020-21")
+        formattedSemester = formattedSemester.replace(' Semester', ''); // Remove " Semester"
+        formattedSemester = formattedSemester.replace(/(\d{4})-(\d{4})/, (match, y1, y2) => `${y1}-${y2.substring(2)}`); // Format year range
 
-          let formattedSemester = course.originalSemester || 'Unknown Semester';
-          formattedSemester = formattedSemester.replace(' Semester', '');
-          formattedSemester = formattedSemester.replace(/(\d{4})-(\d{4})/, (match, y1, y2) => `${y1}-${y2.substring(2)}`);
+        // Set Modal Title
+        document.getElementById('courseDetailsModalTitle').textContent = `${course.code} - ${course.title || 'N/A'}`;
 
-          document.getElementById('courseDetailsModalTitle').textContent = `${course.code} - ${course.title || 'N/A'}`;
-          const modalBody = document.getElementById('courseDetailsModalBody');
-          modalBody.innerHTML = `
-            <div class="mb-3 border-bottom pb-3">
-              <h6 class="text-muted fw-bold small text-uppercase mb-2">Details</h6>
-              <div class="row g-2">
-                <div class="col-12 col-sm-6"><p class="mb-1 small"><i class="fa-solid fa-chalkboard-user fa-fw me-2 text-primary"></i><strong>Teacher:</strong> ${course.teacher || 'N/A'}</p></div>
-                <div class="col-12 col-sm-6"><p class="mb-1 small"><i class="fa-solid fa-calendar-alt fa-fw me-2 text-primary"></i><strong>Semester:</strong> ${formattedSemester}</p></div>
-                <div class="col-12"><p class="mb-0 small"><i class="fa-solid fa-hourglass-half fa-fw me-2 text-primary"></i><strong>Credit Hours:</strong> ${course.creditHoursDisplay || course.creditHours}</p></div>
+        // --- Fix 2 & UI Improvement: Modal Body Structure ---
+        const modalBody = document.getElementById('courseDetailsModalBody');
+        modalBody.innerHTML = `
+          <div class="mb-3 border-bottom pb-3">
+            <h6 class="text-muted fw-bold small text-uppercase mb-2">Details</h6>
+            <div class="row g-2">
+              <div class="col-12 col-sm-6">
+                <p class="mb-1 small"><i class="fa-solid fa-chalkboard-user fa-fw me-2 text-primary"></i><strong>Teacher:</strong> ${course.teacher || 'N/A'}</p>
+              </div>
+              <div class="col-12 col-sm-6">
+                <p class="mb-1 small"><i class="fa-solid fa-calendar-alt fa-fw me-2 text-primary"></i><strong>Semester:</strong> ${formattedSemester}</p>
+              </div>
+              <div class="col-12">
+                 <p class="mb-0 small"><i class="fa-solid fa-hourglass-half fa-fw me-2 text-primary"></i><strong>Credit Hours:</strong> ${course.creditHoursDisplay || course.creditHours}</p>
               </div>
             </div>
-            <div class="mb-3 border-bottom pb-3">
-              <h6 class="text-muted fw-bold small text-uppercase mb-2">Marks Breakdown</h6>
-              <div class="row g-2">
-                <div class="col-6 col-sm-3"><p class="mb-1 small text-center text-sm-start"><i class="fa-solid fa-file-pen fa-fw me-1 text-info"></i><strong>Mid:</strong> ${course.mid || 'N/A'}</p></div>
-                <div class="col-6 col-sm-3"><p class="mb-1 small text-center text-sm-start"><i class="fa-solid fa-clipboard fa-fw me-1 text-info"></i><strong>Assign:</strong> ${course.assignment || 'N/A'}</p></div>
-                <div class="col-6 col-sm-3"><p class="mb-1 small text-center text-sm-start"><i class="fa-solid fa-flag-checkered fa-fw me-1 text-info"></i><strong>Final:</strong> ${course.final || 'N/A'}</p></div>
-                ${course.practical && course.practical !== '0' ? `<div class="col-6 col-sm-3"><p class="mb-1 small text-center text-sm-start"><i class="fa-solid fa-flask-vial fa-fw me-1 text-info"></i><strong>Prac:</strong> ${course.practical}</p></div>` : ''}
-              </div>
-            </div>
-            <div>
-              <h6 class="text-muted fw-bold small text-uppercase mb-2">Result</h6>
-              <div class="d-flex flex-wrap justify-content-around align-items-center bg-light rounded p-2" style="background-color: rgba(122, 106, 216, 0.05) !important;">
-                  <div class="text-center px-2"><span class="small text-muted">Total Marks</span><p class="fs-5 fw-bold mb-0 text-primary">${course.marks !== undefined ? course.marks : 'N/A'}</p></div>
-                  <div class="text-center px-2"><span class="small text-muted">Grade</span><p class="fs-5 mb-0"><span class="grade-badge grade-${course.grade}">${course.grade || 'N/A'}</span></p></div>
-                  <div class="text-center px-2"><span class="small text-muted">Quality Points</span><p class="fs-5 fw-bold mb-0 text-primary">${course.qualityPoints !== undefined ? course.qualityPoints.toFixed(2) : 'N/A'}</p></div>
-              </div>
-            </div>
-            ${course.isExtraEnrolled ? `<div class="alert alert-warning d-flex align-items-center mt-3 small p-2"><i class="fa-solid fa-info-circle me-2"></i> This is a repeated course attempt, and its marks are not the highest achieved. It does not count towards the CGPA calculation shown.</div>` : ''}
-            ${course.isRepeated && !course.isExtraEnrolled ? `<div class="alert alert-success d-flex align-items-center mt-3 small p-2"><i class="fa-solid fa-check-circle me-2"></i> This is the highest scoring attempt for this repeated course and is used in CGPA calculation.</div>` : ''}
-            ${course.isCustom ? `<div class="alert alert-info d-flex align-items-center mt-3 small p-2"><i class="fa-solid fa-pencil me-2"></i> This is a custom course added manually${course.source === 'attendance' ? ' (imported from Attendance System)' : ''}.</div>` : ''}`;
+          </div>
 
-          courseDetailsModal.show();
+          <div class="mb-3 border-bottom pb-3">
+            <h6 class="text-muted fw-bold small text-uppercase mb-2">Marks Breakdown</h6>
+            <div class="row g-2">
+              <div class="col-6 col-sm-3">
+                <p class="mb-1 small text-center text-sm-start"><i class="fa-solid fa-file-pen fa-fw me-1 text-info"></i><strong>Mid:</strong> ${course.mid || 'N/A'}</p>
+              </div>
+              <div class="col-6 col-sm-3">
+                <p class="mb-1 small text-center text-sm-start"><i class="fa-solid fa-clipboard fa-fw me-1 text-info"></i><strong>Assign:</strong> ${course.assignment || 'N/A'}</p>
+              </div>
+              <div class="col-6 col-sm-3">
+                 <p class="mb-1 small text-center text-sm-start"><i class="fa-solid fa-flag-checkered fa-fw me-1 text-info"></i><strong>Final:</strong> ${course.final || 'N/A'}</p>
+              </div>
+               ${course.practical && course.practical !== '0' ? `
+                 <div class="col-6 col-sm-3">
+                   <p class="mb-1 small text-center text-sm-start"><i class="fa-solid fa-flask-vial fa-fw me-1 text-info"></i><strong>Prac:</strong> ${course.practical}</p>
+                 </div>
+               ` : ''}
+            </div>
+          </div>
+
+          <div>
+             <h6 class="text-muted fw-bold small text-uppercase mb-2">Result</h6>
+             <div class="d-flex flex-wrap justify-content-around align-items-center bg-light rounded p-2" style="background-color: rgba(122, 106, 216, 0.05) !important;">
+                 <div class="text-center px-2">
+                     <span class="small text-muted">Total Marks</span>
+                     <p class="fs-5 fw-bold mb-0 text-primary">${course.marks !== undefined ? course.marks : 'N/A'}</p>
+                 </div>
+                 <div class="text-center px-2">
+                     <span class="small text-muted">Grade</span>
+                     <p class="fs-5 mb-0"><span class="grade-badge grade-${course.grade}">${course.grade || 'N/A'}</span></p>
+                 </div>
+                 <div class="text-center px-2">
+                     <span class="small text-muted">Quality Points</span>
+                     <p class="fs-5 fw-bold mb-0 text-primary">${course.qualityPoints !== undefined ? course.qualityPoints.toFixed(2) : 'N/A'}</p>
+                 </div>
+             </div>
+          </div>
+
+          ${course.isExtraEnrolled ? `<div class="alert alert-warning d-flex align-items-center mt-3 small p-2"><i class="fa-solid fa-info-circle me-2"></i> This is a repeated course attempt, and its marks are not the highest achieved. It does not count towards the CGPA calculation shown.</div>` : ''}
+          ${course.isRepeated && !course.isExtraEnrolled ? `<div class="alert alert-success d-flex align-items-center mt-3 small p-2"><i class="fa-solid fa-check-circle me-2"></i> This is the highest scoring attempt for this repeated course and is used in CGPA calculation.</div>` : ''}
+          ${course.isCustom ? `<div class="alert alert-info d-flex align-items-center mt-3 small p-2"><i class="fa-solid fa-pencil me-2"></i> This is a custom course added manually${course.source === 'attendance' ? ' (imported from Attendance System)' : ''}.</div>` : ''}`;
+
+        courseDetailsModal.show();
       }
-
 
       function openAddCourseModal(semesterName) {
         document.getElementById('addCourseSemester').value = semesterName;
-        addCourseForm.reset(); // Reset form fields
-        // Set default credit hours if needed, e.g., document.getElementById('creditHours').value = '3';
+        addCourseForm.reset();
         addCourseModal.show();
       }
 
@@ -5966,51 +5866,51 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         const semesterName = document.getElementById('addCourseSemester').value;
         const courseCode = document.getElementById('courseCode').value.trim().toUpperCase();
         const courseTitle = document.getElementById('courseTitle').value.trim();
-        const creditHours = parseFloat(document.getElementById('creditHours').value); // Use parseFloat for CH
+        const creditHours = parseInt(document.getElementById('creditHours').value);
         const marks = parseFloat(document.getElementById('courseMarks').value);
-
-        if (!semesterName || !processedData?.semesters[semesterName]) {
-             showToast('Invalid semester selected.', 'error'); return;
+        if (!courseCode || !courseTitle || !creditHours || isNaN(marks)) {
+          showToast('Please fill all fields correctly', 'error');
+          return;
         }
-        if (!courseCode || !courseTitle || isNaN(creditHours) || creditHours <= 0 || isNaN(marks)) {
-          showToast('Please fill all fields correctly (Credit Hours > 0).', 'error'); return;
-        }
-        if (marks < 0 || marks > 100) { // Assuming 100 is max, adjust if needed
-             showToast('Marks must be between 0 and 100', 'error'); return;
+        if (marks < 0 || marks > 100) {
+             showToast('Marks must be between 0 and 100', 'error');
+             return;
         }
         
-        // B.Ed. Validation
+        // --- B.Ed. Validation ---
         if (bedModeActive) {
             const isBedCourse = BED_COURSES.has(courseCode);
-            // Determine target tab based on which semester card the "Add" button belonged to
-            const targetTabIsBed = !!document.getElementById('bed-semesterResults').querySelector(`[data-semester="${semesterName}"]`);
-            const targetTabIsOther = !!document.getElementById('other-semesterResults').querySelector(`[data-semester="${semesterName}"]`);
-
-            if (isBedCourse && targetTabIsOther) {
-                showToast(`Cannot add B.Ed. course (${courseCode}) to "Other" semester.`, 'warning'); return;
+            const currentTab = document.querySelector('#bedTab .nav-link.active').id;
+            
+            if (isBedCourse && currentTab === 'other-tab') {
+                showToast(`Cannot add B.Ed. course (${courseCode}) to "Other" tab.`, 'warning');
+                return;
             }
-            if (!isBedCourse && targetTabIsBed) {
-                showToast(`Cannot add non-B.Ed. course (${courseCode}) to "B.Ed." semester.`, 'warning'); return;
+            if (!isBedCourse && currentTab === 'bed-tab') {
+                showToast(`Cannot add non-B.Ed. course (${courseCode}) to "B.Ed." tab.`, 'warning');
+                return;
             }
         }
+        // --- End of B.Ed. Validation ---
 
         const grade = calculateCustomGrade(marks, creditHours);
         const qualityPoints = calculateQualityPoints(marks, creditHours, grade);
-        // Assuming theory only for custom display string
-        const creditHoursDisplay = `${creditHours}(${creditHours}-0)`;
 
         const newCourse = {
-            code: courseCode, title: courseTitle, creditHours, creditHoursDisplay, marks,
-            qualityPoints, grade, semesterName, teacher: 'Custom', mid: 'N/A', assignment: 'N/A', final: marks, practical: 'N/A', total: marks,
-            isExtraEnrolled: false, isRepeated: false, isDeleted: false, isCustom: true, source: 'manual', originalSemester: semesterName
+            code: courseCode, title: courseTitle, creditHours, creditHoursDisplay: `${creditHours}(${creditHours}-0)`, marks,
+            qualityPoints: qualityPoints, grade: grade,
+            semesterName, teacher: 'Custom', mid: 'N/A', assignment: 'N/A', final: marks, practical: 'N/A', total: marks,
+            isExtraEnrolled: false, isRepeated: false, isDeleted: false, isCustom: true, originalSemester: semesterName // Add originalSemester for consistency
         };
 
+         // Check if course already exists (non-deleted) in the same semester
         const semester = processedData.semesters[semesterName];
-        if (semester.courses.some(c => !c.isDeleted && c.code.toUpperCase() === newCourse.code)) {
-            showToast(`Course ${newCourse.code} already exists in ${semesterName}. Edit or delete the existing one first.`, 'warning'); return;
+        if (semester && semester.courses.some(c => !c.isDeleted && c.code.toUpperCase() === newCourse.code)) {
+            showToast(`Course ${newCourse.code} already exists in ${semesterName}. Edit or delete the existing one first.`, 'warning');
+            return;
         }
 
-        semester.courses.push(newCourse);
+        processedData.semesters[semesterName].courses.push(newCourse);
         recalculateAndDisplay();
         addCourseModal.hide();
         showToast(`Course ${courseCode} added`, 'success');
@@ -6018,67 +5918,54 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
       }
 
       function deleteSemester(event, semesterName) {
-        event.preventDefault(); // Prevent potential default anchor behavior if used elsewhere
+        event.preventDefault();
         if (!processedData || !processedData.semesters[semesterName]) return;
 
-        // Store a deep copy for potential undo
         deletedSemesters[semesterName] = JSON.parse(JSON.stringify(processedData.semesters[semesterName]));
         delete processedData.semesters[semesterName];
 
-        recalculateAndDisplay(); // This handles saving and re-rendering
+        recalculateAndDisplay();
 
         showUndoNotification(`Semester "${semesterName}" deleted`, () => undoDeleteSemester(semesterName));
         addStatusMessage(`Deleted semester: ${semesterName}`, 'info');
       }
 
       function showUndoNotification(message, undoCallback) {
-        document.getElementById('undo-notification')?.remove(); // Remove existing undo first
+        document.getElementById('undo-notification')?.remove();
         const notification = document.createElement('div');
         notification.id = 'undo-notification';
         notification.className = 'undo-notification';
         notification.innerHTML = `<span>${message}</span> <button class="undo-btn">Undo</button>`;
         document.body.appendChild(notification);
-        
-        const undoButton = notification.querySelector('.undo-btn');
-        const timeoutId = setTimeout(() => notification.remove(), 5000); // Auto-remove after 5s
-
-        undoButton.onclick = () => {
-            clearTimeout(timeoutId); // Prevent auto-removal if undo is clicked
+        notification.querySelector('.undo-btn').onclick = () => {
             undoCallback();
             notification.remove();
         };
+        setTimeout(() => notification.remove(), 5000);
       }
-
 
       function undoDeleteSemester(semesterName) {
-        if (!deletedSemesters[semesterName] || !processedData) return; // Add check for processedData
+        if (!deletedSemesters[semesterName]) return;
 
-        // Restore the semester data
         processedData.semesters[semesterName] = deletedSemesters[semesterName];
-        delete deletedSemesters[semesterName]; // Remove from undo buffer
+        delete deletedSemesters[semesterName];
 
-        recalculateAndDisplay(); // Re-render the UI
+        recalculateAndDisplay();
         addStatusMessage(`Restored semester: ${semesterName}`, 'info');
-        showToast(`Semester "${semesterName}" restored.`, 'success');
       }
-
 
       function modifyCourseState(event, course, semesterName, isDeleted) {
         event.preventDefault();
-        if (!processedData || !processedData.semesters[semesterName] || !course) return; // Added null check for course
-
         const semester = processedData.semesters[semesterName];
-        
-        // Find course using a more robust comparison
+        if (!semester) return;
+
+        // Find course using a more robust comparison, including custom status
         const courseIndex = semester.courses.findIndex(c =>
             c.code === course.code &&
-            // c.title === course.title && // Title might vary slightly or be missing
+            c.title === course.title &&
             c.creditHours === course.creditHours &&
             c.marks === course.marks &&
-            c.grade === course.grade && // Match grade too
-            c.isCustom === course.isCustom &&
-            c.source === course.source // Match source (manual/attendance)
-            // Note: Comparing originalSemester might be too strict if course was moved
+            c.isCustom === course.isCustom // Crucial for distinguishing identical custom courses
         );
 
 
@@ -6089,166 +5976,704 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
           showToast(`Course ${course.code} ${action.toLowerCase()}`, 'info');
           addStatusMessage(`${action} course: ${course.code} from ${semesterName}`, 'info');
         } else {
-          console.error("Could not find exact course to modify state:", course, "in semester:", semesterName);
-           // Attempt a looser match by code only as a fallback
-           const fallbackIndex = semester.courses.findIndex(c => c.code === course.code && c.isDeleted !== isDeleted);
-           if (fallbackIndex !== -1) {
-                semester.courses[fallbackIndex].isDeleted = isDeleted;
-                recalculateAndDisplay();
-                const action = isDeleted ? 'Deleted' : 'Restored';
-                showToast(`Course ${course.code} ${action.toLowerCase()} (fallback match)`, 'info');
-                addStatusMessage(`${action} course: ${course.code} from ${semesterName} (fallback match)`, 'warning');
-           } else {
-                showToast(`Error modifying course ${course.code}. Could not find match.`, 'error');
-           }
+          console.error("Could not find course to modify state:", course, "in semester:", semesterName);
+          showToast(`Error modifying course ${course.code}`, 'error');
         }
       }
 
 
       function recalculateAndDisplay() {
-        if (!processedData) return; // Don't try to recalculate if no data is loaded
-        saveActiveProfile(); // Save changes first
-        renderResults(processedData); // Re-render the UI based on current mode and data
+        saveActiveProfile();
+        // Re-render the entire UI based on the current mode and modified data
+        renderResults(processedData);
       }
 
-
       function addForecastSemester() {
-         if (!processedData) {
-            showToast("Please load or fetch results first.", "warning");
-            return;
-         }
-
         let forecastCount = 1;
-        // Ensure forecast names are unique across the entire dataset
-        while (processedData.semesters[`Forecast ${forecastCount}`]) {
+        while (`Forecast ${forecastCount}` in processedData.semesters) {
             forecastCount++;
         }
         const newSemesterName = `Forecast ${forecastCount}`;
         processedData.semesters[newSemesterName] = {
             originalName: newSemesterName,
-            sortKey: getSemesterOrderKey(newSemesterName), // Assign sort key immediately
+            sortKey: getSemesterOrderKey(newSemesterName),
             courses: []
         };
-        recalculateAndDisplay(); // This renders the new card and saves
+        recalculateAndDisplay(); // This renders the new card
         showToast(`Added "${newSemesterName}"`, 'success');
         addStatusMessage(`Added forecast semester: ${newSemesterName}`, 'info');
 
+        // --- START: NEW SCROLL-TO-ELEMENT LOGIC ---
         setTimeout(() => {
           const newCard = document.querySelector(`[data-semester="${newSemesterName}"]`);
           if (newCard) {
             newCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            // Optional: Add a subtle flash animation
             newCard.style.transition = 'background-color 0.5s ease-out';
             newCard.style.backgroundColor = 'rgba(122, 106, 216, 0.1)';
-            setTimeout(() => { newCard.style.backgroundColor = ''; }, 1000);
+            setTimeout(() => {
+                newCard.style.backgroundColor = '';
+            }, 1000);
           }
-        }, 100);
+        }, 100); // Small delay to ensure DOM is updated
+        // --- END: NEW SCROLL-TO-ELEMENT LOGIC ---
       }
 
+      // --- START: NEW FUNCTION TO RENAME SEMESTER ---
       function openRenameSemesterModal(oldSemesterName) {
-        if (!processedData || !processedData.semesters[oldSemesterName]) return;
-
-        // Only allow renaming for forecast/custom semesters
-        const isForecastOrCustomOnly = oldSemesterName.toLowerCase().startsWith('forecast') ||
-                                       processedData.semesters[oldSemesterName].courses.every(c => c.isCustom); // Simplified check
-        
-        if (!isForecastOrCustomOnly) {
-             showToast("Only Forecast semesters or semesters containing only custom courses can be renamed.", "warning");
-             return;
-        }
+        if (!processedData.semesters[oldSemesterName]) return;
 
         const newSemesterName = prompt("Enter a new name for this semester:", oldSemesterName);
 
-        if (newSemesterName && newSemesterName.trim() !== "" && newSemesterName.trim() !== oldSemesterName) {
+        if (newSemesterName && newSemesterName.trim() !== "" && newSemesterName !== oldSemesterName) {
           const trimmedName = newSemesterName.trim();
           
+          // Check if name already exists
           if (processedData.semesters[trimmedName]) {
-            showToast(`Semester name "${trimmedName}" already exists.`, 'error'); return;
+            showToast(`Semester name "${trimmedName}" already exists.`, 'error');
+            return;
           }
 
-          // --- Perform Rename ---
-          // 1. Get data and update its properties
-          const semesterData = processedData.semesters[oldSemesterName];
-          semesterData.originalName = trimmedName;
-          semesterData.sortKey = getSemesterOrderKey(trimmedName); // Recalculate sort key
-
-          // 2. Update the key in the main object
-          processedData.semesters[trimmedName] = semesterData;
-          delete processedData.semesters[oldSemesterName];
-          // --- End Rename ---
-
+          // Rename the semester
+          // We must update the key, the originalName, and the sortKey
+          processedData.semesters[trimmedName] = processedData.semesters[oldSemesterName]; // 1. Copy data to new key
+          delete processedData.semesters[oldSemesterName]; // 2. Delete old key
+          
+          processedData.semesters[trimmedName].originalName = trimmedName; // 3. Update originalName
+          processedData.semesters[trimmedName].sortKey = getSemesterOrderKey(trimmedName); // 4. Update sortKey
+          
           recalculateAndDisplay(); // This saves and re-renders
           showToast(`Semester renamed to "${trimmedName}"`, 'success');
           addStatusMessage(`Renamed semester "${oldSemesterName}" to "${trimmedName}"`, 'info');
         } else if (newSemesterName === "") {
             showToast("Semester name cannot be empty.", 'warning');
-        } else if (newSemesterName !== null && newSemesterName.trim() === oldSemesterName) {
-             // No change, do nothing or show info message
-             // showToast("Semester name not changed.", "info"); // This might be annoying, commented out
         }
       }
-
+      // --- END: NEW FUNCTION ---
       
       function copyDetailsToClipboard() {
           if (!processedData) return;
+          const textToCopy = `Name: ${processedData.studentInfo.name}\nRegistration: ${processedData.studentInfo.registration}\nCGPA: ${totalCgpa.textContent}\nPercentage: ${totalPercentage.textContent}`;
+          navigator.clipboard.writeText(textToCopy).then(() => {
+              showToast('Details copied to clipboard!', 'success');
+          }, (err) => {
+              showToast('Failed to copy details.', 'error');
+              console.error('Clipboard copy failed: ', err);
+          });
+      }
 
-          let textToCopy;
-          if (bedModeActive) {
-                const activeTabId = document.querySelector('#bedTab .nav-link.active').id;
-                if (activeTabId === 'bed-tab') {
-                    const bedSemesters = filterSemesters(processedData.semesters, true);
-                    const bedCgpa = calculateCGPA({ ...processedData, semesters: bedSemesters });
-                    textToCopy = `Name: ${processedData.studentInfo.name}\nRegistration: ${processedData.studentInfo.registration}\nB.Ed. CGPA: ${bedCgpa.cgpa.toFixed(4)}\nB.Ed. Percentage: ${bedCgpa.percentage.toFixed(2)}%`;
-                } else {
-                    const otherSemesters = filterSemesters(processedData.semesters, false);
-                    const otherCgpa = calculateCGPA({ ...processedData, semesters: otherSemesters });
-                    textToCopy = `Name: ${processedData.studentInfo.name}\nRegistration: ${processedData.studentInfo.registration}\nOther CGPA: ${otherCgpa.cgpa.toFixed(4)}\nOther Percentage: ${otherCgpa.percentage.toFixed(2)}%`;
+      function generatePDF() {
+        if (!processedData) {
+            showToast('No data to download', 'error');
+            return;
+        }
+
+        // --- B.Ed. PDF Logic ---
+        // Determine which dataset to use for the PDF
+        let dataToPrint, titleSuffix;
+        if (bedModeActive) {
+            const activeTabId = document.querySelector('#bedTab .nav-link.active').id;
+            if (activeTabId === 'bed-tab') {
+                const bedSemesters = filterSemesters(processedData.semesters, true);
+                dataToPrint = { ...processedData, semesters: bedSemesters };
+                titleSuffix = 'B.Ed. Program';
+            } else { // 'other-tab'
+                const otherSemesters = filterSemesters(processedData.semesters, false);
+                dataToPrint = { ...processedData, semesters: otherSemesters };
+                titleSuffix = 'Other Programs';
+            }
+        } else {
+            // Normal mode, print all
+            dataToPrint = processedData;
+            titleSuffix = 'Overall';
+        }
+        // --- End of B.Ed. PDF Logic ---
+
+
+        addStatusMessage(`Generating premium PDF report (${titleSuffix})...`, 'info');
+        showLoadingStage('processing');
+
+        try {
+            const { jsPDF } = window.jspdf;
+            const pdf = new jsPDF({ orientation: 'p', unit: 'mm', format: 'a4' });
+            
+            // --- Use the *calculated* CGPA for the selected dataset ---
+            const cgpaData = calculateCGPA(dataToPrint);
+
+            const pageMargin = 15;
+            const pageWidth = pdf.internal.pageSize.getWidth();
+            const pageHeight = pdf.internal.pageSize.getHeight();
+            const availableWidth = pageWidth - (2 * pageMargin);
+            const colors = {
+                primary: '#7a6ad8',
+                textDark: '#1b1f24',
+                textLight: '#4b5563',
+                line: '#e0e0e0',
+                fillLight: '#f8f9ff',
+            };
+            let lastY = 0;
+
+            const drawFirstPageHeader = () => {
+                pdf.setFontSize(18);
+                pdf.setTextColor(colors.primary);
+                pdf.setFont('helvetica', 'bold');
+                pdf.text("University of Agriculture, Faisalabad", pageWidth / 2, 20, { align: 'center' });
+
+                pdf.setFontSize(12);
+                pdf.setTextColor(colors.textLight);
+                pdf.setFont('helvetica', 'normal');
+                pdf.text(`Unofficial Academic Transcript (${titleSuffix})`, pageWidth / 2, 28, { align: 'center' }); // --- Use titleSuffix ---
+
+                pdf.setDrawColor(colors.primary);
+                pdf.setLineWidth(0.5);
+                pdf.line(pageMargin, 35, pageWidth - pageMargin, 35);
+                lastY = 35;
+            };
+
+            drawFirstPageHeader();
+
+            const topBoxY = lastY + 10;
+            const boxHeight = 45;
+            const gap = 5;
+            const leftBoxWidth = availableWidth * 0.4;
+            const rightBoxWidth = availableWidth - leftBoxWidth - gap;
+            const rightBoxX = pageMargin + leftBoxWidth + gap;
+
+            pdf.setFillColor(colors.fillLight);
+            pdf.roundedRect(pageMargin, topBoxY, leftBoxWidth, boxHeight, 3, 3, 'F');
+            pdf.setFontSize(11);
+            pdf.setFont('helvetica', 'bold');
+            pdf.setTextColor(colors.textDark);
+            pdf.text("Student Information", pageMargin + 5, topBoxY + 8);
+            pdf.setDrawColor(colors.line);
+            pdf.line(pageMargin + 5, topBoxY + 11, pageMargin + leftBoxWidth - 5, topBoxY + 11);
+
+            pdf.setFontSize(12);
+            pdf.setFont('helvetica', 'bold');
+            pdf.setTextColor(colors.primary);
+            pdf.text(dataToPrint.studentInfo.name, pageMargin + 5, topBoxY + 25, { maxWidth: leftBoxWidth - 10 });
+
+            pdf.setFontSize(8);
+            pdf.setFont('helvetica', 'normal');
+            pdf.setTextColor(colors.textLight);
+            pdf.text(dataToPrint.studentInfo.registration, pageMargin + 5, topBoxY + 30);
+
+            pdf.setFillColor(colors.fillLight);
+            pdf.roundedRect(rightBoxX, topBoxY, rightBoxWidth, boxHeight, 3, 3, 'F');
+            pdf.setFontSize(11);
+            pdf.setFont('helvetica', 'bold');
+            pdf.setTextColor(colors.textDark);
+            pdf.text(`${titleSuffix} Academic Summary`, rightBoxX + 5, topBoxY + 8); // --- Use titleSuffix ---
+            pdf.line(rightBoxX + 5, topBoxY + 11, rightBoxX + rightBoxWidth - 5, topBoxY + 11);
+
+            pdf.setFontSize(22);
+            pdf.setFont('helvetica', 'bold');
+            pdf.setTextColor(colors.primary);
+            pdf.text(formatNumber(cgpaData.cgpa, 4).toFixed(4), rightBoxX + 5, topBoxY + 25);
+            pdf.setFontSize(8);
+            pdf.setTextColor(colors.textLight);
+            pdf.text(`${titleSuffix.toUpperCase()} CGPA`, rightBoxX + 5, topBoxY + 29); // --- Use titleSuffix ---
+
+            const statsStartX = rightBoxX + 40;
+            pdf.setFont('helvetica', 'bold');
+            pdf.text("Percentage:", statsStartX, topBoxY + 20);
+            pdf.text("Total Credits:", statsStartX, topBoxY + 28);
+            pdf.text("Total Marks:", statsStartX, topBoxY + 36);
+
+            pdf.setFont('helvetica', 'normal');
+            pdf.setTextColor(colors.textDark);
+            pdf.text(`${formatNumber(cgpaData.percentage, 2).toFixed(2)}%`, statsStartX + 25, topBoxY + 20);
+            pdf.text(cgpaData.totalCreditHours.toString(), statsStartX + 25, topBoxY + 28);
+            pdf.text(`${cgpaData.totalMarksObtained.toFixed(0)} / ${cgpaData.totalMaxMarks}`, statsStartX + 25, topBoxY + 36);
+
+            lastY = topBoxY + boxHeight;
+
+            let semesterIndex = 0;
+            Object.keys(dataToPrint.semesters) // --- Use dataToPrint ---
+                .sort((a, b) => dataToPrint.semesters[a].sortKey.localeCompare(dataToPrint.semesters[b].sortKey))
+                .forEach(semesterName => {
+                    semesterIndex++;
+                    const semester = dataToPrint.semesters[semesterName]; // --- Use dataToPrint ---
+                    const activeCourses = semester.courses.filter(c => !c.isDeleted);
+                    if (activeCourses.length === 0) return;
+
+                    const semesterSummary = `GPA: ${formatNumber(semester.gpa, 4).toFixed(4)}  |  Credit Hours: ${semester.totalCreditHours}  |  Marks: ${semester.totalMarksObtained.toFixed(0)}/${semester.totalMaxMarks}`;
+
+                    if (lastY + 30 > pageHeight - 30) { // Added margin check for footer
+                        pdf.addPage();
+                        lastY = 20; // Reset Y for new page
+                    }
+                    const semesterHeaderY = lastY + 12;
+
+                    pdf.setFontSize(14);
+                    pdf.setFont('helvetica', 'bold');
+                    pdf.setTextColor(colors.primary);
+                    pdf.text(`${semesterIndex}. ${semesterName}`, pageMargin, semesterHeaderY);
+
+                    pdf.setFontSize(9);
+                    pdf.setFont('helvetica', 'bold');
+                    pdf.setTextColor(colors.textDark);
+                    pdf.text(semesterSummary, pageWidth - pageMargin, semesterHeaderY, { align: 'right' });
+
+                    lastY = semesterHeaderY + 2;
+
+                    const head = [['Course Code', 'Course Title', 'CH', 'Marks', 'Grade']];
+                    const body = activeCourses.map(c => [
+                        c.code + (c.isCustom ? '*' : ''), // Mark custom courses
+                        c.title || (c.isCustom ? 'Custom Course' : 'N/A'),
+                        c.creditHoursDisplay || c.creditHours,
+                        c.marks.toFixed(0),
+                        c.grade
+                    ]);
+
+
+                    pdf.autoTable({
+                        head: head,
+                        body: body,
+                        startY: lastY,
+                        margin: { left: pageMargin, right: pageMargin },
+                        headStyles: { fillColor: colors.primary, textColor: '#ffffff', fontStyle: 'bold', halign: 'center', valign: 'middle' },
+                        columnStyles: {
+                            0: { halign: 'left', cellWidth: availableWidth * 0.18 },
+                            1: { halign: 'left', cellWidth: availableWidth * 0.46, cellPadding: { left: 2 } },
+                            2: { halign: 'center', cellWidth: availableWidth * 0.12 },
+                            3: { halign: 'center', cellWidth: availableWidth * 0.12 },
+                            4: { halign: 'center', cellWidth: availableWidth * 0.12 }
+                        },
+                        styles: { valign: 'middle', cellPadding: 2.2, fontSize: 9, overflow: 'linebreak' },
+                        alternateRowStyles: { fillColor: '#f8f9ff' },
+                         didDrawPage: (data) => {
+                             // Reset lastY for autoTable pagination
+                             lastY = data.cursor.y;
+                         }
+                    });
+                    // Update lastY after table drawing
+                     lastY = pdf.lastAutoTable.finalY;
+
+
+                    if (lastY < pageHeight - 30) { // Check against footer margin
+                         pdf.setDrawColor(colors.line);
+                         pdf.setLineWidth(0.3);
+                         pdf.line(pageMargin, lastY + 6, pageWidth - pageMargin, lastY + 6);
+                         lastY += 6;
+                    }
+                });
+
+            // Footer for all pages
+            const totalPages = pdf.internal.getNumberOfPages();
+            for (let i = 1; i <= totalPages; i++) {
+                pdf.setPage(i);
+                pdf.setFontSize(9);
+                pdf.setTextColor(colors.textLight);
+                pdf.setFont('helvetica', 'italic');
+                const footerY = pageHeight - 15;
+
+                pdf.text("Generated by UAF CGPA Calculator - M Saqlain (uafcgpacalculator.vercel.app)", pageWidth / 2, footerY, { align: 'center' });
+                pdf.text("This is an unofficial transcript. * indicates a custom course added manually.", pageWidth / 2, footerY + 5, { align: 'center' });
+
+                pdf.setFontSize(8).setTextColor('#b0b0b0');
+                pdf.text(`Page ${i} of ${totalPages}`, pageWidth - pageMargin, pageHeight - 10, { align: 'right' });
+            }
+
+            // --- Use titleSuffix for filename ---
+            const safeSuffix = titleSuffix.replace(/ /g, '_');
+            pdf.save(`UAF_Transcript_${dataToPrint.studentInfo.registration}_${safeSuffix}.pdf`);
+            addStatusMessage('Premium PDF report generated successfully', 'success');
+            showToast('PDF downloaded!', 'success');
+        } catch (e) {
+            addStatusMessage(`Error generating PDF: ${e.message}`, 'error');
+            showToast('Error generating PDF', 'error');
+            console.error("PDF generation error: ", e);
+        } finally {
+            showLoadingStage(null);
+        }
+      }
+
+       // *** 1. ADD THIS NEW HELPER FUNCTION ***
+    // This function contains the new deduplication logic (Req 2)
+    // and is called by fetchAttendanceData either with fresh or cached data.
+    function processAttendanceData(data) {
+        if (!data || !data.resultData) {
+            showToast('No attendance data to process.', 'info');
+            return;
+        }
+
+        addStatusMessage(`Processing ${data.resultData.length} records from Attendance System...`, 'info');
+
+        // --- REQ 2: New Deduplication Logic ---
+        // 1. Create a global map of all existing LMS courses
+        // Key: "CHEM-401", Value: Set {"75|B", "80|A"}
+        const globalLmsCourseMap = new Map();
+        Object.values(processedData.semesters).forEach(sem => {
+            sem.courses.forEach(course => {
+                // Only check against courses not deleted and not *already* from attendance
+                if (!course.isDeleted && course.source !== 'attendance') {
+                    const code = course.code.toUpperCase().trim();
+                    // Use parseFloat for marks and handle potential 'N/A' grades
+                    const marks = parseFloat(course.marks);
+                    const grade = (course.grade || 'N/A').toUpperCase().trim();
+                    const key = `${marks}|${grade}`;
+                    
+                    if (!globalLmsCourseMap.has(code)) {
+                        globalLmsCourseMap.set(code, new Set());
+                    }
+                    globalLmsCourseMap.get(code).add(key);
                 }
-          } else {
-                const overallCgpa = calculateCGPA(processedData);
-                textToCopy = `Name: ${processedData.studentInfo.name}\nRegistration: ${processedData.studentInfo.registration}\nOverall CGPA: ${overallCgpa.cgpa.toFixed(4)}\nOverall Percentage: ${overallCgpa.percentage.toFixed(2)}%`;
-          }
+            });
+        });
+        // --- End of Map Build ---
 
-          // Use fallback for potentially restricted environments
-          try {
-              if (navigator.clipboard && navigator.clipboard.writeText) {
-                  navigator.clipboard.writeText(textToCopy).then(() => {
-                      showToast('Details copied to clipboard!', 'success');
-                  }, (err) => {
-                      console.error('Async clipboard copy failed: ', err);
-                      fallbackCopyTextToClipboard(textToCopy); // Try fallback
-                  });
-              } else {
-                  fallbackCopyTextToClipboard(textToCopy); // Use fallback immediately
-              }
-          } catch (e) {
-               console.error("Clipboard API error:", e);
-               fallbackCopyTextToClipboard(textToCopy); // Use fallback on error
-          }
-      }
+        // 2. Process ALL attendance courses, flagging duplicates based on the new global map
+        const allAttendanceCourses = [];
+        data.resultData.forEach(attCourse => {
+            const courseCode = (attCourse.CourseCode || '').toUpperCase().trim();
+            const semesterName = processSemesterName(attCourse.Semester);
+            const marks = parseFloat(attCourse.Totalmark || '0');
+            const grade = (attCourse.Grade || 'N/A').toUpperCase().trim();
+            const globalKey = `${marks}|${grade}`;
 
-      function fallbackCopyTextToClipboard(text) {
-          const textArea = document.createElement("textarea");
-          textArea.value = text;
-          // Avoid scrolling to bottom
-          textArea.style.top = "0";
-          textArea.style.left = "0";
-          textArea.style.position = "fixed";
-          document.body.appendChild(textArea);
-          textArea.focus();
-          textArea.select();
-          try {
-              const successful = document.execCommand('copy');
-              if (successful) {
-                showToast('Details copied to clipboard!', 'success');
-              } else {
-                 showToast('Failed to copy details (fallback).', 'error');
-              }
-          } catch (err) {
-              console.error('Fallback copy failed: ', err);
-              showToast('Failed to copy details (fallback).', 'error');
-          }
-          document.body.removeChild(textArea);
-      }
+            let isDuplicate = false;
+
+            // REQ 2: Check if this exact code, mark, and grade combo exists *anywhere* in the LMS data
+            if (globalLmsCourseMap.has(courseCode) && globalLmsCourseMap.get(courseCode).has(globalKey)) {
+                isDuplicate = true;
+            }
+
+            // Also check if it's *already* imported from attendance (original logic, still good)
+            const semesterExists = processedData.semesters[semesterName];
+            if (!isDuplicate && semesterExists && semesterExists.courses.some(c => 
+                    c.code.toUpperCase().trim() === courseCode && 
+                    c.isCustom && 
+                    c.source === 'attendance'
+                )) {
+                isDuplicate = true; // Already imported, treat as duplicate
+            }
+
+            allAttendanceCourses.push({
+                code: (attCourse.CourseCode || '').trim(), // Keep original case for display
+                title: attCourse.CourseName || 'N/A',
+                semester: semesterName,
+                marks: marks,
+                grade: (attCourse.Grade || 'N/A'), // Keep original case for display
+                teacher: attCourse.TeacherName || 'N/A',
+                mid: attCourse.Mid || '0',
+                assignment: attCourse.Assigment || '0', // Corrected typo from API
+                final: attCourse.Final || '0',
+                practical: attCourse.Practical || '0',
+                isDuplicate: isDuplicate 
+            });
+        });
+
+        if (allAttendanceCourses.length > 0) {
+            const importableCount = allAttendanceCourses.filter(c => !c.isDuplicate).length;
+            addStatusMessage(`${allAttendanceCourses.length} courses found, ${importableCount} are new/importable. Showing import dialog.`, 'info');
+            renderAttendanceImportModal(allAttendanceCourses);
+            attendanceImportModal.show();
+        } else {
+            showToast('No courses found in Attendance System.', 'info');
+            addStatusMessage('Attendance System search returned no courses.', 'success');
+        }
+    }
+
+
+    // *** 2. REPLACE YOUR OLD FUNCTION WITH THIS UPDATED ONE ***
+    async function fetchAttendanceData() {
+        if (!processedData || !processedData.studentInfo || !processedData.studentInfo.registration) {
+            showToast('Please fetch results first.', 'warning');
+            return;
+        }
+        const regNum = processedData.studentInfo.registration;
+        const cacheKey = `uafAttendanceCache_${regNum}`;
+        const TEN_MINUTES_MS = 10 * 60 * 1000; // 10 minutes
+
+        // --- REQ 1: Caching Logic ---
+        try {
+            const cachedDataJSON = localStorage.getItem(cacheKey);
+            if (cachedDataJSON) {
+                const cachedData = JSON.parse(cachedDataJSON);
+                const cacheAge = Date.now() - cachedData.timestamp;
+
+                if (cacheAge < TEN_MINUTES_MS) {
+                    addStatusMessage(`Using cached attendance data (fetched ${Math.round(cacheAge / 1000 / 60)} mins ago).`, 'info');
+                    showToast('Using cached attendance data.', 'info');
+                    processAttendanceData(cachedData.data); // Process cached data
+                    return; // Stop execution, don't fetch
+                } else {
+                    addStatusMessage('Cached attendance data is stale (> 10 mins). Fetching new data.', 'info');
+                    localStorage.removeItem(cacheKey); // Clear stale data
+                }
+            }
+        } catch (e) {
+            console.error('Error reading cache:', e);
+            localStorage.removeItem(cacheKey); // Clear corrupted cache
+        }
+        // --- End of Caching Logic ---
+
+
+        addStatusMessage(`Fetching results from Attendance System for: ${regNum}`, 'info');
+        
+        // --- REQ 3: UI/UX Change (No 'fetching' stage) ---
+        // showLoadingStage('fetching'); // <<< REMOVED
+        fetchAttendanceBtn.disabled = true;
+        fetchAttendanceBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin me-2"></i>Fetching...';
+
+        try {
+            const response = await fetch(`${ATTENDANCE_API_ENDPOINT}&registrationNumber=${encodeURIComponent(regNum)}`);
+            const data = await response.json();
+
+            if (!response.ok || !data.success) {
+                throw new Error(data.message || `Server responded with status ${response.status}`);
+            }
+            
+            addStatusMessage(`Successfully fetched ${data.resultData.length} records from Attendance System`, 'success');
+
+            // --- REQ 1: Store in cache on successful fetch ---
+            try {
+                localStorage.setItem(cacheKey, JSON.stringify({ timestamp: Date.now(), data: data }));
+                addStatusMessage('Saved attendance data to cache.', 'info');
+            } catch (e) {
+                console.error('Error saving to cache:', e);
+                addStatusMessage('Could not save attendance data to cache (storage might be full).', 'warning');
+            }
+
+            // --- REQ 3: UI/UX Change (No 'processing' stage) ---
+            // showLoadingStage('processing'); // <<< REMOVED
+
+            // Call the new helper function to process and render
+            processAttendanceData(data);
+
+        } catch (error) {
+            console.error("Attendance Fetch Error:", error);
+            let userMessage = 'Could not retrieve Attendance System results. The server may be offline or the registration number is incorrect.';
+            if (error.message.includes('timed out')) {
+                userMessage = 'Connection to Attendance System timed out. Please try again later.';
+            } else if (error.message.includes('No results found')) {
+                userMessage = error.message; 
+            }
+            addStatusMessage(`Error fetching from Attendance System: ${error.message}`, 'error');
+            showToast(userMessage, 'error');
+        } finally {
+            // --- REQ 3: UI/UX Change (No 'null' stage) ---
+            // showLoadingStage(null); // <<< REMOVED
+            
+            // This will correctly reset the button to "Attendance System" or "Revert"
+            // based on whether an import is currently active.
+            setupAttendanceButton();
+        }
+    }
+
+
+      function renderAttendanceImportModal(courses) {
+        const listEl = document.getElementById('attendanceCourseList');
+        const listElContainer = listEl.parentNode; // Get parent to replace
+        let newListEl = listEl.cloneNode(false); // Create empty new list
+        
+        const toggleSwitch = document.getElementById('toggleAllCourses');
+        const selectAllCheckbox = document.getElementById('toggleSelectAllCourses');
+        const courseCountEl = document.getElementById('attendanceCourseCount');
+        const modalTitle = document.getElementById('attendanceModalTitle');
+        const modalDescription = document.getElementById('attendanceModalDescription');
+        
+        if (courses.length === 0) {
+            newListEl.innerHTML = '<p class="text-center text-muted p-3">No courses found in Attendance System.</p>';
+            importAttendanceCoursesBtn.disabled = true;
+            if (toggleSwitch) toggleSwitch.closest('.d-flex').style.display = 'none';
+            courseCountEl.textContent = 'Total: 0';
+            listElContainer.replaceChild(newListEl, listEl); // Replace old list
+            updateAttendanceCounts(); // Disable 'Select All'
+            return;
+        }
+
+        let missingCoursesFound = false;
+        
+        courses.forEach((course, index) => {
+            const courseId = `att-course-${index}`;
+            const selectId = `att-ch-${index}`;
+            const item = document.createElement('div');
+            item.className = 'attendance-course-item';
+            
+            if (course.isDuplicate) {
+                item.classList.add('duplicate-course');
+                item.style.display = 'none';
+            } else {
+                missingCoursesFound = true;
+            }
+
+            let labelText = '';
+            if (course.title && course.title.toLowerCase() !== 'n/a' && course.title.trim() !== '') {
+                labelText = `${course.title} - `;
+            }
+            labelText += `Marks: ${course.marks}, Grade: ${course.grade}`;
+
+            item.innerHTML = `
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" value="${index}" id="${courseId}" 
+                        ${course.isDuplicate ? 'disabled' : 'checked'}>
+                    <label class="form-check-label" for="${courseId}">
+                        <strong>${course.code}</strong> (${course.semester})
+                        ${course.isDuplicate ? '<span class="badge bg-success-subtle text-success-emphasis rounded-pill ms-1">In LMS</span>' : ''}
+                        <small class="d-block text-muted">${labelText}</small>
+                    </label>
+                </div>
+                <div class="import-ch-select">
+                    <label for="${selectId}" class="form-label mb-0 small me-2">CH:</label>
+                    <select class="form-select form-select-sm" id="${selectId}" ${course.isDuplicate ? 'disabled' : ''} style="width: 75px;">
+                        ${[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map(ch => `<option value="${ch}" ${ch === 3 ? 'selected' : ''}>${ch}</option>`).join('')}
+                    </select>
+                </div>
+            `;
+            item.querySelector(`#${courseId}`).dataset.courseData = JSON.stringify(course);
+            newListEl.appendChild(item);
+        });
+
+        // Replace the old list with the new one to attach fresh listeners
+        listElContainer.replaceChild(newListEl, listEl);
+
+        // Attach listener for individual checkboxes
+        newListEl.addEventListener('change', (e) => {
+            if (e.target.classList.contains('form-check-input')) {
+                updateAttendanceCounts();
+            }
+        });
+
+        // --- Handle Toggles ---
+        if (toggleSwitch) {
+            toggleSwitch.closest('.d-flex').style.display = 'flex';
+            toggleSwitch.checked = false; 
+            
+            const newToggle = toggleSwitch.cloneNode(true);
+            toggleSwitch.parentNode.replaceChild(newToggle, toggleSwitch);
+            
+            newToggle.addEventListener('change', (e) => {
+                const showAll = e.target.checked;
+                newListEl.querySelectorAll('.duplicate-course').forEach(item => {
+                    item.style.display = showAll ? 'flex' : 'none'; 
+                });
+                updateAttendanceCounts(); // Update counts and 'Select All' state
+            });
+        }
+        
+        if (selectAllCheckbox) {
+            selectAllCheckbox.checked = false;
+            
+            const newSelectAll = selectAllCheckbox.cloneNode(true);
+            selectAllCheckbox.parentNode.replaceChild(newSelectAll, selectAllCheckbox);
+
+            newSelectAll.addEventListener('change', (e) => {
+                const isChecked = e.target.checked;
+                // Find *only visible* items
+                newListEl.querySelectorAll('.attendance-course-item').forEach(item => {
+                    if (item.style.display !== 'none') {
+                        const checkbox = item.querySelector('.form-check-input:not(:disabled)');
+                        if (checkbox) {
+                            checkbox.checked = isChecked;
+                        }
+                    }
+                });
+                updateAttendanceCounts();
+            });
+        }
+        // --- End of Toggle Logic ---
+
+        // Update modal title, description, and counts
+        courseCountEl.textContent = `Total: ${courses.length}`;
+        
+        if (missingCoursesFound) {
+            modalTitle.innerHTML = '<i class="fa-solid fa-clipboard-user me-2"></i>Import Missing Courses';
+            modalDescription.textContent = 'The following courses were found in the Attendance System but not in your main LMS results. Select courses to import and set their credit hours.';
+        } else {
+            modalTitle.innerHTML = '<i class="fa-solid fa-clipboard-check me-2"></i>Courses Synced';
+            modalDescription.textContent = 'All courses found in the Attendance System are already present in your LMS results. You can toggle "Show All" to review them.';
+        }
+
+        importAttendanceCoursesBtn.disabled = false;
+        updateAttendanceCounts(); // Set initial state for counts and 'Select All'
+    }
+
+
+     function importSelectedAttendanceCourses() {
+        importedAttendanceCourses = []; // Clear any previous import list
+        const selectedCheckboxes = document.querySelectorAll('#attendanceCourseList .form-check-input:checked');
+        let importedCount = 0;
+
+        selectedCheckboxes.forEach(checkbox => {
+            // Ensure we are not importing a disabled checkbox
+            if (checkbox.disabled) return;
+
+            const courseData = JSON.parse(checkbox.dataset.courseData);
+            const index = checkbox.value;
+            const creditHoursSelect = document.getElementById(`att-ch-${index}`);
+            const creditHours = parseInt(creditHoursSelect.value);
+
+            if (!isNaN(creditHours) && creditHours > 0 && creditHours <= 10) {
+                const semesterName = courseData.semester; // This is already the normalized name
+
+                // Ensure semester exists
+                if (!processedData.semesters[semesterName]) {
+                    processedData.semesters[semesterName] = {
+                        originalName: semesterName, // Use the processed name
+                        sortKey: getSemesterOrderKey(semesterName),
+                        courses: []
+                    };
+                     addStatusMessage(`Created new semester entry: ${semesterName} during import`, 'info');
+                }
+
+                // Create the course object
+                const marks = courseData.marks;
+                const grade = calculateCustomGrade(marks, creditHours); // Recalculate grade based on CH
+                const qualityPoints = calculateQualityPoints(marks, creditHours, grade); // Use 'grade'
+
+                const newCourse = {
+                    code: courseData.code,
+                    title: courseData.title || 'Imported from Attendance',
+                    creditHours: creditHours,
+                    creditHoursDisplay: `${creditHours}(${creditHours}-0)`, // Assuming theory only
+                    marks: marks,
+                    qualityPoints: qualityPoints,
+                    grade: grade, 
+                    teacher: courseData.teacher || 'Attendance System',
+                    mid: courseData.mid || 'N/A',
+                    assignment: courseData.assignment || 'N/A',
+                    final: courseData.final || 'N/A',
+                    practical: courseData.practical || 'N/A',
+                    total: marks,
+                    isExtraEnrolled: false, // Will be recalculated
+                    isRepeated: false,      // Will be recalculated
+                    isDeleted: false,
+                    isCustom: true,          // Mark as custom
+                    source: 'attendance',    // Add source marker
+                    originalSemester: semesterName // Add originalSemester
+                };
+
+                 // Check if it already exists (non-deleted) before adding
+                const semester = processedData.semesters[semesterName];
+                 if (!semester.courses.some(c => !c.isDeleted && c.code.toUpperCase() === newCourse.code)) {
+                     semester.courses.push(newCourse);
+                     // Add to our revert list
+                     importedAttendanceCourses.push({ semester: semesterName, code: newCourse.code });
+                     importedCount++;
+                 } else {
+                     addStatusMessage(`Skipped importing ${newCourse.code} for ${semesterName} as it already exists.`, 'warning');
+                 }
+
+            } else {
+                 showToast(`Invalid Credit Hours selected for ${courseData.code}`, 'warning');
+            }
+        });
+
+        if (importedCount > 0) {
+            recalculateAndDisplay(); // This will save the profile
+            showToast(`${importedCount} course(s) imported successfully!`, 'success');
+            addStatusMessage(`Imported ${importedCount} courses from Attendance System.`, 'info');
+        } else {
+              showToast('No new courses were imported.', 'info');
+              importedAttendanceCourses = []; // Ensure list is empty if nothing was imported
+        }
+
+        setupAttendanceButton(); // Update the button to "Revert" or "Attendance"
+        attendanceImportModal.hide();
+    }
+
 
 
       async function fetchResult() {
@@ -6256,25 +6681,19 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         if (!regNum) { showToast('Please enter a registration number', 'error'); return; }
 
         resultContainer.style.display = 'none';
-        bedResultContainer.style.display = 'none'; // Hide B.Ed. container too
+        document.getElementById('bedResultContainer').style.display = 'none'; // --- NEW: Hide B.Ed. container
         showLoadingStage('connecting');
         addStatusMessage(`Fetching result for: ${regNum}`, 'info');
-        if(semesterResults) semesterResults.innerHTML = ''; // Clear standard container
-        if(bedSemesterResults) bedSemesterResults.innerHTML = ''; // Clear B.Ed container
-        if(otherSemesterResults) otherSemesterResults.innerHTML = ''; // Clear Other container
-        gpaChartContainer.style.display = 'none'; // Hide chart
+        semesterResults.innerHTML = '';
+        gpaChartContainer.style.display = 'none';
 
         try {
           const response = await fetch(`${API_ENDPOINT}&registrationNumber=${encodeURIComponent(regNum)}`);
           showLoadingStage('fetching');
-          if (!response.ok) { // Check HTTP status code first
-             throw new Error(`Server responded with status ${response.status}`);
-          }
           const data = await response.json();
 
-          // Now check the 'success' flag from the JSON payload
-          if (!data.success) {
-            throw new Error(data.message || 'API returned success=false without a message.');
+          if (!response.ok || !data.success) {
+            throw new Error(data.message || `Server responded with status ${response.status}`);
           }
 
           showLoadingStage('processing');
@@ -6282,20 +6701,22 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
           if (data.resultData && data.resultData.length > 0) {
             addStatusMessage('Result fetched successfully from UAF LMS', 'success');
             isInitialLoad = true;
-            const processed = processScrapedData(data); // Contains `hasBedCourses`
+            const processed = processScrapedData(data); // This now contains `hasBedCourses`
 
-            // --- B.Ed. Logic ---
+            // --- NEW B.Ed. Logic ---
             if (processed.hasBedCourses) {
+              // Show the modal and attach handlers
               document.getElementById('bedConfirmYes').onclick = () => handleBedConfirm(true, processed);
               document.getElementById('bedConfirmNo').onclick = () => handleBedConfirm(false, processed);
               if (bedConfirmationModal) bedConfirmationModal.show();
-              else handleBedConfirm(false, processed); // Fallback if modal isn't initialized
             } else {
-              handleBedConfirm(false, processed); // Proceed as normal
+              // No B.Ed. courses, proceed as normal
+              handleBedConfirm(false, processed);
             }
-            // --- End B.Ed. Logic ---
+            // --- End of NEW B.Ed. Logic ---
 
           } else {
+            // Even if success is true, resultData might be empty
              throw new Error("No result records found for this registration number.");
           }
         } catch (error) {
@@ -6303,20 +6724,16 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
             let userMessage, logMessage;
 
             if (error instanceof TypeError && error.message.includes('Failed to fetch')) {
-                userMessage = 'Network error. Please check your internet connection or the server might be down.';
-                logMessage = 'Failed to fetch due to a network error.';
-            } else if (error.message.includes("No result records found")) {
-                userMessage = error.message; // Use the specific message
-                logMessage = `API Info: ${error.message}`;
+                userMessage = 'Network error. Please check your internet connection.';
+                logMessage = 'Failed to fetch due to a network error. Ensure you are connected to the internet.';
             } else {
-                 userMessage = `Could not retrieve results. The server might be busy or the registration number incorrect. Details: ${error.message}`;
+                 userMessage = `Could not retrieve results: ${error.message}`; // Use error message from backend or default
                  logMessage = `API/LMS Error: ${error.message}`;
             }
 
             addStatusMessage(logMessage, 'error');
             showToast(userMessage, 'error');
-            showLoadingStage(null); // Hide loading indicator on error
-             setupFeatureButtons(); // Ensure buttons like Attendance are correctly hidden/disabled
+            showLoadingStage(null);
         }
       }
 
@@ -6342,7 +6759,8 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
       saveProfileNameBtn.addEventListener('click', renameProfile);
       document.getElementById('confirmationConfirmBtn').addEventListener('click', handleConfirm);
 
-       // Attendance Button Setup is called within init() and renderResults()
+       // NEW: Attendance Button Setup
+      setupAttendanceButton(); // This replaces the simple event listener
       importAttendanceCoursesBtn.addEventListener('click', importSelectedAttendanceCourses);
 
       importProfilesBtn.addEventListener('click', importProfiles);
@@ -6354,48 +6772,32 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
           renderProfileManager();
           profileManagerModal.show();
       });
-      
-      // Ensure 'selectAllProfiles' element exists before adding listener
-      const selectAllProfilesCheckbox = document.getElementById('selectAllProfiles');
-      if (selectAllProfilesCheckbox) {
-          selectAllProfilesCheckbox.addEventListener('change', e => {
-              document.querySelectorAll('.profile-checkbox').forEach(cb => cb.checked = e.target.checked);
-              const anyChecked = e.target.checked;
-               document.getElementById('bulkActionsBtn').disabled = !anyChecked;
-               exportProfilesBtnModal.disabled = !anyChecked; // Also enable/disable export in modal
-          });
-      }
+      document.getElementById('selectAllProfiles').addEventListener('change', e => {
+          document.querySelectorAll('.profile-checkbox').forEach(cb => cb.checked = e.target.checked);
+          const anyChecked = e.target.checked;
+           document.getElementById('bulkActionsBtn').disabled = !anyChecked;
+           exportProfilesBtnModal.disabled = !anyChecked; // Also enable/disable export in modal
+      });
 
-      // Ensure 'profileManagerList' element exists before adding listener
-      const profileManagerListEl = document.getElementById('profileManagerList');
-      if (profileManagerListEl) {
-          profileManagerListEl.addEventListener('change', e => {
-              if (e.target.classList.contains('profile-checkbox')) {
-                  const anyChecked = !!document.querySelector('#profileManagerList .profile-checkbox:checked'); // Check within the list
-                  document.getElementById('bulkActionsBtn').disabled = !anyChecked;
-                  exportProfilesBtnModal.disabled = !anyChecked;
+        document.getElementById('profileManagerList').addEventListener('change', e => {
+            if (e.target.classList.contains('profile-checkbox')) {
+                const anyChecked = !!document.querySelector('.profile-checkbox:checked');
+                document.getElementById('bulkActionsBtn').disabled = !anyChecked;
+                // Also enable/disable the modal export button based on selection
+                exportProfilesBtnModal.disabled = !anyChecked;
 
-                   // Update "Select All" checkbox state
-                  const allCheckboxes = document.querySelectorAll('#profileManagerList .profile-checkbox');
-                  const checkedCheckboxes = document.querySelectorAll('#profileManagerList .profile-checkbox:checked');
-                  const allChecked = allCheckboxes.length > 0 && checkedCheckboxes.length === allCheckboxes.length;
+                 // Update "Select All" checkbox state
+                const allCheckboxes = document.querySelectorAll('.profile-checkbox');
+                const allChecked = allCheckboxes.length > 0 && Array.from(allCheckboxes).every(cb => cb.checked);
+                document.getElementById('selectAllProfiles').checked = allChecked;
+                document.getElementById('selectAllProfiles').indeterminate = !allChecked && anyChecked;
 
-                  const selectAllInput = document.getElementById('selectAllProfiles');
-                  if (selectAllInput) {
-                      selectAllInput.checked = allChecked;
-                      selectAllInput.indeterminate = !allChecked && anyChecked;
-                  }
-              }
-          });
-      }
+            }
+        });
 
-      // Ensure 'deleteSelectedBtn' element exists
-      const deleteSelectedBtnEl = document.getElementById('deleteSelectedBtn');
-      if (deleteSelectedBtnEl) {
-          deleteSelectedBtnEl.addEventListener('click', handleBulkAction);
-      }
+      document.getElementById('deleteSelectedBtn').addEventListener('click', handleBulkAction);
 
-      init(); // Initialize everything
+      init();
     });
 
 </script>
@@ -6705,19 +7107,6 @@ document.addEventListener('DOMContentLoaded', function() {
 }
 </script>
   
-  
 </body>
 </html>
-
-
-
-
-
-
-
-
-
-
-
-
 
