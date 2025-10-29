@@ -2658,6 +2658,93 @@ a[aria-expanded="true"] .status-log-chevron {
     }
 }
 
+/* --- NEW: Image Zoom Styles for Quality Point Table --- */
+.zoomable-image-container {
+  overflow: hidden; /* Ensures the image doesn't overflow when zoomed */
+  cursor: zoom-in; /* Indicates interactivity */
+  position: relative;
+  border-radius: 0.75rem; /* Matches card-modern border-radius */
+  box-shadow: var(--shadow-small);
+  transition: box-shadow 0.3s ease;
+}
+
+.zoomable-image-container:hover {
+  box-shadow: var(--shadow-hover);
+}
+
+.zoomable-image-container img {
+  width: 100%;
+  height: auto;
+  display: block;
+  transition: transform 0.3s ease; /* Smooth zoom transition */
+  transform-origin: center center; /* Zoom from the center */
+}
+
+.zoomable-image-container.zoomed {
+  cursor: zoom-out; /* Indicates un-zoom functionality */
+}
+
+.zoomable-image-container.zoomed img {
+  transform: scale(2); /* Adjust scale factor as needed */
+  cursor: grab; /* Indicates image can be dragged when zoomed */
+}
+
+/* Control buttons for zoom (optional, but good for UX) */
+.zoom-controls {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    z-index: 10;
+    display: flex;
+    gap: 8px;
+    background: rgba(0,0,0,0.5);
+    border-radius: 5px;
+    padding: 5px 8px;
+    opacity: 0; /* Hidden by default */
+    transition: opacity 0.3s ease;
+}
+
+.zoomable-image-container.zoomed .zoom-controls {
+    opacity: 1; /* Always show when zoomed */
+}
+
+.zoomable-image-container:hover .zoom-controls:not(.zoomed) {
+    opacity: 1; /* Show on hover when not zoomed */
+}
+
+.zoom-controls button {
+    background: none;
+    border: none;
+    color: white;
+    font-size: 1.1rem;
+    cursor: pointer;
+    padding: 3px 6px;
+    line-height: 1;
+    border-radius: 3px;
+    transition: background-color 0.2s ease;
+}
+.zoom-controls button:hover {
+    background-color: rgba(255,255,255,0.2);
+}
+.zoom-controls button:active {
+    background-color: rgba(255,255,255,0.3);
+}
+.zoom-controls button i {
+    pointer-events: none; /* Prevents icon from intercepting click */
+}
+
+/* For dragging the image */
+.zoomable-image-container.zoomed img.draggable {
+  cursor: grab;
+}
+.zoomable-image-container.zoomed img.dragging {
+  cursor: grabbing;
+}
+    
+    
+
+    
+
 /* --- Z-index and Blur for modals --- */
 #renameProfileModal, #confirmationModal, #attendanceImportModal {
   z-index: 1060; /* Higher z-index to appear on top */
@@ -3398,6 +3485,31 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
           </div>
         </div>
       </div>
+      <div class="col-lg-6 col-md-8">
+          <div class="card card-modern fade-in-on-scroll h-100">
+            <div class="card-body p-4">
+              <h4 class="fw-bold mb-3 d-flex align-items-center gap-2">
+                <i class="fa-solid fa-table me-1" style="color: var(--brand);"></i>
+                Official UAF Quality Point Table
+              </h4>
+              <p class="text-body-secondary mb-3">
+                Refer to the official UAF Quality Point Table below to understand how marks are converted into quality points and grades. Click or tap the image to zoom in and drag for details.
+              </p>
+              <div class="zoomable-image-container">
+                <div class="zoom-controls">
+                    <button id="zoomIn" title="Zoom In"><i class="fa-solid fa-plus"></i></button>
+                    <button id="zoomOut" title="Zoom Out"><i class="fa-solid fa-minus"></i></button>
+                </div>
+                <img src="public/assets/images/quality-point-table-uaf-saqlain.webp" 
+                     alt="Official UAF Quality Point Table showing mark ranges, grades (A, B+, B, C+, C, D, F), and corresponding quality points for various course credit hours (0.5 to 4.0). Designed by M Saqlain, a UAF alumni."
+                     title="UAF Quality Point Table by M Saqlain">
+              </div>
+              <p class="text-body-secondary small mt-3 mb-0">
+                  *Table developed by M Saqlain based on official UAF academic regulations.
+              </p>
+            </div>
+          </div>
+        </div>
     </div>
   </div>
 </section>
@@ -6285,6 +6397,172 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     });
 </script>
 
+          <script>
+document.addEventListener('DOMContentLoaded', function() {
+  const zoomableImage = document.querySelector('.zoomable-image-container');
+  const imageElement = zoomableImage ? zoomableImage.querySelector('img') : null;
+  const zoomInButton = document.getElementById('zoomIn');
+  const zoomOutButton = document.getElementById('zoomOut');
+
+  let isZoomed = false;
+  let currentScale = 1;
+  let isDragging = false;
+  let startX, startY, scrollLeft, scrollTop;
+
+  if (zoomableImage && imageElement) {
+
+    // Function to set image transform with limits
+    function setImageTransform(scale, translateX = 0, translateY = 0) {
+      // Ensure the image doesn't go too far out of bounds
+      const maxTranslateX = (imageElement.offsetWidth * scale - zoomableImage.offsetWidth) / 2;
+      const maxTranslateY = (imageElement.offsetHeight * scale - zoomableImage.offsetHeight) / 2;
+
+      translateX = Math.max(-maxTranslateX, Math.min(maxTranslateX, translateX));
+      translateY = Math.max(-maxTranslateY, Math.min(maxTranslateY, translateY));
+
+      imageElement.style.transform = `scale(${scale}) translate(${translateX}px, ${translateY}px)`;
+    }
+
+    // Toggle zoom on click
+    zoomableImage.addEventListener('click', function(e) {
+      // Don't zoom if a control button was clicked
+      if (e.target.closest('.zoom-controls')) {
+          return;
+      }
+
+      if (!isZoomed) {
+        // Zoom in
+        isZoomed = true;
+        currentScale = 2; // Default zoom scale
+        zoomableImage.classList.add('zoomed');
+        setImageTransform(currentScale, 0, 0); // Reset position
+        // Make container scrollable
+        zoomableImage.style.overflow = 'auto';
+      } else {
+        // Zoom out
+        isZoomed = false;
+        currentScale = 1;
+        zoomableImage.classList.remove('zoomed');
+        imageElement.style.transform = 'scale(1) translate(0px, 0px)'; // Reset transform
+        // Disable container scroll
+        zoomableImage.style.overflow = 'hidden';
+      }
+    });
+
+    // Zoom in button
+    if (zoomInButton) {
+        zoomInButton.addEventListener('click', function() {
+            if (currentScale < 3) { // Max zoom level
+                currentScale += 0.5;
+                if (!isZoomed) {
+                    isZoomed = true;
+                    zoomableImage.classList.add('zoomed');
+                    zoomableImage.style.overflow = 'auto';
+                }
+                setImageTransform(currentScale, 0, 0); // Reset position on zoom change
+            }
+        });
+    }
+
+    // Zoom out button
+    if (zoomOutButton) {
+        zoomOutButton.addEventListener('click', function() {
+            if (currentScale > 1) { // Min zoom level (original size)
+                currentScale -= 0.5;
+                if (currentScale <= 1) {
+                    isZoomed = false;
+                    currentScale = 1;
+                    zoomableImage.classList.remove('zoomed');
+                    zoomableImage.style.overflow = 'hidden';
+                    imageElement.style.transform = 'scale(1) translate(0px, 0px)';
+                } else {
+                    setImageTransform(currentScale, 0, 0); // Reset position on zoom change
+                }
+            }
+        });
+    }
+
+
+    // Drag functionality when zoomed
+    zoomableImage.addEventListener('mousedown', (e) => {
+      if (isZoomed) {
+        isDragging = true;
+        imageElement.classList.add('dragging');
+        startX = e.clientX + zoomableImage.scrollLeft;
+        startY = e.clientY + zoomableImage.scrollTop;
+        scrollLeft = zoomableImage.scrollLeft;
+        scrollTop = zoomableImage.scrollTop;
+        e.preventDefault(); // Prevent default drag behavior
+      }
+    });
+
+    zoomableImage.addEventListener('mouseleave', () => {
+      if (isDragging) {
+        isDragging = false;
+        imageElement.classList.remove('dragging');
+      }
+    });
+
+    zoomableImage.addEventListener('mouseup', () => {
+      if (isDragging) {
+        isDragging = false;
+        imageElement.classList.remove('dragging');
+      }
+    });
+
+    zoomableImage.addEventListener('mousemove', (e) => {
+      if (!isDragging) return;
+      e.preventDefault();
+      const x = e.clientX + zoomableImage.scrollLeft;
+      const y = e.clientY + zoomableImage.scrollTop;
+      const walkX = (x - startX); // How far the mouse has moved
+      const walkY = (y - startY);
+      zoomableImage.scrollLeft = scrollLeft - walkX;
+      zoomableImage.scrollTop = scrollTop - walkY;
+    });
+
+    // Handle touch events for mobile dragging
+    zoomableImage.addEventListener('touchstart', (e) => {
+      if (isZoomed && e.touches.length === 1) {
+        isDragging = true;
+        imageElement.classList.add('dragging');
+        startX = e.touches[0].clientX + zoomableImage.scrollLeft;
+        startY = e.touches[0].clientY + zoomableImage.scrollTop;
+        scrollLeft = zoomableImage.scrollLeft;
+        scrollTop = zoomableImage.scrollTop;
+        e.preventDefault();
+      }
+    }, { passive: false });
+
+    zoomableImage.addEventListener('touchend', () => {
+      if (isDragging) {
+        isDragging = false;
+        imageElement.classList.remove('dragging');
+      }
+    });
+
+    zoomableImage.addEventListener('touchcancel', () => {
+      if (isDragging) {
+        isDragging = false;
+        imageElement.classList.remove('dragging');
+      }
+    });
+
+    zoomableImage.addEventListener('touchmove', (e) => {
+      if (!isDragging || e.touches.length !== 1) return;
+      e.preventDefault();
+      const x = e.touches[0].clientX + zoomableImage.scrollLeft;
+      const y = e.touches[0].clientY + zoomableImage.scrollTop;
+      const walkX = (x - startX);
+      const walkY = (y - startY);
+      zoomableImage.scrollLeft = scrollLeft - walkX;
+      zoomableImage.scrollTop = scrollTop - walkY;
+    }, { passive: false });
+  }
+});
+</script>
+
+
 
   <!-- 7. ADD THIS SCRIPT AT THE END OF YOUR BODY TAG FOR SCHEMA -->
 <script type="application/ld+json">
@@ -6306,6 +6584,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     "sameAs": "http://uaf.edu.pk"
   },
   "sameAs": [
+    "https://www.instagram.com/uafcalculator_saqlain",
     "https://www.facebook.com/UAFChemist.Rustam",
     "https://x.com/M_Saqlain_Akbar",
     "https://www.linkedin.com/in/muhammad-saqlain-akbar/"
@@ -6322,16 +6601,5 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
   
 </body>
 </html>
-
-
-
-
-
-
-
-
-
-
-
 
 
