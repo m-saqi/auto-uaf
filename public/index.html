@@ -2416,6 +2416,45 @@ a[aria-expanded="true"] .status-log-chevron {
   }
 }
 
+
+    /* --- NEW: B.Ed. Tab Styles --- */
+#bedTab {
+  border-bottom: 3px solid rgba(122, 106, 216, 0.2);
+  margin-bottom: 1.5rem;
+}
+
+#bedTab .nav-link {
+  font-weight: 600;
+  font-size: 1.1rem;
+  color: var(--muted);
+  border: none;
+  border-bottom: 3px solid transparent;
+  padding-bottom: 1rem;
+  transition: all 0.3s ease;
+}
+
+#bedTab .nav-link.active {
+  color: var(--brand);
+  border-bottom-color: var(--brand);
+  background-color: transparent;
+}
+
+#bedTab .nav-link:hover:not(.active) {
+  color: var(--text);
+  border-bottom-color: rgba(122, 106, 216, 0.5);
+}
+
+[data-theme="dark"] #bedTab {
+  border-bottom-color: rgba(122, 106, 216, 0.3);
+}
+
+[data-theme="dark"] #bedTab .nav-link.active {
+  color: #fff;
+}
+/* --- End of B.Ed. Tab Styles --- */
+    
+    
+
 /* Animation for hero text */
 .hero-text-gradient {
   background: linear-gradient(90deg, var(--brand-primary), var(--brand-secondary), var(--accent), var(--brand-primary));
@@ -3077,6 +3116,25 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     </div>
   </div>
 
+
+  <div class="modal fade confirmation-modal" id="bedConfirmationModal" tabindex="-1" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-body">
+        <i class="fa-solid fa-graduation-cap mb-3" style="font-size: 2.5rem; color: var(--brand);"></i>
+        <h5 class="modal-title mb-2">B.Ed. Courses Detected</h5>
+        <p class="text-muted small">We found courses related to the B.Ed. (Bachelor of Education) program in your results.</p>
+        <p class="mb-0"><strong>Have you enrolled in the B.Ed. program?</strong></p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary-action rounded-pill" id="bedConfirmNo">No, Show All</button>
+        <button type="button" class="btn btn-primary-action rounded-pill" id="bedConfirmYes">Yes, Separate B.Ed.</button>
+      </div>
+    </div>
+  </div>
+</div>
+  
+
   <div class="modal fade confirmation-modal" id="confirmationModal" tabindex="-1" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
     <div class="modal-dialog modal-dialog-centered modal-sm">
       <div class="modal-content">
@@ -3352,6 +3410,92 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
       <div id="semesterResults" class="semester-grid"></div>
     </div>
 </div>
+
+          <div id="bedResultContainer" style="display: none;">
+  <nav class="nav nav-tabs nav-fill" id="bedTab" role="tablist">
+    <a class="nav-link active" id="bed-tab" data-bs-toggle="tab" href="#bed-tab-content" role="tab" aria-controls="bed-tab-content" aria-selected="true">
+      <i class="fa-solid fa-graduation-cap me-2"></i>B.Ed. Program
+    </a>
+    <a class="nav-link" id="other-tab" data-bs-toggle="tab" href="#other-tab-content" role="tab" aria-controls="other-tab-content" aria-selected="false">
+      <i class="fa-solid fa-book me-2"></i>Other Programs
+    </a>
+  </nav>
+
+  <div class="tab-content" id="bedTabContent">
+    <div class="tab-pane fade show active" id="bed-tab-content" role="tabpanel" aria-labelledby="bed-tab">
+      <div class="gpa-result-card-premium fade-in-on-scroll is-visible">
+        <div class="student-info-header">
+          <h2 class="mb-0 fw-bold"><i class="fa-solid fa-graduation-cap me-2"></i>B.Ed. Program Summary</h2>
+        </div>
+        <div class="cgpa-dashboard">
+          <div class="cgpa-progress-circle">
+            <svg viewBox="0 0 36 36">
+              <path class="circle-bg" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+              <path id="bed-cgpaCircle" class="circle" stroke-dasharray="0, 100" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+            </svg>
+            <div class="cgpa-progress-text">
+              <span id="bed-totalCgpa" class="cgpa-value">0.00</span>
+              <span class="cgpa-label">B.Ed. CGPA</span>
+            </div>
+          </div>
+        </div>
+        <div class="secondary-stats">
+          <div class="stat-item">
+            <span class="stat-label">Percentage</span>
+            <span class="stat-value" id="bed-totalPercentage">0.00%</span>
+          </div>
+          <div class="stat-divider"></div>
+          <div class="stat-item">
+            <span class="stat-label">Total Marks</span>
+            <span class="stat-value">
+              <span id="bed-totalMarksObtained">0</span><span id="bed-totalMaxMarks" class="stat-sub-value">/ 0</span>
+            </span>
+          </div>
+        </div>
+      </div>
+      <div class="semester-results-container">
+        <div id="bed-semesterResults" class="semester-grid"></div>
+      </div>
+    </div>
+
+    <div class="tab-pane fade" id="other-tab-content" role="tabpanel" aria-labelledby="other-tab">
+      <div class="gpa-result-card-premium fade-in-on-scroll is-visible">
+        <div class="student-info-header">
+          <h2 class="mb-0 fw-bold"><i class="fa-solid fa-book me-2"></i>Other Programs Summary</h2>
+        </div>
+        <div class="cgpa-dashboard">
+          <div class="cgpa-progress-circle">
+            <svg viewBox="0 0 36 36">
+              <path class="circle-bg" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+              <path id="other-cgpaCircle" class="circle" stroke-dasharray="0, 100" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+            </svg>
+            <div class="cgpa-progress-text">
+              <span id="other-totalCgpa" class="cgpa-value">0.00</span>
+              <span class="cgpa-label">Other CGPA</span>
+            </div>
+          </div>
+        </div>
+        <div class="secondary-stats">
+          <div class="stat-item">
+            <span class="stat-label">Percentage</span>
+            <span class="stat-value" id="other-totalPercentage">0.00%</span>
+          </div>
+          <div class="stat-divider"></div>
+          <div class="stat-item">
+            <span class="stat-label">Total Marks</span>
+            <span class="stat-value">
+              <span id="other-totalMarksObtained">0</span><span id="other-totalMaxMarks" class="stat-sub-value">/ 0</span>
+            </span>
+          </div>
+        </div>
+      </div>
+      <div class="semester-results-container">
+        <div id="other-semesterResults" class="semester-grid"></div>
+      </div>
+    </div>
+  </div>
+</div>
+          
 
 <div class="card card-modern mt-4 fade-in-on-scroll">
     <div class="card-header p-0">
@@ -6733,6 +6877,7 @@ document.addEventListener('DOMContentLoaded', function() {
   
 </body>
 </html>
+
 
 
 
