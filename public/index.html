@@ -2658,87 +2658,144 @@ a[aria-expanded="true"] .status-log-chevron {
     }
 }
 
-/* --- NEW: Image Zoom Styles for Quality Point Table --- */
-.zoomable-image-container {
-  overflow: hidden; /* Ensures the image doesn't overflow when zoomed */
-  cursor: zoom-in; /* Indicates interactivity */
-  position: relative;
-  border-radius: 0.75rem; /* Matches card-modern border-radius */
-  box-shadow: var(--shadow-small);
-  transition: box-shadow 0.3s ease;
+/* --- NEW: Shopify-Style Desktop Zoom --- */
+
+/* This media query ensures these styles ONLY apply to desktop (screen > 991px) */
+@media (min-width: 992px) {
+  .zoomable-image-container {
+    position: relative;
+    overflow: hidden; /* This is crucial */
+    cursor: zoom-in;
+    border-radius: 0.75rem;
+  }
+
+  /* The "loupe" or zoomed-in window */
+  .zoom-loupe {
+    position: absolute;
+    display: none; /* Hidden by default */
+    width: 350px; /* Width of the zoom window */
+    height: 350px; /* Height of the zoom window */
+    border: 3px solid var(--brand);
+    border-radius: 0.75rem;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    background-repeat: no-repeat;
+    z-index: 20;
+    pointer-events: none; /* Allows mouse to move "through" it */
+    background-color: #fff; /* Fallback color */
+  }
+
+  /*
+    The zoom-box that appears *over* the main image.
+    This is what the user hovers to trigger the swap.
+  */
+  .zoom-box {
+    position: absolute;
+    display: none; /* Hidden by default */
+    background: rgba(122, 106, 216, 0.2);
+    border: 1px dashed var(--brand);
+    pointer-events: none;
+    z-index: 10;
+  }
 }
 
-.zoomable-image-container:hover {
-  box-shadow: var(--shadow-hover);
-}
+/* --- NEW: Mobile Lightbox Styles --- */
 
-.zoomable-image-container img {
-  width: 100%;
-  height: auto;
-  display: block;
-  transition: transform 0.3s ease; /* Smooth zoom transition */
-  transform-origin: center center; /* Zoom from the center */
-}
+/* This media query ensures these styles ONLY apply to mobile (screen < 992px) */
+@media (max-width: 991.98px) {
+  .zoomable-image-container {
+    cursor: pointer; /* Change cursor to pointer on mobile */
+    position: relative;
+  }
+  
+  /* Remove desktop-only controls */
+  .zoom-controls {
+    display: none;
+  }
 
-.zoomable-image-container.zoomed {
-  cursor: zoom-out; /* Indicates un-zoom functionality */
-}
-
-.zoomable-image-container.zoomed img {
-  transform: scale(2); /* Adjust scale factor as needed */
-  cursor: grab; /* Indicates image can be dragged when zoomed */
-}
-
-/* Control buttons for zoom (optional, but good for UX) */
-.zoom-controls {
+  /* Add a "click to zoom" icon on mobile */
+  .zoomable-image-container::after {
+    content: '\f00e'; /* FontAwesome zoom-in icon */
+    font-family: 'Font Awesome 6 Free';
+    font-weight: 900;
     position: absolute;
     top: 10px;
     right: 10px;
-    z-index: 10;
-    display: flex;
-    gap: 8px;
     background: rgba(0,0,0,0.5);
-    border-radius: 5px;
-    padding: 5px 8px;
-    opacity: 0; /* Hidden by default */
-    transition: opacity 0.3s ease;
-}
-
-.zoomable-image-container.zoomed .zoom-controls {
-    opacity: 1; /* Always show when zoomed */
-}
-
-.zoomable-image-container:hover .zoom-controls:not(.zoomed) {
-    opacity: 1; /* Show on hover when not zoomed */
-}
-
-.zoom-controls button {
-    background: none;
-    border: none;
     color: white;
+    padding: 8px 10px;
+    border-radius: 5px;
     font-size: 1.1rem;
-    cursor: pointer;
-    padding: 3px 6px;
-    line-height: 1;
-    border-radius: 3px;
-    transition: background-color 0.2s ease;
-}
-.zoom-controls button:hover {
-    background-color: rgba(255,255,255,0.2);
-}
-.zoom-controls button:active {
-    background-color: rgba(255,255,255,0.3);
-}
-.zoom-controls button i {
-    pointer-events: none; /* Prevents icon from intercepting click */
+    z-index: 5;
+    pointer-events: none; /* Don't block the click */
+  }
 }
 
-/* For dragging the image */
-.zoomable-image-container.zoomed img.draggable {
-  cursor: grab;
+/* The full-screen modal background */
+.image-lightbox {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.85);
+  backdrop-filter: blur(5px);
+  z-index: 1070; /* Higher than modals */
+  display: none; /* Hidden by default */
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  overflow: hidden; /* The lightbox itself does not scroll */
 }
-.zoomable-image-container.zoomed img.dragging {
-  cursor: grabbing;
+
+/* Style for when the lightbox is shown */
+.image-lightbox.show {
+  display: block;
+  opacity: 1;
+}
+
+/* The container for the image, this is what pans and zooms */
+.lightbox-content {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transform-origin: center center;
+  /* Will be controlled by JS for zooming/panning */
+}
+
+.lightbox-content img {
+  max-width: 90%;
+  max-height: 90%;
+  object-fit: contain;
+  border-radius: 5px;
+  /* Disable all default touch behaviors */
+  touch-action: none;
+  user-select: none;
+  -webkit-user-drag: none;
+}
+
+/* The "X" close button */
+.lightbox-close-btn {
+  position: absolute;
+  top: 15px;
+  right: 15px;
+  background: rgba(0, 0, 0, 0.5);
+  color: white;
+  border: none;
+  font-size: 1.5rem;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  cursor: pointer;
+  z-index: 1071;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+.lightbox-close-btn:hover {
+  background: rgba(255, 255, 255, 0.2);
+  transform: rotate(90deg);
 }
     
     
@@ -3495,14 +3552,17 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
               <p class="text-body-secondary mb-3">
                 Refer to the official UAF Quality Point Table below to understand how marks are converted into quality points and grades. Click or tap the image to zoom in and drag for details.
               </p>
-              <div class="zoomable-image-container">
-                <div class="zoom-controls">
-                    <button id="zoomIn" title="Zoom In"><i class="fa-solid fa-plus"></i></button>
-                    <button id="zoomOut" title="Zoom Out"><i class="fa-solid fa-minus"></i></button>
-                </div>
+              <div class="zoomable-image-container" id="qpTableContainer">
+                
                 <img src="/assets/images/quality-point-table-uaf-saqlain.webp" 
-                     alt="Official UAF Quality Point Table showing mark ranges, grades (A, B+, B, C+, C, D, F), and corresponding quality points for various course credit hours (0.5 to 4.0). Designed by M Saqlain, a UAF alumni."
+                     id="qpTableImage"
+                     alt="Official UAF Quality Point Table by M Saqlain showing mark ranges, grades (A, B+, B, C+, C, D, F), and corresponding quality points for various course credit hours (0.5 to 4.0). Designed by M Saqlain, a UAF alumni."
                      title="UAF Quality Point Table by M Saqlain">
+                
+                <div class="zoom-loupe" id="qpTableLoupe"></div>
+                
+                <div class="zoom-box" id="qpTableZoomBox"></div>
+
               </div>
               <p class="text-body-secondary small mt-3 mb-0">
                   *Table developed by M Saqlain based on official UAF academic regulations.
@@ -6379,170 +6439,233 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 
           <script>
 document.addEventListener('DOMContentLoaded', function() {
-  const zoomableImage = document.querySelector('.zoomable-image-container');
-  const imageElement = zoomableImage ? zoomableImage.querySelector('img') : null;
-  const zoomInButton = document.getElementById('zoomIn');
-  const zoomOutButton = document.getElementById('zoomOut');
 
-  let isZoomed = false;
-  let currentScale = 1;
-  let isDragging = false;
-  let startX, startY, scrollLeft, scrollTop;
+  // --- Common Elements ---
+  const qpTableContainer = document.getElementById('qpTableContainer');
+  const qpTableImage = document.getElementById('qpTableImage');
+  if (!qpTableContainer || !qpTableImage) return;
 
-  if (zoomableImage && imageElement) {
+  const imageSrc = qpTableImage.src;
 
-    // Function to set image transform with limits
-    function setImageTransform(scale, translateX = 0, translateY = 0) {
-      // Ensure the image doesn't go too far out of bounds
-      const maxTranslateX = (imageElement.offsetWidth * scale - zoomableImage.offsetWidth) / 2;
-      const maxTranslateY = (imageElement.offsetHeight * scale - zoomableImage.offsetHeight) / 2;
+  // --- Desktop "Shopify-Style" Loupe Zoom ---
+  const loupe = document.getElementById('qpTableLoupe');
+  const zoomBox = document.getElementById('qpTableZoomBox');
 
-      translateX = Math.max(-maxTranslateX, Math.min(maxTranslateX, translateX));
-      translateY = Math.max(-maxTranslateY, Math.min(maxTranslateY, translateY));
+  // Loupe settings
+  const loupeWidth = 350;
+  const loupeHeight = 350;
+  const zoomLevel = 2.5; // How much to zoom in
+  let loupePosition = 'left'; // Default position
 
-      imageElement.style.transform = `scale(${scale}) translate(${translateX}px, ${translateY}px)`;
-    }
+  function initDesktopZoom() {
+    if (!loupe || !zoomBox) return;
 
-    // Toggle zoom on click
-    zoomableImage.addEventListener('click', function(e) {
-      // Don't zoom if a control button was clicked
-      if (e.target.closest('.zoom-controls')) {
-          return;
+    // Set the loupe's background image and size
+    loupe.style.backgroundImage = `url(${imageSrc})`;
+    loupe.style.backgroundSize = `${qpTableImage.width * zoomLevel}px ${qpTableImage.height * zoomLevel}px`;
+
+    // Set the size of the hover box
+    const boxWidth = loupeWidth / zoomLevel;
+    const boxHeight = loupeHeight / zoomLevel;
+    zoomBox.style.width = `${boxWidth}px`;
+    zoomBox.style.height = `${boxHeight}px`;
+
+    qpTableContainer.addEventListener('mouseenter', () => {
+      // Recalculate background size on enter, in case image resized
+      loupe.style.backgroundSize = `${qpTableImage.width * zoomLevel}px ${qpTableImage.height * zoomLevel}px`;
+      loupe.style.display = 'block';
+      zoomBox.style.display = 'block';
+    });
+
+    qpTableContainer.addEventListener('mouseleave', () => {
+      loupe.style.display = 'none';
+      zoomBox.style.display = 'none';
+    });
+
+    qpTableContainer.addEventListener('mousemove', (e) => {
+      const rect = qpTableContainer.getBoundingClientRect();
+      let x = e.clientX - rect.left;
+      let y = e.clientY - rect.top;
+
+      // Keep the box inside the image bounds
+      let boxTop = y - boxHeight / 2;
+      let boxLeft = x - boxWidth / 2;
+
+      boxTop = Math.max(0, Math.min(boxTop, rect.height - boxHeight));
+      boxLeft = Math.max(0, Math.min(boxLeft, rect.width - boxWidth));
+
+      // Update the hover box position
+      zoomBox.style.top = `${boxTop}px`;
+      zoomBox.style.left = `${boxLeft}px`;
+
+      // Update the loupe's background position
+      const bgPosX = -boxLeft * zoomLevel;
+      const bgPosY = -boxTop * zoomLevel;
+      loupe.style.backgroundPosition = `${bgPosX}px ${bgPosY}px`;
+
+      // --- This is the "Swap" Logic ---
+      const loupeMargin = 20;
+      const loupeRightEdge = boxLeft + boxWidth + loupeWidth + loupeMargin;
+      
+      // Check if cursor is over the *loupe's* intended area
+      if (
+        (loupePosition === 'left' && x < loupeWidth + loupeMargin) ||
+        (loupePosition === 'right' && x > rect.width - (loupeWidth + loupeMargin))
+      ) {
+        // Cursor is over the loupe area, swap its position
+        loupePosition = (loupePosition === 'left') ? 'right' : 'left';
       }
 
-      if (!isZoomed) {
-        // Zoom in
-        isZoomed = true;
-        currentScale = 2; // Default zoom scale
-        zoomableImage.classList.add('zoomed');
-        setImageTransform(currentScale, 0, 0); // Reset position
-        // Make container scrollable
-        zoomableImage.style.overflow = 'auto';
+      // Apply the loupe position
+      if (loupePosition === 'right') {
+        loupe.style.left = 'auto';
+        loupe.style.right = `${loupeMargin}px`;
       } else {
-        // Zoom out
-        isZoomed = false;
-        currentScale = 1;
-        zoomableImage.classList.remove('zoomed');
-        imageElement.style.transform = 'scale(1) translate(0px, 0px)'; // Reset transform
-        // Disable container scroll
-        zoomableImage.style.overflow = 'hidden';
+        loupe.style.right = 'auto';
+        loupe.style.left = `${loupeMargin}px`;
       }
+      loupe.style.top = `20px`; // Fixed vertical position
     });
-
-    // Zoom in button
-    if (zoomInButton) {
-        zoomInButton.addEventListener('click', function() {
-            if (currentScale < 3) { // Max zoom level
-                currentScale += 0.5;
-                if (!isZoomed) {
-                    isZoomed = true;
-                    zoomableImage.classList.add('zoomed');
-                    zoomableImage.style.overflow = 'auto';
-                }
-                setImageTransform(currentScale, 0, 0); // Reset position on zoom change
-            }
-        });
-    }
-
-    // Zoom out button
-    if (zoomOutButton) {
-        zoomOutButton.addEventListener('click', function() {
-            if (currentScale > 1) { // Min zoom level (original size)
-                currentScale -= 0.5;
-                if (currentScale <= 1) {
-                    isZoomed = false;
-                    currentScale = 1;
-                    zoomableImage.classList.remove('zoomed');
-                    zoomableImage.style.overflow = 'hidden';
-                    imageElement.style.transform = 'scale(1) translate(0px, 0px)';
-                } else {
-                    setImageTransform(currentScale, 0, 0); // Reset position on zoom change
-                }
-            }
-        });
-    }
-
-
-    // Drag functionality when zoomed
-    zoomableImage.addEventListener('mousedown', (e) => {
-      if (isZoomed) {
-        isDragging = true;
-        imageElement.classList.add('dragging');
-        startX = e.clientX + zoomableImage.scrollLeft;
-        startY = e.clientY + zoomableImage.scrollTop;
-        scrollLeft = zoomableImage.scrollLeft;
-        scrollTop = zoomableImage.scrollTop;
-        e.preventDefault(); // Prevent default drag behavior
-      }
-    });
-
-    zoomableImage.addEventListener('mouseleave', () => {
-      if (isDragging) {
-        isDragging = false;
-        imageElement.classList.remove('dragging');
-      }
-    });
-
-    zoomableImage.addEventListener('mouseup', () => {
-      if (isDragging) {
-        isDragging = false;
-        imageElement.classList.remove('dragging');
-      }
-    });
-
-    zoomableImage.addEventListener('mousemove', (e) => {
-      if (!isDragging) return;
-      e.preventDefault();
-      const x = e.clientX + zoomableImage.scrollLeft;
-      const y = e.clientY + zoomableImage.scrollTop;
-      const walkX = (x - startX); // How far the mouse has moved
-      const walkY = (y - startY);
-      zoomableImage.scrollLeft = scrollLeft - walkX;
-      zoomableImage.scrollTop = scrollTop - walkY;
-    });
-
-    // Handle touch events for mobile dragging
-    zoomableImage.addEventListener('touchstart', (e) => {
-      if (isZoomed && e.touches.length === 1) {
-        isDragging = true;
-        imageElement.classList.add('dragging');
-        startX = e.touches[0].clientX + zoomableImage.scrollLeft;
-        startY = e.touches[0].clientY + zoomableImage.scrollTop;
-        scrollLeft = zoomableImage.scrollLeft;
-        scrollTop = zoomableImage.scrollTop;
-        e.preventDefault();
-      }
-    }, { passive: false });
-
-    zoomableImage.addEventListener('touchend', () => {
-      if (isDragging) {
-        isDragging = false;
-        imageElement.classList.remove('dragging');
-      }
-    });
-
-    zoomableImage.addEventListener('touchcancel', () => {
-      if (isDragging) {
-        isDragging = false;
-        imageElement.classList.remove('dragging');
-      }
-    });
-
-    zoomableImage.addEventListener('touchmove', (e) => {
-      if (!isDragging || e.touches.length !== 1) return;
-      e.preventDefault();
-      const x = e.touches[0].clientX + zoomableImage.scrollLeft;
-      const y = e.touches[0].clientY + zoomableImage.scrollTop;
-      const walkX = (x - startX);
-      const walkY = (y - startY);
-      zoomableImage.scrollLeft = scrollLeft - walkX;
-      zoomableImage.scrollTop = scrollTop - walkY;
-    }, { passive: false });
   }
+
+
+  // --- Mobile "AJAX-Style" Lightbox ---
+  const lightbox = document.getElementById('imageLightbox');
+  const lightboxContent = document.getElementById('lightboxContent');
+  const lightboxClose = document.getElementById('lightboxClose');
+
+  let scale = 1, panning = false,
+      pointX = 0, pointY = 0,
+      startX = 0, startY = 0,
+      lastDist = 0;
+
+  function setTransform() {
+    lightboxContent.style.transform = `translate(${pointX}px, ${pointY}px) scale(${scale})`;
+  }
+
+  function initMobileZoom() {
+    if (!lightbox || !lightboxContent || !lightboxClose) return;
+
+    // 1. Open the Lightbox
+    qpTableContainer.addEventListener('click', (e) => {
+      e.preventDefault();
+      // Clone the image to put in the lightbox
+      const imgClone = qpTableImage.cloneNode(true);
+      imgClone.id = 'lightboxImage';
+      imgClone.style.maxWidth = '90%'; // Reset styles for lightbox
+      imgClone.style.maxHeight = '90%';
+      lightboxContent.innerHTML = ''; // Clear previous
+      lightboxContent.appendChild(imgClone);
+      
+      // Reset transform state
+      scale = 1;
+      pointX = 0;
+      pointY = 0;
+      setTransform();
+
+      lightbox.classList.add('show');
+    });
+
+    // 2. Close the Lightbox
+    lightboxClose.addEventListener('click', () => {
+      lightbox.classList.remove('show');
+    });
+    // Also close on background click
+    lightbox.addEventListener('click', (e) => {
+      if (e.target === lightbox) {
+        lightbox.classList.remove('show');
+      }
+    });
+
+    // 3. Handle Touch Events for Pan and Pinch-Zoom
+    lightboxContent.addEventListener('touchstart', (e) => {
+      e.preventDefault();
+      startX = e.touches[0].clientX - pointX;
+      startY = e.touches[0].clientY - pointY;
+      lastDist = 0; // Reset pinch distance
+      panning = true;
+
+      if (e.touches.length === 2) {
+        // Start pinch
+        lastDist = Math.hypot(e.touches[0].clientX - e.touches[1].clientX, e.touches[0].clientY - e.touches[1].clientY);
+      }
+    });
+
+    lightboxContent.addEventListener('touchmove', (e) => {
+      e.preventDefault();
+      if (!panning) return;
+
+      if (e.touches.length === 1 && scale > 1) {
+        // Pan
+        pointX = e.touches[0].clientX - startX;
+        pointY = e.touches[0].clientY - startY;
+      } else if (e.touches.length === 2) {
+        // Pinch-Zoom
+        let newDist = Math.hypot(e.touches[0].clientX - e.touches[1].clientX, e.touches[0].clientY - e.touches[1].clientY);
+        
+        if (lastDist > 0) {
+          let scaleChange = (newDist - lastDist) / 100; // Sensitivity
+          scale += scaleChange;
+          
+          // Clamp scale
+          if (scale < 1) scale = 1;
+          if (scale > 10) scale = 10; // "Unlimited" up to 10x
+        }
+        lastDist = newDist;
+      }
+      
+      setTransform();
+    });
+
+    lightboxContent.addEventListener('touchend', (e) => {
+      panning = false;
+      lastDist = 0; // Reset pinch distance
+      if (scale === 1) {
+        // Reset position if zoomed all the way out
+        pointX = 0;
+        pointY = 0;
+        setTransform();
+      }
+    });
+    
+    // 4. Handle Desktop Wheel Zoom (for completeness)
+    lightboxContent.addEventListener('wheel', (e) => {
+        e.preventDefault();
+        let delta = e.deltaY > 0 ? -0.1 : 0.1; // Zoom direction
+        scale += delta;
+        
+        // Clamp scale
+        if (scale < 1) scale = 1;
+        if (scale > 10) scale = 10;
+
+        if (scale === 1) {
+          pointX = 0;
+          pointY = 0;
+        }
+        setTransform();
+    });
+  }
+  
+  // --- Device-specific Initialization ---
+  // Run the correct initializer based on screen width
+  if (window.matchMedia("(min-width: 992px)").matches) {
+    // Desktop
+    initDesktopZoom();
+  } else {
+    // Mobile
+    initMobileZoom();
+  }
+
 });
 </script>
 
 
+          <div id="imageLightbox" class="image-lightbox">
+  <button id="lightboxClose" class="lightbox-close-btn" title="Close"><i class="fa-solid fa-times"></i></button>
+  <div id="lightboxContent" class="lightbox-content">
+    </div>
+</div>
+          
 
   <!-- 7. ADD THIS SCRIPT AT THE END OF YOUR BODY TAG FOR SCHEMA -->
 <script type="application/ld+json">
@@ -6581,6 +6704,7 @@ document.addEventListener('DOMContentLoaded', function() {
   
 </body>
 </html>
+
 
 
 
