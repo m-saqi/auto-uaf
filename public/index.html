@@ -666,10 +666,180 @@ label {
 status-warning { color: #fd7e14; }
 .status-info { color: var(--brand); }
 
-.footer {
-  margin-top: auto; /* ADDED: Pushes the footer to the bottom */
-  color: #9ca3af;
+/* --- NEW: Premium Footer Styles --- */
+.premium-footer {
+  /* Use light-bg to blend seamlessly with the page */
   background-color: var(--light-bg);
+  border-top: 1px solid rgba(122, 106, 216, 0.2);
+  padding-top: 4rem;
+  color: var(--muted);
+  margin-top: 3rem; /* Replaces inline style from old footer */
+}
+
+[data-theme="dark"] .premium-footer {
+  /* Dark mode: use a transparent bg to blend with the body gradient */
+  background-color: transparent;
+}
+
+.footer-logo {
+  font-weight: 800;
+  letter-spacing: .3px;
+  font-size: 1.25rem;
+  margin-bottom: 1rem;
+  display: inline-block;
+  text-decoration: none;
+}
+
+.footer-logo .badge {
+  /* Re-style the badge from the navbar */
+  background: var(--brand-gradient);
+  color: white;
+  font-size: 0.8rem;
+  padding: 0.4em 0.6em;
+  vertical-align: middle;
+  margin-right: 0.5rem;
+}
+
+.footer-logo .gradient-text {
+  vertical-align: middle;
+}
+
+.footer-description {
+  font-size: 0.95rem;
+  color: var(--muted);
+  max-width: 350px; /* Constrains the text block */
+}
+
+.social-links {
+  display: flex;
+  gap: 1.25rem;
+  margin-top: 1.5rem;
+}
+
+.social-links a {
+  font-size: 1.25rem;
+  color: var(--muted);
+  transition: all 0.3s ease;
+}
+
+.social-links a:hover {
+  color: var(--brand);
+  transform: translateY(-2px);
+}
+
+.footer-heading {
+  font-weight: 600;
+  font-size: 1rem;
+  /* Use --text for higher contrast in both light/dark modes */
+  color: var(--text);
+  margin-bottom: 1.5rem;
+}
+
+.footer-links {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.footer-links li {
+  margin-bottom: 1rem;
+}
+
+.footer-links a {
+  color: var(--muted);
+  text-decoration: none;
+  transition: all 0.3s ease;
+  position: relative;
+}
+
+.footer-links a:hover {
+  color: var(--brand);
+  /* Shopify-style hover indent */
+  padding-left: 8px;
+}
+
+/* Underline effect for footer links on hover */
+.footer-links a::after {
+  content: '';
+  position: absolute;
+  width: 0;
+  height: 1px;
+  bottom: -3px;
+  left: 0;
+  background-color: var(--brand);
+  transition: width 0.3s ease-out;
+}
+
+.footer-links a:hover::after {
+  width: 100%;
+}
+
+.footer-bottom-bar {
+  padding-top: 1.5rem;
+  padding-bottom: 1.5rem;
+  margin-top: 3rem;
+  /* Separator line */
+  border-top: 1px solid rgba(122, 106, 216, 0.2);
+}
+
+.footer-copyright {
+  font-size: 0.9rem;
+  color: var(--muted);
+  text-align: center;
+}
+
+.footer-copyright p {
+  margin-bottom: 0.5rem;
+}
+
+.footer-copyright a {
+    font-weight: 500;
+    color: var(--muted);
+    text-decoration: underline;
+    text-decoration-color: rgba(122, 106, 216, 0.5);
+}
+.footer-copyright a:hover {
+    color: var(--brand);
+    text-decoration-color: var(--brand);
+}
+
+.footer-disclaimer {
+  font-size: 0.85rem;
+  color: var(--muted);
+  font-style: italic;
+  padding-top: 10px;
+}
+
+/* Responsive handling for the columns */
+@media (max-width: 991.98px) {
+  .premium-footer .col-lg-3,
+  .premium-footer .col-lg-2 {
+      margin-bottom: 2.5rem; /* Add space between stacked columns */
+  }
+}
+@media (max-width: 767.98px) {
+    .premium-footer .col-lg-4,
+    .premium-footer .col-md-5,
+    .premium-footer .col-md-4,
+    .premium-footer .col-md-3 {
+        margin-bottom: 2.5rem; /* Add space between stacked columns */
+    }
+    .footer-copyright {
+        text-align: center;
+    }
+}
+
+/* Make copyright text smaller on mobile */
+@media (max-width: 575.98px) {
+    .footer-copyright {
+        font-size: 0.8rem;
+    }
+    .footer-heading {
+        margin-bottom: 1rem;
+    }
+    .footer-links li {
+        margin-bottom: 0.75rem;
+    }
 }
 
 a {
@@ -1380,11 +1550,6 @@ a[aria-expanded="true"] .status-log-chevron {
 [data-theme="dark"] .input-group-text {
   background: rgba(31, 41, 55, 0.8);
   color: #e5e7eb;
-}
-
-[data-theme="dark"] .footer {
-  color: #9ca3af;
-  background: rgba(17, 24, 39, 0.8);
 }
 
 [data-theme="dark"] a {
@@ -3627,26 +3792,66 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
   </section>
 
   <!-- 6. UPDATE YOUR FOOTER TO THIS -->
-<footer class="border-top py-4" style="margin-top: 30px;">
-  <div class="container text-center footer">
-    <p class="mb-1">
-      <strong>UAF CGPA Calculator by Muhammad Saqlain</strong> - The #1 Automatic Calculator for University of Agriculture Faisalabad
-    </p>
-    <p class="mb-2">
-      Trusted by 50,000+ UAF Students | Developed by <a href="#about-developer">M Saqlain</a> (BS Chemistry 2020-2024)
-    </p>
-    <p class="small text-muted mb-3">
-      Keywords: UAF CGPA Calculator, UAF CGPA Calculator Saqlain, UAF GPA Calculator, University of Agriculture Faisalabad Calculator, M Saqlain UAF Calculator
-    </p>
-    <div class="mb-2">
-      <a href="#Home" class="text-decoration-none me-3">Home</a>
-      <a href="#Auto-Calculator" class="text-decoration-none me-3">Calculator</a>
-      <a href="#features" class="text-decoration-none me-3">Features</a>
-      <a href="#about-developer" class="text-decoration-none me-3">About M Saqlain</a>
-      <a href="#faq" class="text-decoration-none me-3">FAQ</a>
-      <a href="#contact-us" class="text-decoration-none">Contact</a>
+<footer class="premium-footer">
+  <div class="container">
+    <div class="row">
+
+      <div class="col-lg-4 col-md-5">
+        <a class="footer-logo" href="/">
+          <span class="badge">UAF</span>
+          <span class="gradient-text">CGPA Calculator</span>
+        </a>
+        <p class="footer-description">
+          The #1 automatic calculator for University of Agriculture Faisalabad students. Developed by M Saqlain to be accurate, fast, and free.
+        </p>
+        <div class="social-links">
+          <a href="https://www.facebook.com/UAFChemist.Rustam" target="_blank" title="Facebook"><i class="fa-brands fa-facebook"></i></a>
+          <a href="https://x.com/M_Saqlain_Akbar" target="_blank" title="Twitter/X"><i class="fa-brands fa-x-twitter"></i></a>
+          <a href="https://www.linkedin.com/in/muhammad-saqlain-akbar/" target="_blank" title="LinkedIn"><i class="fa-brands fa-linkedin"></i></a>
+        </div>
+      </div>
+
+      <div class="col-lg-2 col-md-3 offset-lg-1">
+        <h5 class="footer-heading">Quick Links</h5>
+        <ul class="footer-links">
+          <li><a href="#Home">Home</a></li>
+          <li><a href="#Auto-Calculator">Calculator</a></li>
+          <li><a href="#features">Features</a></li>
+          <li><a href="#faq">FAQ</a></li>
+        </ul>
+      </div>
+
+      <div class="col-lg-2 col-md-4">
+        <h5 class="footer-heading">About</h5>
+        <ul class="footer-links">
+          <li><a href="#about-developer">About M Saqlain</a></li>
+          <li><a href="#contact-us">Contact Developer</a></li>
+          <li><a href="#uaf-grading-info">Grading System</a></li>
+          <li><a href="#testimonials">Testimonials</a></li>
+        </ul>
+      </div>
+
+      <div class="col-lg-3 col-md-12 mt-4 mt-lg-0"> <h5 class="footer-heading">Disclaimer</h5>
+        <p class="footer-disclaimer">
+          This is an unofficial, third-party tool developed by a UAF alumni. It is not affiliated with, endorsed, or supported by the University of Agriculture Faisalabad. Always verify your official results with the university.
+        </p>
+      </div>
+
     </div>
-    <p class="mb-0 small">© 2025 Muhammad Saqlain. All rights reserved.</p>
+
+    <div class="footer-bottom-bar">
+      <div class="container">
+        <div class="row">
+          <div class="col-12">
+            <div class="footer-copyright">
+              <p class="mb-1">© 2025 Muhammad Saqlain. All rights reserved.</p>
+              <p class="mb-0">Trusted by 50,000+ UAF Students | Developed by <a href="#about-developer">M Saqlain</a> (BS Chemistry 2020-2024)</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
   </div>
 </footer>
 
@@ -6101,6 +6306,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
   
 </body>
 </html>
+
 
 
 
