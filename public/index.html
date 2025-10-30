@@ -5326,11 +5326,15 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         container.innerHTML = '';
         Object.keys(data.semesters).sort((a,b) => data.semesters[a].sortKey.localeCompare(data.semesters[b].sortKey)).forEach(semesterName => {
           const semester = data.semesters[semesterName];
-          // --- B.Ed. Fix: Don't render empty semesters ---
-          if (!semester.courses || semester.courses.length === 0) {
+          
+          // --- FIX ---
+          // Check if it's a forecast semester
+          const isForecastSemester = semesterName.toLowerCase().startsWith('forecast');
+          // Skip empty semesters *unless* they are forecast semesters
+          if ((!semester.courses || semester.courses.length === 0) && !isForecastSemester) {
               return;
           }
-          // --- End of Fix ---
+          // --- END FIX ---
           
           const semesterCard = document.createElement('div');
           
@@ -7046,6 +7050,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
 </body>
 </html>
+
 
 
 
