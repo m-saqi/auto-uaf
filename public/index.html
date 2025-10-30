@@ -5509,7 +5509,10 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
             }
           });
 
-          if (newCourseList.length > 0) {
+          // --- FIX ---
+          // Always include "Forecast" semesters in the "Other" tab (!includeBed),
+          // even if their course list is currently empty.
+          if (newCourseList.length > 0 || (!includeBed && semesterName.toLowerCase().startsWith('forecast'))) {
             filteredSemesters[semesterName] = {
               ...semester, // Copy originalName, sortKey
               courses: newCourseList
@@ -7043,6 +7046,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
 </body>
 </html>
+
 
 
 
