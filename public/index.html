@@ -2788,7 +2788,19 @@ a[aria-expanded="true"] .status-log-chevron {
   background: rgba(255, 255, 255, 0.2);
   transform: rotate(90deg);
 }
-    
+
+
+
+    /* --- NEW: Premium About Developer Section --- */
+#about-developer-premium {
+  padding: 5rem 0;
+  background: linear-gradient(180deg, #ffffff 0%, rgba(122, 106, 216, 0.05) 100%);
+}
+
+[data-theme="dark"] #about-developer-premium {
+  /* Match the body's dark gradient for a seamless, premium feel */
+  background: linear-gradient(180deg, #0b0e13 0%, #0f1320 70%);
+}
     
 
     
@@ -3940,11 +3952,11 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
           
 
           <!-- 3. ADD THIS "ABOUT M SAQLAIN" SECTION BEFORE CONTACT -->
-<section class="py-5" style="background-color: var(--light-bg);" id="about-developer">
+<section id="about-developer-premium" class="fade-in-on-scroll">
   <div class="container">
-    <div class="row justify-content-center">
-      <div class="col-lg-8">
-        <div class="card card-modern p-4 p-md-5 fade-in-on-scroll">
+    <div class="row">
+      <div class="col-12">
+        <div class="card card-modern p-4 p-md-5">
           <div class="text-center mb-4">
             <img src="assets/images/UAF CGPA Calculator Developer - M Saqlain.webp" 
                  alt="Muhammad Saqlain - Developer of UAF CGPA Calculator" 
@@ -4088,7 +4100,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
       <div class="col-lg-2 col-md-7">
         <h5 class="footer-heading">About</h5>
         <ul class="footer-links">
-          <li><a href="#about-developer">About M Saqlain</a></li>
+          <li><a href="#about-developer-premium">About M Saqlain</a></li>
           <li><a href="#contact-us">Contact Developer</a></li>
           <li><a href="#uaf-grading-info">Grading System</a></li>
           <li><a href="#testimonials">Testimonials</a></li>
@@ -4109,7 +4121,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
           <div class="col-12">
             <div class="footer-copyright">
               <p class="mb-1">© 2025 Muhammad Saqlain. All rights reserved.</p>
-              <p class="mb-0">Trusted by 50,000+ UAF Students | Developed by <a href="#about-developer">M Saqlain</a> (BS Chemistry 2020-2024)</p>
+              <p class="mb-0">Trusted by 50,000+ UAF Students | Developed by <a href="#about-developer-premium">M Saqlain</a> (BS Chemistry 2020-2024)</p>
             </div>
           </div>
         </div>
@@ -7037,4 +7049,5 @@ document.addEventListener('DOMContentLoaded', function() {
 
 </body>
 </html>
+
 
