@@ -3011,6 +3011,30 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     </div>
   </div>
 
+  <div class="modal fade" id="renameSemesterModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content shadow-lg">
+        <div class="modal-header">
+          <h5 class="modal-title"><i class="fa-solid fa-pen-to-square me-2"></i>Rename Semester</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <form id="renameSemesterForm">
+            <div class="mb-3">
+              <label for="newSemesterName" class="form-label">Semester Name</label>
+              <input type="text" class="form-control" id="newSemesterName" required>
+              <div class="form-text">Give this semester a unique name (e.g., "Final Year - Spring").</div>
+            </div>
+          </form>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary-action rounded-pill" data-bs-dismiss="modal">Cancel</button>
+          <button type="button" class="btn btn-primary-action rounded-pill" id="saveSemesterNameBtn">Save Name</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <div class="modal fade" id="attendanceImportModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-lg modal-dialog-scrollable">
       <div class="modal-content">
@@ -3396,8 +3420,8 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     <div class="tab-pane fade show active" id="bed-tab-content" role="tabpanel" aria-labelledby="bed-tab">
       <div class="gpa-result-card-premium fade-in-on-scroll is-visible">
         <div class="student-info-header">
-          <h2 class="mb-0 fw-bold" id="studentName"><i class="fa-solid fa-user-graduate me-2"></i>Student Name</h2>
-          <p class="mb-0 text-body-secondary" id="studentReg">Registration Number</p>
+          <h2 class="mb-0 fw-bold" id="bed-studentName"><i class="fa-solid fa-user-graduate me-2"></i>Student Name</h2>
+          <p class="mb-0 text-body-secondary" id="bed-studentReg">Registration Number</p>
         </div>
         <div class="cgpa-dashboard">
           <div class="cgpa-progress-circle">
@@ -3433,8 +3457,8 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     <div class="tab-pane fade" id="other-tab-content" role="tabpanel" aria-labelledby="other-tab">
       <div class="gpa-result-card-premium fade-in-on-scroll is-visible">
         <div class="student-info-header">
-          <h2 class="mb-0 fw-bold" id="studentName"><i class="fa-solid fa-user-graduate me-2"></i>Student Name</h2>
-          <p class="mb-0 text-body-secondary" id="studentReg">Registration Number</p>
+          <h2 class="mb-0 fw-bold" id="other-studentName"><i class="fa-solid fa-user-graduate me-2"></i>Student Name</h2>
+          <p class="mb-0 text-body-secondary" id="other-studentReg">Registration Number</p>
         </div>
         <div class="cgpa-dashboard">
           <div class="cgpa-progress-circle">
@@ -4165,6 +4189,9 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
       const renameProfileModal = new bootstrap.Modal(document.getElementById('renameProfileModal'));
       const saveProfileNameBtn = document.getElementById('saveProfileNameBtn');
 
+      let renameSemesterModal; // Will be initialized in init()
+      let saveSemesterNameBtn; // Will be initialized in init()
+
       // NEW Attendance System Elements
       let fetchAttendanceBtn = document.getElementById('fetchAttendanceBtn'); // Changed const to let
       const attendanceImportModal = new bootstrap.Modal(document.getElementById('attendanceImportModal'));
@@ -4190,6 +4217,8 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
       let processedData = null;
       let deletedSemesters = {};
       let gpaChart = null;
+      let bedGpaChart = null;
+      let otherGpaChart = null;
       let isInitialLoad = true;
       let confirmationCallback = null;
       let importedAttendanceCourses = []; // Tracks courses from the last import
@@ -4212,6 +4241,10 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
           migrateOldProfiles(); // Check for and migrate old data first
           initCustomCursor();
           initTheme();
+          // NEW CODE (add these lines inside init())
+      renameSemesterModal = new bootstrap.Modal(document.getElementById('renameSemesterModal'));
+      saveSemesterNameBtn = document.getElementById('saveSemesterNameBtn');
+      saveSemesterNameBtn.addEventListener('click', renameSemester); // Add listener
           initContactForm();
           createToastContainer();
           initBackToTop();
@@ -4583,6 +4616,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 
       // --- PROFILE MANAGER FUNCTIONS ---
 
+      // NEW CODE (replace with this)
       function renderProfileManager() {
         const profiles = getProfiles();
         const profileListEl = document.getElementById('profileManagerList');
@@ -4597,25 +4631,73 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 
         if (profileKeys.length === 0) {
             profileListEl.innerHTML = '<li class="text-center text-muted p-4">No profiles saved yet.</li>';
+            document.getElementById('bulkActionsBtn').disabled = true;
+            document.getElementById('exportProfilesBtnModal').disabled = true;
+            document.getElementById('selectAllProfiles').checked = false;
+            document.getElementById('selectAllProfiles').indeterminate = false;
             return;
         }
 
         profileListEl.innerHTML = profileKeys.map(id => {
             const profile = profiles[id];
-            const cgpaData = calculateCGPA(profile);
-            const semesterCount = Object.keys(profile.semesters).length;
-            const courseCount = Object.values(profile.semesters).reduce((sum, s) => sum + s.courses.length, 0);
             const lastModified = profile.lastModified ? new Date(profile.lastModified).toLocaleString() : 'N/A';
+            let detailsHtml = '';
+
+            if (profile.bedMode) {
+                // B.Ed. Profile Visualization
+                const bedSemesters = filterSemesters(profile.semesters, true);
+                const bedData = { ...profile, semesters: bedSemesters };
+                const bedCgpa = calculateCGPA(bedData);
+                const bedSemesterCount = Object.keys(bedData.semesters).length;
+                const bedCourseCount = Object.values(bedData.semesters).reduce((sum, s) => sum + s.courses.length, 0);
+
+                const otherSemesters = filterSemesters(profile.semesters, false);
+                const otherData = { ...profile, semesters: otherSemesters };
+                const otherCgpa = calculateCGPA(otherData);
+                const otherSemesterCount = Object.keys(otherData.semesters).length;
+                const otherCourseCount = Object.values(otherData.semesters).reduce((sum, s) => sum + s.courses.length, 0);
+
+                detailsHtml = `
+                  <div class="profile-item-name">${profile.displayName} <span class="badge bg-primary-subtle text-primary-emphasis rounded-pill ms-2">B.Ed. Profile</span></div>
+                  <div class="profile-item-meta"><i class="fa-solid fa-id-card"></i> ${profile.studentInfo.registration}</div>
+                  
+                  <div class="profile-item-meta" style="grid-column: 1 / -1; margin-top: 5px; padding-top: 5px; border-top: 1px solid rgba(122, 106, 216, 0.1);">
+                    <strong class="small" style="color: var(--brand);">B.Ed. Program:</strong>
+                  </div>
+                  <div class="profile-item-meta"><i class="fa-solid fa-graduation-cap"></i> CGPA: ${bedCgpa.cgpa.toFixed(4)}</div>
+                  <div class="profile-item-meta"><i class="fa-solid fa-book"></i> ${bedSemesterCount} Sem, ${bedCourseCount} Crs</div>
+
+                  <div class="profile-item-meta" style="grid-column: 1 / -1; margin-top: 5px; padding-top: 5px; border-top: 1px solid rgba(122, 106, 216, 0.1);">
+                    <strong class="small" style="color: var(--brand);">Other Program:</strong>
+                  </div>
+                  <div class="profile-item-meta"><i class="fa-solid fa-graduation-cap"></i> CGPA: ${otherCgpa.cgpa.toFixed(4)}</div>
+                  <div class="profile-item-meta"><i class="fa-solid fa-book"></i> ${otherSemesterCount} Sem, ${otherCourseCount} Crs</div>
+                  
+                  <div class="profile-item-meta" style="grid-column: 1 / -1; margin-top: 5px; padding-top: 5px; border-top: 1px solid rgba(122, 106, 216, 0.1);">
+                    <i class="fa-solid fa-clock"></i> ${lastModified}
+                  </div>
+                `;
+
+            } else {
+                // Standard Profile Visualization
+                const cgpaData = calculateCGPA(profile);
+                const semesterCount = Object.keys(profile.semesters).length;
+                const courseCount = Object.values(profile.semesters).reduce((sum, s) => sum + s.courses.length, 0);
+                
+                detailsHtml = `
+                  <div class="profile-item-name">${profile.displayName}</div>
+                  <div class="profile-item-meta"><i class="fa-solid fa-id-card"></i> ${profile.studentInfo.registration}</div>
+                  <div class="profile-item-meta"><i class="fa-solid fa-graduation-cap"></i> CGPA: ${cgpaData.cgpa.toFixed(4)}</div>
+                  <div class="profile-item-meta"><i class="fa-solid fa-book"></i> ${semesterCount} Semesters, ${courseCount} Courses</div>
+                  <div class="profile-item-meta"><i class="fa-solid fa-clock"></i> ${lastModified}</div>
+                `;
+            }
 
             return `
               <li class="profile-item" data-profile-id="${id}">
                   <input class="form-check-input profile-checkbox" type="checkbox" value="${id}">
-                  <div class="profile-item-details">
-                      <div class="profile-item-name">${profile.displayName}</div>
-                      <div class="profile-item-meta"><i class="fa-solid fa-id-card"></i> ${profile.studentInfo.registration}</div>
-                      <div class="profile-item-meta"><i class="fa-solid fa-graduation-cap"></i> CGPA: ${cgpaData.cgpa.toFixed(4)}</div>
-                      <div class="profile-item-meta"><i class="fa-solid fa-book"></i> ${semesterCount} Semesters, ${courseCount} Courses</div>
-                      <div class="profile-item-meta"><i class="fa-solid fa-clock"></i> ${lastModified}</div>
+                  <div class="profile-item-details" style="${profile.bedMode ? 'grid-template-columns: repeat(2, 1fr);' : ''}">
+                      ${detailsHtml}
                   </div>
                   <div class="profile-item-actions">
                       <button class="btn btn-sm btn-soft rounded-pill action-load" title="Load Profile"><i class="fa-solid fa-arrow-up-right-from-square"></i></button>
@@ -4636,10 +4718,17 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         }));
         profileListEl.querySelectorAll('.action-delete').forEach(btn => btn.addEventListener('click', e => {
             const profileId = e.currentTarget.closest('.profile-item').dataset.profileId;
-            showConfirmationModal('Delete Profile?', `Are you sure you want to delete "${profiles[profileId].displayName}"?`, () => {
+            const profileName = profiles[profileId]?.displayName || 'this profile';
+            showConfirmationModal('Delete Profile?', `Are you sure you want to delete "${profileName}"?`, () => {
                 deleteProfiles([profileId]);
             });
         }));
+
+        // Reset bulk action buttons
+        document.getElementById('bulkActionsBtn').disabled = true;
+        document.getElementById('exportProfilesBtnModal').disabled = true;
+        document.getElementById('selectAllProfiles').checked = false;
+        document.getElementById('selectAllProfiles').indeterminate = false;
       }
 
       function handleBulkAction() {
@@ -5330,14 +5419,15 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         Object.keys(data.semesters).sort((a,b) => data.semesters[a].sortKey.localeCompare(data.semesters[b].sortKey)).forEach(semesterName => {
           const semester = data.semesters[semesterName];
           
-          // --- FIX ---
-          // Check if it's a forecast semester
-          const isForecastSemester = semesterName.toLowerCase().startsWith('forecast');
-          // Skip empty semesters *unless* they are forecast semesters
-          if ((!semester.courses || semester.courses.length === 0) && !isForecastSemester) {
-              return;
-          }
-          // --- END FIX ---
+          // NEW CODE (replace with this)
+      // --- FIX ---
+      // Check if it's a forecast semester
+      const isForecastSemester = semester.isForecast === true;
+      // Skip empty semesters *unless* they are forecast semesters
+      if ((!semester.courses || semester.courses.length === 0) && !isForecastSemester) {
+          return;
+      }
+      // --- END FIX ---
           
           const semesterCard = document.createElement('div');
           
@@ -5436,6 +5526,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
       }
 
       // --- NEW Function: Renders the B.Ed. tabbed interface ---
+      // NEW CODE (replace with this)
       function displayBedResults(data) {
         // 1. Filter for B.Ed. results
         const bedSemesters = filterSemesters(data.semesters, true);
@@ -5446,6 +5537,13 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         const otherSemesters = filterSemesters(data.semesters, false);
         const otherData = { ...data, semesters: otherSemesters };
         const otherCgpa = calculateCGPA(otherData);
+
+        // --- NEW: Populate Student Info ---
+        document.getElementById('bed-studentName').innerHTML = `<i class="fa-solid fa-user-graduate me-2"></i>${data.studentInfo.name}`;
+        document.getElementById('bed-studentReg').textContent = data.studentInfo.registration;
+        document.getElementById('other-studentName').innerHTML = `<i class="fa-solid fa-user-graduate me-2"></i>${data.studentInfo.name}`;
+        document.getElementById('other-studentReg').textContent = data.studentInfo.registration;
+        // --- END NEW ---
 
         // 3. Render the "B.Ed." tab content
         document.getElementById('bed-totalCgpa').textContent = bedCgpa.cgpa.toFixed(4);
@@ -5471,8 +5569,8 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         }
         displaySemesterCards('other-semesterResults', otherData);
 
-        // 5. Hide the GPA chart
-        gpaChartContainer.style.display = 'none';
+        // 5. --- MODIFIED: Render GPA charts ---
+        renderBedGpaCharts(bedData.semesters, otherData.semesters);
 
         // 6. Attach listeners to all new elements
         attachResultEventListeners();
@@ -5640,6 +5738,86 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
           });
           gpaChartContainer.style.display = 'block';
       }
+
+          // NEW CODE (Add this entire function)
+      function renderBedGpaCharts(bedSemesters, otherSemesters) {
+        const bedChartContainer = document.getElementById('bedGpaChartContainer');
+        const otherChartContainer = document.getElementById('otherGpaChartContainer');
+        const isDarkMode = document.documentElement.getAttribute('data-theme') === 'dark';
+        const gridColor = isDarkMode ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)';
+        const fontColor = isDarkMode ? '#e5e7eb' : '#4b5563';
+        
+        const chartOptions = {
+          responsive: true,
+          maintainAspectRatio: false,
+          scales: {
+              y: { beginAtZero: true, suggestedMax: 4.0, ticks: { color: fontColor }, grid: { color: gridColor } },
+              x: { ticks: { color: fontColor }, grid: { color: gridColor } }
+          },
+          plugins: {
+              legend: { display: false },
+              tooltip: {
+                  backgroundColor: isDarkMode ? '#1b1f24' : '#fff',
+                  titleColor: isDarkMode ? '#fff' : '#1b1f24',
+                  bodyColor: isDarkMode ? '#d1d5db' : '#4b5563',
+                  borderColor: 'rgba(122, 106, 216, 0.5)',
+                  borderWidth: 1,
+                  padding: 10,
+                  callbacks: { label: context => `GPA: ${context.parsed.y.toFixed(4)}` }
+              }
+          },
+          animation: { duration: 1000, easing: 'easeInOutQuart' }
+        };
+
+        // Render B.Ed. Chart
+        if (bedGpaChart) bedGpaChart.destroy();
+        const sortedBedSemesters = Object.entries(bedSemesters).sort(([, a], [, b]) => a.sortKey.localeCompare(b.sortKey));
+        if (sortedBedSemesters.length > 0) {
+            bedChartContainer.style.display = 'block';
+            bedGpaChart = new Chart(document.getElementById('bedGpaTrendChart').getContext('2d'), {
+                type: 'line',
+                data: {
+                    labels: sortedBedSemesters.map(([name]) => name),
+                    datasets: [{
+                        label: 'B.Ed. GPA',
+                        data: sortedBedSemesters.map(([, semester]) => formatNumber(semester.gpa, 4)),
+                        fill: true,
+                        backgroundColor: 'rgba(122, 106, 216, 0.2)',
+                        borderColor: 'rgba(122, 106, 216, 1)',
+                        tension: 0.3
+                    }]
+                },
+                options: chartOptions
+            });
+        } else {
+            bedChartContainer.style.display = 'none';
+        }
+
+        // Render Other Chart
+        if (otherGpaChart) otherGpaChart.destroy();
+        const sortedOtherSemesters = Object.entries(otherSemesters).sort(([, a], [, b]) => a.sortKey.localeCompare(b.sortKey));
+        if (sortedOtherSemesters.length > 0) {
+            otherChartContainer.style.display = 'block';
+            otherGpaChart = new Chart(document.getElementById('otherGpaTrendChart').getContext('2d'), {
+                type: 'line',
+                data: {
+                    labels: sortedOtherSemesters.map(([name]) => name),
+                    datasets: [{
+                        label: 'Other GPA',
+                        data: sortedOtherSemesters.map(([, semester]) => formatNumber(semester.gpa, 4)),
+                        fill: true,
+                        backgroundColor: 'rgba(255, 107, 107, 0.2)', // Different color
+                        borderColor: 'rgba(255, 107, 107, 1)',
+                        tension: 0.3
+                    }]
+                },
+                options: chartOptions
+            });
+        } else {
+            otherChartContainer.style.display = 'none';
+        }
+      }
+          
 
       function attachResultEventListeners() {
         document.querySelectorAll('.clickable-info').forEach(el => el.addEventListener('click', e => showCourseDetails(JSON.parse(e.currentTarget.dataset.course.replace(/&#39;/g, "'")))));
@@ -5977,7 +6155,8 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         processedData.semesters[newSemesterName] = {
             originalName: newSemesterName,
             sortKey: getSemesterOrderKey(newSemesterName),
-            courses: []
+            courses: [],
+            isForecast: true // <-- ADD THIS FLAG
         };
         recalculateAndDisplay(); // This renders the new card
         showToast(`Added "${newSemesterName}"`, 'success');
@@ -5999,37 +6178,47 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         // --- END: NEW SCROLL-TO-ELEMENT LOGIC ---
       }
 
-      // --- START: NEW FUNCTION TO RENAME SEMESTER ---
+      // NEW CODE (replace with this)
       function openRenameSemesterModal(oldSemesterName) {
         if (!processedData.semesters[oldSemesterName]) return;
-
-        const newSemesterName = prompt("Enter a new name for this semester:", oldSemesterName);
-
-        if (newSemesterName && newSemesterName.trim() !== "" && newSemesterName !== oldSemesterName) {
-          const trimmedName = newSemesterName.trim();
-          
-          // Check if name already exists
-          if (processedData.semesters[trimmedName]) {
-            showToast(`Semester name "${trimmedName}" already exists.`, 'error');
-            return;
-          }
-
-          // Rename the semester
-          // We must update the key, the originalName, and the sortKey
-          processedData.semesters[trimmedName] = processedData.semesters[oldSemesterName]; // 1. Copy data to new key
-          delete processedData.semesters[oldSemesterName]; // 2. Delete old key
-          
-          processedData.semesters[trimmedName].originalName = trimmedName; // 3. Update originalName
-          processedData.semesters[trimmedName].sortKey = getSemesterOrderKey(trimmedName); // 4. Update sortKey
-          
-          recalculateAndDisplay(); // This saves and re-renders
-          showToast(`Semester renamed to "${trimmedName}"`, 'success');
-          addStatusMessage(`Renamed semester "${oldSemesterName}" to "${trimmedName}"`, 'info');
-        } else if (newSemesterName === "") {
-            showToast("Semester name cannot be empty.", 'warning');
-        }
+        document.getElementById('newSemesterName').value = oldSemesterName;
+        saveSemesterNameBtn.dataset.oldName = oldSemesterName; // Store old name
+        renameSemesterModal.show();
       }
-      // --- END: NEW FUNCTION ---
+
+      // ADD THIS NEW FUNCTION (e.g., after openRenameSemesterModal)
+      function renameSemester() {
+        const oldSemesterName = saveSemesterNameBtn.dataset.oldName;
+        const newSemesterName = document.getElementById('newSemesterName').value.trim();
+
+        if (!newSemesterName || newSemesterName === "") {
+          showToast("Semester name cannot be empty.", 'warning');
+          return;
+        }
+
+        if (newSemesterName === oldSemesterName) {
+          renameSemesterModal.hide();
+          return;
+        }
+
+        if (processedData.semesters[newSemesterName]) {
+          showToast(`Semester name "${newSemesterName}" already exists.`, 'error');
+          return;
+        }
+
+        // Rename: Copy data, delete old, update properties
+        processedData.semesters[newSemesterName] = processedData.semesters[oldSemesterName];
+        delete processedData.semesters[oldSemesterName];
+        
+        processedData.semesters[newSemesterName].originalName = newSemesterName;
+        processedData.semesters[newSemesterName].sortKey = getSemesterOrderKey(newSemesterName);
+        // The isForecast flag is automatically carried over
+        
+        recalculateAndDisplay();
+        renameSemesterModal.hide();
+        showToast(`Semester renamed to "${newSemesterName}"`, 'success');
+        addStatusMessage(`Renamed semester "${oldSemesterName}" to "${newSemesterName}"`, 'info');
+      }
       
       function copyDetailsToClipboard() {
           if (!processedData) return;
@@ -7053,6 +7242,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
 </body>
 </html>
+
 
 
 
