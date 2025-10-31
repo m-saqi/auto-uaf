@@ -3422,6 +3422,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     <div class="tab-pane fade show active" id="bed-tab-content" role="tabpanel" aria-labelledby="bed-tab">
       <div class="gpa-result-card-premium fade-in-on-scroll is-visible">
         <div class="student-info-header">
+          <!-- FIX: Give these unique IDs -->
           <h2 class="mb-0 fw-bold" id="bed-studentName"><i class="fa-solid fa-user-graduate me-2"></i>Student Name</h2>
           <p class="mb-0 text-body-secondary" id="bed-studentReg">Registration Number</p>
         </div>
@@ -3451,6 +3452,38 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
           </div>
         </div>
       </div>
+      
+      <!-- NEW: Add Attendance System Button -->
+      <div class="text-center fade-in-on-scroll" style="margin-top: 1.5rem;">
+        <p class="text-muted small mb-2">If some courses are not in LMS, you can find them in the Attendance System.</p>
+        <button id="bed-fetchAttendanceBtn" class="btn btn-success-action" style="min-width: 220px; border-radius: var(--radius-btn);">
+          <i class="fa-solid fa-clipboard-user me-2"></i>Attendance System
+        </button>
+      </div>
+
+      <!-- NEW: Add GPA Chart Container -->
+      <div class="card card-modern mt-4 fade-in-on-scroll" id="bedGpaChartContainer" style="display: none;">
+        <div class="card-header p-0">
+          <a href="#bedGpaChartCollapse" class="d-block text-decoration-none p-3" data-bs-toggle="collapse" role="button" aria-expanded="false" aria-controls="bedGpaChartCollapse">
+            <div class="d-flex justify-content-between align-items-center">
+              <h4 class="mb-0 text-body"><i class="fa-solid fa-chart-line me-2"></i>B.Ed. GPA Trend</h4>
+              <i class="fa-solid fa-chevron-down text-body" id="bedGpaChartChevron"></i>
+            </div>
+          </a>
+        </div>
+        <div class="collapse" id="bedGpaChartCollapse">
+          <div class="card-body">
+            <canvas id="bedGpaTrendChart"></canvas>
+          </div>
+        </div>
+      </div>
+
+      <!-- NEW: Add Action Buttons -->
+      <div class="action-buttons-aligned justify-content-lg-between w-100 fade-in-on-scroll">
+        <button class="btn btn-pdf-download" onclick="generatePDF()"><i class="fa-solid fa-file-pdf me-2"></i>Download B.Ed. PDF</button>
+        <button class="btn btn-info-action" onclick="addForecastSemester()"><i class="fa-solid fa-wand-magic-sparkles me-2"></i>Forecast Semester</button>
+      </div>
+
       <div class="semester-results-container">
         <div id="bed-semesterResults" class="semester-grid"></div>
       </div>
@@ -3459,6 +3492,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     <div class="tab-pane fade" id="other-tab-content" role="tabpanel" aria-labelledby="other-tab">
       <div class="gpa-result-card-premium fade-in-on-scroll is-visible">
         <div class="student-info-header">
+          <!-- FIX: Give these unique IDs -->
           <h2 class="mb-0 fw-bold" id="other-studentName"><i class="fa-solid fa-user-graduate me-2"></i>Student Name</h2>
           <p class="mb-0 text-body-secondary" id="other-studentReg">Registration Number</p>
         </div>
@@ -3488,6 +3522,38 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
           </div>
         </div>
       </div>
+      
+      <!-- NEW: Add Attendance System Button -->
+      <div class="text-center fade-in-on-scroll" style="margin-top: 1.5rem;">
+        <p class="text-muted small mb-2">If some courses are not in LMS, you can find them in the Attendance System.</p>
+        <button id="other-fetchAttendanceBtn" class="btn btn-success-action" style="min-width: 220px; border-radius: var(--radius-btn);">
+          <i class="fa-solid fa-clipboard-user me-2"></i>Attendance System
+        </button>
+      </div>
+
+      <!-- NEW: Add GPA Chart Container -->
+      <div class="card card-modern mt-4 fade-in-on-scroll" id="otherGpaChartContainer" style="display: none;">
+        <div class="card-header p-0">
+          <a href="#otherGpaChartCollapse" class="d-block text-decoration-none p-3" data-bs-toggle="collapse" role="button" aria-expanded="false" aria-controls="otherGpaChartCollapse">
+            <div class="d-flex justify-content-between align-items-center">
+              <h4 class="mb-0 text-body"><i class="fa-solid fa-chart-line me-2"></i>Other GPA Trend</h4>
+              <i class="fa-solid fa-chevron-down text-body" id="otherGpaChartChevron"></i>
+            </div>
+          </a>
+        </div>
+        <div class="collapse" id="otherGpaChartCollapse">
+          <div class="card-body">
+            <canvas id="otherGpaTrendChart"></canvas>
+          </div>
+        </div>
+      </div>
+
+      <!-- NEW: Add Action Buttons -->
+      <div class="action-buttons-aligned justify-content-lg-between w-100 fade-in-on-scroll">
+        <button class="btn btn-pdf-download" onclick="generatePDF()"><i class="fa-solid fa-file-pdf me-2"></i>Download Other PDF</button>
+        <button class="btn btn-info-action" onclick="addForecastSemester()"><i class="fa-solid fa-wand-magic-sparkles me-2"></i>Forecast Semester</button>
+      </div>
+
       <div class="semester-results-container">
         <div id="other-semesterResults" class="semester-grid"></div>
       </div>
@@ -4195,7 +4261,9 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
       let saveSemesterNameBtn; // Will be initialized in init()
 
       // NEW Attendance System Elements
-      let fetchAttendanceBtn = document.getElementById('fetchAttendanceBtn'); // Changed const to let
+      let fetchAttendanceBtn = document.getElementById('fetchAttendanceBtn');
+      let bedFetchAttendanceBtn = document.getElementById('bed-fetchAttendanceBtn');
+      let otherFetchAttendanceBtn = document.getElementById('other-fetchAttendanceBtn');
       const attendanceImportModal = new bootstrap.Modal(document.getElementById('attendanceImportModal'));
       const importAttendanceCoursesBtn = document.getElementById('importAttendanceCoursesBtn');
 
@@ -4243,10 +4311,12 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
           migrateOldProfiles(); // Check for and migrate old data first
           initCustomCursor();
           initTheme();
+          
           // NEW CODE (add these lines inside init())
       renameSemesterModal = new bootstrap.Modal(document.getElementById('renameSemesterModal'));
       saveSemesterNameBtn = document.getElementById('saveSemesterNameBtn');
       saveSemesterNameBtn.addEventListener('click', renameSemester); // Add listener
+          
           initContactForm();
           createToastContainer();
           initBackToTop();
@@ -7244,6 +7314,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
 </body>
 </html>
+
 
 
 
