@@ -4360,23 +4360,50 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 
 
       function setupAttendanceButton() {
-        // Remove existing listener to avoid stacking
-        const newBtn = fetchAttendanceBtn.cloneNode(true);
-        fetchAttendanceBtn.parentNode.replaceChild(newBtn, fetchAttendanceBtn);
-        fetchAttendanceBtn = newBtn; // Re-assign the global variable (Now works with 'let')
+        // We now have three buttons to update
+        const buttons = [
+            { el: fetchAttendanceBtn, id: 'fetchAttendanceBtn' },
+            { el: bedFetchAttendanceBtn, id: 'bed-fetchAttendanceBtn' },
+            { el: otherFetchAttendanceBtn, id: 'other-fetchAttendanceBtn' }
+        ];
 
-        if (importedAttendanceCourses.length > 0) {
-            fetchAttendanceBtn.innerHTML = '<i class="fa-solid fa-rotate-left me-2"></i>Revert Import';
-            fetchAttendanceBtn.className = 'btn btn-danger-action'; // Use danger for revert
-            fetchAttendanceBtn.addEventListener('click', revertAttendanceImport);
-            fetchAttendanceBtn.disabled = false; // Ensure it's enabled
-        } else {
-            fetchAttendanceBtn.innerHTML = '<i class="fa-solid fa-clipboard-user me-2"></i>Attendance System';
-            fetchAttendanceBtn.className = 'btn btn-success-action';
-            fetchAttendanceBtn.addEventListener('click', fetchAttendanceData);
-            // Only disable if there is no processedData
-            fetchAttendanceBtn.disabled = !processedData;
-        }
+        buttons.forEach(btnInfo => {
+            if (!btnInfo.el) {
+                // Button might not exist in DOM yet, try to find it
+                btnInfo.el = document.getElementById(btnInfo.id);
+                if (!btnInfo.el) {
+                    // console.warn(`Attendance button ${btnInfo.id} not found.`);
+                    return; // Skip if still not found
+                }
+            }
+
+            // Remove existing listener to avoid stacking
+            const newBtn = btnInfo.el.cloneNode(true);
+            btnInfo.el.parentNode.replaceChild(newBtn, btnInfo.el);
+            btnInfo.el = newBtn; // Re-assign the variable
+            
+            // Re-assign global variables
+            if (btnInfo.id === 'fetchAttendanceBtn') fetchAttendanceBtn = newBtn;
+            else if (btnInfo.id === 'bed-fetchAttendanceBtn') bedFetchAttendanceBtn = newBtn;
+            else if (btnInfo.id === 'other-fetchAttendanceBtn') otherFetchAttendanceBtn = newBtn;
+
+            if (importedAttendanceCourses.length > 0) {
+                newBtn.innerHTML = '<i class="fa-solid fa-rotate-left me-2"></i>Revert Import';
+                newBtn.className = 'btn btn-danger-action'; // Use danger for revert
+                newBtn.addEventListener('click', revertAttendanceImport);
+                newBtn.disabled = false; // Ensure it's enabled
+            } else {
+                newBtn.innerHTML = '<i class="fa-solid fa-clipboard-user me-2"></i>Attendance System';
+                newBtn.className = 'btn btn-success-action';
+                newBtn.addEventListener('click', fetchAttendanceData);
+                // Only disable if there is no processedData
+                newBtn.disabled = !processedData;
+            }
+            
+            // Re-apply styles
+            newBtn.style.minWidth = '220px';
+            newBtn.style.borderRadius = 'var(--radius-btn)';
+        });
       }
 
       function revertAttendanceImport() {
@@ -4703,6 +4730,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 
         if (profileKeys.length === 0) {
             profileListEl.innerHTML = '<li class="text-center text-muted p-4">No profiles saved yet.</li>';
+            // Disable buttons if list is empty
             document.getElementById('bulkActionsBtn').disabled = true;
             document.getElementById('exportProfilesBtnModal').disabled = true;
             document.getElementById('selectAllProfiles').checked = false;
@@ -4715,6 +4743,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
             const lastModified = profile.lastModified ? new Date(profile.lastModified).toLocaleString() : 'N/A';
             let detailsHtml = '';
 
+            // Check if this is a B.Ed. profile
             if (profile.bedMode) {
                 // B.Ed. Profile Visualization
                 const bedSemesters = filterSemesters(profile.semesters, true);
@@ -4730,20 +4759,22 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                 const otherCourseCount = Object.values(otherData.semesters).reduce((sum, s) => sum + s.courses.length, 0);
 
                 detailsHtml = `
-                  <div class="profile-item-name">${profile.displayName} <span class="badge bg-primary-subtle text-primary-emphasis rounded-pill ms-2">B.Ed. Profile</span></div>
-                  <div class="profile-item-meta"><i class="fa-solid fa-id-card"></i> ${profile.studentInfo.registration}</div>
+                  <div class="profile-item-name">${profile.displayName} <span class="badge bg-primary-subtle text-primary-emphasis rounded-pill ms-2" style="font-size: 0.7em;">B.Ed. Profile</span></div>
+                  <div class="profile-item-meta" style="grid-column: 1 / -1;"><i class="fa-solid fa-id-card"></i> ${profile.studentInfo.registration}</div>
                   
+                  <!-- B.Ed. Details -->
                   <div class="profile-item-meta" style="grid-column: 1 / -1; margin-top: 5px; padding-top: 5px; border-top: 1px solid rgba(122, 106, 216, 0.1);">
                     <strong class="small" style="color: var(--brand);">B.Ed. Program:</strong>
                   </div>
-                  <div class="profile-item-meta"><i class="fa-solid fa-graduation-cap"></i> CGPA: ${bedCgpa.cgpa.toFixed(4)}</div>
-                  <div class="profile-item-meta"><i class="fa-solid fa-book"></i> ${bedSemesterCount} Sem, ${bedCourseCount} Crs</div>
+                  <div class="profile-item-meta" style="padding-left: 15px;"><i class="fa-solid fa-graduation-cap"></i> CGPA: ${bedCgpa.cgpa.toFixed(4)}</div>
+                  <div class="profile-item-meta" style="padding-left: 15px;"><i class="fa-solid fa-book"></i> ${bedSemesterCount} Sem, ${bedCourseCount} Crs</div>
 
+                  <!-- Other Details -->
                   <div class="profile-item-meta" style="grid-column: 1 / -1; margin-top: 5px; padding-top: 5px; border-top: 1px solid rgba(122, 106, 216, 0.1);">
                     <strong class="small" style="color: var(--brand);">Other Program:</strong>
                   </div>
-                  <div class="profile-item-meta"><i class="fa-solid fa-graduation-cap"></i> CGPA: ${otherCgpa.cgpa.toFixed(4)}</div>
-                  <div class="profile-item-meta"><i class="fa-solid fa-book"></i> ${otherSemesterCount} Sem, ${otherCourseCount} Crs</div>
+                  <div class="profile-item-meta" style="padding-left: 15px;"><i class="fa-solid fa-graduation-cap"></i> CGPA: ${otherCgpa.cgpa.toFixed(4)}</div>
+                  <div class="profile-item-meta" style="padding-left: 15px;"><i class="fa-solid fa-book"></i> ${otherSemesterCount} Sem, ${otherCourseCount} Crs</div>
                   
                   <div class="profile-item-meta" style="grid-column: 1 / -1; margin-top: 5px; padding-top: 5px; border-top: 1px solid rgba(122, 106, 216, 0.1);">
                     <i class="fa-solid fa-clock"></i> ${lastModified}
@@ -4780,7 +4811,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
             `;
         }).join('');
 
-        // Attach event listeners for quick actions
+        // --- Attach event listeners for quick actions ---
         profileListEl.querySelectorAll('.action-load').forEach(btn => btn.addEventListener('click', e => {
             loadProfile(e.currentTarget.closest('.profile-item').dataset.profileId);
             profileManagerModal.hide();
@@ -5598,7 +5629,6 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
       }
 
       // --- NEW Function: Renders the B.Ed. tabbed interface ---
-      // NEW CODE (replace with this)
       function displayBedResults(data) {
         // 1. Filter for B.Ed. results
         const bedSemesters = filterSemesters(data.semesters, true);
@@ -5610,7 +5640,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         const otherData = { ...data, semesters: otherSemesters };
         const otherCgpa = calculateCGPA(otherData);
 
-        // --- NEW: Populate Student Info ---
+        // --- NEW: Populate Student Info Headers (Fixes Bug) ---
         document.getElementById('bed-studentName').innerHTML = `<i class="fa-solid fa-user-graduate me-2"></i>${data.studentInfo.name}`;
         document.getElementById('bed-studentReg').textContent = data.studentInfo.registration;
         document.getElementById('other-studentName').innerHTML = `<i class="fa-solid fa-user-graduate me-2"></i>${data.studentInfo.name}`;
@@ -5642,6 +5672,9 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         displaySemesterCards('other-semesterResults', otherData);
 
         // 5. --- MODIFIED: Render GPA charts ---
+        // Hide the main chart container, which is for non-B.Ed. mode
+        gpaChartContainer.style.display = 'none'; 
+        // Render the two new charts
         renderBedGpaCharts(bedData.semesters, otherData.semesters);
 
         // 6. Attach listeners to all new elements
@@ -5654,17 +5687,36 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
       // --- NEW Function: Renders either Normal or B.Ed. UI ---
       function renderResults(data) {
         const bedResultContainer = document.getElementById('bedResultContainer');
-        const standardResultContainer = document.getElementById('resultContainer');
+        
+        // Get all the "standard view" elements by their specific IDs/Classes
+        const standardGpaCard = document.querySelector('#resultContainer > .gpa-result-card-premium');
+        const standardAttendanceBtn = document.getElementById('fetchAttendanceBtn');
+        const standardGpaChart = document.getElementById('gpaChartContainer');
+        const standardActionButtons = document.querySelector('#resultContainer > .action-buttons-aligned');
+        const standardSemesterGrid = document.getElementById('semesterResults');
 
         if (bedModeActive) {
+          // Hide Normal View elements
+          if (standardGpaCard) standardGpaCard.style.display = 'none';
+          if (standardAttendanceBtn) standardAttendanceBtn.style.display = 'none'; // Hide main button
+          if (standardGpaChart) standardGpaChart.style.display = 'none';
+          if (standardActionButtons) standardActionButtons.style.display = 'none';
+          if (standardSemesterGrid) standardSemesterGrid.style.display = 'none';
+
           // Show B.Ed. Tabbed View
-          standardResultContainer.style.display = 'none';
           bedResultContainer.style.display = 'block';
-          displayBedResults(data);
+          displayBedResults(data); // This will render the B.Ed. content
         } else {
-          // Show Normal View
-          standardResultContainer.style.display = 'block';
+          // Show Normal View elements
+          if (standardGpaCard) standardGpaCard.style.display = 'block';
+          if (standardAttendanceBtn) standardAttendanceBtn.style.display = 'block'; // Show main button
+          if (standardGpaChart) standardGpaChart.style.display = 'block';
+          if (standardActionButtons) standardActionButtons.style.display = 'block';
+          if (standardSemesterGrid) standardSemesterGrid.style.display = 'block';
+
+          // Hide B.Ed. Tabbed View
           bedResultContainer.style.display = 'none';
+          
           const cgpaData = calculateCGPA(data); // Calculate single, overall CGPA
           displayCGPAResults(data, cgpaData); // Call original display function
         }
@@ -5811,14 +5863,14 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
           gpaChartContainer.style.display = 'block';
       }
 
-          // NEW CODE (Add this entire function)
-      function renderBedGpaCharts(bedSemesters, otherSemesters) {
+          function renderBedGpaCharts(bedSemesters, otherSemesters) {
         const bedChartContainer = document.getElementById('bedGpaChartContainer');
         const otherChartContainer = document.getElementById('otherGpaChartContainer');
         const isDarkMode = document.documentElement.getAttribute('data-theme') === 'dark';
         const gridColor = isDarkMode ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)';
         const fontColor = isDarkMode ? '#e5e7eb' : '#4b5563';
         
+        // Re-usable options for both charts
         const chartOptions = {
           responsive: true,
           maintainAspectRatio: false,
@@ -5842,7 +5894,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         };
 
         // Render B.Ed. Chart
-        if (bedGpaChart) bedGpaChart.destroy();
+        if (bedGpaChart) bedGpaChart.destroy(); // Destroy previous chart
         const sortedBedSemesters = Object.entries(bedSemesters).sort(([, a], [, b]) => a.sortKey.localeCompare(b.sortKey));
         if (sortedBedSemesters.length > 0) {
             bedChartContainer.style.display = 'block';
@@ -5854,7 +5906,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                         label: 'B.Ed. GPA',
                         data: sortedBedSemesters.map(([, semester]) => formatNumber(semester.gpa, 4)),
                         fill: true,
-                        backgroundColor: 'rgba(122, 106, 216, 0.2)',
+                        backgroundColor: 'rgba(122, 106, 216, 0.2)', // Brand color
                         borderColor: 'rgba(122, 106, 216, 1)',
                         tension: 0.3
                     }]
@@ -5862,11 +5914,11 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                 options: chartOptions
             });
         } else {
-            bedChartContainer.style.display = 'none';
+            bedChartContainer.style.display = 'none'; // Hide if no data
         }
 
         // Render Other Chart
-        if (otherGpaChart) otherGpaChart.destroy();
+        if (otherGpaChart) otherGpaChart.destroy(); // Destroy previous chart
         const sortedOtherSemesters = Object.entries(otherSemesters).sort(([, a], [, b]) => a.sortKey.localeCompare(b.sortKey));
         if (sortedOtherSemesters.length > 0) {
             otherChartContainer.style.display = 'block';
@@ -5878,7 +5930,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                         label: 'Other GPA',
                         data: sortedOtherSemesters.map(([, semester]) => formatNumber(semester.gpa, 4)),
                         fill: true,
-                        backgroundColor: 'rgba(255, 107, 107, 0.2)', // Different color
+                        backgroundColor: 'rgba(255, 107, 107, 0.2)', // Use Accent color
                         borderColor: 'rgba(255, 107, 107, 1)',
                         tension: 0.3
                     }]
@@ -5886,7 +5938,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                 options: chartOptions
             });
         } else {
-            otherChartContainer.style.display = 'none';
+            otherChartContainer.style.display = 'none'; // Hide if no data
         }
       }
           
@@ -7314,6 +7366,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
 </body>
 </html>
+
 
 
 
