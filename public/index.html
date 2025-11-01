@@ -5640,6 +5640,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 
       // --- NEW Function: Renders the B.Ed. tabbed interface ---
       function displayBedResults(data) {
+        processedData = data; // *** FIX: Set global processedData, just like displayCGPAResults does ***
         // 1. Filter for B.Ed. results
         const bedSemesters = filterSemesters(data.semesters, true);
         const bedData = { ...data, semesters: bedSemesters };
@@ -5801,6 +5802,8 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         profiles[newProfileId] = processed;
         saveProfiles(profiles);
         setActiveProfileId(newProfileId);
+
+        processedData = processed; // *** FIX: Set the global processedData variable ***
 
         showLoadingStage('complete');
         setTimeout(() => {
@@ -7425,6 +7428,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
 </body>
 </html>
+
 
 
 
