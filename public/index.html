@@ -5750,14 +5750,26 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
             }
           });
 
-          // --- FIX ---
-          // Always include "Forecast" semesters in the "Other" tab (!includeBed),
-          // even if their course list is currently empty.
-          if (newCourseList.length > 0 || (!includeBed && semesterName.toLowerCase().startsWith('forecast'))) {
-            filteredSemesters[semesterName] = {
-              ...semester, // Copy originalName, sortKey
-              courses: newCourseList
-            };
+          // --- FIX for B.Ed. Forecast ---
+          const isForecast = semester.isForecast === true;
+          const isBedForecast = semester.isBedForecast === true; // Check our new flag
+
+          if (includeBed) { // We are filtering FOR B.Ed. tab
+              if (newCourseList.length > 0 || (isForecast && isBedForecast)) {
+                  // Include if it has B.Ed courses OR it's a B.Ed. forecast
+                  filteredSemesters[semesterName] = {
+                      ...semester,
+                      courses: newCourseList
+                  };
+              }
+          } else { // We are filtering FOR "Other" tab
+              if (newCourseList.length > 0 || (isForecast && !isBedForecast)) {
+                   // Include if it has non-B.Ed courses OR it's a non-B.Ed. forecast
+                   filteredSemesters[semesterName] = {
+                      ...semester,
+                      courses: newCourseList
+                  };
+              }
           }
         });
         return filteredSemesters;
@@ -6283,6 +6295,16 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
       }
 
       function addForecastSemester() {
+        // --- NEW: Check which tab is active ---
+        let isForBedTab = false;
+        if (bedModeActive) {
+            const activeTabId = document.querySelector('#bedTab .nav-link.active').id;
+            if (activeTabId === 'bed-tab') {
+                isForBedTab = true;
+            }
+        }
+        // --- END NEW ---
+
         let forecastCount = 1;
         while (`Forecast ${forecastCount}` in processedData.semesters) {
             forecastCount++;
@@ -6292,8 +6314,10 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
             originalName: newSemesterName,
             sortKey: getSemesterOrderKey(newSemesterName),
             courses: [],
-            isForecast: true // <-- ADD THIS FLAG
+            isForecast: true,
+            isBedForecast: isForBedTab // <-- ADD THIS NEW FLAG
         };
+        
         recalculateAndDisplay(); // This renders the new card
         showToast(`Added "${newSemesterName}"`, 'success');
         addStatusMessage(`Added forecast semester: ${newSemesterName}`, 'info');
@@ -7401,6 +7425,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
 </body>
 </html>
+
 
 
 
