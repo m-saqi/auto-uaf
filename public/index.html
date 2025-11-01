@@ -634,6 +634,117 @@ label {
 status-warning { color: #fd7e14; }
 .status-info { color: var(--brand); }
 
+
+
+    /* === NEW STYLES FOR ANIMATED HAMBURGER === */
+
+/* Remove default Bootstrap border and focus shadow */
+.navbar-toggler {
+  border: none;
+}
+.navbar-toggler:focus {
+  box-shadow: none;
+}
+
+/* Container for the three lines */
+.hamburger-icon {
+  width: 30px;
+  height: 22px;
+  position: relative;
+  transform: rotate(0deg);
+  transition: .5s ease-in-out;
+  cursor: pointer;
+}
+
+/* The three lines */
+.hamburger-icon span {
+  display: block;
+  position: absolute;
+  height: 3px;
+  width: 100%;
+  background: var(--text); /* Use site's text color variable */
+  border-radius: 9px;
+  opacity: 1;
+  left: 0;
+  transform: rotate(0deg);
+  transition: .25s ease-in-out;
+}
+
+/* Dark mode support for the lines */
+[data-theme="dark"] .hamburger-icon span {
+    background: var(--text); /* var(--text) is #e5e7eb in dark mode */
+}
+
+/* Line 1 (top) */
+.hamburger-icon span:nth-child(1) {
+  top: 0px;
+}
+
+/* Line 2 (middle) */
+.hamburger-icon span:nth-child(2) {
+  top: 9px;
+}
+
+/* Line 3 (bottom) */
+.hamburger-icon span:nth-child(3) {
+  top: 18px;
+}
+
+/* --- Animation to 'X' (when toggler is active) --- */
+
+.navbar-toggler[aria-expanded="true"] .hamburger-icon span:nth-child(1) {
+  top: 9px;
+  transform: rotate(135deg);
+}
+
+.navbar-toggler[aria-expanded="true"] .hamburger-icon span:nth-child(2) {
+  opacity: 0;
+  left: -60px;
+}
+
+.navbar-toggler[aria-expanded="true"] .hamburger-icon span:nth-child(3) {
+  top: 9px;
+  transform: rotate(-135deg);
+}
+
+/* === NEW STYLES FOR THEME TOGGLE IN MOBILE MENU === */
+
+@media (max-width: 991.98px) {
+  .nav-item-theme-toggle {
+    padding: 0.5rem 0; /* Match nav-link padding */
+  }
+
+  /* Make the button look like a nav-link */
+  .nav-item-theme-toggle #themeToggle {
+    background: transparent !important;
+    color: var(--text-light) !important; /* Match nav-link color */
+    font-weight: 500;
+    padding: 0;
+    text-align: left;
+    width: 100%;
+    border-radius: 0 !important; /* Remove pill shape on mobile */
+    box-shadow: none !important;
+  }
+
+  /* Dark mode mobile link color */
+  [data-theme="dark"] .nav-item-theme-toggle #themeToggle {
+     color: #d1d5db !important; /* Match dark mode nav-link */
+  }
+
+  /* We need to re-add the icon color */
+  .nav-item-theme-toggle #themeToggle i {
+    color: var(--text-light);
+    width: 24px; /* Align with other icons */
+    margin-right: 0.5rem;
+  }
+  
+  [data-theme="dark"] .nav-item-theme-toggle #themeToggle i {
+     color: #d1d5db;
+  }
+}
+    
+    
+    
 /* --- NEW: Premium Footer Styles --- */
 .premium-footer {
   /* Use light-bg to blend seamlessly with the page */
@@ -3156,50 +3267,47 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
   </div>
 
   <nav class="navbar navbar-expand-lg sticky-top border-bottom">
-    <div class="container">
-      <a class="navbar-brand d-flex align-items-center gap-2" href="/">
-        <span class="badge rounded-pill badge-brand">UAF</span>
-        <span class="gradient-text">CGPA Calculator</span>
-      </a>
-      <div class="d-flex align-items-center gap-2 order-lg-2">
-        <button id="themeToggle" class="btn btn-sm btn-soft rounded-pill" type="button" aria-label="Toggle dark mode" style="margin-bottom: 0.01rem;">
-          <i class="fa-solid fa-moon"></i>
-        </button>
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNav">
-          <span class="navbar-toggler-icon"></span>
-        </button>
+  <div class="container">
+    <a class="navbar-brand d-flex align-items-center gap-2" href="/">
+      <span class="badge rounded-pill badge-brand">UAF</span>
+      <span class="gradient-text">CGPA Calculator</span>
+    </a>
+    
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNav" aria-controls="mainNav" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="hamburger-icon">
+        <span></span>
+        <span></span>
+        <span></span>
       </div>
-      <div class="collapse navbar-collapse" id="mainNav">
-  <ul class="navbar-nav ms-auto align-items-lg-center">
-    <li class="nav-item">
-      <a class="nav-link" href="#Home"
-        ><i class="fa-solid fa-house me-2"></i>Home</a
-      >
-    </li>
-    <li class="nav-item">
-      <a class="nav-link" href="#Auto-Calculator"
-        ><i class="fa-solid fa-calculator me-2"></i>CGPA Calculator</a
-      >
-    </li>
-    <li class="nav-item">
-      <a class="nav-link" href="#features"
-        ><i class="fa-solid fa-star me-2"></i>Features</a
-      >
-    </li>
-    <li class="nav-item">
-      <a class="nav-link" href="#faq"
-        ><i class="fa-solid fa-circle-question me-2"></i>FAQ</a
-      >
-    </li>
-    <li class="nav-item">
-      <a class="nav-link" href="#contact-us"
-        ><i class="fa-solid fa-envelope me-2"></i>Contact</a
-      >
-    </li>
-  </ul>
-</div>
+    </button>
+
+    <div class="collapse navbar-collapse" id="mainNav">
+      <ul class="navbar-nav ms-auto align-items-lg-center">
+        <li class="nav-item">
+          <a class="nav-link" href="#Home"><i class="fa-solid fa-house me-2"></i>Home</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="#Auto-Calculator"><i class="fa-solid fa-calculator me-2"></i>CGPA Calculator</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="#features"><i class="fa-solid fa-star me-2"></i>Features</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="#faq"><i class="fa-solid fa-circle-question me-2"></i>FAQ</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="#contact-us"><i class="fa-solid fa-envelope me-2"></i>Contact</a>
+        </li>
+        
+        <li class="nav-item nav-item-theme-toggle ms-lg-3">
+           <button id="themeToggle" class="btn btn-sm btn-soft rounded-pill" type="button" aria-label="Toggle dark mode">
+             <i class="fa-solid fa-moon"></i>
+             <span class="d-lg-none ms-2">Toggle Theme</span> </button>
+        </li>
+      </ul>
     </div>
-  </nav>
+  </div>
+</nav>
 
   <section class="hero" id="Home">
     <div class="container">
@@ -5045,11 +5153,18 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 
       function initTheme() {
         const THEME_KEY = 'uaf-theme';
-        const applyTheme = (theme) => {
-          document.documentElement.setAttribute('data-theme', theme);
-          localStorage.setItem(THEME_KEY, theme);
-          themeToggle.innerHTML = theme === 'dark' ? '<i class="fa-solid fa-sun"></i>' : '<i class="fa-solid fa-moon"></i>';
-        };
+        // NEW snippet for initTheme:
+const applyTheme = (theme) => {
+  document.documentElement.setAttribute('data-theme', theme);
+  localStorage.setItem(THEME_KEY, theme);
+  
+  // Rebuild the button's inner HTML to preserve the mobile text
+  const iconClass = theme === 'dark' ? 'fa-solid fa-sun' : 'fa-solid fa-moon';
+  themeToggle.innerHTML = `
+    <i class="${iconClass}"></i>
+    <span class="d-lg-none ms-2">Toggle Theme</span>
+  `;
+};
         const currentTheme = localStorage.getItem(THEME_KEY) || 'light';
         applyTheme(currentTheme);
         themeToggle.addEventListener('click', () => applyTheme(document.documentElement.getAttribute('data-theme') === 'light' ? 'dark' : 'light'));
@@ -7428,6 +7543,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
 </body>
 </html>
+
 
 
 
