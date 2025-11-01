@@ -638,15 +638,13 @@ status-warning { color: #fd7e14; }
 
     /* === NEW STYLES FOR ANIMATED HAMBURGER === */
 
-/* Remove default Bootstrap border and focus shadow */
+/* === NEW STYLES FOR ANIMATED HAMBURGER === */
 .navbar-toggler {
   border: none;
 }
 .navbar-toggler:focus {
   box-shadow: none;
 }
-
-/* Container for the three lines */
 .hamburger-icon {
   width: 30px;
   height: 22px;
@@ -655,128 +653,44 @@ status-warning { color: #fd7e14; }
   transition: .5s ease-in-out;
   cursor: pointer;
 }
-
-/* The three lines */
 .hamburger-icon span {
   display: block;
   position: absolute;
   height: 3px;
   width: 100%;
-  background: var(--text); /* Use site's text color variable */
+  background: var(--brand); /* <-- UPDATED: Primary color */
   border-radius: 9px;
   opacity: 1;
   left: 0;
   transform: rotate(0deg);
   transition: .25s ease-in-out;
 }
+/* Removed redundant dark mode rule for hamburger span */
+.hamburger-icon span:nth-child(1) { top: 0px; }
+.hamburger-icon span:nth-child(2) { top: 9px; }
+.hamburger-icon span:nth-child(3) { top: 18px; }
+.navbar-toggler[aria-expanded="true"] .hamburger-icon span:nth-child(1) { top: 9px; transform: rotate(135deg); }
+.navbar-toggler[aria-expanded="true"] .hamburger-icon span:nth-child(2) { opacity: 0; left: -60px; }
+.navbar-toggler[aria-expanded="true"] .hamburger-icon span:nth-child(3) { top: 9px; transform: rotate(-135deg); }
 
-/* Dark mode support for the lines */
-[data-theme="dark"] .hamburger-icon span {
-    background: var(--text); /* var(--text) is #e5e7eb in dark mode */
-}
-
-/* Line 1 (top) */
-.hamburger-icon span:nth-child(1) {
-  top: 0px;
-}
-
-/* Line 2 (middle) */
-.hamburger-icon span:nth-child(2) {
-  top: 9px;
-}
-
-/* Line 3 (bottom) */
-.hamburger-icon span:nth-child(3) {
-  top: 18px;
-}
-
-/* --- Animation to 'X' (when toggler is active) --- */
-
-.navbar-toggler[aria-expanded="true"] .hamburger-icon span:nth-child(1) {
-  top: 9px;
-  transform: rotate(135deg);
-}
-
-.navbar-toggler[aria-expanded="true"] .hamburger-icon span:nth-child(2) {
-  opacity: 0;
-  left: -60px;
-}
-
-.navbar-toggler[aria-expanded="true"] .hamburger-icon span:nth-child(3) {
-  top: 9px;
-  transform: rotate(-135deg);
-}
-
-/* === NEW STYLES FOR THEME TOGGLE IN MOBILE MENU === */
-
-@media (max-width: 991.98px) {
-  .nav-item-theme-toggle {
-    padding: 0.5rem 0; /* Match nav-link padding */
-  }
-
-  /* Make the button look like a nav-link */
-  .nav-item-theme-toggle #themeToggle {
-    background: transparent !important;
-    color: var(--text-light) !important; /* Match nav-link color */
-    font-weight: 500;
-    padding: 0;
-    text-align: left;
-    width: 100%;
-    border-radius: 0 !important; /* Remove pill shape on mobile */
-    box-shadow: none !important;
-  }
-
-  /* Dark mode mobile link color */
-  [data-theme="dark"] .nav-item-theme-toggle #themeToggle {
-     color: #d1d5db !important; /* Match dark mode nav-link */
-  }
-
-  /* We need to re-add the icon color */
-  .nav-item-theme-toggle #themeToggle i {
-    color: var(--text-light);
-    width: 24px; /* Align with other icons */
-    margin-right: 0.5rem;
-  }
-  
-  [data-theme="dark"] .nav-item-theme-toggle #themeToggle i {
-     color: #d1d5db;
-  }
-}
-    
-
-
-    /* === NEW STYLES FOR ANIMATED THEME TOGGLE (MOBILE) === */
-
-/* This hides the desktop button on mobile (redundant, but safe) */
+/* === NEW STYLES FOR THEME TOGGLE (MOBILE) === */
 .nav-item-theme-toggle #themeToggleBtn {
-  display: none;
+  display: none; /* Hide desktop button on mobile */
 }
 
-/* This is the container for the text and toggle */
-.nav-item-theme-toggle .d-flex {
-  padding: 0.5rem 0.5rem; /* Match nav-link padding */
-  width: 100%;
-}
-
-/* Style the "Dark Mode" text like a nav-link */
-.nav-item-theme-toggle .nav-link-text {
-  color: var(--text-light);
-  font-weight: 500;
-}
-
-[data-theme="dark"] .nav-item-theme-toggle .nav-link-text {
-  color: #d1d5db;
-}
-
-/* The toggle switch wrapper */
-.theme-switch-wrapper {
+/* This is the new wrapper for the mobile toggle */
+.theme-switch-wrapper-mobile {
   position: relative;
-  display: inline-block;
+  display: flex;
+  align-items: center;
   width: 50px; /* Width of the track */
   height: 28px; /* Height of the track */
+  padding: 0.5rem 0.5rem; /* Add padding to center it */
+  box-sizing: content-box; /* Padding adds to size */
+  margin-left: auto; /* Aligns toggle to the right */
+  margin-right: 8px; /* Some spacing from the edge */
 }
 
-/* Hide the actual checkbox */
 .theme-switch-input {
   opacity: 0;
   width: 0;
@@ -791,7 +705,7 @@ status-warning { color: #fd7e14; }
   left: 0;
   right: 0;
   bottom: 0;
-  background-color: #ccc;
+  background-color: var(--brand); /* <-- UPDATED: 'off' track is primary */
   transition: .4s;
   border-radius: 34px;
 }
@@ -800,10 +714,10 @@ status-warning { color: #fd7e14; }
 .theme-switch-label::after {
   position: absolute;
   content: "";
-  height: 20px; /* Knob height */
-  width: 20px; /* Knob width */
-  left: 4px; /* Padding from left */
-  bottom: 4px; /* Padding from bottom */
+  height: 20px;
+  width: 20px;
+  left: 4px;
+  bottom: 4px;
   background-color: white;
   transition: .4s;
   border-radius: 50%;
@@ -813,7 +727,7 @@ status-warning { color: #fd7e14; }
   font-weight: 900;
   content: "\f186"; /* fa-moon */
   font-size: 12px;
-  color: #ccc;
+  color: var(--brand); /* <-- UPDATED: 'off' icon is primary */
   display: flex;
   align-items: center;
   justify-content: center;
@@ -823,21 +737,21 @@ status-warning { color: #fd7e14; }
 
 /* Track color when on */
 .theme-switch-input:checked + .theme-switch-label {
-  background-color: var(--brand);
+  background-color: #ccc; /* <-- UPDATED: 'on' track is grey */
 }
 
 /* Knob position when on */
 .theme-switch-input:checked + .theme-switch-label::after {
-  transform: translateX(22px); /* Move 22px to the right */
+  transform: translateX(22px);
   
   /* Icon inside the knob (sun) */
   content: "\f185"; /* fa-sun */
-  color: var(--brand);
+  color: #a7a7a7; /* <-- UPDATED: 'on' icon is grey */
 }
 
 /* On desktop, hide the mobile toggle and show the button */
 @media (min-width: 991.98px) {
-  .nav-item-theme-toggle .d-flex.d-lg-none {
+  .theme-switch-wrapper-mobile.d-lg-none {
     display: none !important;
   }
   .nav-item-theme-toggle #themeToggleBtn {
@@ -3403,12 +3317,9 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         </li>
         
         <li class="nav-item nav-item-theme-toggle ms-lg-3">
-  <div class="d-flex d-lg-none justify-content-between align-items-center">
-    <span class="nav-link-text"><i class="fa-solid fa-moon me-2"></i>Dark Mode</span>
-    <div class="theme-switch-wrapper">
-      <input type="checkbox" id="themeToggleInput" class="theme-switch-input" />
-      <label for="themeToggleInput" class="theme-switch-label"></label>
-    </div>
+  <div class="theme-switch-wrapper-mobile d-lg-none">
+    <input type="checkbox" id="themeToggleInput" class="theme-switch-input" />
+    <label for="themeToggleInput" class="theme-switch-label"></label>
   </div>
   
   <button id="themeToggleBtn" class="btn btn-sm btn-soft rounded-pill d-none d-lg-block" type="button" aria-label="Toggle dark mode">
@@ -3851,7 +3762,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
   </section>
 
 
-          <section class="py-5 bg-light" id="how-it-works">
+          <section class="py-5" id="how-it-works">
   <div class="container">
     <div class="text-center mb-5 fade-in-on-scroll">
       <h2 class="fw-bold">How to Use <span class="gradient-text">UAF CGPA Calculator</span></h2>
@@ -4533,57 +4444,69 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
       const API_ENDPOINT = `/api/result-scraper?action=scrape_single`;
       const ATTENDANCE_API_ENDPOINT = `/api/result-scraper?action=scrape_attendance`; // NEW API Endpoint
 
-      function init() {
-        try { // <<< ADDED TRY
-          migrateOldProfiles(); // Check for and migrate old data first
-          initCustomCursor();
-          initTheme();
           
-          // NEW CODE (add these lines inside init())
-      renameSemesterModal = new bootstrap.Modal(document.getElementById('renameSemesterModal'));
-      saveSemesterNameBtn = document.getElementById('saveSemesterNameBtn');
-      saveSemesterNameBtn.addEventListener('click', renameSemester); // Add listener
-          
-          initContactForm();
-          createToastContainer();
-          initBackToTop();
-          initScrollAnimations();
-          loadProfiles(); // Load profiles (might fail)
-          initModalZIndexHandlers(); // Init modal stacking/blur effect
+          // NEW FUNCTION to auto-collapse mobile menu
+function initMenuAutoCollapse() {
+  const navLinks = document.querySelectorAll('#mainNav .nav-link');
+  const togglerButton = document.querySelector('.navbar-toggler[data-bs-target="#mainNav"]');
+  const collapsibleMenu = document.getElementById('mainNav');
 
-          // --- NEW B.Ed. Modal Init ---
-          // Check if the modal element exists before trying to create a new instance
-          const bedModalEl = document.getElementById('bedConfirmationModal');
-          if (bedModalEl) {
-              bedConfirmationModal = new bootstrap.Modal(bedModalEl);
-              // Add listeners that will be updated with data later
-              document.getElementById('bedConfirmYes').addEventListener('click', () => {
-                // This will be overridden, but good to have a default
-                console.log("B.Ed. Yes clicked");
-              });
-              document.getElementById('bedConfirmNo').addEventListener('click', () => {
-                // This will be overridden
-                 console.log("B.Ed. No clicked");
-              });
-          } else {
-              console.warn("B.Ed. confirmation modal HTML not found.");
-          }
-          // --- End of NEW B.Ed. Modal Init ---
+  if (!togglerButton || !collapsibleMenu) return;
 
-        } catch (error) { // <<< ADDED CATCH
-            console.error("Initialization failed:", error);
-            // Attempt to show a toast, but createToastContainer might not have run if error was early
-            try {
-                createToastContainer(); // Ensure container exists
-                showToast("Error initializing application. Saved data might be corrupted.", "error");
-            } catch (toastError) {
-                console.error("Could not show initialization error toast:", toastError);
-            }
-            // Optionally clear potentially corrupted storage to allow recovery on next load
-            // localStorage.removeItem('uafCalculatorProfiles_v2');
-            // localStorage.removeItem('uafCalculatorActiveProfile_v2');
-        }
+  navLinks.forEach(link => {
+    link.addEventListener('click', () => {
+      // Check if the menu is currently shown (Bootstrap 5 class)
+      if (collapsibleMenu.classList.contains('show')) {
+        togglerButton.click(); // Simulate a click on the toggler to close it
       }
+    });
+  });
+}
+      
+          // NEW updated init() function
+function init() {
+  try {
+    migrateOldProfiles(); 
+    initCustomCursor();
+    initTheme();
+    
+    renameSemesterModal = new bootstrap.Modal(document.getElementById('renameSemesterModal'));
+    saveSemesterNameBtn = document.getElementById('saveSemesterNameBtn');
+    saveSemesterNameBtn.addEventListener('click', renameSemester); 
+    
+    initContactForm();
+    createToastContainer();
+    initBackToTop();
+    initScrollAnimations();
+    loadProfiles(); 
+    initModalZIndexHandlers(); 
+    
+    initMenuAutoCollapse(); // <-- ADD THIS LINE
+
+    // --- NEW B.Ed. Modal Init ---
+    const bedModalEl = document.getElementById('bedConfirmationModal');
+    if (bedModalEl) {
+        bedConfirmationModal = new bootstrap.Modal(bedModalEl);
+        document.getElementById('bedConfirmYes').addEventListener('click', () => {
+          console.log("B.Ed. Yes clicked");
+        });
+        document.getElementById('bedConfirmNo').addEventListener('click', () => {
+           console.log("B.Ed. No clicked");
+        });
+    } else {
+        console.warn("B.Ed. confirmation modal HTML not found.");
+    }
+
+  } catch (error) { 
+      console.error("Initialization failed:", error);
+      try {
+          createToastContainer(); 
+          showToast("Error initializing application. Saved data might be corrupted.", "error");
+      } catch (toastError) {
+          console.error("Could not show initialization error toast:", toastError);
+      }
+  }
+}
 
 
       function setupAttendanceButton() {
@@ -7680,6 +7603,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
 </body>
 </html>
+
 
 
 
