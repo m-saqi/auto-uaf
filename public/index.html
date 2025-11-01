@@ -743,6 +743,109 @@ status-warning { color: #fd7e14; }
   }
 }
     
+
+
+    /* === NEW STYLES FOR ANIMATED THEME TOGGLE (MOBILE) === */
+
+/* This hides the desktop button on mobile (redundant, but safe) */
+.nav-item-theme-toggle #themeToggleBtn {
+  display: none;
+}
+
+/* This is the container for the text and toggle */
+.nav-item-theme-toggle .d-flex {
+  padding: 0.5rem 0.5rem; /* Match nav-link padding */
+  width: 100%;
+}
+
+/* Style the "Dark Mode" text like a nav-link */
+.nav-item-theme-toggle .nav-link-text {
+  color: var(--text-light);
+  font-weight: 500;
+}
+
+[data-theme="dark"] .nav-item-theme-toggle .nav-link-text {
+  color: #d1d5db;
+}
+
+/* The toggle switch wrapper */
+.theme-switch-wrapper {
+  position: relative;
+  display: inline-block;
+  width: 50px; /* Width of the track */
+  height: 28px; /* Height of the track */
+}
+
+/* Hide the actual checkbox */
+.theme-switch-input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+/* The track of the toggle */
+.theme-switch-label {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #ccc;
+  transition: .4s;
+  border-radius: 34px;
+}
+
+/* The slider knob */
+.theme-switch-label::after {
+  position: absolute;
+  content: "";
+  height: 20px; /* Knob height */
+  width: 20px; /* Knob width */
+  left: 4px; /* Padding from left */
+  bottom: 4px; /* Padding from bottom */
+  background-color: white;
+  transition: .4s;
+  border-radius: 50%;
+  
+  /* Icon inside the knob (moon) */
+  font-family: "Font Awesome 6 Free";
+  font-weight: 900;
+  content: "\f186"; /* fa-moon */
+  font-size: 12px;
+  color: #ccc;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* --- Toggle ON (Checked) State --- */
+
+/* Track color when on */
+.theme-switch-input:checked + .theme-switch-label {
+  background-color: var(--brand);
+}
+
+/* Knob position when on */
+.theme-switch-input:checked + .theme-switch-label::after {
+  transform: translateX(22px); /* Move 22px to the right */
+  
+  /* Icon inside the knob (sun) */
+  content: "\f185"; /* fa-sun */
+  color: var(--brand);
+}
+
+/* On desktop, hide the mobile toggle and show the button */
+@media (min-width: 991.98px) {
+  .nav-item-theme-toggle .d-flex.d-lg-none {
+    display: none !important;
+  }
+  .nav-item-theme-toggle #themeToggleBtn {
+    display: block !important;
+  }
+}
+
+    
     
     
 /* --- NEW: Premium Footer Styles --- */
@@ -3300,10 +3403,18 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         </li>
         
         <li class="nav-item nav-item-theme-toggle ms-lg-3">
-           <button id="themeToggle" class="btn btn-sm btn-soft rounded-pill" type="button" aria-label="Toggle dark mode">
-             <i class="fa-solid fa-moon"></i>
-             <span class="d-lg-none ms-2">Toggle Theme</span> </button>
-        </li>
+  <div class="d-flex d-lg-none justify-content-between align-items-center">
+    <span class="nav-link-text"><i class="fa-solid fa-moon me-2"></i>Dark Mode</span>
+    <div class="theme-switch-wrapper">
+      <input type="checkbox" id="themeToggleInput" class="theme-switch-input" />
+      <label for="themeToggleInput" class="theme-switch-label"></label>
+    </div>
+  </div>
+  
+  <button id="themeToggleBtn" class="btn btn-sm btn-soft rounded-pill d-none d-lg-block" type="button" aria-label="Toggle dark mode">
+    <i class="fa-solid fa-moon"></i>
+  </button>
+</li>
       </ul>
     </div>
   </div>
@@ -5151,24 +5262,50 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         });
       }
 
-      function initTheme() {
-        const THEME_KEY = 'uaf-theme';
-        // NEW snippet for initTheme:
-const applyTheme = (theme) => {
-  document.documentElement.setAttribute('data-theme', theme);
-  localStorage.setItem(THEME_KEY, theme);
+      // NEW initTheme function
+function initTheme() {
+  const THEME_KEY = 'uaf-theme';
   
-  // Rebuild the button's inner HTML to preserve the mobile text
-  const iconClass = theme === 'dark' ? 'fa-solid fa-sun' : 'fa-solid fa-moon';
-  themeToggle.innerHTML = `
-    <i class="${iconClass}"></i>
-    <span class="d-lg-none ms-2">Toggle Theme</span>
-  `;
-};
-        const currentTheme = localStorage.getItem(THEME_KEY) || 'light';
-        applyTheme(currentTheme);
-        themeToggle.addEventListener('click', () => applyTheme(document.documentElement.getAttribute('data-theme') === 'light' ? 'dark' : 'light'));
-      }
+  // Find BOTH the new mobile input and the new desktop button
+  const themeToggleInput = document.getElementById('themeToggleInput');
+  const themeToggleBtn = document.getElementById('themeToggleBtn');
+
+  const applyTheme = (theme) => {
+    document.documentElement.setAttribute('data-theme', theme);
+    localStorage.setItem(THEME_KEY, theme);
+    
+    const isDark = theme === 'dark';
+    
+    // 1. Set the state of the mobile toggle
+    if (themeToggleInput) {
+        themeToggleInput.checked = isDark;
+    }
+    
+    // 2. Set the icon for the desktop button
+    if (themeToggleBtn) {
+        const iconClass = isDark ? 'fa-solid fa-sun' : 'fa-solid fa-moon';
+        themeToggleBtn.innerHTML = `<i class="${iconClass}"></i>`;
+    }
+  };
+
+  // Get the current theme and apply it
+  const currentTheme = localStorage.getItem(THEME_KEY) || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+  applyTheme(currentTheme);
+
+  // Function to handle the toggle logic
+  const toggleLogic = () => {
+    const newTheme = document.documentElement.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
+    applyTheme(newTheme);
+  };
+
+  // Add event listeners to BOTH elements
+  if (themeToggleInput) {
+    themeToggleInput.addEventListener('change', toggleLogic); // Use 'change' for checkboxes
+  }
+  if (themeToggleBtn) {
+    themeToggleBtn.addEventListener('click', toggleLogic); // Use 'click' for the button
+  }
+}
 
       function initContactForm() {
         contactForm.addEventListener('submit', async (e) => {
@@ -7543,6 +7680,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
 </body>
 </html>
+
 
 
 
