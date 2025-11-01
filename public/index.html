@@ -3403,6 +3403,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
       <button id="addForecastSemesterBtn" class="btn btn-info-action"><i class="fa-solid fa-wand-magic-sparkles me-2"></i>Forecast Semester</button>
     </div>
 
+    <!-- NEW WRAPPER ADDED HERE TO FIX LAYOUT -->
     <div class="semester-results-container">
       <div id="semesterResults" class="semester-grid"></div>
     </div>
@@ -3480,8 +3481,8 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 
       <!-- NEW: Add Action Buttons -->
       <div class="action-buttons-aligned justify-content-lg-between w-100 fade-in-on-scroll">
-        <button class="btn btn-pdf-download" onclick="generatePDF()"><i class="fa-solid fa-file-pdf me-2"></i>Download B.Ed. PDF</button>
-        <button class="btn btn-info-action" onclick="addForecastSemester()"><i class="fa-solid fa-wand-magic-sparkles me-2"></i>Forecast Semester</button>
+        <button id="bed-downloadPdfBtn" class="btn btn-pdf-download"><i class="fa-solid fa-file-pdf me-2"></i>Download B.Ed. PDF</button>
+        <button id="bed-addForecastSemesterBtn" class="btn btn-info-action"><i class="fa-solid fa-wand-magic-sparkles me-2"></i>Forecast Semester</button>
       </div>
 
       <div class="semester-results-container">
@@ -3550,8 +3551,8 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 
       <!-- NEW: Add Action Buttons -->
       <div class="action-buttons-aligned justify-content-lg-between w-100 fade-in-on-scroll">
-        <button class="btn btn-pdf-download" onclick="generatePDF()"><i class="fa-solid fa-file-pdf me-2"></i>Download Other PDF</button>
-        <button class="btn btn-info-action" onclick="addForecastSemester()"><i class="fa-solid fa-wand-magic-sparkles me-2"></i>Forecast Semester</button>
+        <button id="other-downloadPdfBtn" class="btn btn-pdf-download"><i class="fa-solid fa-file-pdf me-2"></i>Download Other PDF</button>
+        <button id="other-addForecastSemesterBtn" class="btn btn-info-action"><i class="fa-solid fa-wand-magic-sparkles me-2"></i>Forecast Semester</button>
       </div>
 
       <div class="semester-results-container">
@@ -5690,18 +5691,20 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         
         // Get all the "standard view" elements by their specific IDs/Classes
         const standardGpaCard = document.querySelector('#resultContainer > .gpa-result-card-premium');
-        const standardAttendanceBtn = document.getElementById('fetchAttendanceBtn');
+        // Get the parent div of the button
+        const standardAttendanceBtnDiv = document.getElementById('fetchAttendanceBtn').parentElement; 
         const standardGpaChart = document.getElementById('gpaChartContainer');
         const standardActionButtons = document.querySelector('#resultContainer > .action-buttons-aligned');
-        const standardSemesterGrid = document.getElementById('semesterResults');
+        // Get the parent div of the semester grid
+        const standardSemesterContainer = document.getElementById('semesterResults').parentElement; 
 
         if (bedModeActive) {
           // Hide Normal View elements
           if (standardGpaCard) standardGpaCard.style.display = 'none';
-          if (standardAttendanceBtn) standardAttendanceBtn.style.display = 'none'; // Hide main button
+          if (standardAttendanceBtnDiv) standardAttendanceBtnDiv.style.display = 'none'; // Hide main button div
           if (standardGpaChart) standardGpaChart.style.display = 'none';
           if (standardActionButtons) standardActionButtons.style.display = 'none';
-          if (standardSemesterGrid) standardSemesterGrid.style.display = 'none';
+          if (standardSemesterContainer) standardSemesterContainer.style.display = 'none'; // Hide the container
 
           // Show B.Ed. Tabbed View
           bedResultContainer.style.display = 'block';
@@ -5709,10 +5712,10 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         } else {
           // Show Normal View elements
           if (standardGpaCard) standardGpaCard.style.display = 'block';
-          if (standardAttendanceBtn) standardAttendanceBtn.style.display = 'block'; // Show main button
+          if (standardAttendanceBtnDiv) standardAttendanceBtnDiv.style.display = 'block'; // Show main button div
           if (standardGpaChart) standardGpaChart.style.display = 'block';
-          if (standardActionButtons) standardActionButtons.style.display = 'block';
-          if (standardSemesterGrid) standardSemesterGrid.style.display = 'block';
+          if (standardActionButtons) standardActionButtons.style.display = 'flex'; // Use flex for alignment
+          if (standardSemesterContainer) standardSemesterContainer.style.display = 'block'; // Show the container
 
           // Hide B.Ed. Tabbed View
           bedResultContainer.style.display = 'none';
@@ -7045,12 +7048,22 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
       resultForm.addEventListener('submit', (e) => { e.preventDefault(); fetchResult(); });
       downloadLogBtn.addEventListener('click', downloadLog);
       clearLogBtn.addEventListener('click', clearLog);
-      downloadPdfBtn.addEventListener('click', generatePDF);
       saveCourseBtn.addEventListener('click', addCustomCourse);
-      addForecastSemesterBtn.addEventListener('click', addForecastSemester);
       profileSwitcher.addEventListener('change', switchProfile);
-      saveProfileNameBtn.addEventListener('click', renameProfile);
+      // saveProfileNameBtn listener is added in init()
       document.getElementById('confirmationConfirmBtn').addEventListener('click', handleConfirm);
+
+      // Main buttons
+      downloadPdfBtn.addEventListener('click', generatePDF);
+      addForecastSemesterBtn.addEventListener('click', addForecastSemester);
+
+      // B.Ed. Tab buttons
+      document.getElementById('bed-downloadPdfBtn').addEventListener('click', generatePDF);
+      document.getElementById('bed-addForecastSemesterBtn').addEventListener('click', addForecastSemester);
+      
+      // Other Tab buttons
+      document.getElementById('other-downloadPdfBtn').addEventListener('click', generatePDF);
+      document.getElementById('other-addForecastSemesterBtn').addEventListener('click', addForecastSemester);
 
        // NEW: Attendance Button Setup
       setupAttendanceButton(); // This replaces the simple event listener
@@ -7366,6 +7379,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
 </body>
 </html>
+
 
 
 
