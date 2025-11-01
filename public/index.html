@@ -1406,7 +1406,8 @@ a[aria-expanded="true"] #gpaChartChevron {
 /* Aligned Action Buttons */
 .action-buttons-aligned {
   display: flex;
-  justify-content: center; /* This is the key change */
+  /* UPDATED: This moves the buttons to the sides */
+  justify-content: space-between;
   align-items: center;
   margin-top: 1.5rem;
   margin-bottom: 1.5rem;
@@ -2566,7 +2567,7 @@ a[aria-expanded="true"] .status-log-chevron {
 /* NEW: Added this media query for small screens */
 @media (max-width: 420px) {
   #bedTab .nav-link {
-    font-size: 0.8rem; /* Make font smaller */
+    font-size: 0.9rem; /* Make font smaller */
     padding-left: 0.4rem; /* Reduce horizontal padding */
     padding-right: 0.4rem;
   }
@@ -7628,6 +7629,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
 </body>
 </html>
+
 
 
 
