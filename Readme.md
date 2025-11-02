@@ -1,4 +1,4 @@
-# UAF CGPA Calculator
+# UAF CGPA Calculator - M Saqlain
 
 The \#1 automatic CGPA calculator designed for students of the **University of Agriculture Faisalabad (UAF)**. This tool provides a seamless, accurate, and feature-rich experience for calculating and managing academic results.
 
@@ -70,3 +70,4 @@ This calculator was built with care by **Muhammad Saqlain**, a proud alumnus of 
 This is an **unofficial, third-party tool**. It is not affiliated with, endorsed, or supported by the University of Agriculture Faisalabad (UAF). The calculations are based on the official grading formula but should be used for estimation purposes only.
 
 **Always verify your official results with the university.**
+
