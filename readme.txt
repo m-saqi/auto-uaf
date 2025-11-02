@@ -1,6 +1,0 @@
-- Working with LMS UAF
-- Accurate CGPA and Percentage Calculations
-- PDF Download enabled
-- Best Interface (Desktop + Phone)
-- Proper Notifications
-- Best Log Handeling
