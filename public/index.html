@@ -6717,7 +6717,7 @@ function initTheme() {
             pdf.setTextColor(colors.textLight);
             
             // --- PDF CGPA LABEL CHANGE ---
-            pdf.text(`CGPA`, rightBoxX + 5, topBoxY + 29); 
+            pdf.text(`Overall CGPA`, rightBoxX + 5, topBoxY + 29); 
             // --- END PDF CGPA LABEL CHANGE ---
 
             const statsStartX = rightBoxX + 40;
@@ -6824,7 +6824,7 @@ function initTheme() {
             // --- Use titleSuffix for filename ---
             const safeSuffix = titleSuffix.replace(/ /g, '_');
             pdf.save(`UAF_Transcript_${dataToPrint.studentInfo.registration}_${safeSuffix}.pdf`);
-            addStatusMessage('Premium PDF report generated successfully', 'success');
+            addStatusMessage('PDF report generated successfully', 'success');
             showToast('PDF downloaded!', 'success');
         } catch (e) {
             addStatusMessage(`Error generating PDF: ${e.message}`, 'error');
@@ -7628,6 +7628,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
 </body>
 </html>
+
 
 
 
