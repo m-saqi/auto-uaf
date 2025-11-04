@@ -1,7 +1,7 @@
 {
-  "name": "student-result-scraper",
+  "name": "uaf-cgpa-calculator",
   "version": "1.0.0",
-  "description": "Serverless student result scraper for Vercel",
+  "description": "UAF students result scraper for Vercel",
   "scripts": {
     "dev": "vercel dev"
   },
@@ -17,4 +17,3 @@
     "node": "22.x"
   }
 }
-
