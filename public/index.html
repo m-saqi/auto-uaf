@@ -4857,7 +4857,12 @@ function init() {
           }
 
           const profiles = getProfiles();
-          const nameExists = Object.values(profiles).some((p, id) => p.displayName === newName && id !== profileId);
+          // FIX: Iterate over keys (profile IDs) to correctly check for duplicates 
+          // while ensuring the current profile (profileId) is excluded.
+          const nameExists = Object.keys(profiles).some(currentId => 
+              profiles[currentId].displayName === newName && currentId !== profileId
+          );
+          
           if (nameExists) {
               showToast('A profile with this name already exists.', 'error');
               return;
@@ -7628,6 +7633,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
 </body>
 </html>
+
 
 
 
