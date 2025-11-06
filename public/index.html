@@ -1014,6 +1014,33 @@ status-warning { color: #fd7e14; }
   animation: spin 1s linear infinite;
 }
 
+    /* --- Add this new class for Server Errors --- */
+.status-dot.error {
+  background-color: #ffc107; /* Orange/Yellow */
+  box-shadow: 0 0 8px #ffc107;
+  animation: pulse-orange 1.5s infinite;
+}
+
+/* --- Add this new animation --- */
+@keyframes pulse-orange {
+  0% { box-shadow: 0 0 5px rgba(255, 193, 7, 0.7); }
+  50% { box-shadow: 0 0 12px rgba(255, 193, 7, 1); }
+  100% { box-shadow: 0 0 5px rgba(255, 193, 7, 0.7); }
+}
+
+/* --- You can also update .loading to be smoother --- */
+.status-dot.loading {
+  background-color: #6c757d; /* Grey */
+  box-shadow: 0 0 5px rgba(108, 117, 125, 0.7);
+  animation: pulse-grey 1.5s infinite;
+}
+@keyframes pulse-grey {
+  0% { opacity: 0.5; }
+  50% { opacity: 1; }
+  100% { opacity: 0.5; }
+}
+    
+
 @keyframes pulse-green {
   0% { box-shadow: 0 0 5px rgba(40, 167, 69, 0.7); }
   50% { box-shadow: 0 0 12px rgba(40, 167, 69, 1); }
@@ -7745,98 +7772,71 @@ document.addEventListener('DOMContentLoaded', function() {
          <script>
 document.addEventListener('DOMContentLoaded', function() {
   
-  // URLs to check
-  const LMS_HTTP_URL = 'http://lms.uaf.edu.pk/login/index.php';
-  const LMS_HTTPS_URL = 'https://lms.uaf.edu.pk/login/index.php';
-  const ATTND_URL = 'http://121.52.152.24/default.aspx';
-
   /**
-   * Checks the status of a single server (like the Attendance system).
-   * @param {string} url - The URL to check.
-   * @param {string} dotElementId - The ID of the status dot element.
-   * @param {string} name - The display name for titles (e.g., "Attnd.").
+   * Fetches the server statuses from our *own* backend API.
    */
-  async function checkServerStatus(url, dotElementId, name) {
-    const dotElement = document.getElementById(dotElementId);
-    if (!dotElement) return;
+  async function checkServerStatuses() {
+    const lmsDot = document.getElementById('lms-status-dot');
+    const attndDot = document.getElementById('attnd-status-dot');
 
-    // Set to loading
-    dotElement.className = 'status-dot loading';
-    dotElement.title = `Checking ${name} status...`;
+    if (!lmsDot || !attndDot) return;
+
+    // Set both to loading
+    lmsDot.className = 'status-dot loading';
+    lmsDot.title = 'Checking LMS status...';
+    attndDot.className = 'status-dot loading';
+    attndDot.title = 'Checking Attnd. status...';
 
     try {
-      await fetch(url + '?_t=' + new Date().getTime(), { 
-        method: 'HEAD',
-        mode: 'no-cors',
+      // Call our new API endpoint
+      const response = await fetch('/api/result-scraper?action=check_status', {
         cache: 'no-cache',
-        signal: AbortSignal.timeout(10000) // 10-second timeout
+        signal: AbortSignal.timeout(15000) // 15-second timeout for the *whole* API call
       });
       
-      dotElement.className = 'status-dot online';
-      dotElement.title = `${name} is Online`;
+      if (!response.ok) {
+        throw new Error('Status check API failed');
+      }
+
+      const data = await response.json();
+
+      // Set LMS status
+      if (data.lms_status === 'online') {
+        lmsDot.className = 'status-dot online';
+        lmsDot.title = 'LMS is Online';
+      } else {
+        lmsDot.className = 'status-dot offline';
+        lmsDot.title = 'LMS is Offline or Unreachable';
+      }
+
+      // Set Attendance status
+      if (data.attnd_status === 'online') {
+        attndDot.className = 'status-dot online';
+        attndDot.title = 'Attendance System is Online';
+      } else if (data.attnd_status === 'error') {
+        attndDot.className = 'status-dot error';
+        attndDot.title = 'Attendance System is Online but has a Server Error';
+      } else {
+        attndDot.className = 'status-dot offline';
+        attndDot.title = 'Attendance System is Offline or Unreachable';
+      }
 
     } catch (error) {
-      console.warn(`Status check for ${name} (${url}) failed:`, error.name, error.message);
-      dotElement.className = 'status-dot offline';
-      dotElement.title = `${name} is Offline or Unreachable`;
+      console.error('Failed to fetch server statuses:', error.name, error.message);
+      // If the check itself fails, mark both as offline
+      lmsDot.className = 'status-dot offline';
+      lmsDot.title = 'Status check failed';
+      attndDot.className = 'status-dot offline';
+      attndDot.title = 'Status check failed';
     }
   }
 
-  /**
-   * Checks the LMS status. Shows ONLINE if HTTP *or* HTTPS is reachable.
-   * Shows OFFLINE only if *both* fail.
-   * @param {string} dotElementId - The ID of the LMS status dot element.
-   */
-  async function checkLmsStatus(dotElementId) {
-    const dotElement = document.getElementById(dotElementId);
-    if (!dotElement) return;
-
-    // Set to loading
-    dotElement.className = 'status-dot loading';
-    dotElement.title = 'Checking LMS status...';
-
-    const fetchOptions = { 
-        method: 'HEAD', 
-        mode: 'no-cors', 
-        cache: 'no-cache',
-        signal: AbortSignal.timeout(10000) // 10-second timeout per attempt
-    };
-
-    try {
-      // Try HTTP first
-      const httpUrl = LMS_HTTP_URL + '?_t=' + new Date().getTime();
-      await fetch(httpUrl, fetchOptions);
-      
-      // If HTTP succeeds, it's online
-      dotElement.className = 'status-dot online';
-      dotElement.title = 'LMS is Online';
-      
-    } catch (httpError) {
-      // HTTP failed, now try HTTPS
-      console.warn(`LMS HTTP check failed:`, httpError.name, httpError.message);
-      try {
-        const httpsUrl = LMS_HTTPS_URL + '?_t=' + new Date().getTime();
-        await fetch(httpsUrl, fetchOptions);
-        
-        // If HTTPS succeeds, it's online
-        dotElement.className = 'status-dot online';
-        dotElement.title = 'LMS is Online';
-        
-      } catch (httpsError) {
-        // Both failed
-        console.warn(`LMS HTTPS check failed:`, httpsError.name, httpsError.message);
-        dotElement.className = 'status-dot offline';
-        dotElement.title = 'LMS is Offline or Unreachable';
-      }
-    }
-  }
-
-  // Run the checks when the page loads
-  checkLmsStatus('lms-status-dot');
-  checkServerStatus(ATTND_URL, 'attnd-status-dot', 'Attnd.');
+  // Run the check when the page loads
+  checkServerStatuses();
   
 });
 </script>
 
 </body>
 </html>
+
