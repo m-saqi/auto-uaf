@@ -1126,145 +1126,6 @@ status-warning { color: #fd7e14; }
     right: 0.75rem;
   }
 }
-
-    /* --- START: New Server Status Indicator Styles --- */
-        
-        /* Hide the old indicator styles */
-        .server-status-indicator {
-            display: none;
-        }
-
-        /* This is the new container shape and style */
-        #new-server-status-indicator {
-            position: absolute;
-            top: 0.5rem; /* Position it a bit higher */
-            right: 1.25rem;
-            width: 170px; /* Give it a fixed width */
-            height: 70px; /* Give it a fixed height */
-            
-            /* --- THIS IS THE FIX --- */
-            /* Use the website's primary color gradient */
-            background: var(--brand-gradient); 
-            
-            color: white;
-            /* This polygon creates the fish/arrow shape */
-            clip-path: polygon(0% 50%, 15% 15%, 80% 15%, 100% 30%, 85% 50%, 100% 70%, 80% 85%, 15% 85%);
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 0 15px 0 25px; /* Add padding */
-            box-sizing: border-box;
-            z-index: 10;
-        }
-
-        /* Reposition the 'eye' icon */
-        #new-server-status-indicator .status-info-icon {
-            position: relative; /* No longer absolute */
-            top: 0;
-            left: 0;
-            font-size: 1.5rem; /* Make the 'eye' bigger */
-            color: white;
-            cursor: pointer;
-            z-index: 2; /* Above content */
-        }
-        #new-server-status-indicator .status-info-icon:hover {
-            color: #f0f0f0;
-            transform: scale(1.1);
-        }
-
-        /* Style the middle content (LMS, ATS) */
-        #new-server-status-indicator .status-content-wrapper {
-            width: auto;
-            text-align: left;
-            display: flex;
-            flex-direction: column;
-            gap: 2px;
-            z-index: 2; /* Above loader */
-            opacity: 0; /* Start hidden, show on load */
-            transition: opacity 0.3s ease;
-        }
-
-        #new-server-status-indicator .status-item {
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            font-weight: bold;
-            font-size: 1.1rem;
-            line-height: 1.2;
-        }
-
-        #new-server-status-indicator .status-item span {
-            color: white;
-        }
-
-        /* Style the status dots (the two circles on the right) */
-        #new-server-status-indicator .status-dot {
-            width: 14px;
-            height: 14px;
-            border-radius: 50%;
-            border: 2px solid white;
-            background-color: #aaa; /* Default grey/loading */
-            box-shadow: none;
-            animation: none; /* Turn off old animations */
-        }
-        #new-server-status-indicator .status-dot.online {
-            background-color: #2ecc71; /* Bright green */
-        }
-        #new-server-status-indicator .status-dot.offline {
-            background-color: #34495e; /* Dark grey */
-        }
-
-        /* Style the loader overlay */
-        #new-server-status-indicator .status-loader-overlay {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-            z-index: 1; /* Below content */
-            opacity: 1; /* Visible by default */
-            transition: opacity 0.3s ease;
-        }
-        
-        /* Tweak the loader colors to be white */
-        #new-server-status-indicator .infinity-loader::before,
-        #new-server-status-indicator .infinity-loader::after {
-            background: white;
-        }
-
-        /* JS will add this class to the main container when loaded */
-        #new-server-status-indicator.status-loaded .status-loader-overlay {
-            opacity: 0; /* Hide loaders */
-            z-index: -1; /* Move behind */
-        }
-        #new-server-status-indicator.status-loaded .status-content-wrapper {
-            opacity: 1; /* Show content */
-        }
-        
-        /* Hide the old infinity-loader wrappers, they are not needed */
-        #new-server-status-indicator .status-content-wrapper .infinity-loader,
-        #new-server-status-indicator .status-content-wrapper .status-label {
-            display: none;
-        }
-
-        /* Popover dark mode fix for new icon */
-        [data-theme="dark"] .popover {
-          background: rgba(26, 32, 48, 0.9);
-        }
-        [data-theme="dark"] .popover-header {
-          background: linear-gradient(135deg, rgba(122, 106, 216, 0.3), rgba(122, 106, 216, 0.15));
-          color: var(--text);
-          border-bottom-color: rgba(45, 55, 72, 0.5);
-        }
-        [data-theme="dark"] .popover-body {
-          color: var(--text-light);
-        }
-
-        /* --- END: New Server Status Indicator Styles --- */
     
 
     /* --- New Info Icon --- */
@@ -3897,40 +3758,40 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
       <div class="row justify-content-center">
         <div class="col-md-10">
           <div class="calculator-section-modern fade-in-on-scroll">
-            <div class="server-status-indicator" id="new-server-status-indicator">
-                <div class="status-info-icon"
-                     tabindex="0"
-                     data-bs-toggle="popover"
-                     data-bs-trigger="hover focus"
-                     data-bs-placement="bottom"
-                     data-bs-title="Server Status"
-                     data-bs-content="
-                       <p><strong>LMS:</strong> Learning Management System (Main results portal)</p>
-                       <p><strong>ATS:</strong> Attendance System (Old results portal)</p>
-                       <hr>
-                       <p class='mb-0'><i class='fa-solid fa-circle text-success me-2'></i><strong>Green:</strong> Server is Online.</p>
-                       <p class='mb-0'><i class='fa-solid fa-circle text-danger me-2'></i><strong>Red:</strong> Server is Offline or has an Error.</p>
-                     "
-                     data-bs-html="true">
-                    <i class="fa-solid fa-circle-info"></i>
-                </div>
-    
-                <div class="status-content-wrapper">
-                    <div class="status-item" id="lms-status-item">
-                        <span>LMS</span>
-                        <div class="status-dot" id="lms-status-dot"></div>
-                    </div>
-                    <div class="status-item" id="attnd-status-item">
-                        <span>ATS</span>
-                        <div class="status-dot" id="attnd-status-dot"></div>
-                    </div>
-                </div>
-    
-                <div class="status-loader-overlay">
-                    <div class="infinity-loader" id="lms-loader"></div>
-                    <div class="infinity-loader" id="attnd-loader"></div>
-                </div>
-            </div>
+            <div class="server-status-indicator">
+  <div class="status-info-icon"
+       tabindex="0"
+       data-bs-toggle="popover"
+       data-bs-trigger="hover focus"
+       data-bs-placement="bottom"
+       data-bs-title="Server Status"
+       data-bs-content="
+         <p><strong>LMS:</strong> Learning Management System (Main results portal)</p>
+         <p><strong>ATS:</strong> Attendance System (Old results portal)</p>
+         <hr>
+         <p class='mb-0'><i class='fa-solid fa-circle text-success me-2'></i><strong>Green:</strong> Server is Online.</p>
+         <p class='mb-0'><i class='fa-solid fa-circle text-danger me-2'></i><strong>Red:</strong> Server is Offline or has an Error.</p>
+       "
+       data-bs-html="true">
+    <i class="fa-solid fa-circle-info"></i>
+  </div>
+  
+  <div class="status-item" id="lms-status-item">
+    <div class="status-content-wrapper">
+      <div class="infinity-loader"></div>
+      <span class="status-label">LMS</span>
+    </div>
+    <div class="status-dot" id="lms-status-dot""></div>
+  </div>
+  
+  <div class="status-item" id="attnd-status-item">
+    <div class="status-content-wrapper">
+      <div class="infinity-loader"></div>
+      <span class="status-label">ATS</span>
+    </div>
+    <div class="status-dot" id="attnd-status-dot"></div>
+  </div>
+</div>
     <div class="text-center mb-4">
       <h2 class="fw-bold">
         <i class="fa-solid fa-calculator me-2 gradient-text"></i>
@@ -8126,14 +7987,14 @@ document.addEventListener('DOMContentLoaded', function() {
    * Fetches the server statuses from our *own* backend API.
    */
   async function checkServerStatuses() {
-    // Get the new main container
-    const mainIndicator = document.getElementById('new-server-status-indicator');
+    const lmsItem = document.getElementById('lms-status-item');
+    const attndItem = document.getElementById('attnd-status-item');
     const lmsDot = document.getElementById('lms-status-dot');
     const attndDot = document.getElementById('attnd-status-dot');
 
-    if (!lmsDot || !attndDot || !mainIndicator) return;
+    if (!lmsItem || !attndItem || !lmsDot || !attndDot) return;
 
-    // Loading state is handled by default HTML (loader overlay is visible)
+    // Loading state is handled by default HTML (infinity-loader is visible)
 
     try {
       // Call our API endpoint
@@ -8157,6 +8018,9 @@ document.addEventListener('DOMContentLoaded', function() {
         lmsDot.className = 'status-dot offline';
         lmsDot.title = 'LMS is Offline or Unreachable';
       }
+      // Add 'status-loaded' class to show the label and dot
+      lmsItem.classList.add('status-loaded');
+
 
       // --- Set Attendance status ---
       if (data.attnd_status === 'online') {
@@ -8167,6 +8031,8 @@ document.addEventListener('DOMContentLoaded', function() {
         attndDot.className = 'status-dot offline';
         attndDot.title = 'Attendance System is Offline or has an Error';
       }
+      // Add 'status-loaded' class to show the label and dot
+      attndItem.classList.add('status-loaded');
 
     } catch (error) {
       console.error('Failed to fetch server statuses:', error.name, error.message);
@@ -8174,14 +8040,11 @@ document.addEventListener('DOMContentLoaded', function() {
       // If the API call itself fails, mark both as offline
       lmsDot.className = 'status-dot offline';
       lmsDot.title = 'Status check failed';
+      lmsItem.classList.add('status-loaded');
 
       attndDot.className = 'status-dot offline';
       attndDot.title = 'Status check failed';
-    } finally {
-        // --- This is the important part ---
-        // After everything, add the loaded class to the main container
-        // This will hide the loaders and show the text/dots.
-        mainIndicator.classList.add('status-loaded');
+      attndItem.classList.add('status-loaded');
     }
   }
 
@@ -8193,18 +8056,3 @@ document.addEventListener('DOMContentLoaded', function() {
 
 </body>
 </html>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
