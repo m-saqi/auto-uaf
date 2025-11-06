@@ -1093,6 +1093,118 @@ status-warning { color: #fd7e14; }
 }
     
 
+    /* --- New Info Icon --- */
+.status-info-icon {
+  position: absolute;
+  top: 0.5rem;
+  left: 0.75rem; /* Positioned on the left */
+  cursor: pointer;
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+.status-info-icon:hover {
+  color: var(--brand);
+}
+
+/* --- Wrapper for content swapping --- */
+.status-content-wrapper {
+  width: 35px; /* Fixed width to prevent jiggling */
+  text-align: right;
+  color: var(--text-light);
+}
+[data-theme="dark"] .status-content-wrapper {
+  color: var(--muted);
+}
+
+/* --- New Infinity Loader (replaces dot loader) --- */
+.infinity-loader {
+  width: 28px; /* Slightly wider */
+  height: 12px;
+  position: relative;
+  display: inline-block;
+  margin-right: 7px; /* Aligns it similarly to the text */
+}
+
+.infinity-loader::before,
+.infinity-loader::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background-color: #6c757d; /* Loading color */
+  animation: infinity-spin 1.8s infinite ease-in-out;
+}
+
+.infinity-loader::after {
+  left: auto;
+  right: 0;
+  animation-delay: -0.9s;
+}
+
+@keyframes infinity-spin {
+  0%, 100% {
+    transform: scale(0.8);
+    opacity: 0.7;
+  }
+  50% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+/* --- Logic for showing/hiding content --- */
+/* Hide loader and show text/dot when .status-loaded is added */
+.status-item.status-loaded .infinity-loader {
+  display: none;
+}
+.status-item.status-loaded .status-label {
+  display: inline; /* Show the text */
+}
+.status-item.status-loaded .status-dot {
+  display: block; /* Show the dot */
+}
+
+
+/* --- Popover Styling --- */
+/* Make popover match the site theme */
+.popover {
+  border: 1px solid rgba(122, 106, 216, 0.2);
+  border-radius: var(--radius-sm);
+  box-shadow: var(--shadow);
+  backdrop-filter: blur(10px);
+  background: rgba(255, 255, 255, 0.9);
+}
+.popover-header {
+  background: linear-gradient(135deg, rgba(122, 106, 216, 0.1), rgba(122, 106, 216, 0.05));
+  font-weight: 600;
+  color: var(--text);
+  border-bottom: 1px solid rgba(122, 106, 216, 0.2);
+}
+.popover-body {
+  font-size: 0.85rem;
+  color: var(--text-light);
+}
+.popover-body p {
+  margin-bottom: 0.5rem;
+}
+
+/* Dark mode for popover */
+[data-theme="dark"] .popover {
+  background: rgba(26, 32, 48, 0.9);
+}
+[data-theme="dark"] .popover-header {
+  background: linear-gradient(135deg, rgba(122, 106, 216, 0.3), rgba(122, 106, 216, 0.15));
+  color: var(--text);
+  border-bottom-color: rgba(45, 55, 72, 0.5);
+}
+[data-theme="dark"] .popover-body {
+  color: var(--text-light);
+}
+
+    
 a {
   color: var(--brand);
   text-decoration: none;
@@ -3601,13 +3713,35 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         <div class="col-md-10">
           <div class="calculator-section-modern fade-in-on-scroll">
             <div class="server-status-indicator">
-  <div class="status-item">
-    <span>LMS</span>
-    <div class="status-dot loading" id="lms-status-dot" title="Checking LMS status..."></div>
+  <div class="status-item" id="lms-status-item">
+    <div class="status-content-wrapper">
+      <div class="infinity-loader"></div>
+      <span class="status-label" style="display: none;">LMS</span>
+    </div>
+    <div class="status-dot" id="lms-status-dot" style="display: none;"></div>
   </div>
-  <div class="status-item">
-    <span>ATS</span>
-    <div class="status-dot loading" id="attnd-status-dot" title="Checking Attendance system status..."></div>
+  <div class="status-item" id="attnd-status-item">
+    <div class="status-content-wrapper">
+      <div class="infinity-loader"></div>
+      <span class="status-label" style="display: none;">ATS</span>
+    </div>
+    <div class="status-dot" id="attnd-status-dot" style="display: none;"></div>
+  </div>
+  <div class="status-info-icon"
+       tabindex="0"
+       data-bs-toggle="popover"
+       data-bs-trigger="hover focus"
+       data-bs-placement="bottom"
+       data-bs-title="Server Status"
+       data-bs-content="
+         <p><strong>LMS:</strong> Learning Management System (Main results portal)</p>
+         <p><strong>ATS:</strong> Attendance System (Old results portal)</p>
+         <hr>
+         <p class='mb-0'><i class='fa-solid fa-circle text-success me-2'></i><strong>Green:</strong> Server is Online.</p>
+         <p class='mb-0'><i class='fa-solid fa-circle text-danger me-2'></i><strong>Red:</strong> Server is Offline or has an Error.</p>
+       "
+       data-bs-html="true">
+    <i class="fa-solid fa-circle-info"></i>
   </div>
 </div>
     <div class="text-center mb-4">
@@ -7795,26 +7929,32 @@ document.addEventListener('DOMContentLoaded', function() {
          <script>
 document.addEventListener('DOMContentLoaded', function() {
   
+  // Initialize Bootstrap Popovers
+  // This finds all elements with data-bs-toggle="popover" and enables them
+  const popoverTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="popover"]'));
+  const popoverList = popoverTriggerList.map(function (popoverTriggerEl) {
+    return new bootstrap.Popover(popoverTriggerEl);
+  });
+
   /**
    * Fetches the server statuses from our *own* backend API.
    */
   async function checkServerStatuses() {
+    const lmsItem = document.getElementById('lms-status-item');
+    const attndItem = document.getElementById('attnd-status-item');
     const lmsDot = document.getElementById('lms-status-dot');
     const attndDot = document.getElementById('attnd-status-dot');
 
-    if (!lmsDot || !attndDot) return;
+    if (!lmsItem || !attndItem || !lmsDot || !attndDot) return;
 
-    // Set both to loading
-    lmsDot.className = 'status-dot loading';
-    lmsDot.title = 'Checking LMS status...';
-    attndDot.className = 'status-dot loading';
-    attndDot.title = 'Checking Attnd. status...';
+    // Note: The "loading" state is now the default HTML,
+    // so we just need to wait for the API call.
 
     try {
-      // Call our new API endpoint
+      // Call our API endpoint
       const response = await fetch('/api/result-scraper?action=check_status', {
         cache: 'no-cache',
-        signal: AbortSignal.timeout(15000) // 15-second timeout for the *whole* API call
+        signal: AbortSignal.timeout(5000) // 5-second timeout
       });
       
       if (!response.ok) {
@@ -7823,34 +7963,42 @@ document.addEventListener('DOMContentLoaded', function() {
 
       const data = await response.json();
 
-      // Set LMS status
+      // --- Set LMS status ---
       if (data.lms_status === 'online') {
         lmsDot.className = 'status-dot online';
         lmsDot.title = 'LMS is Online';
       } else {
+        // Treat "offline" and "error" both as 'offline' (red)
         lmsDot.className = 'status-dot offline';
         lmsDot.title = 'LMS is Offline or Unreachable';
       }
+      // Add 'status-loaded' class to show the label and dot
+      lmsItem.classList.add('status-loaded');
 
-      // Set Attendance status
+
+      // --- Set Attendance status ---
       if (data.attnd_status === 'online') {
         attndDot.className = 'status-dot online';
         attndDot.title = 'Attendance System is Online';
-      } else if (data.attnd_status === 'error') {
-        attndDot.className = 'status-dot error';
-        attndDot.title = 'Attendance System is Online but has a Server Error';
       } else {
+        // Treat "offline" and "error" both as 'offline' (red)
         attndDot.className = 'status-dot offline';
-        attndDot.title = 'Attendance System is Offline or Unreachable';
+        attndDot.title = 'Attendance System is Offline or has an Error';
       }
+      // Add 'status-loaded' class to show the label and dot
+      attndItem.classList.add('status-loaded');
 
     } catch (error) {
       console.error('Failed to fetch server statuses:', error.name, error.message);
-      // If the check itself fails, mark both as offline
+      
+      // If the API call itself fails, mark both as offline
       lmsDot.className = 'status-dot offline';
       lmsDot.title = 'Status check failed';
+      lmsItem.classList.add('status-loaded');
+
       attndDot.className = 'status-dot offline';
       attndDot.title = 'Status check failed';
+      attndItem.classList.add('status-loaded');
     }
   }
 
@@ -7862,6 +8010,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
 </body>
 </html>
+
 
 
 
