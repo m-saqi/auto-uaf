@@ -7742,114 +7742,101 @@ document.addEventListener('DOMContentLoaded', function() {
     </div>
 </div>          
 
-          <script>
+         <script>
 document.addEventListener('DOMContentLoaded', function() {
   
-  // URLs to check, based on your Python script
-  const LMS_URL = 'http://lms.uaf.edu.pk/login/index.php';
+  // URLs to check
+  const LMS_HTTP_URL = 'http://lms.uaf.edu.pk/login/index.php';
+  const LMS_HTTPS_URL = 'https://lms.uaf.edu.pk/login/index.php';
   const ATTND_URL = 'http://121.52.152.24/default.aspx';
 
   /**
-   * Checks the status of a server by making a 'no-cors' fetch.
-   * Succeeds if the server is reachable, fails if network error.
+   * Checks the status of a single server (like the Attendance system).
    * @param {string} url - The URL to check.
    * @param {string} dotElementId - The ID of the status dot element.
+   * @param {string} name - The display name for titles (e.g., "Attnd.").
    */
-  async function checkServerStatus(url, dotElementId) {
+  async function checkServerStatus(url, dotElementId, name) {
     const dotElement = document.getElementById(dotElementId);
     if (!dotElement) return;
 
     // Set to loading
     dotElement.className = 'status-dot loading';
-    dotElement.title = `Checking ${dotElementId.split('-')[0].toUpperCase()} status...`;
+    dotElement.title = `Checking ${name} status...`;
 
     try {
-      // We use 'no-cors' mode. This sends the request but we can't read the response.
-      // If the request completes without a network error, we assume the server is 'online'.
-      // A cache-busting param is added to ensure a fresh check.
       await fetch(url + '?_t=' + new Date().getTime(), { 
-        method: 'HEAD', // Use HEAD to be lightweight
+        method: 'HEAD',
         mode: 'no-cors',
         cache: 'no-cache',
         signal: AbortSignal.timeout(10000) // 10-second timeout
       });
       
-      // If we reach here, the request was sent and a response (opaque) was received
       dotElement.className = 'status-dot online';
-      dotElement.title = `${dotElementId.split('-')[0].toUpperCase()} is Online`;
+      dotElement.title = `${name} is Online`;
 
     } catch (error) {
-      // A TypeError (like 'Failed to fetch') indicates a network error, DNS failure, or timeout.
-      console.warn(`Status check for ${url} failed:`, error.name, error.message);
+      console.warn(`Status check for ${name} (${url}) failed:`, error.name, error.message);
       dotElement.className = 'status-dot offline';
-      dotElement.title = `${dotElementId.split('-')[0].toUpperCase()} is Offline or Unreachable`;
+      dotElement.title = `${name} is Offline or Unreachable`;
+    }
+  }
+
+  /**
+   * Checks the LMS status. Shows ONLINE if HTTP *or* HTTPS is reachable.
+   * Shows OFFLINE only if *both* fail.
+   * @param {string} dotElementId - The ID of the LMS status dot element.
+   */
+  async function checkLmsStatus(dotElementId) {
+    const dotElement = document.getElementById(dotElementId);
+    if (!dotElement) return;
+
+    // Set to loading
+    dotElement.className = 'status-dot loading';
+    dotElement.title = 'Checking LMS status...';
+
+    const fetchOptions = { 
+        method: 'HEAD', 
+        mode: 'no-cors', 
+        cache: 'no-cache',
+        signal: AbortSignal.timeout(10000) // 10-second timeout per attempt
+    };
+
+    try {
+      // Try HTTP first
+      const httpUrl = LMS_HTTP_URL + '?_t=' + new Date().getTime();
+      await fetch(httpUrl, fetchOptions);
+      
+      // If HTTP succeeds, it's online
+      dotElement.className = 'status-dot online';
+      dotElement.title = 'LMS is Online';
+      
+    } catch (httpError) {
+      // HTTP failed, now try HTTPS
+      console.warn(`LMS HTTP check failed:`, httpError.name, httpError.message);
+      try {
+        const httpsUrl = LMS_HTTPS_URL + '?_t=' + new Date().getTime();
+        await fetch(httpsUrl, fetchOptions);
+        
+        // If HTTPS succeeds, it's online
+        dotElement.className = 'status-dot online';
+        dotElement.title = 'LMS is Online';
+        
+      } catch (httpsError) {
+        // Both failed
+        console.warn(`LMS HTTPS check failed:`, httpsError.name, httpsError.message);
+        dotElement.className = 'status-dot offline';
+        dotElement.title = 'LMS is Offline or Unreachable';
+      }
     }
   }
 
   // Run the checks when the page loads
-  checkServerStatus(LMS_URL, 'lms-status-dot');
-  checkServerStatus(ATTND_URL, 'attnd-status-dot');
+  checkLmsStatus('lms-status-dot');
+  checkServerStatus(ATTND_URL, 'attnd-status-dot', 'Attnd.');
   
 });
 </script>
 
 </body>
 </html>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
