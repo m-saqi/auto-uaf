@@ -1022,32 +1022,40 @@ status-warning { color: #fd7e14; }
   color: var(--muted);
 }
 
-/* --- New Infinity Loader (replaces dot loader) --- */
+/* --- New Infinity Loader (Line Animation) --- */
 .infinity-loader {
-  width: 28px; /* Slightly wider */
-  height: 12px;
+  width: 28px;
+  height: 16px; /* A bit taller */
   position: relative;
   display: inline-block;
-  margin-right: 7px; /* Aligns it similarly to the text */
+  margin-right: 7px;
 }
-
 .infinity-loader::before,
 .infinity-loader::after {
-  content: '';
+  content: "";
   position: absolute;
-  top: 0;
-  left: 0;
-  width: 10px;
-  height: 10px;
+  top: 50%;
+  left: 50%;
+  width: 12px; /* Circle size */
+  height: 12px;
+  margin-top: -6px;
+  margin-left: -6px;
   border-radius: 50%;
-  background-color: #6c757d; /* Loading color */
-  animation: infinity-spin 1.8s infinite ease-in-out;
+  border: 2px solid #6c757d; /* Loading color */
+}
+.infinity-loader::before {
+  margin-left: -11px; /* Position left circle */
+  animation: infinity-path-left 1.5s infinite linear;
+}
+.infinity-loader::after {
+  margin-left: -1px; /* Position right circle */
+  animation: infinity-path-right 1.5s infinite linear;
 }
 
-.infinity-loader::after {
-  left: auto;
-  right: 0;
-  animation-delay: -0.9s;
+/* Make loader visible in dark mode */
+[data-theme="dark"] .infinity-loader::before,
+[data-theme="dark"] .infinity-loader::after {
+    border-color: #9ca3af; 
 }
 
 /* --- Logic for showing/hiding content --- */
@@ -1105,16 +1113,16 @@ status-warning { color: #fd7e14; }
   color: var(--text-light);
 }
 
-/* --- Keyframes (Consolidated) --- */
-@keyframes infinity-spin {
-  0%, 100% {
-    transform: scale(0.8);
-    opacity: 0.7;
-  }
-  50% {
-    transform: scale(1);
-    opacity: 1;
-  }
+/* New keyframes for the path animation */
+@keyframes infinity-path-left {
+  0%   { transform: rotate(0deg) translateX(-7px) rotate(0deg); }
+  50%  { transform: rotate(180deg) translateX(-7px) rotate(-180deg); }
+  100% { transform: rotate(360deg) translateX(-7px) rotate(-360deg); }
+}
+@keyframes infinity-path-right {
+  0%   { transform: rotate(0deg) translateX(7px) rotate(0deg); }
+  50%  { transform: rotate(-180deg) translateX(7px) rotate(180deg); }
+  100% { transform: rotate(-360deg) translateX(7px) rotate(360deg); }
 }
 
 @keyframes pulse-green {
@@ -8059,6 +8067,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
 </body>
 </html>
+
 
 
 
