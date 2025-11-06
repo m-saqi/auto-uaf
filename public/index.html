@@ -943,6 +943,104 @@ status-warning { color: #fd7e14; }
         margin-top: 1rem;
   }
 }
+
+
+    /* --- Server Status Indicator --- */
+.calculator-section-modern {
+  position: relative; /* Required for absolute positioning of the child */
+  padding-top: 4rem; /* Add padding to make space for the indicator */
+}
+
+.server-status-indicator {
+  position: absolute;
+  top: 1rem;
+  right: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.25rem;
+  background-color: rgba(255, 255, 255, 0.7);
+  padding: 0.5rem 0.75rem;
+  border-radius: 0.5rem;
+  backdrop-filter: blur(5px);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+  font-size: 0.8rem;
+  font-weight: 600;
+  z-index: 10; /* Ensure it's above other elements */
+}
+
+[data-theme="dark"] .server-status-indicator {
+  background-color: rgba(26, 32, 48, 0.7);
+}
+
+.status-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: var(--text-light);
+}
+
+[data-theme="dark"] .status-item {
+  color: var(--muted);
+}
+
+.status-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  transition: background-color 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+}
+
+.status-dot.online {
+  background-color: #28a745;
+  box-shadow: 0 0 8px #28a745;
+  animation: pulse-green 1.5s infinite;
+}
+
+.status-dot.offline {
+  background-color: #dc3545;
+  box-shadow: 0 0 8px #dc3545;
+  animation: pulse-red 1.5s infinite;
+}
+
+.status-dot.loading {
+  /* Use border-based spinner */
+  background-color: transparent !important;
+  box-shadow: none !important;
+  border: 2px solid #6c757d;
+  border-top-color: transparent;
+  width: 10px;
+  height: 10px;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes pulse-green {
+  0% { box-shadow: 0 0 5px rgba(40, 167, 69, 0.7); }
+  50% { box-shadow: 0 0 12px rgba(40, 167, 69, 1); }
+  100% { box-shadow: 0 0 5px rgba(40, 167, 69, 0.7); }
+}
+
+@keyframes pulse-red {
+  0% { box-shadow: 0 0 5px rgba(220, 53, 69, 0.7); }
+  50% { box-shadow: 0 0 12px rgba(220, 53, 69, 1); }
+  100% { box-shadow: 0 0 5px rgba(220, 53, 69, 0.7); }
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* Responsive adjustment */
+@media (max-width: 576px) {
+  .calculator-section-modern {
+    padding-top: 5rem; /* More space on mobile */
+  }
+  .server-status-indicator {
+    top: 0.75rem;
+    right: 0.75rem;
+  }
+}
     
 
 a {
@@ -3452,6 +3550,16 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
       <div class="row justify-content-center">
         <div class="col-md-10">
           <div class="calculator-section-modern fade-in-on-scroll">
+            <div class="server-status-indicator">
+  <div class="status-item">
+    <span>LMS</span>
+    <div class="status-dot loading" id="lms-status-dot" title="Checking LMS status..."></div>
+  </div>
+  <div class="status-item">
+    <span>Attnd.</span>
+    <div class="status-dot loading" id="attnd-status-dot" title="Checking Attendance system status..."></div>
+  </div>
+</div>
     <div class="text-center mb-4">
       <h2 class="fw-bold">
         <i class="fa-solid fa-calculator me-2 gradient-text"></i>
@@ -7634,8 +7742,60 @@ document.addEventListener('DOMContentLoaded', function() {
     </div>
 </div>          
 
+          <script>
+document.addEventListener('DOMContentLoaded', function() {
+  
+  // URLs to check, based on your Python script
+  const LMS_URL = 'http://lms.uaf.edu.pk/login/index.php';
+  const ATTND_URL = 'http://121.52.152.24/default.aspx';
+
+  /**
+   * Checks the status of a server by making a 'no-cors' fetch.
+   * Succeeds if the server is reachable, fails if network error.
+   * @param {string} url - The URL to check.
+   * @param {string} dotElementId - The ID of the status dot element.
+   */
+  async function checkServerStatus(url, dotElementId) {
+    const dotElement = document.getElementById(dotElementId);
+    if (!dotElement) return;
+
+    // Set to loading
+    dotElement.className = 'status-dot loading';
+    dotElement.title = `Checking ${dotElementId.split('-')[0].toUpperCase()} status...`;
+
+    try {
+      // We use 'no-cors' mode. This sends the request but we can't read the response.
+      // If the request completes without a network error, we assume the server is 'online'.
+      // A cache-busting param is added to ensure a fresh check.
+      await fetch(url + '?_t=' + new Date().getTime(), { 
+        method: 'HEAD', // Use HEAD to be lightweight
+        mode: 'no-cors',
+        cache: 'no-cache',
+        signal: AbortSignal.timeout(10000) // 10-second timeout
+      });
+      
+      // If we reach here, the request was sent and a response (opaque) was received
+      dotElement.className = 'status-dot online';
+      dotElement.title = `${dotElementId.split('-')[0].toUpperCase()} is Online`;
+
+    } catch (error) {
+      // A TypeError (like 'Failed to fetch') indicates a network error, DNS failure, or timeout.
+      console.warn(`Status check for ${url} failed:`, error.name, error.message);
+      dotElement.className = 'status-dot offline';
+      dotElement.title = `${dotElementId.split('-')[0].toUpperCase()} is Offline or Unreachable`;
+    }
+  }
+
+  // Run the checks when the page loads
+  checkServerStatus(LMS_URL, 'lms-status-dot');
+  checkServerStatus(ATTND_URL, 'attnd-status-dot');
+  
+});
+</script>
+
 </body>
 </html>
+
 
 
 
