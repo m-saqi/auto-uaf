@@ -8,6 +8,7 @@ import re
 import random
 import logging
 import urllib3
+import concurrent.futures # <-- New import
 
 # Suppress InsecureRequestWarning for requests made with verify=False
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
@@ -43,6 +44,8 @@ class handler(BaseHTTPRequestHandler):
                 self.handle_scrape_single()
             elif 'action=scrape_attendance' in self.path:
                 self.handle_scrape_attendance()
+            elif 'action=check_status' in self.path: # <--- MODIFIED
+                self.handle_check_status()            # <--- MODIFIED
             else:
                 self.send_response(404)
                 self._set_cors_headers()
@@ -77,6 +80,70 @@ class handler(BaseHTTPRequestHandler):
         self.send_header('Content-Type', 'application/json')
         self.end_headers()
         self.wfile.write(json.dumps(data).encode())
+
+    # --- NEW FUNCTION FOR STATUS CHECK ---
+    def check_server_health(self, url, method='get', timeout=7):
+        """
+        Checks a single URL.
+        Returns 'online' for 200-399 status.
+        Returns 'error' for 500-599 status.
+        Returns 'offline' for connection errors or timeouts.
+        """
+        try:
+            with requests.Session() as s:
+                s.headers.update({'User-Agent': random.choice(USER_AGENTS)})
+                # Use HEAD for speed, but fall back to GET if HEAD is not allowed
+                if method == 'head':
+                    resp = s.head(url, timeout=timeout, verify=False, allow_redirects=True)
+                else:
+                    resp = s.get(url, timeout=timeout, verify=False, allow_redirects=True)
+            
+            if 200 <= resp.status_code < 400:
+                return 'online' # Includes 200-OK, 301/302-Redirects
+            elif 500 <= resp.status_code < 600:
+                return 'error' # Server is up but broken (e.g., "Server Error in '/' Application")
+            else:
+                return 'offline' # Other client errors (404, 403)
+        except requests.exceptions.RequestException as e:
+            logger.warning(f"Health check for {url} failed: {str(e)}")
+            # Try GET if HEAD failed, as some servers block HEAD
+            if method == 'head':
+                logger.info(f"Retrying {url} with GET...")
+                return self.check_server_health(url, method='get', timeout=timeout)
+            return 'offline' # Fails on GET or already was GET
+
+    # --- NEW FUNCTION FOR STATUS CHECK ---
+    def handle_check_status(self):
+        """
+        Handles the 'check_status' action by checking LMS and Attendance servers.
+        """
+        lms_status = 'offline'
+        attnd_status = 'offline'
+
+        # Use a thread pool to check LMS (http/https) and Attendance simultaneously
+        with concurrent.futures.ThreadPoolExecutor() as executor:
+            # Submit tasks
+            # We use 'head' for LMS as it's known to work
+            future_lms_http = executor.submit(self.check_server_health, 'http://lms.uaf.edu.pk/login/index.php', method='head')
+            future_lms_https = executor.submit(self.check_server_health, 'https://lms.uaf.edu.pk/login/index.php', method='head')
+            # We use 'get' for Attendance as it's more likely to respond
+            future_attnd = executor.submit(self.check_server_health, 'http://121.52.152.24/default.aspx', method='get')
+
+            # Process LMS results
+            # If *either* HTTP or HTTPS is 'online', LMS is 'online'
+            if future_lms_http.result() == 'online' or future_lms_https.result() == 'online':
+                lms_status = 'online'
+            # (If both are offline, it remains 'offline')
+            
+            # Process Attendance result
+            attnd_status = future_attnd.result()
+
+        response_data = {
+            'success': True,
+            'lms_status': lms_status,
+            'attnd_status': attnd_status
+        }
+        self.send_success_response(response_data)
 
     def handle_scrape_single(self):
         """Handle single result scraping for CGPA calculator"""
@@ -287,7 +354,7 @@ class handler(BaseHTTPRequestHandler):
             form_data = {'token': token, 'Register': registration_number}
             headers = {'Referer': login_url, 'Origin': base_url}
             
-            post_response = session.post(result_url, data=form_data, headers=headers, timeout=20, verify=False)
+            post_response = session.post(result_url, data=form_data, timeout=20, verify=False)
             
             if post_response.status_code != 200:
                 return False, f"UAF LMS returned status code {post_response.status_code} when fetching results.", None
