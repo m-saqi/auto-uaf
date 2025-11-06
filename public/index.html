@@ -1030,21 +1030,32 @@ status-warning { color: #fd7e14; }
   display: inline-block;
   margin-right: 7px;
 }
-.infinity-loader::before {
+
+/* Remove the old dot animation, add new line animation */
+.infinity-loader::before,
+.infinity-loader::after {
   content: "";
   position: absolute;
   top: 50%;
-  left: 50%;
-  width: 6px; /* dot width */
-  height: 6px; /* dot height */
-  background: #6c757d;
-  border-radius: 50%;
-  margin-top: -3px;
-  margin-left: -3px;
-  animation: infinity-loader-anim 2s infinite linear;
+  width: 16px;
+  height: 2px;
+  background: var(--brand);
+  border-radius: 1px;
+  transform-origin: center;
 }
 
-[data-theme="dark"] .infinity-loader::before {
+.infinity-loader::before {
+  left: 0;
+  animation: infinity-line-left 1.5s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+.infinity-loader::after {
+  right: 0;
+  animation: infinity-line-right 1.5s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+[data-theme="dark"] .infinity-loader::before,
+[data-theme="dark"] .infinity-loader::after {
   background: #9ca3af;
 }
 
@@ -1060,66 +1071,36 @@ status-warning { color: #fd7e14; }
   display: block; /* Show the dot */
 }
 
-/* --- Popover Styling --- */
-.popover {
-  border: 1px solid rgba(122, 106, 216, 0.2);
-  border-radius: var(--radius-sm);
-  box-shadow: var(--shadow);
-  backdrop-filter: blur(10px);
-  background: rgba(255, 255, 255, 0.9);
-  max-width: 300px; /* Set max width */
-}
-.popover-header {
-  background: linear-gradient(135deg, rgba(122, 106, 216, 0.1), rgba(122, 106, 216, 0.05));
-  font-weight: 600;
-  color: var(--text);
-  border-bottom: 1px solid rgba(122, 106, 216, 0.2);
-}
-.popover-body {
-  font-size: 0.85rem;
-  color: var(--text-light);
-}
-.popover-body p {
-  margin-bottom: 0.5rem;
-}
-.popover-body hr {
-  margin: 0.5rem 0;
-}
-.popover-body .fa-circle {
-  font-size: 0.7em;
-  vertical-align: middle;
-}
+/* ... keep existing keyframes and remove old infinity-loader-anim ... */
 
-/* Dark mode for popover */
-[data-theme="dark"] .popover {
-  background: rgba(26, 32, 48, 0.95);
-}
-[data-theme="dark"] .popover-header {
-  background: linear-gradient(135deg, rgba(122, 106, 216, 0.3), rgba(122, 106, 216, 0.15));
-  color: var(--text);
-  border-bottom-color: rgba(45, 55, 72, 0.5);
-}
-[data-theme="dark"] .popover-body {
-  color: var(--text-light);
-}
-
-@keyframes infinity-loader-anim {
-  0% {
-    transform: translateX(-10px) rotate(0deg);
-    animation-timing-function: ease-in;
+/* NEW: Infinity Line Animation */
+@keyframes infinity-line-left {
+  0%, 100% {
+    transform: translateX(0) rotate(0deg) scaleX(1);
   }
   25% {
-    transform: translateX(0) rotate(180deg);
+    transform: translateX(4px) rotate(-45deg) scaleX(0.8);
   }
   50% {
-    transform: translateX(10px) rotate(360deg);
-    animation-timing-function: ease-out;
+    transform: translateX(8px) rotate(-90deg) scaleX(1);
   }
   75% {
-    transform: translateX(0) rotate(540deg);
+    transform: translateX(4px) rotate(-135deg) scaleX(0.8);
   }
-  100% {
-    transform: translateX(-10px) rotate(720deg);
+}
+
+@keyframes infinity-line-right {
+  0%, 100% {
+    transform: translateX(0) rotate(0deg) scaleX(1);
+  }
+  25% {
+    transform: translateX(-4px) rotate(45deg) scaleX(0.8);
+  }
+  50% {
+    transform: translateX(-8px) rotate(90deg) scaleX(1);
+  }
+  75% {
+    transform: translateX(-4px) rotate(135deg) scaleX(0.8);
   }
 }
 
@@ -8065,6 +8046,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
 </body>
 </html>
+
 
 
 
