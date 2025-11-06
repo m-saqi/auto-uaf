@@ -1003,15 +1003,53 @@ status-warning { color: #fd7e14; }
   animation: pulse-red 1.5s infinite;
 }
 
+/* --- New Infinity Loader --- */
 .status-dot.loading {
-  /* Use border-based spinner */
-  background-color: transparent !important;
-  box-shadow: none !important;
-  border: 2px solid #6c757d;
-  border-top-color: transparent;
-  width: 10px;
-  height: 10px;
-  animation: spin 1s linear infinite;
+  width: 24px;  /* Make container wider for the two dots */
+  height: 12px; /* Set container height */
+  border: none; /* Remove old border */
+  background: transparent; /* Remove old background */
+  box-shadow: none; /* Remove old shadow */
+  position: relative; /* Position pseudo-elements inside */
+  
+  /* This centers the new, wider animation */
+  transform: translate(-7px, -1px); 
+  
+  /* Remove old animation */
+  animation: none; 
+}
+
+/* Create the left dot */
+.status-dot.loading::before,
+.status-dot.loading::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 10px;  /* Dot size */
+  height: 10px; /* Dot size */
+  border-radius: 50%;
+  background-color: #6c757d; /* Loading color */
+  animation: infinity-spin 1.8s infinite ease-in-out;
+}
+
+/* Create the right dot */
+.status-dot.loading::after {
+  left: auto;
+  right: 0;
+  animation-delay: -0.9s; /* Half duration */
+}
+
+/* Animation: dots pulse and swap opacity */
+@keyframes infinity-spin {
+  0%, 100% {
+    transform: scale(0.8);
+    opacity: 0.7;
+  }
+  50% {
+    transform: scale(1);
+    opacity: 1;
+  }
 }
 
     /* --- Add this new class for Server Errors --- */
@@ -1028,17 +1066,7 @@ status-warning { color: #fd7e14; }
   100% { box-shadow: 0 0 5px rgba(255, 193, 7, 0.7); }
 }
 
-/* --- You can also update .loading to be smoother --- */
-.status-dot.loading {
-  background-color: #6c757d; /* Grey */
-  box-shadow: 0 0 5px rgba(108, 117, 125, 0.7);
-  animation: pulse-grey 1.5s infinite;
-}
-@keyframes pulse-grey {
-  0% { opacity: 0.5; }
-  50% { opacity: 1; }
-  100% { opacity: 0.5; }
-}
+
     
 
 @keyframes pulse-green {
@@ -1053,10 +1081,6 @@ status-warning { color: #fd7e14; }
   100% { box-shadow: 0 0 5px rgba(220, 53, 69, 0.7); }
 }
 
-@keyframes spin {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
-}
 
 /* Responsive adjustment */
 @media (max-width: 576px) {
@@ -7839,6 +7863,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
 </body>
 </html>
+
 
 
 
