@@ -8,7 +8,7 @@ import re
 import random
 import logging
 import urllib3
-import concurrent.futures # <-- New import
+import concurrent.futures # Import this
 
 # Suppress InsecureRequestWarning for requests made with verify=False
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
@@ -44,8 +44,8 @@ class handler(BaseHTTPRequestHandler):
                 self.handle_scrape_single()
             elif 'action=scrape_attendance' in self.path:
                 self.handle_scrape_attendance()
-            elif 'action=check_status' in self.path: # <--- MODIFIED
-                self.handle_check_status()            # <--- MODIFIED
+            elif 'action=check_status' in self.path:
+                self.handle_check_status()
             else:
                 self.send_response(404)
                 self._set_cors_headers()
@@ -81,8 +81,8 @@ class handler(BaseHTTPRequestHandler):
         self.end_headers()
         self.wfile.write(json.dumps(data).encode())
 
-    # --- NEW FUNCTION FOR STATUS CHECK ---
-    def check_server_health(self, url, method='get', timeout=7):
+    # --- MODIFIED FUNCTION ---
+    def check_server_health(self, url, method='get', timeout=4): # <-- Reduced timeout to 4
         """
         Checks a single URL.
         Returns 'online' for 200-399 status.
@@ -92,7 +92,6 @@ class handler(BaseHTTPRequestHandler):
         try:
             with requests.Session() as s:
                 s.headers.update({'User-Agent': random.choice(USER_AGENTS)})
-                # Use HEAD for speed, but fall back to GET if HEAD is not allowed
                 if method == 'head':
                     resp = s.head(url, timeout=timeout, verify=False, allow_redirects=True)
                 else:
@@ -109,10 +108,11 @@ class handler(BaseHTTPRequestHandler):
             # Try GET if HEAD failed, as some servers block HEAD
             if method == 'head':
                 logger.info(f"Retrying {url} with GET...")
+                # Call with 'get' but use the *same* short timeout
                 return self.check_server_health(url, method='get', timeout=timeout)
             return 'offline' # Fails on GET or already was GET
 
-    # --- NEW FUNCTION FOR STATUS CHECK ---
+    # --- MODIFIED FUNCTION ---
     def handle_check_status(self):
         """
         Handles the 'check_status' action by checking LMS and Attendance servers.
@@ -120,20 +120,16 @@ class handler(BaseHTTPRequestHandler):
         lms_status = 'offline'
         attnd_status = 'offline'
 
-        # Use a thread pool to check LMS (http/https) and Attendance simultaneously
         with concurrent.futures.ThreadPoolExecutor() as executor:
-            # Submit tasks
-            # We use 'head' for LMS as it's known to work
+            # Use 'head' for LMS (fast)
             future_lms_http = executor.submit(self.check_server_health, 'http://lms.uaf.edu.pk/login/index.php', method='head')
             future_lms_https = executor.submit(self.check_server_health, 'https://lms.uaf.edu.pk/login/index.php', method='head')
-            # We use 'get' for Attendance as it's more likely to respond
+            # Use 'get' for Attendance (to catch the 500 error faster)
             future_attnd = executor.submit(self.check_server_health, 'http://121.52.152.24/default.aspx', method='get')
 
             # Process LMS results
-            # If *either* HTTP or HTTPS is 'online', LMS is 'online'
             if future_lms_http.result() == 'online' or future_lms_https.result() == 'online':
                 lms_status = 'online'
-            # (If both are offline, it remains 'offline')
             
             # Process Attendance result
             attnd_status = future_attnd.result()
