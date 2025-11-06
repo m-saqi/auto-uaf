@@ -1192,17 +1192,28 @@ status-warning { color: #fd7e14; }
 }
 
 /* --- Logic for showing/hiding content --- */
-/* Hide loader and show text/dot when .status-loaded is added */
-.status-item.status-loaded .infinity-loader {
+
+/* --- ADD THESE DEFAULT RULES --- */
+.status-item .status-label {
   display: none;
 }
+.status-item .status-dot {
+  display: none;
+}
+/* --- END OF ADDED RULES --- */
+
+/* Hide loader and show text/dot when .status-loaded is added */
+.status-item.status-loaded .infinity-loader {
+  display: none;
+}
 .status-item.status-loaded .status-label {
-  display: inline; /* Show the text */
+  display: inline; /* Show the text */
 }
 .status-item.status-loaded .status-dot {
-  display: block; /* Show the dot */
+  display: block; /* Show the dot */
 }
-
+    
+    
 
 /* --- Popover Styling --- */
 /* Make popover match the site theme */
@@ -3769,17 +3780,17 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
   <div class="status-item" id="lms-status-item">
     <div class="status-content-wrapper">
       <div class="infinity-loader"></div>
-      <span class="status-label" style="display: none;">LMS</span>
+      <span class="status-label">LMS</span>
     </div>
-    <div class="status-dot" id="lms-status-dot" style="display: none;"></div>
+    <div class="status-dot" id="lms-status-dot""></div>
   </div>
   
   <div class="status-item" id="attnd-status-item">
     <div class="status-content-wrapper">
       <div class="infinity-loader"></div>
-      <span class="status-label" style="display: none;">ATS</span>
+      <span class="status-label">ATS</span>
     </div>
-    <div class="status-dot" id="attnd-status-dot" style="display: none;"></div>
+    <div class="status-dot" id="attnd-status-dot"></div>
   </div>
 </div>
     <div class="text-center mb-4">
@@ -8046,6 +8057,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
 </body>
 </html>
+
 
 
 
