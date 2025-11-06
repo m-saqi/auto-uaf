@@ -959,12 +959,14 @@ status-warning { color: #fd7e14; }
   flex-direction: column;
   align-items: flex-end;
   gap: 0.25rem;
+  background-color: rgba(255, 255, 255, 0.7);
   padding: 0.5rem 0.75rem;
+  padding-left: 2rem; /* Make space for info icon */
   border-radius: 0.5rem;
   backdrop-filter: blur(5px);
   font-size: 0.8rem;
   font-weight: 600;
-  z-index: 10; /* Ensure it's above other elements */
+  z-index: 10;
 }
 
 [data-theme="dark"] .server-status-indicator {
@@ -975,19 +977,14 @@ status-warning { color: #fd7e14; }
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  color: var(--text-light);
-  min-height: 12px; /* <-- ADD THIS LINE */
-}
-
-[data-theme="dark"] .status-item {
-  color: var(--muted);
+  min-height: 12px;
 }
 
 .status-dot {
   width: 10px;
   height: 10px;
   border-radius: 50%;
-  transition: background-color 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+  transition: background-color 0.3s ease, box-shadow 0.3s ease;
 }
 
 .status-dot.online {
@@ -1002,44 +999,113 @@ status-warning { color: #fd7e14; }
   animation: pulse-red 1.5s infinite;
 }
 
-/* --- New Infinity Loader --- */
-.status-dot.loading {
-  width: 24px;  /* Make container wider for the two dots */
-  height: 12px; /* Set container height */
-  border: none; /* Remove old border */
-  background: transparent; /* Remove old background */
-  box-shadow: none; /* Remove old shadow */
-  position: relative; /* Position pseudo-elements inside */
-  
-  /* This centers the new, wider animation */
-  transform: translate(-7px, -1px); 
-  
-  /* Remove old animation */
-  animation: none; 
+/* --- New Info Icon --- */
+.status-info-icon {
+  position: absolute;
+  top: 0.6rem;
+  left: 0.75rem; /* Positioned on the left */
+  cursor: pointer;
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+.status-info-icon:hover {
+  color: var(--brand);
 }
 
-/* Create the left dot */
-.status-dot.loading::before,
-.status-dot.loading::after {
+/* --- Wrapper for content swapping --- */
+.status-content-wrapper {
+  width: 35px; /* Fixed width to prevent jiggling */
+  text-align: right;
+  color: var(--text-light);
+}
+[data-theme="dark"] .status-content-wrapper {
+  color: var(--muted);
+}
+
+/* --- New Infinity Loader (replaces dot loader) --- */
+.infinity-loader {
+  width: 28px; /* Slightly wider */
+  height: 12px;
+  position: relative;
+  display: inline-block;
+  margin-right: 7px; /* Aligns it similarly to the text */
+}
+
+.infinity-loader::before,
+.infinity-loader::after {
   content: '';
   position: absolute;
   top: 0;
   left: 0;
-  width: 10px;  /* Dot size */
-  height: 10px; /* Dot size */
+  width: 10px;
+  height: 10px;
   border-radius: 50%;
   background-color: #6c757d; /* Loading color */
   animation: infinity-spin 1.8s infinite ease-in-out;
 }
 
-/* Create the right dot */
-.status-dot.loading::after {
+.infinity-loader::after {
   left: auto;
   right: 0;
-  animation-delay: -0.9s; /* Half duration */
+  animation-delay: -0.9s;
 }
 
-/* Animation: dots pulse and swap opacity */
+/* --- Logic for showing/hiding content --- */
+/* Hide loader and show text/dot when .status-loaded is added */
+.status-item.status-loaded .infinity-loader {
+  display: none;
+}
+.status-item.status-loaded .status-label {
+  display: inline; /* Show the text */
+}
+.status-item.status-loaded .status-dot {
+  display: block; /* Show the dot */
+}
+
+/* --- Popover Styling --- */
+.popover {
+  border: 1px solid rgba(122, 106, 216, 0.2);
+  border-radius: var(--radius-sm);
+  box-shadow: var(--shadow);
+  backdrop-filter: blur(10px);
+  background: rgba(255, 255, 255, 0.9);
+  max-width: 300px; /* Set max width */
+}
+.popover-header {
+  background: linear-gradient(135deg, rgba(122, 106, 216, 0.1), rgba(122, 106, 216, 0.05));
+  font-weight: 600;
+  color: var(--text);
+  border-bottom: 1px solid rgba(122, 106, 216, 0.2);
+}
+.popover-body {
+  font-size: 0.85rem;
+  color: var(--text-light);
+}
+.popover-body p {
+  margin-bottom: 0.5rem;
+}
+.popover-body hr {
+  margin: 0.5rem 0;
+}
+.popover-body .fa-circle {
+  font-size: 0.7em;
+  vertical-align: middle;
+}
+
+/* Dark mode for popover */
+[data-theme="dark"] .popover {
+  background: rgba(26, 32, 48, 0.95);
+}
+[data-theme="dark"] .popover-header {
+  background: linear-gradient(135deg, rgba(122, 106, 216, 0.3), rgba(122, 106, 216, 0.15));
+  color: var(--text);
+  border-bottom-color: rgba(45, 55, 72, 0.5);
+}
+[data-theme="dark"] .popover-body {
+  color: var(--text-light);
+}
+
+/* --- Keyframes (Consolidated) --- */
 @keyframes infinity-spin {
   0%, 100% {
     transform: scale(0.8);
@@ -1050,23 +1116,6 @@ status-warning { color: #fd7e14; }
     opacity: 1;
   }
 }
-
-    /* --- Add this new class for Server Errors --- */
-.status-dot.error {
-  background-color: #ffc107; /* Orange/Yellow */
-  box-shadow: 0 0 8px #ffc107;
-  animation: pulse-orange 1.5s infinite;
-}
-
-/* --- Add this new animation --- */
-@keyframes pulse-orange {
-  0% { box-shadow: 0 0 5px rgba(255, 193, 7, 0.7); }
-  50% { box-shadow: 0 0 12px rgba(255, 193, 7, 1); }
-  100% { box-shadow: 0 0 5px rgba(255, 193, 7, 0.7); }
-}
-
-
-    
 
 @keyframes pulse-green {
   0% { box-shadow: 0 0 5px rgba(40, 167, 69, 0.7); }
@@ -3713,20 +3762,6 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         <div class="col-md-10">
           <div class="calculator-section-modern fade-in-on-scroll">
             <div class="server-status-indicator">
-  <div class="status-item" id="lms-status-item">
-    <div class="status-content-wrapper">
-      <div class="infinity-loader"></div>
-      <span class="status-label" style="display: none;">LMS</span>
-    </div>
-    <div class="status-dot" id="lms-status-dot" style="display: none;"></div>
-  </div>
-  <div class="status-item" id="attnd-status-item">
-    <div class="status-content-wrapper">
-      <div class="infinity-loader"></div>
-      <span class="status-label" style="display: none;">ATS</span>
-    </div>
-    <div class="status-dot" id="attnd-status-dot" style="display: none;"></div>
-  </div>
   <div class="status-info-icon"
        tabindex="0"
        data-bs-toggle="popover"
@@ -3742,6 +3777,22 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
        "
        data-bs-html="true">
     <i class="fa-solid fa-circle-info"></i>
+  </div>
+  
+  <div class="status-item" id="lms-status-item">
+    <div class="status-content-wrapper">
+      <div class="infinity-loader"></div>
+      <span class="status-label" style="display: none;">LMS</span>
+    </div>
+    <div class="status-dot" id="lms-status-dot" style="display: none;"></div>
+  </div>
+  
+  <div class="status-item" id="attnd-status-item">
+    <div class="status-content-wrapper">
+      <div class="infinity-loader"></div>
+      <span class="status-label" style="display: none;">ATS</span>
+    </div>
+    <div class="status-dot" id="attnd-status-dot" style="display: none;"></div>
   </div>
 </div>
     <div class="text-center mb-4">
@@ -7930,7 +7981,6 @@ document.addEventListener('DOMContentLoaded', function() {
 document.addEventListener('DOMContentLoaded', function() {
   
   // Initialize Bootstrap Popovers
-  // This finds all elements with data-bs-toggle="popover" and enables them
   const popoverTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="popover"]'));
   const popoverList = popoverTriggerList.map(function (popoverTriggerEl) {
     return new bootstrap.Popover(popoverTriggerEl);
@@ -7947,14 +7997,13 @@ document.addEventListener('DOMContentLoaded', function() {
 
     if (!lmsItem || !attndItem || !lmsDot || !attndDot) return;
 
-    // Note: The "loading" state is now the default HTML,
-    // so we just need to wait for the API call.
+    // Loading state is handled by default HTML (infinity-loader is visible)
 
     try {
       // Call our API endpoint
       const response = await fetch('/api/result-scraper?action=check_status', {
         cache: 'no-cache',
-        signal: AbortSignal.timeout(5000) // 5-second timeout
+        signal: AbortSignal.timeout(15000) // 15-second timeout
       });
       
       if (!response.ok) {
@@ -8010,6 +8059,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
 </body>
 </html>
+
 
 
 
