@@ -3301,7 +3301,7 @@ a[aria-expanded="true"] .status-log-chevron {
         max-width: none;
         font-size: 0.8rem; /* Slightly smaller */
         padding: 0.5rem 0.8rem; /* Adjust padding */
-        flex-grow: 1; /* Allow buttons to grow equally */
+        flex-grow: 0; /* Allow buttons to grow equally */
         max-width: 50%; /* Limit width to half */
     }
 
@@ -3819,8 +3819,8 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 
         <p class="text-muted small text-center" style="margin-top:20px; margin-bottom:0px;">Create a local backup of your saved results in your device.</p>
         <div class="profile-data-buttons">
-            <button class="btn btn-success-action btn-sm" type="button" id="importProfilesBtn"><i class="fa-solid fa-upload me-2"></i>Import Profiles</button>
-            <button class="btn btn-info-action btn-sm" type="button" id="exportProfilesBtn"><i class="fa-solid fa-download me-2"></i>Export Profiles</button>
+            <button class="btn btn-success-action btn-sm" type="button" id="importProfilesBtn"><i class="fa-solid fa-upload me-2"></i>Import</button>
+            <button class="btn btn-info-action btn-sm" type="button" id="exportProfilesBtn"><i class="fa-solid fa-download me-2"></i>Export</button>
         </div>
 
         <div id="profileManagement" class="modern-profiles-wrapper" style="display: none;">
@@ -8058,6 +8058,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
 </body>
 </html>
+
 
 
 
