@@ -951,181 +951,106 @@ status-warning { color: #fd7e14; }
   padding-top: 4rem; /* Add padding to make space for the indicator */
 }
 
-.server-status-indicator {
-  position: absolute;
-  top: -1rem;
-  right: 1.25rem;
-  display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-  gap: 0.25rem;
-  padding: 0.5rem 0.75rem;
-  padding-left: 2rem; /* Make space for info icon */
-  border-radius: 0.5rem;
-  backdrop-filter: blur(5px);
-  font-size: 0.8rem;
-  font-weight: 600;
-  z-index: 10;
-}
-
-[data-theme="dark"] .server-status-indicator {
-  background-color: rgba(26, 32, 48, 0.7);
-}
-
-.status-item {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  min-height: 12px;
-}
-
-.status-dot {
-  width: 10px;
-  height: 10px;
-  border-radius: 50%;
-  transition: background-color 0.3s ease, box-shadow 0.3s ease;
-}
-
-.status-dot.online {
-  background-color: #28a745;
-  box-shadow: 0 0 8px #28a745;
-  animation: pulse-green 1.5s infinite;
-}
-
-.status-dot.offline {
-  background-color: #dc3545;
-  box-shadow: 0 0 8px #dc3545;
-  animation: pulse-red 1.5s infinite;
-}
-
-/* --- New Info Icon --- */
-.status-info-icon {
-  position: absolute;
-  top: 0.6rem;
-  left: 0.75rem; /* Positioned on the left */
-  cursor: pointer;
-  color: var(--muted);
-  font-size: 0.9rem;
-}
-.status-info-icon:hover {
-  color: var(--brand);
-}
-
-/* --- Wrapper for content swapping --- */
-.status-content-wrapper {
-  width: 35px; /* Fixed width to prevent jiggling */
-  text-align: right;
-  color: var(--text-light);
-}
-[data-theme="dark"] .status-content-wrapper {
-  color: var(--muted);
-}
-
-/* --- New Infinity Loader (Line Animation) --- */
-.infinity-loader {
-  width: 32px;
-  height: 16px;
-  position: relative;
-  display: inline-block;
-  margin-right: 7px;
-}
-
-/* Remove the old dot animation, add new line animation */
-.infinity-loader::before,
-.infinity-loader::after {
-  content: "";
-  position: absolute;
-  top: 50%;
-  width: 16px;
-  height: 2px;
-  background: var(--brand);
-  border-radius: 1px;
-  transform-origin: center;
-}
-
-.infinity-loader::before {
-  left: 0;
-  animation: infinity-line-left 1.5s cubic-bezier(0.4, 0, 0.6, 1) infinite;
-}
-
-.infinity-loader::after {
-  right: 0;
-  animation: infinity-line-right 1.5s cubic-bezier(0.4, 0, 0.6, 1) infinite;
-}
-
-[data-theme="dark"] .infinity-loader::before,
-[data-theme="dark"] .infinity-loader::after {
-  background: #9ca3af;
-}
-
-/* --- Logic for showing/hiding content --- */
-/* Hide loader and show text/dot when .status-loaded is added */
-.status-item.status-loaded .infinity-loader {
-  display: none;
-}
-.status-item.status-loaded .status-label {
-  display: inline; /* Show the text */
-}
-.status-item.status-loaded .status-dot {
-  display: block; /* Show the dot */
-}
-
-/* ... keep existing keyframes and remove old infinity-loader-anim ... */
-
-/* NEW: Infinity Line Animation */
-@keyframes infinity-line-left {
-  0%, 100% {
-    transform: translateX(0) rotate(0deg) scaleX(1);
-  }
-  25% {
-    transform: translateX(4px) rotate(-45deg) scaleX(0.8);
-  }
-  50% {
-    transform: translateX(8px) rotate(-90deg) scaleX(1);
-  }
-  75% {
-    transform: translateX(4px) rotate(-135deg) scaleX(0.8);
-  }
-}
-
-@keyframes infinity-line-right {
-  0%, 100% {
-    transform: translateX(0) rotate(0deg) scaleX(1);
-  }
-  25% {
-    transform: translateX(-4px) rotate(45deg) scaleX(0.8);
-  }
-  50% {
-    transform: translateX(-8px) rotate(90deg) scaleX(1);
-  }
-  75% {
-    transform: translateX(-4px) rotate(135deg) scaleX(0.8);
-  }
-}
-
-@keyframes pulse-green {
-  0% { box-shadow: 0 0 5px rgba(40, 167, 69, 0.7); }
-  50% { box-shadow: 0 0 12px rgba(40, 167, 69, 1); }
-  100% { box-shadow: 0 0 5px rgba(40, 167, 69, 0.7); }
-}
-
-@keyframes pulse-red {
-  0% { box-shadow: 0 0 5px rgba(220, 53, 69, 0.7); }
-  50% { box-shadow: 0 0 12px rgba(220, 53, 69, 1); }
-  100% { box-shadow: 0 0 5px rgba(220, 53, 69, 0.7); }
-}
-
-
-/* Responsive adjustment */
-@media (max-width: 576px) {
-  .calculator-section-modern {
-    padding-top: 5rem; /* More space on mobile */
-  }
-  .server-status-indicator {
-    top: -1.3rem;
-    right: 0.75rem;
-  }
-}
+/* --- Server Status Indicator (Preserved) --- */
+    .server-status-indicator {
+      position: absolute;
+      top: 1rem;
+      right: 1.5rem;
+      display: flex;
+      gap: 0.75rem;
+      padding: 0.5rem 0.75rem;
+      border-radius: var(--radius-full);
+      background: var(--bg-glass);
+      border: 1px solid var(--border-color);
+      backdrop-filter: blur(10px);
+      font-size: 0.8rem;
+      font-weight: 600;
+      z-index: 10;
+    }
+    .status-item {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      color: var(--text-secondary);
+    }
+    .status-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      transition: all 0.3s ease;
+    }
+    .status-dot.online {
+      background-color: var(--success-primary);
+      box-shadow: 0 0 8px var(--success-primary);
+      animation: pulse-green 1.5s infinite;
+    }
+    .status-dot.offline {
+      background-color: var(--danger-primary);
+      box-shadow: 0 0 8px var(--danger-primary);
+      animation: pulse-red 1.5s infinite;
+    }
+    .status-info-icon {
+      cursor: pointer;
+      color: var(--text-muted);
+      font-size: 0.9rem;
+    }
+    .status-info-icon:hover { color: var(--brand-primary); }
+    
+    .status-content-wrapper {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .status-label { display: none; } /* Hide label by default */
+    .infinity-loader {
+      width: 28px;
+      height: 12px;
+      position: relative;
+    }
+    .infinity-loader::before,
+    .infinity-loader::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background-color: var(--text-muted);
+      animation: infinity-spin 1.8s infinite ease-in-out;
+    }
+    .infinity-loader::after {
+      left: auto;
+      right: 0;
+      animation-delay: -0.9s;
+    }
+    @keyframes infinity-spin {
+      0%, 100% { transform: scale(0.8); opacity: 0.7; }
+      50% { transform: scale(1); opacity: 1; }
+    }
+    
+    .status-item.status-loaded .infinity-loader { display: none; }
+    .status-item.status-loaded .status-label { display: inline; }
+    
+    @keyframes pulse-green {
+      0% { box-shadow: 0 0 5px rgba(16, 172, 132, 0.7); }
+      50% { box-shadow: 0 0 12px rgba(16, 172, 132, 1); }
+      100% { box-shadow: 0 0 5px rgba(16, 172, 132, 0.7); }
+    }
+    @keyframes pulse-red {
+      0% { box-shadow: 0 0 5px rgba(231, 76, 60, 0.7); }
+      50% { box-shadow: 0 0 12px rgba(231, 76, 60, 1); }
+      100% { box-shadow: 0 0 5px rgba(231, 76, 60, 0.7); }
+    }
+    
+    @media (max-width: 576px) {
+      .server-status-indicator {
+        top: 0.5rem;
+        right: 0.5rem;
+      }
+      .status-label { display: none; } /* Always hide label on mobile */
+      .status-item.status-loaded .infinity-loader { display: none; }
+    }
     
 
     /* --- New Info Icon --- */
@@ -3759,39 +3684,31 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         <div class="col-md-10">
           <div class="calculator-section-modern fade-in-on-scroll">
             <div class="server-status-indicator">
-  <div class="status-info-icon"
-       tabindex="0"
-       data-bs-toggle="popover"
-       data-bs-trigger="hover focus"
-       data-bs-placement="bottom"
-       data-bs-title="Server Status"
-       data-bs-content="
-         <p><strong>LMS:</strong> Learning Management System (Main results portal)</p>
-         <p><strong>ATS:</strong> Attendance System (Old results portal)</p>
-         <hr>
-         <p class='mb-0'><i class='fa-solid fa-circle text-success me-2'></i><strong>Green:</strong> Server is Online.</p>
-         <p class='mb-0'><i class='fa-solid fa-circle text-danger me-2'></i><strong>Red:</strong> Server is Offline or has an Error.</p>
-       "
-       data-bs-html="true">
-    <i class="fa-solid fa-circle-info"></i>
-  </div>
-  
-  <div class="status-item" id="lms-status-item">
-    <div class="status-content-wrapper">
-      <div class="infinity-loader"></div>
-      <span class="status-label">LMS</span>
-    </div>
-    <div class="status-dot" id="lms-status-dot""></div>
-  </div>
-  
-  <div class="status-item" id="attnd-status-item">
-    <div class="status-content-wrapper">
-      <div class="infinity-loader"></div>
-      <span class="status-label">ATS</span>
-    </div>
-    <div class="status-dot" id="attnd-status-dot"></div>
-  </div>
-</div>
+          <i class="fa-solid fa-circle-info status-info-icon"
+             tabindex="0"
+             data-bs-toggle="popover"
+             data-bs-trigger="hover focus"
+             data-bs-placement="bottom"
+             data-bs-title="Server Status"
+             data-bs-content="<p><strong>LMS:</strong> Main results portal</p><p><strong>ATS:</strong> Old results portal</p><hr><p class='mb-0'><i class='fa-solid fa-circle text-success me-2'></i><strong>Green:</strong> Online</p><p class='mb-0'><i class='fa-solid fa-circle text-danger me-2'></i><strong>Red:</strong> Offline/Error</p>"
+             data-bs-html="true">
+          </i>
+          <div class="status-item" id="lms-status-item">
+            <div class="status-content-wrapper">
+              <div class="infinity-loader"></div>
+              <span class="status-label">LMS</span>
+            </div>
+            <div class="status-dot" id="lms-status-dot"></div>
+          </div>
+          <div class="status-item" id="attnd-status-item">
+            <div class="status-content-wrapper">
+              <div class="infinity-loader"></div>
+              <span class="status-label">ATS</span>
+            </div>
+            <div class="status-dot" id="attnd-status-dot"></div>
+          </div>
+        </div>
+
     <div class="text-center mb-4">
       <h2 class="fw-bold">
         <i class="fa-solid fa-calculator me-2 gradient-text"></i>
@@ -8056,3 +7973,4 @@ document.addEventListener('DOMContentLoaded', function() {
 
 </body>
 </html>
+
