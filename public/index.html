@@ -5584,7 +5584,7 @@ function initTheme() {
   };
 
   // Get the current theme and apply it
-  const currentTheme = localStorage.getItem(THEME_KEY) || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+  const currentTheme = localStorage.getItem(THEME_KEY) || 'light'; // <--- THIS IS THE CHANGE
   applyTheme(currentTheme);
 
   // Function to handle the toggle logic
@@ -8058,6 +8058,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
 </body>
 </html>
+
 
 
 
