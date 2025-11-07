@@ -956,16 +956,17 @@ status-warning { color: #fd7e14; }
   top: -1rem;
   right: 1.25rem;
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   align-items: flex-end;
   gap: 0.25rem;
   padding: 0.5rem 0.75rem;
   padding-left: 2rem; /* Make space for info icon */
-  border-radius: 0.5rem;
+  border-radius: 15rem;
   backdrop-filter: blur(5px);
   font-size: 0.8rem;
   font-weight: 600;
   z-index: 10;
+  background: #fff;
 }
 
 [data-theme="dark"] .server-status-indicator {
@@ -8056,3 +8057,4 @@ document.addEventListener('DOMContentLoaded', function() {
 
 </body>
 </html>
+
