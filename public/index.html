@@ -7893,16 +7893,11 @@ document.addEventListener('DOMContentLoaded', function() {
 
          <script>
 document.addEventListener('DOMContentLoaded', function() {
-  
-  // Initialize Bootstrap Popovers
   const popoverTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="popover"]'));
-  const popoverList = popoverTriggerList.map(function (popoverTriggerEl) {
+  popoverTriggerList.map(function (popoverTriggerEl) {
     return new bootstrap.Popover(popoverTriggerEl);
   });
 
-  /**
-   * Fetches the server statuses from our *own* backend API.
-   */
   async function checkServerStatuses() {
     const lmsItem = document.getElementById('lms-status-item');
     const attndItem = document.getElementById('attnd-status-item');
@@ -7911,13 +7906,10 @@ document.addEventListener('DOMContentLoaded', function() {
 
     if (!lmsItem || !attndItem || !lmsDot || !attndDot) return;
 
-    // Loading state is handled by default HTML (infinity-loader is visible)
-
     try {
-      // Call our API endpoint
       const response = await fetch('/api/result-scraper?action=check_status', {
         cache: 'no-cache',
-        signal: AbortSignal.timeout(15000) // 15-second timeout
+        signal: AbortSignal.timeout(15000)
       });
       
       if (!response.ok) {
@@ -7926,35 +7918,27 @@ document.addEventListener('DOMContentLoaded', function() {
 
       const data = await response.json();
 
-      // --- Set LMS status ---
       if (data.lms_status === 'online') {
         lmsDot.className = 'status-dot online';
         lmsDot.title = 'LMS is Online';
       } else {
-        // Treat "offline" and "error" both as 'offline' (red)
         lmsDot.className = 'status-dot offline';
         lmsDot.title = 'LMS is Offline or Unreachable';
       }
-      // Add 'status-loaded' class to show the label and dot
       lmsItem.classList.add('status-loaded');
 
-
-      // --- Set Attendance status ---
       if (data.attnd_status === 'online') {
         attndDot.className = 'status-dot online';
         attndDot.title = 'Attendance System is Online';
       } else {
-        // Treat "offline" and "error" both as 'offline' (red)
         attndDot.className = 'status-dot offline';
         attndDot.title = 'Attendance System is Offline or has an Error';
       }
-      // Add 'status-loaded' class to show the label and dot
       attndItem.classList.add('status-loaded');
 
     } catch (error) {
       console.error('Failed to fetch server statuses:', error.name, error.message);
       
-      // If the API call itself fails, mark both as offline
       lmsDot.className = 'status-dot offline';
       lmsDot.title = 'Status check failed';
       lmsItem.classList.add('status-loaded');
@@ -7965,12 +7949,11 @@ document.addEventListener('DOMContentLoaded', function() {
     }
   }
 
-  // Run the check when the page loads
   checkServerStatuses();
-  
 });
 </script>
 
 </body>
 </html>
+
 
