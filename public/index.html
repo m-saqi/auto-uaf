@@ -224,6 +224,14 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
   --radius-btn: 12px; /* Specific radius for certain buttons */
   --shadow: 0 10px 30px rgba(17, 24, 39, 0.1);
   --shadow-hover: 0 15px 40px rgba(17, 24, 39, 0.15);
+      --header-height: 80px;
+  --header-blur: 16px;
+  --header-bg-light: rgba(255, 255, 255, 0.65);
+  --header-bg-dark: rgba(10, 15, 30, 0.7);
+  --header-border-light: rgba(0, 0, 0, 0.08);
+  --header-border-dark: rgba(255, 255, 255, 0.1);
+  --nav-link-hover-bg-light: rgba(122, 106, 216, 0.1);
+  --nav-link-hover-bg-dark: rgba(122, 106, 216, 0.2);
 
   /* New gradient variables */
   --brand-primary: #7a6ad8;
@@ -241,7 +249,7 @@ body {
   background-color: var(--light-bg);
   min-height: 100vh;
   margin: 0;
-  padding: 0;
+  padding-top: 80px;
   color: var(--text);
 }
 
@@ -286,6 +294,238 @@ body {
   width: 100%;
 }
 
+
+
+    /* NEW PREMIUM HEADER STYLES 
+  Add this entire block to your main <style> tag in index.html
+*/
+
+/* STEP 1: Add padding to the body to offset the new 'fixed-top' navbar.
+  (Adjust 80px if your header height is different)
+*/
+body {
+  padding-top: 80px; 
+}
+
+/* STEP 2: Define new variables for the premium header
+*/
+:root {
+  --header-height: 80px;
+  --header-blur: 16px;
+  --header-bg-light: rgba(255, 255, 255, 0.65);
+  --header-bg-dark: rgba(10, 15, 30, 0.7);
+  --header-border-light: rgba(0, 0, 0, 0.08);
+  --header-border-dark: rgba(255, 255, 255, 0.1);
+  --nav-link-hover-bg-light: rgba(122, 106, 216, 0.1);
+  --nav-link-hover-bg-dark: rgba(122, 106, 216, 0.2);
+}
+
+/* STEP 3: Style the main navbar 'navbar-premium'
+*/
+.navbar-premium {
+  min-height: var(--header-height);
+  background-color: var(--header-bg-light);
+  backdrop-filter: saturate(180%) blur(var(--header-blur));
+  -webkit-backdrop-filter: saturate(180%) blur(var(--header-blur));
+  border-bottom: 1px solid var(--header-border-light);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
+  transition: background-color 0.3s ease, border-color 0.3s ease;
+}
+
+/* STEP 4: Style the brand/logo
+*/
+.navbar-premium .navbar-brand {
+  font-weight: 800;
+  letter-spacing: .3px;
+  color: var(--brand);
+  transition: transform 0.3s ease, opacity 0.3s ease;
+}
+
+.navbar-premium .premium-brand-hover:hover {
+  transform: scale(1.03);
+  opacity: 0.9;
+}
+
+/* STEP 5: Style the nav links (PowerPoint-style)
+*/
+.navbar-premium .nav-link {
+  font-weight: 600;
+  font-size: 0.9rem; /* Slightly smaller */
+  text-transform: uppercase; /* Professional/clean look */
+  letter-spacing: 0.5px; /* More spacing */
+  color: var(--text-light);
+  padding: 0.75rem 1rem !important; /* Uniform padding */
+  border-radius: 99px; /* Pill shape */
+  transition: all 0.3s ease;
+  position: relative;
+  /* Remove the old ::after underline */
+}
+.navbar-premium .nav-link::after {
+  display: none;
+}
+
+/* Modern pill hover effect */
+.navbar-premium .nav-link:hover {
+  background-color: var(--nav-link-hover-bg-light);
+  color: var(--brand-600);
+  transform: translateY(-2px);
+}
+
+/* Active link style */
+.navbar-premium .nav-link.active {
+  background-color: var(--nav-link-hover-bg-light);
+  color: var(--brand-700) !important;
+}
+
+/* STEP 6: Restyle the theme toggle button (Desktop)
+*/
+.btn-icon-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 42px;
+  height: 42px;
+  padding: 0;
+  font-size: 1rem;
+  border-radius: 50%; /* Perfect circle */
+  background-color: var(--nav-link-hover-bg-light);
+  color: var(--brand-600);
+  border: none;
+  transition: all 0.3s ease;
+}
+
+.btn-icon-toggle:hover {
+  background-color: var(--brand);
+  color: #fff;
+  transform: scale(1.1) rotate(15deg);
+}
+
+/* STEP 7: Restyle the hamburger toggler
+*/
+.navbar-premium .navbar-toggler {
+  border: none;
+  padding: 0;
+}
+.navbar-premium .navbar-toggler:focus {
+  box-shadow: none;
+}
+.navbar-premium .hamburger-icon {
+  width: 28px;
+  height: 24px;
+  position: relative;
+  transition: .5s ease-in-out;
+  cursor: pointer;
+}
+.navbar-premium .hamburger-icon span {
+  display: block;
+  position: absolute;
+  height: 3px; /* Slightly thinner */
+  width: 100%;
+  background: var(--brand);
+  border-radius: 3px;
+  opacity: 1;
+  left: 0;
+  transform: rotate(0deg);
+  transition: .25s ease-in-out;
+}
+.navbar-premium .hamburger-icon span:nth-child(1) { top: 0px; }
+.navbar-premium .hamburger-icon span:nth-child(2) { top: 10px; }
+.navbar-premium .hamburger-icon span:nth-child(3) { top: 20px; }
+
+.navbar-premium .navbar-toggler[aria-expanded="true"] .hamburger-icon span:nth-child(1) {
+  top: 10px;
+  transform: rotate(135deg);
+}
+.navbar-premium .navbar-toggler[aria-expanded="true"] .hamburger-icon span:nth-child(2) {
+  opacity: 0;
+  left: -60px;
+}
+.navbar-premium .navbar-toggler[aria-expanded="true"] .hamburger-icon span:nth-child(3) {
+  top: 10px;
+  transform: rotate(-135deg);
+}
+
+/* STEP 8: Responsive styles for mobile
+*/
+@media (max-width: 991.98px) {
+  .navbar-premium .navbar-collapse {
+    /* Create a "card" for the mobile menu */
+    margin-top: 1rem;
+    border-radius: var(--radius-sm);
+    background-color: var(--card-bg);
+    padding: 1rem;
+    box-shadow: var(--shadow);
+    border: 1px solid var(--header-border-light);
+  }
+
+  .navbar-premium .nav-link {
+    font-size: 1.1rem;
+    text-transform: none; /* Revert uppercase for mobile */
+    letter-spacing: 0;
+    font-weight: 500;
+    padding: 0.75rem 1rem !important;
+  }
+  
+  .navbar-premium .nav-link:hover {
+    transform: none; /* Disable hover transform on mobile */
+  }
+
+  .navbar-premium .nav-item-theme-toggle {
+    /* Center the mobile theme toggle */
+    padding-top: 0.5rem;
+    margin-top: 0.5rem;
+    border-top: 1px solid var(--header-border-light);
+  }
+}
+
+/* STEP 9: Dark Mode styles for the new header
+*/
+[data-theme="dark"] .navbar-premium {
+  background-color: var(--header-bg-dark);
+  border-bottom: 1px solid var(--header-border-dark);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+}
+
+[data-theme="dark"] .navbar-premium .nav-link {
+  color: var(--text-light);
+}
+
+[data-theme="dark"] .navbar-premium .nav-link:hover {
+  background-color: var(--nav-link-hover-bg-dark);
+  color: #fff;
+}
+
+[data-theme="dark"] .navbar-premium .nav-link.active {
+  background-color: var(--nav-link-hover-bg-dark);
+  color: #fff !important;
+}
+
+[data-theme="dark"] .btn-icon-toggle {
+  background-color: var(--nav-link-hover-bg-dark);
+  color: var(--text-light);
+}
+
+[data-theme="dark"] .btn-icon-toggle:hover {
+  background-color: var(--brand);
+  color: #fff;
+}
+
+[data-theme="dark"] .navbar-premium .hamburger-icon span {
+  background: #fff; /* Make hamburger visible in dark mode */
+}
+
+@media (max-width: 991.98px) {
+  [data-theme="dark"] .navbar-premium .navbar-collapse {
+    background-color: #1a2030; /* Dark card for mobile menu */
+    border-color: var(--header-border-dark);
+  }
+  [data-theme="dark"] .navbar-premium .nav-item-theme-toggle {
+    border-top: 1px solid var(--header-border-dark);
+  }
+}
+    
+
+    
 /* Improved buttons */
 .btn-brand {
   background: var(--brand-gradient);
@@ -3615,9 +3855,9 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     </div>
   </div>
 
-  <nav class="navbar navbar-expand-lg sticky-top border-bottom">
+  <nav class="navbar navbar-expand-lg fixed-top navbar-premium">
   <div class="container">
-    <a class="navbar-brand d-flex align-items-center gap-2" href="/">
+    <a class="navbar-brand d-flex align-items-center gap-2 premium-brand-hover" href="/">
       <span class="badge rounded-pill badge-brand">UAF</span>
       <span class="gradient-text">CGPA Calculator</span>
     </a>
@@ -3631,33 +3871,33 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     </button>
 
     <div class="collapse navbar-collapse" id="mainNav">
-      <ul class="navbar-nav ms-auto align-items-lg-center">
+      <ul class="navbar-nav ms-auto align-items-center">
         <li class="nav-item">
-          <a class="nav-link" href="#Home"><i class="fa-solid fa-house me-2"></i>Home</a>
+          <a class="nav-link" href="#Home"><i class="fa-solid fa-house me-2 d-lg-none"></i>Home</a>
         </li>
         <li class="nav-item">
-          <a class="nav-link" href="#Auto-Calculator"><i class="fa-solid fa-calculator me-2"></i>CGPA Calculator</a>
+          <a class="nav-link" href="#Auto-Calculator"><i class="fa-solid fa-calculator me-2 d-lg-none"></i>Calculator</a>
         </li>
         <li class="nav-item">
-          <a class="nav-link" href="#features"><i class="fa-solid fa-star me-2"></i>Features</a>
+          <a class="nav-link" href="#features"><i class="fa-solid fa-star me-2 d-lg-none"></i>Features</a>
         </li>
         <li class="nav-item">
-          <a class="nav-link" href="#faq"><i class="fa-solid fa-circle-question me-2"></i>FAQ</a>
+          <a class="nav-link" href="#faq"><i class="fa-solid fa-circle-question me-2 d-lg-none"></i>FAQ</a>
         </li>
         <li class="nav-item">
-          <a class="nav-link" href="#contact-us"><i class="fa-solid fa-envelope me-2"></i>Contact</a>
+          <a class="nav-link" href="#contact-us"><i class="fa-solid fa-envelope me-2 d-lg-none"></i>Contact</a>
         </li>
         
         <li class="nav-item nav-item-theme-toggle ms-lg-3">
-  <div class="theme-switch-wrapper-mobile d-lg-none">
-    <input type="checkbox" id="themeToggleInput" class="theme-switch-input" />
-    <label for="themeToggleInput" class="theme-switch-label"></label>
-  </div>
-  
-  <button id="themeToggleBtn" class="btn btn-sm btn-soft rounded-pill d-none d-lg-block" type="button" aria-label="Toggle dark mode">
-    <i class="fa-solid fa-moon"></i>
-  </button>
-</li>
+          <div class="theme-switch-wrapper-mobile d-lg-none">
+            <input type="checkbox" id="themeToggleInput" class="theme-switch-input" />
+            <label for="themeToggleInput" class="theme-switch-label"></label>
+          </div>
+          
+          <button id="themeToggleBtn" class="btn btn-icon-toggle d-none d-lg-flex" type="button" aria-label="Toggle dark mode">
+            <i class="fa-solid fa-moon"></i>
+          </button>
+        </li>
       </ul>
     </div>
   </div>
@@ -8058,6 +8298,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
 </body>
 </html>
+
 
 
 
