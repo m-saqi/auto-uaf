@@ -6515,29 +6515,22 @@ function initTheme() {
             }
           });
 
-          // --- FIX for B.Ed. Forecast & Empty Semesters ---
+          // --- FIX for B.Ed. Forecast ---
           const isForecast = semester.isForecast === true;
           const isBedForecast = semester.isBedForecast === true; // Check our new flag
 
-          // This logic now keeps all regular semesters (even if empty after filtering)
-          // but correctly filters out forecast semesters from the wrong tab.
-
           if (includeBed) { // We are filtering FOR B.Ed. tab
-              if (isForecast && !isBedForecast) {
-                  // This is an "Other" forecast, skip it on the B.Ed. tab
-              } else {
-                  // Keep it: It's a B.Ed. forecast, OR it's a regular semester (even if empty)
+              if (newCourseList.length > 0 || (isForecast && isBedForecast)) {
+                  // Include if it has B.Ed courses OR it's a B.Ed. forecast
                   filteredSemesters[semesterName] = {
                       ...semester,
                       courses: newCourseList
                   };
               }
           } else { // We are filtering FOR "Other" tab
-              if (isForecast && isBedForecast) {
-                  // This is a "B.Ed." forecast, skip it on the "Other" tab
-              } else {
-                  // Keep it: It's an "Other" forecast, OR it's a regular semester (even if empty)
-                  filteredSemesters[semesterName] = {
+              if (newCourseList.length > 0 || (isForecast && !isBedForecast)) {
+                   // Include if it has non-B.Ed courses OR it's a non-B.Ed. forecast
+                   filteredSemesters[semesterName] = {
                       ...semester,
                       courses: newCourseList
                   };
@@ -8282,6 +8275,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
 </body>
 </html>
+
 
 
 
