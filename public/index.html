@@ -6032,15 +6032,31 @@ function initTheme() {
           const historyKey = courseCode;
 
           // --- NEW B.Ed. Check ---
-          if (BED_COURSES.has(courseCode)) {
+          const isBedCourse = BED_COURSES.has(courseCode); // <-- MODIFIED: Store this check
+          if (isBedCourse) {
             hasBedCourses = true;
           }
           // --- End of NEW B.Ed. Check ---
 
           if (!semesters[semesterName]) {
             // Pass the *processed* semesterName to getSemesterOrderKey
-            semesters[semesterName] = { originalName: originalSemester, sortKey: getSemesterOrderKey(semesterName), courses: [] };
+            semesters[semesterName] = { 
+              originalName: originalSemester, 
+              sortKey: getSemesterOrderKey(semesterName), 
+              courses: [],
+              hasBedCourses: false,    // <-- ADD THIS
+              hasOtherCourses: false   // <-- ADD THIS
+            };
           }
+
+          // --- ADD THIS BLOCK ---
+          // Tag the semester with the type of course it contains
+          if (isBedCourse) {
+            semesters[semesterName].hasBedCourses = true;
+          } else {
+            semesters[semesterName].hasOtherCourses = true;
+          }
+          // --- END ADDED BLOCK ---
 
           const creditHoursStr = course.CreditHours || '0';
           const creditHours = parseInt(creditHoursStr.match(/\d+/)?.[0] || '0');
@@ -6507,24 +6523,50 @@ function initTheme() {
           // This is the list of courses that *will be displayed* in this tab
           const newCourseList = [];
           
-          // These flags check if the semester *belongs* in this tab at all,
-          // based on its full list of courses (not the filtered one).
-          let hasBedCourses = false;
-          let hasOtherCourses = false;
+          // --- START FINAL FIX ---
+          // Check if the identity flags exist. If not, calculate them.
+          // This makes the function work for old profiles loaded from storage.
+          let hasBedCourses = semester.hasBedCourses;
+          let hasOtherCourses = semester.hasOtherCourses;
 
+          if (hasBedCourses === undefined || hasOtherCourses === undefined) {
+            // Flags are missing (old profile), calculate them now.
+            hasBedCourses = false;
+            hasOtherCourses = false;
+            semester.courses.forEach(course => {
+              if (BED_COURSES.has(course.code.toUpperCase().trim())) {
+                hasBedCourses = true;
+              } else {
+                hasOtherCourses = true;
+              }
+            });
+            // We'll also check all *other* semesters in processedData
+            // in case the course was dragged to another semester
+            if (processedData && processedData.semesters) {
+                Object.values(processedData.semesters).forEach(s => {
+                    s.courses.forEach(c => {
+                        // If a course *originally* from this semester is now elsewhere
+                        if (c.originalSemester === semester.originalName) {
+                            if (BED_COURSES.has(c.code.toUpperCase().trim())) {
+                                hasBedCourses = true;
+                            } else {
+                                hasOtherCourses = true;
+                            }
+                        }
+                    });
+                });
+            }
+          }
+          // --- END FINAL FIX ---
+
+          // Now, iterate *again* just to build the *display list*
           semester.courses.forEach(course => {
             const isBedCourse = BED_COURSES.has(course.code.toUpperCase().trim());
             
-            if (isBedCourse) {
-              hasBedCourses = true;
-              if (includeBed) {
-                newCourseList.push(course); // Add to display list for B.Ed. tab
-              }
-            } else {
-              hasOtherCourses = true;
-              if (!includeBed) {
-                newCourseList.push(course); // Add to display list for Other tab
-              }
+            if (includeBed && isBedCourse) {
+              newCourseList.push(course); // Add to display list for B.Ed. tab
+            } else if (!includeBed && !isBedCourse) {
+              newCourseList.push(course); // Add to display list for Other tab
             }
           });
 
@@ -8287,6 +8329,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
 </body>
 </html>
+
 
 
 
