@@ -6504,37 +6504,49 @@ function initTheme() {
         const filteredSemesters = {};
         
         Object.entries(semesters).forEach(([semesterName, semester]) => {
+          // This is the list of courses that *will be displayed* in this tab
           const newCourseList = [];
+          
+          // These flags check if the semester *belongs* in this tab at all,
+          // based on its full list of courses (not the filtered one).
+          let hasBedCourses = false;
+          let hasOtherCourses = false;
+
           semester.courses.forEach(course => {
             const isBedCourse = BED_COURSES.has(course.code.toUpperCase().trim());
             
-            if (includeBed && isBedCourse) {
-              newCourseList.push(course);
-            } else if (!includeBed && !isBedCourse) {
-              newCourseList.push(course);
+            if (isBedCourse) {
+              hasBedCourses = true;
+              if (includeBed) {
+                newCourseList.push(course); // Add to display list for B.Ed. tab
+              }
+            } else {
+              hasOtherCourses = true;
+              if (!includeBed) {
+                newCourseList.push(course); // Add to display list for Other tab
+              }
             }
           });
 
-          // --- FIX for B.Ed. Forecast ---
           const isForecast = semester.isForecast === true;
-          const isBedForecast = semester.isBedForecast === true; // Check our new flag
+          const isBedForecast = semester.isBedForecast === true;
+
+          let shouldBeInThisTab = false;
 
           if (includeBed) { // We are filtering FOR B.Ed. tab
-              if (newCourseList.length > 0 || (isForecast && isBedForecast)) {
-                  // Include if it has B.Ed courses OR it's a B.Ed. forecast
-                  filteredSemesters[semesterName] = {
-                      ...semester,
-                      courses: newCourseList
-                  };
-              }
+            // Semester belongs here if it has B.Ed. courses OR is a B.Ed. forecast
+            shouldBeInThisTab = hasBedCourses || (isForecast && isBedForecast);
           } else { // We are filtering FOR "Other" tab
-              if (newCourseList.length > 0 || (isForecast && !isBedForecast)) {
-                   // Include if it has non-B.Ed courses OR it's a non-B.Ed. forecast
-                   filteredSemesters[semesterName] = {
-                      ...semester,
-                      courses: newCourseList
-                  };
-              }
+            // Semester belongs here if it has Other courses OR is an "Other" forecast
+            shouldBeInThisTab = hasOtherCourses || (isForecast && !isBedForecast);
+          }
+          
+          // If the semester belongs in this tab (even if its newCourseList is now empty)
+          if (shouldBeInThisTab) {
+            filteredSemesters[semesterName] = {
+                ...semester,
+                courses: newCourseList // This list might be empty, which is what we want
+            };
           }
         });
         return filteredSemesters;
@@ -8275,6 +8287,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
 </body>
 </html>
+
 
 
 
