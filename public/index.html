@@ -3053,71 +3053,109 @@ a[aria-expanded="true"] .status-log-chevron {
   }
 }
 
-    /* Update the main container to be a flex column with a gap */
-.search-and-profiles-container {
-  display: flex;
-  flex-direction: column;
-  gap: 1.5rem; /* Adds professional spacing between the two cards */
+
+    /* --- NEW: Action Hub Tab Styles --- */
+
+/* Remove the padding from the card-header to make tabs fit nicely */
+.card-header.action-hub-tabs {
+  padding: 0;
+  /* Use the light gradient from your existing card-header style */
+  background: linear-gradient(135deg, rgba(122, 106, 216, 0.2), rgba(122, 106, 216, 0.1));
+  border-bottom: 1px solid rgba(122, 106, 216, 0.2);
 }
 
-/* No changes needed for:
-  - .modern-search-wrapper
-  - .modern-search-input
-  - .modern-search-button
-  - .modern-profiles-wrapper
-  - .modern-profiles-icon
-  - .modern-profiles-select
-  - .card-modern 
-  ...as they are already well-styled in your file.
-*/
+[data-theme="dark"] .card-header.action-hub-tabs {
+  background: linear-gradient(135deg, rgba(122, 106, 216, 0.3), rgba(122, 106, 216, 0.15));
+  border-bottom-color: rgba(122, 106, 216, 0.3);
+}
 
-/* NEW: Styles for the Import/Export buttons container */
+/* Style for the <ul> list */
+#actionHubTab {
+  border-bottom: none; /* Remove default Bootstrap border */
+  display: flex;
+}
+
+#actionHubTab .nav-item {
+  flex: 1; /* Make tabs share space equally */
+  text-align: center;
+}
+
+/* Style for the tab <button> */
+#actionHubTab .nav-link {
+  border: none;
+  border-bottom: 3px solid transparent; /* "Inactive" underline */
+  color: var(--muted);
+  font-weight: 600;
+  font-size: 1.05rem;
+  padding: 1rem;
+  transition: all 0.3s ease;
+  width: 100%; /* Ensure button fills the <li> */
+  border-radius: 0; /* No radius on tabs */
+}
+
+/* Hover state for inactive tabs */
+#actionHubTab .nav-link:not(.active):hover {
+  color: var(--text);
+  border-bottom-color: rgba(122, 106, 216, 0.5);
+  background-color: rgba(122, 106, 216, 0.05);
+}
+
+/* Active tab style */
+#actionHubTab .nav-link.active {
+  color: var(--brand);
+  border-bottom-color: var(--brand);
+  background-color: transparent; /* No background on active tab */
+}
+
+/* Dark mode adjustments for tab text */
+[data-theme="dark"] #actionHubTab .nav-link:not(.active) {
+  color: var(--muted);
+}
+[data-theme="dark"] #actionHubTab .nav-link:not(.active):hover {
+  color: #fff;
+  background-color: rgba(122, 106, 216, 0.1);
+}
+[data-theme="dark"] #actionHubTab .nav-link.active {
+  color: #fff; /* Make active tab text white in dark mode */
+  background-color: transparent;
+}
+
+/* Style for the tab panes */
+.tab-content {
+  padding-top: 1rem; /* Add a little space inside the card-body */
+}
+
+/* --- Styles for Backup Buttons (Improved) --- */
+/* (This replaces your old .profile-data-buttons) */
+
 .profile-data-buttons-new {
   display: flex;
-  justify-content: center; /* Center the buttons */
-  gap: 0.75rem; /* Space between buttons */
-  flex-wrap: wrap; /* Allow wrapping on small screens */
+  justify-content: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
 }
 
-/* NEW: Upgraded styles for the Import/Export buttons */
 .profile-data-buttons-new .btn {
   font-size: 0.9rem;          /* Larger, more readable font */
   padding: 0.6rem 1.2rem;   /* More professional padding */
   border-radius: var(--radius-btn); /* Use your existing radius variable */
   flex-grow: 1;             /* Allow buttons to grow and fill space */
-  min-width: 170px;         /* Ensure they have a good minimum width */
+  min-width: 170px;         /* Good minimum width */
   max-width: 260px;         /* Prevent them from getting too wide */
-  
-  /* Inherit existing styles like btn-success-action */
-  /* This just improves layout and sizing */
 }
 
-/* NEW: Re-using the feature-icon style from your "Why Choose" section
-   for the card headers. This class is already in your main CSS.
-   We just need to ensure its margin is correct. */
-.card-body .feature-icon {
-    flex-shrink: 0; /* Prevent icon from shrinking on small screens */
-}
-
-
-/* Responsive adjustment for small screens */
+/* Responsive adjustments */
 @media (max-width: 575.98px) {
   .profile-data-buttons-new .btn {
     font-size: 0.85rem;
     padding: 0.6rem 1rem;
     min-width: 150px;
   }
-
-  /* On mobile, stack the card header icon and text vertically */
-  .card-body .d-flex.align-items-center.mb-3 {
-     flex-direction: column;
-     align-items: center !important;
-     text-align: center;
-  }
   
-  .card-body .feature-icon {
-    margin-right: 0 !important;
-    margin-bottom: 0.75rem; /* Add space below icon when stacked */
+  /* Make tabs text smaller on mobile */
+  #actionHubTab .nav-link {
+    font-size: 0.9rem;
+    padding: 0.8rem 0.5rem;
   }
 }
     
@@ -4089,68 +4127,73 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     </div>
     <form id="resultForm" class="text-center">
       <div class="search-and-profiles-container">
+    
+    <div class="card card-modern" id="action-hub-card">
+        
+        <div class="card-header action-hub-tabs">
+            <ul class="nav nav-tabs card-header-tabs" id="actionHubTab" role="tablist">
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link active" id="fetch-tab" data-bs-toggle="tab" data-bs-target="#fetch-tab-pane" type="button" role="tab" aria-controls="fetch-tab-pane" aria-selected="true">
+                        <i class="fa-solid fa-cloud-arrow-down me-2"></i>Fetch New Result
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="profiles-tab" data-bs-toggle="tab" data-bs-target="#profiles-tab-pane" type="button" role="tab" aria-controls="profiles-tab-pane" aria-selected="false">
+                        <i class="fa-solid fa-users-gear me-2"></i>Manage Profiles
+                    </button>
+                </li>
+            </ul>
+        </div>
 
-  <div class="card card-modern">
-    <div class="card-body p-4">
-      <div class="d-flex align-items-center mb-3">
-        <div class="feature-icon flex-shrink-0" style="width: 50px; height: 50px; font-size: 1.2rem; margin-right: 1rem;">
-          <i class="fa-solid fa-cloud-arrow-down"></i>
+        <div class="card-body p-4">
+            <div class="tab-content" id="actionHubTabContent">
+                
+                <div class="tab-pane fade show active" id="fetch-tab-pane" role="tabpanel" aria-labelledby="fetch-tab" tabindex="0">
+                    <p class="text-muted text-center mb-3">Enter a registration number to fetch a new result from the UAF portal.</p>
+                    
+                    <form id="resultForm" class="text-center"> 
+                        <div class="modern-search-wrapper">
+                            <input type="text" class="form-control modern-search-input" id="registrationNumber" placeholder="e.g., 2020-ag-1234" required="">
+                            <button type="submit" class="btn btn-primary-action modern-search-button">
+                                <i class="fa-solid fa-cloud-arrow-down"></i>
+                                <span class="d-none d-md-inline ms-2">Fetch Result</span>
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
+                <div class="tab-pane fade" id="profiles-tab-pane" role="tabpanel" aria-labelledby="profiles-tab" tabindex="0">
+                    <p class="text-muted text-center mb-3">Load, manage, or backup your locally saved profiles.</p>
+                    
+                    <div id="profileManagement" class="modern-profiles-wrapper" style="display: block;">
+                        <div class="input-group mb-3">
+                            <span class="input-group-text modern-profiles-icon">
+                                <i class="fa-solid fa-user-check"></i>
+                            </span>
+                            <select class="form-select modern-profiles-select" id="profileSwitcher">
+                                <option value="">Select a saved profile...</option>
+                                </select>
+                            <button class="btn btn-primary-action" type="button" id="openProfileManagerBtn" title="Manage All Profiles">
+                                <i class="fa-solid fa-users-gear"></i><span class="d-none d-sm-inline ms-1">Manage</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <hr class="my-4">
+
+                    <p class="text-muted small text-center mb-3">Create or restore a local backup of your saved profiles.</p>
+                    <div class="profile-data-buttons-new">
+                        <button class="btn btn-success-action" type="button" id="importProfilesBtn">
+                            <i class="fa-solid fa-upload me-2"></i>Import Backup
+                        </button>
+                        <button class="btn btn-info-action" type="button" id="exportProfilesBtn">
+                            <i class="fa-solid fa-download me-2"></i>Export Backup
+                        </button>
+                    </div>
+                </div>
+            </div>
         </div>
-        <div>
-          <h5 class="fw-bold mb-0">Fetch New Result</h5>
-          <p class="text-muted mb-0 small">Enter a registration number to fetch results.</p>
-        </div>
-      </div>
-      
-      <form id="resultForm" class="text-center"> <div class="modern-search-wrapper">
-          <input type="text" class="form-control modern-search-input" id="registrationNumber" placeholder="e.g., 2020-ag-1234" required="">
-          <button type="submit" class="btn btn-primary-action modern-search-button">
-            <i class="fa-solid fa-cloud-arrow-down"></i>
-            <span class="d-none d-md-inline ms-2">Fetch Result</span>
-          </button>
-        </div>
-      </form>
     </div>
-  </div>
-
-  <div class="card card-modern">
-    <div class="card-body p-4">
-      <div class="d-flex align-items-center mb-3">
-        <div class="feature-icon flex-shrink-0" style="width: 50px; height: 50px; font-size: 1.2rem; margin-right: 1rem;">
-          <i class="fa-solid fa-users-gear"></i>
-        </div>
-        <div>
-          <h5 class="fw-bold mb-0">Manage Saved Profiles</h5>
-          <p class="text-muted mb-0 small">Load, backup, or manage your saved data.</p>
-        </div>
-      </div>
-
-      <div id="profileManagement" class="modern-profiles-wrapper" style="display: block;">
-        <div class="input-group mb-3">
-          <span class="input-group-text modern-profiles-icon">
-            <i class="fa-solid fa-user-check"></i>
-          </span>
-          <select class="form-select modern-profiles-select" id="profileSwitcher">
-            <option value="">Select a saved profile...</option>
-          </select>
-          <button class="btn btn-primary-action" type="button" id="openProfileManagerBtn" title="Manage All Profiles">
-            <i class="fa-solid fa-users-gear"></i><span class="d-none d-sm-inline ms-1">Manage</span>
-          </button>
-        </div>
-      </div>
-      
-      <p class="text-muted small text-center mb-2">Create a local backup of your saved results.</p>
-      <div class="profile-data-buttons-new">
-        <button class="btn btn-success-action" type="button" id="importProfilesBtn">
-          <i class="fa-solid fa-upload me-2"></i>Import Backup
-        </button>
-        <button class="btn btn-info-action" type="button" id="exportProfilesBtn">
-          <i class="fa-solid fa-download me-2"></i>Export Backup
-        </button>
-      </div>
-    </div>
-  </div>
-
 </div>
     </form>
     <div class="loading-container" id="loadingContainer">
@@ -8429,6 +8472,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
 </body>
 </html>
+
 
 
 
