@@ -3054,80 +3054,74 @@ a[aria-expanded="true"] .status-log-chevron {
 }
 
 
-    /* --- NEW: Action Hub Tab Styles --- */
+    /* --- NEW: Creative Action Hub --- */
 
-/* Remove the padding from the card-header to make tabs fit nicely */
-.card-header.action-hub-tabs {
-  padding: 0;
-  /* Use the light gradient from your existing card-header style */
-  background: linear-gradient(135deg, rgba(122, 106, 216, 0.2), rgba(122, 106, 216, 0.1));
-  border-bottom: 1px solid rgba(122, 106, 216, 0.2);
-}
-
-[data-theme="dark"] .card-header.action-hub-tabs {
-  background: linear-gradient(135deg, rgba(122, 106, 216, 0.3), rgba(122, 106, 216, 0.15));
-  border-bottom-color: rgba(122, 106, 216, 0.3);
-}
-
-/* Style for the <ul> list */
-#actionHubTab {
-  border-bottom: none; /* Remove default Bootstrap border */
+/* 1. The Pill Navigation Container */
+/* This sits on the main page background (var(--light-bg)) */
+.action-hub-nav-pills {
   display: flex;
+  background-color: rgba(122, 106, 216, 0.08); /* Faint background for the "track" */
+  border-radius: 99px; /* Perfect pill shape */
+  padding: 0.35rem; /* Space for the active pill to move */
+  position: relative;
 }
 
-#actionHubTab .nav-item {
-  flex: 1; /* Make tabs share space equally */
-  text-align: center;
+[data-theme="dark"] .action-hub-nav-pills {
+  background-color: rgba(122, 106, 216, 0.2); /* Dark mode track */
 }
 
-/* Style for the tab <button> */
-#actionHubTab .nav-link {
+/* 2. The Pill Buttons (Active & Inactive) */
+.action-hub-nav-pills .nav-link {
+  flex: 1; /* Each button takes 50% space */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  
   border: none;
-  border-bottom: 3px solid transparent; /* "Inactive" underline */
-  color: var(--muted);
+  border-radius: 99px; /* Pill shape for all buttons */
+  
+  color: var(--muted); /* Inactive text color */
   font-weight: 600;
-  font-size: 1.05rem;
-  padding: 1rem;
+  font-size: 1.0rem;
+  padding: 0.75rem 1rem;
+  
+  transition: all 0.3s ease-in-out; /* Smooth transitions */
+  
+  /* Remove bootstrap defaults */
+  background: none; 
+}
+
+/* 3. The ACTIVE Pill Button */
+.action-hub-nav-pills .nav-link.active {
+  color: #ffffff; /* White text on the gradient */
+  background: var(--brand-gradient); /* Your site's brand gradient! */
+  box-shadow: 0 6px 18px rgba(122, 106, 216, 0.3); /* Softer shadow */
+  transform: scale(1.02); /* Slight "pop" effect */
+}
+
+/* 4. The Content Wrapper Below */
+/* This is the new "container" that replaces the awkward card */
+.action-hub-content-wrapper {
+  margin-top: 1rem; /* Space from the pill toggle */
+  
+  /* Use your site's card background colors */
+  background: var(--card-bg); 
+  border-radius: var(--radius); /* Use your site's border radius */
+  box-shadow: var(--shadow); /* Use your site's shadow */
+  
+  /* Use backdrop-filter if you used it for card-modern */
+  backdrop-filter: blur(10px); 
+  background: rgba(255, 255, 255, 0.8);
+
+  padding: 2rem;
   transition: all 0.3s ease;
-  width: 100%; /* Ensure button fills the <li> */
-  border-radius: 0; /* No radius on tabs */
 }
 
-/* Hover state for inactive tabs */
-#actionHubTab .nav-link:not(.active):hover {
-  color: var(--text);
-  border-bottom-color: rgba(122, 106, 216, 0.5);
-  background-color: rgba(122, 106, 216, 0.05);
+[data-theme="dark"] .action-hub-content-wrapper {
+  background: rgba(15, 29, 64, 0.8); /* Dark card background */
 }
 
-/* Active tab style */
-#actionHubTab .nav-link.active {
-  color: var(--brand);
-  border-bottom-color: var(--brand);
-  background-color: transparent; /* No background on active tab */
-}
-
-/* Dark mode adjustments for tab text */
-[data-theme="dark"] #actionHubTab .nav-link:not(.active) {
-  color: var(--muted);
-}
-[data-theme="dark"] #actionHubTab .nav-link:not(.active):hover {
-  color: #fff;
-  background-color: rgba(122, 106, 216, 0.1);
-}
-[data-theme="dark"] #actionHubTab .nav-link.active {
-  color: #fff; /* Make active tab text white in dark mode */
-  background-color: transparent;
-}
-
-/* Style for the tab panes */
-.tab-content {
-  padding-top: 1rem; /* Add a little space inside the card-body */
-}
-
-/* --- Styles for Backup Buttons (Improved) --- */
-/* (This replaces your old .profile-data-buttons) */
-
+/* 5. Styles for the Backup/Import buttons */
 .profile-data-buttons-new {
   display: flex;
   justify-content: center;
@@ -3136,26 +3130,31 @@ a[aria-expanded="true"] .status-log-chevron {
 }
 
 .profile-data-buttons-new .btn {
-  font-size: 0.9rem;          /* Larger, more readable font */
-  padding: 0.6rem 1.2rem;   /* More professional padding */
-  border-radius: var(--radius-btn); /* Use your existing radius variable */
-  flex-grow: 1;             /* Allow buttons to grow and fill space */
-  min-width: 170px;         /* Good minimum width */
-  max-width: 260px;         /* Prevent them from getting too wide */
+  font-size: 0.9rem;
+  padding: 0.6rem 1.2rem;
+  border-radius: var(--radius-btn);
+  flex-grow: 1;
+  min-width: 170px;
+  max-width: 260px;
 }
 
-/* Responsive adjustments */
+/* 6. Responsive Styles */
 @media (max-width: 575.98px) {
+  .action-hub-nav-pills .nav-link {
+    font-size: 0.95rem; /* Slightly smaller text */
+    padding: 0.6rem 0.5rem;
+  }
+  
+  /* Make content padding smaller on mobile */
+  .action-hub-content-wrapper {
+    padding: 1.5rem;
+  }
+  
+  /* Make backup buttons smaller */
   .profile-data-buttons-new .btn {
     font-size: 0.85rem;
     padding: 0.6rem 1rem;
     min-width: 150px;
-  }
-  
-  /* Make tabs text smaller on mobile */
-  #actionHubTab .nav-link {
-    font-size: 0.9rem;
-    padding: 0.8rem 0.5rem;
   }
 }
     
@@ -4127,69 +4126,63 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     </div>
     <form id="resultForm" class="text-center">
       <div class="search-and-profiles-container">
-    
-    <div class="card card-modern" id="action-hub-card">
-        
-        <div class="card-header action-hub-tabs">
-            <ul class="nav nav-tabs card-header-tabs" id="actionHubTab" role="tablist">
-                <li class="nav-item" role="presentation">
-                    <button class="nav-link active" id="fetch-tab" data-bs-toggle="tab" data-bs-target="#fetch-tab-pane" type="button" role="tab" aria-controls="fetch-tab-pane" aria-selected="true">
-                        <i class="fa-solid fa-cloud-arrow-down me-2"></i>Fetch New Result
-                    </button>
-                </li>
-                <li class="nav-item" role="presentation">
-                    <button class="nav-link" id="profiles-tab" data-bs-toggle="tab" data-bs-target="#profiles-tab-pane" type="button" role="tab" aria-controls="profiles-tab-pane" aria-selected="false">
-                        <i class="fa-solid fa-users-gear me-2"></i>Manage Profiles
-                    </button>
-                </li>
-            </ul>
-        </div>
 
-        <div class="card-body p-4">
-            <div class="tab-content" id="actionHubTabContent">
+    <nav class="action-hub-nav-pills" id="actionHubTab" role="tablist">
+        <button class="nav-link active" id="fetch-tab" data-bs-toggle="tab" data-bs-target="#fetch-tab-pane" type="button" role="tab" aria-controls="fetch-tab-pane" aria-selected="true">
+            <i class="fa-solid fa-cloud-arrow-down"></i>
+            <span class="d-none d-md-inline ms-2">Fetch New Result</span>
+            <span class="d-md-none ms-2">Search</span> 
+        </button>
+        <button class="nav-link" id="profiles-tab" data-bs-toggle="tab" data-bs-target="#profiles-tab-pane" type="button" role="tab" aria-controls="profiles-tab-pane" aria-selected="false">
+            <i class="fa-solid fa-users-gear"></i>
+            <span class="d-none d-md-inline ms-2">Manage Profiles</span>
+            <span class="d-md-none ms-2">Manage</span>
+        </button>
+    </nav>
+
+    <div class="action-hub-content-wrapper">
+        <div class="tab-content" id="actionHubTabContent">
+
+            <div class="tab-pane fade show active" id="fetch-tab-pane" role="tabpanel" aria-labelledby="fetch-tab" tabindex="0">
+                <p class="text-muted text-center mb-4">Enter a registration number to fetch a new result from the UAF portal.</p>
                 
-                <div class="tab-pane fade show active" id="fetch-tab-pane" role="tabpanel" aria-labelledby="fetch-tab" tabindex="0">
-                    <p class="text-muted text-center mb-3">Enter a registration number to fetch a new result from the UAF portal.</p>
-                    
-                    <form id="resultForm" class="text-center"> 
-                        <div class="modern-search-wrapper">
-                            <input type="text" class="form-control modern-search-input" id="registrationNumber" placeholder="e.g., 2020-ag-1234" required="">
-                            <button type="submit" class="btn btn-primary-action modern-search-button">
-                                <i class="fa-solid fa-cloud-arrow-down"></i>
-                                <span class="d-none d-md-inline ms-2">Fetch Result</span>
-                            </button>
-                        </div>
-                    </form>
+                <form id="resultForm" class="text-center"> 
+                    <div class="modern-search-wrapper">
+                        <input type="text" class="form-control modern-search-input" id="registrationNumber" placeholder="e.g., 2020-ag-1234" required="">
+                        <button type="submit" class="btn btn-primary-action modern-search-button">
+                            <i class="fa-solid fa-cloud-arrow-down"></i>
+                            <span class="d-none d-md-inline ms-2">Fetch Result</span>
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <div class="tab-pane fade" id="profiles-tab-pane" role="tabpanel" aria-labelledby="profiles-tab" tabindex="0">
+                <p class="text-muted text-center mb-4">Load, manage, or backup your locally saved profiles.</p>
+                
+                <div id="profileManagement" class="modern-profiles-wrapper" style="display: block;">
+                    <div class="input-group mb-4"> <span class="input-group-text modern-profiles-icon">
+                            <i class="fa-solid fa-user-check"></i>
+                        </span>
+                        <select class="form-select modern-profiles-select" id="profileSwitcher">
+                            <option value="">Select a saved profile...</option>
+                            </select>
+                        <button class="btn btn-primary-action" type="button" id="openProfileManagerBtn" title="Manage All Profiles">
+                            <i class="fa-solid fa-users-gear"></i><span class="d-none d-sm-inline ms-1">Manage</span>
+                        </button>
+                    </div>
                 </div>
 
-                <div class="tab-pane fade" id="profiles-tab-pane" role="tabpanel" aria-labelledby="profiles-tab" tabindex="0">
-                    <p class="text-muted text-center mb-3">Load, manage, or backup your locally saved profiles.</p>
-                    
-                    <div id="profileManagement" class="modern-profiles-wrapper" style="display: block;">
-                        <div class="input-group mb-3">
-                            <span class="input-group-text modern-profiles-icon">
-                                <i class="fa-solid fa-user-check"></i>
-                            </span>
-                            <select class="form-select modern-profiles-select" id="profileSwitcher">
-                                <option value="">Select a saved profile...</option>
-                                </select>
-                            <button class="btn btn-primary-action" type="button" id="openProfileManagerBtn" title="Manage All Profiles">
-                                <i class="fa-solid fa-users-gear"></i><span class="d-none d-sm-inline ms-1">Manage</span>
-                            </button>
-                        </div>
-                    </div>
+                <hr class="my-4" style="border-color: rgba(122, 106, 216, 0.2);">
 
-                    <hr class="my-4">
-
-                    <p class="text-muted small text-center mb-3">Create or restore a local backup of your saved profiles.</p>
-                    <div class="profile-data-buttons-new">
-                        <button class="btn btn-success-action" type="button" id="importProfilesBtn">
-                            <i class="fa-solid fa-upload me-2"></i>Import Backup
-                        </button>
-                        <button class="btn btn-info-action" type="button" id="exportProfilesBtn">
-                            <i class="fa-solid fa-download me-2"></i>Export Backup
-                        </button>
-                    </div>
+                <p class="text-muted small text-center mb-3">Create or restore a local backup of your profiles.</p>
+                <div class="profile-data-buttons-new">
+                    <button class="btn btn-success-action" type="button" id="importProfilesBtn">
+                        <i class="fa-solid fa-upload me-2"></i>Import Backup
+                    </button>
+                    <button class="btn btn-info-action" type="button" id="exportProfilesBtn">
+                        <i class="fa-solid fa-download me-2"></i>Export Backup
+                    </button>
                 </div>
             </div>
         </div>
@@ -8472,6 +8465,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
 </body>
 </html>
+
 
 
 
