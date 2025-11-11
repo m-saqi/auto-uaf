@@ -3053,6 +3053,75 @@ a[aria-expanded="true"] .status-log-chevron {
   }
 }
 
+    /* Update the main container to be a flex column with a gap */
+.search-and-profiles-container {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem; /* Adds professional spacing between the two cards */
+}
+
+/* No changes needed for:
+  - .modern-search-wrapper
+  - .modern-search-input
+  - .modern-search-button
+  - .modern-profiles-wrapper
+  - .modern-profiles-icon
+  - .modern-profiles-select
+  - .card-modern 
+  ...as they are already well-styled in your file.
+*/
+
+/* NEW: Styles for the Import/Export buttons container */
+.profile-data-buttons-new {
+  display: flex;
+  justify-content: center; /* Center the buttons */
+  gap: 0.75rem; /* Space between buttons */
+  flex-wrap: wrap; /* Allow wrapping on small screens */
+}
+
+/* NEW: Upgraded styles for the Import/Export buttons */
+.profile-data-buttons-new .btn {
+  font-size: 0.9rem;          /* Larger, more readable font */
+  padding: 0.6rem 1.2rem;   /* More professional padding */
+  border-radius: var(--radius-btn); /* Use your existing radius variable */
+  flex-grow: 1;             /* Allow buttons to grow and fill space */
+  min-width: 170px;         /* Ensure they have a good minimum width */
+  max-width: 260px;         /* Prevent them from getting too wide */
+  
+  /* Inherit existing styles like btn-success-action */
+  /* This just improves layout and sizing */
+}
+
+/* NEW: Re-using the feature-icon style from your "Why Choose" section
+   for the card headers. This class is already in your main CSS.
+   We just need to ensure its margin is correct. */
+.card-body .feature-icon {
+    flex-shrink: 0; /* Prevent icon from shrinking on small screens */
+}
+
+
+/* Responsive adjustment for small screens */
+@media (max-width: 575.98px) {
+  .profile-data-buttons-new .btn {
+    font-size: 0.85rem;
+    padding: 0.6rem 1rem;
+    min-width: 150px;
+  }
+
+  /* On mobile, stack the card header icon and text vertically */
+  .card-body .d-flex.align-items-center.mb-3 {
+     flex-direction: column;
+     align-items: center !important;
+     text-align: center;
+  }
+  
+  .card-body .feature-icon {
+    margin-right: 0 !important;
+    margin-bottom: 0.75rem; /* Add space below icon when stacked */
+  }
+}
+    
+
 
     /* --- NEW: B.Ed. Tab Styles --- */
 #bedTab {
@@ -4020,38 +4089,69 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     </div>
     <form id="resultForm" class="text-center">
       <div class="search-and-profiles-container">
-        <div class="modern-search-wrapper">
-          <input
-            type="text"
-            class="form-control modern-search-input"
-            id="registrationNumber"
-            placeholder="e.g., 2020-ag-1234"
-            required
-          />
+
+  <div class="card card-modern">
+    <div class="card-body p-4">
+      <div class="d-flex align-items-center mb-3">
+        <div class="feature-icon flex-shrink-0" style="width: 50px; height: 50px; font-size: 1.2rem; margin-right: 1rem;">
+          <i class="fa-solid fa-cloud-arrow-down"></i>
+        </div>
+        <div>
+          <h5 class="fw-bold mb-0">Fetch New Result</h5>
+          <p class="text-muted mb-0 small">Enter a registration number to fetch results.</p>
+        </div>
+      </div>
+      
+      <form id="resultForm" class="text-center"> <div class="modern-search-wrapper">
+          <input type="text" class="form-control modern-search-input" id="registrationNumber" placeholder="e.g., 2020-ag-1234" required="">
           <button type="submit" class="btn btn-primary-action modern-search-button">
             <i class="fa-solid fa-cloud-arrow-down"></i>
             <span class="d-none d-md-inline ms-2">Fetch Result</span>
           </button>
         </div>
+      </form>
+    </div>
+  </div>
 
-        <p class="text-muted small text-center" style="margin-top:20px; margin-bottom:0px;">Create a local backup of your saved results in your device.</p>
-        <div class="profile-data-buttons">
-            <button class="btn btn-success-action btn-sm" type="button" id="importProfilesBtn"><i class="fa-solid fa-upload me-2"></i>Import</button>
-            <button class="btn btn-info-action btn-sm" type="button" id="exportProfilesBtn"><i class="fa-solid fa-download me-2"></i>Export</button>
+  <div class="card card-modern">
+    <div class="card-body p-4">
+      <div class="d-flex align-items-center mb-3">
+        <div class="feature-icon flex-shrink-0" style="width: 50px; height: 50px; font-size: 1.2rem; margin-right: 1rem;">
+          <i class="fa-solid fa-users-gear"></i>
         </div>
-
-        <div id="profileManagement" class="modern-profiles-wrapper" style="display: none;">
-          <div class="input-group">
-            <span class="input-group-text modern-profiles-icon">
-              <i class="fa-solid fa-user-check"></i>
-            </span>
-            <select class="form-select modern-profiles-select" id="profileSwitcher"></select>
-            <button class="btn btn-primary-action" type="button" id="openProfileManagerBtn" title="Manage All Profiles">
-              <i class="fa-solid fa-users-gear"></i><span class="d-none d-sm-inline ms-1">Manage</span>
-            </button>
-          </div>
+        <div>
+          <h5 class="fw-bold mb-0">Manage Saved Profiles</h5>
+          <p class="text-muted mb-0 small">Load, backup, or manage your saved data.</p>
         </div>
       </div>
+
+      <div id="profileManagement" class="modern-profiles-wrapper" style="display: block;">
+        <div class="input-group mb-3">
+          <span class="input-group-text modern-profiles-icon">
+            <i class="fa-solid fa-user-check"></i>
+          </span>
+          <select class="form-select modern-profiles-select" id="profileSwitcher">
+            <option value="">Select a saved profile...</option>
+          </select>
+          <button class="btn btn-primary-action" type="button" id="openProfileManagerBtn" title="Manage All Profiles">
+            <i class="fa-solid fa-users-gear"></i><span class="d-none d-sm-inline ms-1">Manage</span>
+          </button>
+        </div>
+      </div>
+      
+      <p class="text-muted small text-center mb-2">Create a local backup of your saved results.</p>
+      <div class="profile-data-buttons-new">
+        <button class="btn btn-success-action" type="button" id="importProfilesBtn">
+          <i class="fa-solid fa-upload me-2"></i>Import Backup
+        </button>
+        <button class="btn btn-info-action" type="button" id="exportProfilesBtn">
+          <i class="fa-solid fa-download me-2"></i>Export Backup
+        </button>
+      </div>
+    </div>
+  </div>
+
+</div>
     </form>
     <div class="loading-container" id="loadingContainer">
       <div class="loading-stage" id="connectingStage"><div class="loading-animation loading-connecting"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div><p class="loading-text">Connecting to UAF LMS</p><p class="loading-subtext">Establishing secure connection to UAF servers</p></div>
@@ -8329,6 +8429,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
 </body>
 </html>
+
 
 
 
