@@ -6199,7 +6199,7 @@ function initTheme() {
       }
 
       function calculateCustomGrade(marks, creditHours) {
-        const grading = { 10: { A: 160, B: 100, D: 80 }, 9: { A: 144, B: 90, D: 72 }, 8: { A: 128, B: 80, D: 64 }, 7: { A: 112, B: 70, D: 56 }, 6: { A: 96, B: 60, D: 48 }, 5: { A: 80, B: 50, D: 40 }, 4: { A: 64, B: 52, C: 40, D: 32 }, 3: { A: 48, B: 39, C: 30, D: 24 }, 2: { A: 32, B: 26, C: 20, D: 16 }, 1: { A: 16, B: 13, C: 10, D: 8 } };
+        const grading = { 10: { A: 160, B: 130, C: 100, D: 80 }, 9: { A: 144, B: 117, C: 90, D: 72 }, 8: { A: 128, B: 104, C: 80, D: 64 }, 7: { A: 112, B: 91, C: 70, D: 56 }, 6: { A: 96, B: 78, C: 60, D: 48 }, 5: { A: 80, B: 65, C: 50, D: 40 }, 4: { A: 64, B: 52, C: 40, D: 32 }, 3: { A: 48, B: 39, C: 30, D: 24 }, 2: { A: 32, B: 26, C: 20, D: 16 }, 1: { A: 16, B: 13, C: 10, D: 8 } };
         const scale = grading[creditHours];
         if (!scale) return 'F';
         if (marks >= scale.A) return 'A'; if (marks >= scale.B) return 'B';
@@ -8329,6 +8329,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
 </body>
 </html>
+
 
 
 
