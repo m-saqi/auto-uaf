@@ -3700,6 +3700,17 @@ a[aria-expanded="true"] .status-log-chevron {
 [data-theme="dark"] #attendanceImportModal .text-muted {
     color: var(--text-light) !important;
 }
+
+    /* --- Responsive Hero Alignment --- */
+@media (max-width: 991.98px) {
+  .hero-content-left {
+    text-align: center;
+  }
+  .hero-buttons {
+    justify-content: center;
+  }
+}
+/* --- End of Responsive Hero Alignment --- */
     
   </style>
 </head>
@@ -3996,16 +4007,16 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
   <section class="hero" id="Home">
     <div class="container">
       <div class="row align-items-center g-4">
-        <div class="col-lg-7 text-center text-lg-start">
+        <div class="col-lg-7 hero-content-left">
           <span class="badge rounded-pill badge-brand mb-3">University of Agriculture Faisalabad (UAF)</span>
-                              <h1 class="display-5 mb-3"><span class="hero-text-gradient"><strong>UAF CGPA Calculator 2025</strong></span> by <span class="hero-text-gradient">M Saqlain </span>- Automatic &amp; Accurate</h1>
+                    <h1 class="display-5 mb-3"><span class="hero-text-gradient"><strong>UAF CGPA Calculator 2025</strong></span> by <span class="hero-text-gradient">M Saqlain </span>- Automatic &amp; Accurate</h1>
           <p class="lead mb-4">Enter your <strong>registration number</strong> to fetch your results directly from <strong>UAF LMS &amp; Attendance System</strong>. The calculator will automatically compute your CGPA and Percentage based on <strong>UAF grading system</strong>.</p>
-          <div class="d-flex gap-2 justify-content-center justify-content-lg-start">
+      <div class="d-flex gap-2 hero-buttons">
             <a href="#Auto-Calculator" class="btn btn-primary-action btn-lg rounded-pill" style="font-size: 1.05rem; padding: 0.9rem;">
               <i class="fa-solid fa-bolt me-2"></i>Try It Now
             </a>
-            <a href="#features" class="btn btn-secondary-action rounded-pill" style="display:block; padding:14px">
-              <i class="fa-solid fa-star me-2"></i>Features
+            <a href="#contact-us" class="btn btn-secondary-action rounded-pill" style="display:block; padding:14px">
+              <i class="fa-solid fa-star me-2"></i>Contact us
             </a>
           </div>
         </div>
@@ -8470,6 +8481,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
 </body>
 </html>
+
 
 
 
