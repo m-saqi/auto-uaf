@@ -4172,33 +4172,43 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
             </div>
 
             <div class="tab-pane fade" id="profiles-tab-pane" role="tabpanel" aria-labelledby="profiles-tab" tabindex="0">
-                <p class="text-muted text-center mb-4">Load, manage, or backup your locally saved profiles.</p>
-                
-                <div id="profileManagement" class="modern-profiles-wrapper" style="display: block;">
-                    <div class="input-group mb-4"> <span class="input-group-text modern-profiles-icon">
-                            <i class="fa-solid fa-user-check"></i>
-                        </span>
-                        <select class="form-select modern-profiles-select" id="profileSwitcher">
-                            <option value="">Select a saved profile...</option>
-                            </select>
-                        <button class="btn btn-primary-action" type="button" id="openProfileManagerBtn" title="Manage All Profiles">
-                            <i class="fa-solid fa-users-gear"></i><span class="d-none d-sm-inline ms-1">Manage</span>
-                        </button>
-                    </div>
-                </div>
-
-                <hr class="my-4" style="border-color: rgba(122, 106, 216, 0.2);">
-
-                <p class="text-muted small text-center mb-3">Create or restore a local backup of your profiles.</p>
-                <div class="profile-data-buttons-new">
-                    <button class="btn btn-success-action" type="button" id="importProfilesBtn">
-                        <i class="fa-solid fa-upload me-2"></i>Import Backup
-                    </button>
-                    <button class="btn btn-info-action" type="button" id="exportProfilesBtn">
-                        <i class="fa-solid fa-download me-2"></i>Export Backup
-                    </button>
-                </div>
+    
+    <div id="activeProfileUI" style="display: none;">
+        <p class="text-muted text-center mb-4">Load, manage, or switch between your saved profiles.</p>
+        
+        <div id="profileManagement" class="modern-profiles-wrapper">
+            <div class="input-group mb-4"> 
+                <span class="input-group-text modern-profiles-icon">
+                    <i class="fa-solid fa-user-check"></i>
+                </span>
+                <select class="form-select modern-profiles-select" id="profileSwitcher">
+                    <option value="">Select a saved profile...</option>
+                </select>
+                <button class="btn btn-primary-action" type="button" id="openProfileManagerBtn" title="Manage All Profiles">
+                    <i class="fa-solid fa-users-gear"></i><span class="d-none d-sm-inline ms-1">Manage</span>
+                </button>
             </div>
+        </div>
+    </div>
+
+    <div id="initialProfileUI">
+        <div class="text-center py-4">
+             <div class="mb-3" style="opacity: 0.3;">
+                <i class="fa-solid fa-folder-open fa-3x"></i>
+             </div>
+             <p class="text-muted mb-4">No profiles found. Import a backup or fetch a result to get started.</p>
+        </div>
+
+        <div class="profile-data-buttons-new">
+            <button class="btn btn-success-action" type="button" id="importProfilesBtn">
+                <i class="fa-solid fa-upload me-2"></i>Import Backup
+            </button>
+            <button class="btn btn-info-action" type="button" id="exportProfilesBtn">
+                <i class="fa-solid fa-download me-2"></i>Export Backup
+            </button>
+        </div>
+    </div>
+</div>
         </div>
     </div>
 </div>
@@ -5490,6 +5500,10 @@ function init() {
 
       function updateProfileSwitcher(profiles, activeProfileId) {
         const profileKeys = Object.keys(profiles);
+        const activeProfileUI = document.getElementById('activeProfileUI');
+        const initialProfileUI = document.getElementById('initialProfileUI');
+        
+        // 1. Populate the switcher options (if profiles exist)
         if (profileKeys.length > 0) {
           profileSwitcher.innerHTML = '<option value="">Select a saved profile...</option>';
           profileKeys.forEach(profileId => {
@@ -5504,9 +5518,19 @@ function init() {
                 profileSwitcher.appendChild(option);
             }
           });
-          profileManagementDiv.style.display = 'block';
         } else {
-          profileManagementDiv.style.display = 'none';
+            profileSwitcher.innerHTML = '<option value="">No profiles found</option>';
+        }
+
+        // 2. Toggle UI Visibility
+        // If we have saved profiles, show the Manager/Switcher.
+        // If we have NO profiles (First time / All deleted), show the Import/Backup buttons.
+        if (profileKeys.length > 0) {
+            if(activeProfileUI) activeProfileUI.style.display = 'block';
+            if(initialProfileUI) initialProfileUI.style.display = 'none';
+        } else {
+            if(activeProfileUI) activeProfileUI.style.display = 'none';
+            if(initialProfileUI) initialProfileUI.style.display = 'block';
         }
       }
 
@@ -8480,6 +8504,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
 </body>
 </html>
+
 
 
 
