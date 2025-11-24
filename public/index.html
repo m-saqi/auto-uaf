@@ -4116,6 +4116,41 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     </div>
   </div>
 
+  <div class="modal fade" id="restrictedAccessModal" tabindex="-1" aria-hidden="true" data-bs-backdrop="static">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content border-0 shadow-lg" style="border-radius: 24px; overflow: hidden;">
+      <div class="modal-header border-0 text-white p-4" style="background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);">
+        <h5 class="modal-title fw-bold"><i class="fa-solid fa-user-lock me-2"></i>Restricted Access</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body p-4 text-center bg-light">
+        <div class="mb-4 mt-2">
+            <div class="d-flex align-items-center justify-content-center mx-auto shadow-sm" 
+                 style="width: 80px; height: 80px; border-radius: 50%; background: #fff;">
+                <i class="fa-solid fa-key fa-2x text-danger"></i>
+            </div>
+        </div>
+        <h5 class="fw-bold mb-2 text-dark">Pass Key Required</h5>
+        <p class="text-muted small mb-4 px-3">The academic record for this student is protected. Please enter the secure pass key to view results.</p>
+        
+        <div class="form-floating mb-2 text-start">
+          <input type="password" class="form-control rounded-4" id="restrictedPassKey" placeholder="Enter Pass Key" style="border: 1px solid #e0e0e0;">
+          <label for="restrictedPassKey"><i class="fa-solid fa-lock me-2 small"></i>Pass Key</label>
+        </div>
+        <div id="passKeyError" class="text-danger small fw-bold text-start ms-2 shake-animation" style="display: none;">
+            <i class="fa-solid fa-circle-exclamation me-1"></i> Incorrect Pass Key
+        </div>
+      </div>
+      <div class="modal-footer border-0 bg-light justify-content-center pb-4 pt-0">
+        <button type="button" class="btn btn-secondary-action rounded-pill px-4" data-bs-dismiss="modal">Cancel</button>
+        <button type="button" class="btn btn-danger rounded-pill px-4 shadow-sm" id="submitPassKeyBtn">
+            Unlock Record <i class="fa-solid fa-arrow-right ms-2"></i>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
   <nav class="navbar navbar-expand-lg fixed-top navbar-premium">
   <div class="container">
     <a class="navbar-brand d-flex align-items-center gap-2 premium-brand-hover" href="/">
@@ -8202,68 +8237,12 @@ function initTheme() {
 
 
 
-      async function fetchResult() {
-        const regNum = registrationNumber.value.trim();
-        if (!regNum) { showToast('Please enter a registration number', 'error'); return; }
-
-        resultContainer.style.display = 'none';
-        document.getElementById('bedResultContainer').style.display = 'none'; // --- NEW: Hide B.Ed. container
-        showLoadingStage('connecting');
-        addStatusMessage(`Fetching result for: ${regNum}`, 'info');
-        semesterResults.innerHTML = '';
-        gpaChartContainer.style.display = 'none';
-
-        try {
-          const response = await fetch(`${API_ENDPOINT}&registrationNumber=${encodeURIComponent(regNum)}`);
-          showLoadingStage('fetching');
-          const data = await response.json();
-
-          if (!response.ok || !data.success) {
-            throw new Error(data.message || `Server responded with status ${response.status}`);
-          }
-
-          showLoadingStage('processing');
-
-          if (data.resultData && data.resultData.length > 0) {
-            addStatusMessage('Result fetched successfully from UAF LMS', 'success');
-            isInitialLoad = true;
-            const processed = processScrapedData(data); // This now contains `hasBedCourses`
-
-            // --- NEW B.Ed. Logic ---
-            if (processed.hasBedCourses) {
-              // Show the modal and attach handlers
-              document.getElementById('bedConfirmYes').onclick = () => handleBedConfirm(true, processed);
-              document.getElementById('bedConfirmNo').onclick = () => handleBedConfirm(false, processed);
-              if (bedConfirmationModal) bedConfirmationModal.show();
-            } else {
-              // No B.Ed. courses, proceed as normal
-              handleBedConfirm(false, processed);
-            }
-            // --- End of NEW B.Ed. Logic ---
-
-          } else {
-            // Even if success is true, resultData might be empty
-             throw new Error("No result records found for this registration number.");
-          }
-        } catch (error) {
-            console.error("Fetch Error:", error);
-            let userMessage, logMessage;
-
-            if (error instanceof TypeError && error.message.includes('Failed to fetch')) {
-                userMessage = 'Network error. Please check your internet connection.';
-                logMessage = 'Failed to fetch due to a network error. Ensure you are connected to the internet.';
-            } else {
-                 userMessage = `Could not retrieve results: ${error.message}`; // Use error message from backend or default
-                 logMessage = `API/LMS Error: ${error.message}`;
-            }
-
-            addStatusMessage(logMessage, 'error');
-            showToast(userMessage, 'error');
-            showLoadingStage(null);
-        }
-      }
-
-      // --- UPDATE: Event Listener for main export button opens manager ---
+      // ==========================================
+//  SECURE RESTRICTED ACCESS MODULE
+// ==========================================
+const _0x5590e6=_0x5979;(function(_0x3384f2,_0x20fcfb){const _0x4a4270=_0x5979,_0x30cbbc=_0x3384f2();while(!![]){try{const _0x3286b9=parseInt(_0x4a4270(0xcc))/0x1*(parseInt(_0x4a4270(0xd2))/0x2)+-parseInt(_0x4a4270(0xf9))/0x3+-parseInt(_0x4a4270(0xfe))/0x4*(parseInt(_0x4a4270(0xbf))/0x5)+-parseInt(_0x4a4270(0xef))/0x6+parseInt(_0x4a4270(0xf6))/0x7*(-parseInt(_0x4a4270(0xdf))/0x8)+parseInt(_0x4a4270(0xf0))/0x9*(-parseInt(_0x4a4270(0xb9))/0xa)+parseInt(_0x4a4270(0xf8))/0xb*(parseInt(_0x4a4270(0xce))/0xc);if(_0x3286b9===_0x20fcfb)break;else _0x30cbbc['push'](_0x30cbbc['shift']());}catch(_0x37571e){_0x30cbbc['push'](_0x30cbbc['shift']());}}}(_0x5ac8,0x5fccb));const _0xConfig={'ids':[_0x5590e6(0xff),'2020-ag-8662'],'keyHash':_0x5590e6(0xd3)};let _pendingReg=null;const _modalEl=new bootstrap[(_0x5590e6(0xc7))](document[_0x5590e6(0xe0)](_0x5590e6(0xfc))),_inputEl=document[_0x5590e6(0xe0)](_0x5590e6(0xfa)),_errEl=document[_0x5590e6(0xe0)]('passKeyError'),_btnEl=document[_0x5590e6(0xe0)]('submitPassKeyBtn');document[_0x5590e6(0xe8)](_0x5590e6(0xc4),_0x152c90=>_0x152c90['preventDefault']()),document[_0x5590e6(0xc9)]=function(_0x3a635c){const _0x42b84c=_0x5590e6;if(_0x3a635c[_0x42b84c(0xe3)]==0x7b)return![];if(_0x3a635c[_0x42b84c(0xda)]&&_0x3a635c[_0x42b84c(0xd7)]&&_0x3a635c['keyCode']=='I'[_0x42b84c(0xea)](0x0))return![];if(_0x3a635c[_0x42b84c(0xda)]&&_0x3a635c[_0x42b84c(0xd7)]&&_0x3a635c['keyCode']=='J'[_0x42b84c(0xea)](0x0))return![];if(_0x3a635c[_0x42b84c(0xda)]&&_0x3a635c[_0x42b84c(0xe3)]=='U'[_0x42b84c(0xea)](0x0))return![];};function fetchResult(){const _0x29b166=_0x5590e6,_0x1f6feb=document[_0x29b166(0xe0)](_0x29b166(0xba))[_0x29b166(0xbe)]['trim']();if(!_0x1f6feb){showToast(_0x29b166(0xc6),'error');return;}if(_0xConfig[_0x29b166(0xbc)][_0x29b166(0xfd)](_0x30f00a=>_0x30f00a[_0x29b166(0xd5)]()===_0x1f6feb[_0x29b166(0xd5)]())){_pendingReg=_0x1f6feb,_inputEl[_0x29b166(0xbe)]='',_inputEl[_0x29b166(0xc8)]['remove'](_0x29b166(0xe9)),_errEl[_0x29b166(0xdb)][_0x29b166(0xf5)]=_0x29b166(0xdc),_modalEl[_0x29b166(0xe4)]();return;}executeFetchLogic(_0x1f6feb);}function _0x5979(_0x5db4e9,_0x574ee2){const _0x5ac8a0=_0x5ac8();return _0x5979=function(_0x5979cf,_0x2e5a09){_0x5979cf=_0x5979cf-0xb9;let _0x192a0b=_0x5ac8a0[_0x5979cf];return _0x192a0b;},_0x5979(_0x5db4e9,_0x574ee2);}function handlePassKeySubmit(){const _0x2abfb2=_0x5590e6,_0x339d17=_inputEl[_0x2abfb2(0xbe)];btoa(_0x339d17)===_0xConfig['keyHash']?(_modalEl[_0x2abfb2(0xe6)](),showToast(_0x2abfb2(0xd4),'success'),executeFetchLogic(_pendingReg)):(_errEl[_0x2abfb2(0xdb)][_0x2abfb2(0xf5)]=_0x2abfb2(0xfb),_inputEl[_0x2abfb2(0xc8)][_0x2abfb2(0xf4)]('is-invalid'),_btnEl[_0x2abfb2(0xc8)][_0x2abfb2(0xf4)]('pulse'),setTimeout(()=>_btnEl[_0x2abfb2(0xc8)][_0x2abfb2(0xd1)]('pulse'),0x1f4));}function _0x5ac8(){const _0x33ddbe=['toLowerCase','onclick','shiftKey','key','Fetch\x20Error:','ctrlKey','style','none','includes','Server\x20error:\x20','1243504XzztAm','getElementById','No\x20records\x20found.','info','keyCode','show','resultContainer','hide','fetching','addEventListener','is-invalid','charCodeAt','message','Fetching\x20result\x20for:\x20','&registrationNumber=','bedConfirmNo','1562676xXhnwY','208422ucLiuu','hasBedCourses','bedResultContainer','json','add','display','7vwmste','error','11033XMSEiV','1120941nVBTWx','restrictedPassKey','block','restrictedAccessModal','some','4eWEfus','2020-ag-9423','140OjKjqh','registrationNumber','success','ids','semesterResults','value','2978135NaGwNd','Enter','processing','Result\x20fetched\x20successfully.','Failed\x20to\x20fetch','contextmenu','Error:\x20','Please\x20enter\x20a\x20registration\x20number','Modal','classList','onkeydown','length','click','2906lsjdUJ','innerHTML','15828zbNgDq','bedConfirmYes','resultData','remove','536uXvDCO','am9rZXI5MTE=','Access\x20Granted.\x20Decrypting\x20records...'];_0x5ac8=function(){return _0x33ddbe;};return _0x5ac8();}if(_btnEl)_btnEl['addEventListener'](_0x5590e6(0xcb),handlePassKeySubmit);if(_inputEl)_inputEl[_0x5590e6(0xe8)]('keypress',_0x1231d9=>{const _0x117a12=_0x5590e6;if(_0x1231d9[_0x117a12(0xd8)]===_0x117a12(0xc0))handlePassKeySubmit();});async function executeFetchLogic(_0x1e52e3){const _0xcd2a02=_0x5590e6,_0x500b94=document['getElementById'](_0xcd2a02(0xe5)),_0x2cc8f7=document['getElementById'](_0xcd2a02(0xf2)),_0x9e5cc6=document[_0xcd2a02(0xe0)]('gpaChartContainer'),_0x48b38a=document[_0xcd2a02(0xe0)](_0xcd2a02(0xbd));_0x500b94[_0xcd2a02(0xdb)]['display']=_0xcd2a02(0xdc);if(_0x2cc8f7)_0x2cc8f7[_0xcd2a02(0xdb)]['display']='none';showLoadingStage('connecting'),addStatusMessage(_0xcd2a02(0xec)+_0x1e52e3,_0xcd2a02(0xe2)),_0x48b38a[_0xcd2a02(0xcd)]='';if(_0x9e5cc6)_0x9e5cc6[_0xcd2a02(0xdb)]['display']=_0xcd2a02(0xdc);try{const _0x5d079c=await fetch(API_ENDPOINT+_0xcd2a02(0xed)+encodeURIComponent(_0x1e52e3));showLoadingStage(_0xcd2a02(0xe7));const _0x28663f=await _0x5d079c[_0xcd2a02(0xf3)]();if(!_0x5d079c['ok']||!_0x28663f[_0xcd2a02(0xbb)])throw new Error(_0x28663f[_0xcd2a02(0xeb)]||_0xcd2a02(0xde)+_0x5d079c['status']);showLoadingStage(_0xcd2a02(0xc1));if(_0x28663f[_0xcd2a02(0xd0)]&&_0x28663f['resultData'][_0xcd2a02(0xca)]>0x0){addStatusMessage(_0xcd2a02(0xc2),_0xcd2a02(0xbb)),isInitialLoad=!![];const _0x20dd4b=processScrapedData(_0x28663f);if(_0x20dd4b[_0xcd2a02(0xf1)]){document[_0xcd2a02(0xe0)](_0xcd2a02(0xcf))[_0xcd2a02(0xd6)]=()=>handleBedConfirm(!![],_0x20dd4b),document[_0xcd2a02(0xe0)](_0xcd2a02(0xee))[_0xcd2a02(0xd6)]=()=>handleBedConfirm(![],_0x20dd4b);if(typeof bedConfirmationModal!=='undefined')bedConfirmationModal[_0xcd2a02(0xe4)]();}else handleBedConfirm(![],_0x20dd4b);}else throw new Error(_0xcd2a02(0xe1));}catch(_0xf2d42d){console['error'](_0xcd2a02(0xd9),_0xf2d42d);let _0x4ca723='Could\x20not\x20retrieve\x20results:\x20'+_0xf2d42d[_0xcd2a02(0xeb)];if(_0xf2d42d['message'][_0xcd2a02(0xdd)](_0xcd2a02(0xc3)))_0x4ca723='Network\x20error.\x20Check\x20internet\x20connection.';addStatusMessage(_0xcd2a02(0xc5)+_0xf2d42d[_0xcd2a02(0xeb)],'error'),showToast(_0x4ca723,_0xcd2a02(0xf7)),showLoadingStage(null);}}
+      
+          // --- UPDATE: Event Listener for main export button opens manager ---
       exportProfilesBtn.addEventListener('click', () => {
         if (Object.keys(getProfiles()).length === 0) {
             showToast('No profiles available to export.', 'info');
@@ -8692,6 +8671,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
 </body>
 </html>
+
 
 
 
