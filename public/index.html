@@ -3792,15 +3792,56 @@ a[aria-expanded="true"] .status-log-chevron {
     background: transparent;
     box-shadow: none !important;
     padding: 12px 15px;
-    font-size: 1.1rem;
+    font-size: 1.1rem; /* Desktop size */
     font-weight: 500;
     color: var(--text);
+    width: 100%; /* Ensure full width */
 }
 .input-group-premium .btn-action {
     border-radius: 14px;
     padding: 10px 24px;
     font-weight: 600;
+    white-space: nowrap; /* Keeps button on 1 row */
     transition: all 0.2s;
+}
+
+/* Improved Profile Buttons */
+.btn-profile-action {
+    padding: 10px 20px;
+    border-radius: 14px;
+    font-weight: 500;
+    font-size: 0.95rem;
+    border: 1px solid transparent;
+    transition: all 0.3s ease;
+}
+.btn-profile-import {
+    background: rgba(16, 172, 132, 0.1);
+    color: #10ac84;
+    border-color: rgba(16, 172, 132, 0.2);
+}
+.btn-profile-import:hover {
+    background: rgba(16, 172, 132, 0.2);
+    transform: translateY(-2px);
+}
+[data-theme="dark"] .btn-profile-import {
+    background: rgba(16, 172, 132, 0.2);
+    color: #20c997;
+}
+
+/* Mobile Optimizations */
+@media (max-width: 576px) {
+    .input-group-premium input, 
+    .input-group-premium select {
+        font-size: 0.95rem; /* Smaller text on mobile */
+        padding: 10px 12px;
+    }
+    .input-group-premium .btn-action {
+        padding: 10px 16px;
+    }
+    .calc-nav-pills .nav-link {
+        padding: 8px 10px;
+        font-size: 0.9rem;
+    }
 }
 
 /* Server Status Positioning */
@@ -4277,7 +4318,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                                 <div class="input-group-premium">
                                     <span class="ps-3 text-muted"><i class="fa-solid fa-id-card fa-lg"></i></span>
                                     <input type="text" class="form-control" id="registrationNumber" 
-                                        placeholder="Registration No. (e.g. 2020-ag-1234)" required>
+                                        placeholder="Ag No. (e.g. 2020-ag-1234)" required>
                                     <button type="submit" class="btn btn-primary-action btn-action">
                                         <span class="d-none d-sm-inline">Fetch Result</span>
                                         <i class="fa-solid fa-arrow-right ms-sm-2"></i>
@@ -4294,13 +4335,13 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                         <div class="tab-pane fade" id="profiles-tab-pane" role="tabpanel" tabindex="0">
                             
                             <div id="activeProfileUI" style="display: none;">
-                                <p class="text-center text-muted mb-3 small">Switch between saved students or manage data.</p>
+                                <p class="text-center text-muted mb-3 small">Select a saved profile to view details.</p>
                                 <div class="input-group-premium">
                                     <span class="ps-3 text-muted"><i class="fa-solid fa-users fa-lg"></i></span>
                                     <select class="form-select" id="profileSwitcher">
                                         <option value="">Select a profile...</option>
                                     </select>
-                                    <button class="btn btn-secondary-action btn-action" type="button" id="openProfileManagerBtn">
+                                    <button class="btn btn-secondary-action btn-action" type="button" id="openProfileManagerBtn" title="Settings">
                                         <i class="fa-solid fa-gear"></i>
                                     </button>
                                 </div>
@@ -4311,14 +4352,14 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                                     <div class="mb-3 text-muted opacity-50">
                                         <i class="fa-solid fa-folder-open fa-3x"></i>
                                     </div>
-                                    <h6 class="fw-bold">No Profiles Found</h6>
-                                    <p class="text-muted small mb-4">Fetch a result to auto-save it, or restore a backup.</p>
+                                    <h6 class="fw-bold mb-2">No Profiles Found</h6>
+                                    <p class="text-muted small mb-4">Fetch a result to save automatically, or restore from backup.</p>
                                     
-                                    <div class="d-flex justify-content-center gap-2 flex-wrap">
-                                        <button class="btn btn-success-action rounded-pill px-4 py-2" type="button" id="importProfilesBtn">
+                                    <div class="d-flex justify-content-center gap-3 flex-wrap">
+                                        <button class="btn btn-profile-action btn-profile-import" type="button" id="importProfilesBtn">
                                             <i class="fa-solid fa-file-import me-2"></i>Import Backup
                                         </button>
-                                        <button class="btn btn-soft rounded-pill px-4 py-2" type="button" id="exportProfilesBtn" disabled>
+                                        <button class="btn btn-profile-action btn-soft" type="button" id="exportProfilesBtn" disabled>
                                             <i class="fa-solid fa-download me-2"></i>Export
                                         </button>
                                     </div>
@@ -8643,6 +8684,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
 </body>
 </html>
+
 
 
 
