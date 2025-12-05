@@ -6123,11 +6123,7 @@ function forceAndroidDownload(filename, dataUri) {
     // Create a hidden form
     const form = document.createElement('form');
     form.method = 'POST';
-    
-    // IMPORTANT: Use the FULL URL of your live website. 
-    // This ensures the App connects to the internet to handle the file.
-    form.action = 'https://uafcgpacalculator.vercel.app/api/download'; 
-    
+    form.action = '/api/download'; // Calls your new Python script
     form.style.display = 'none';
 
     // Add Filename
@@ -6146,7 +6142,7 @@ function forceAndroidDownload(filename, dataUri) {
     document.body.appendChild(form);
     form.submit();
     document.body.removeChild(form);
-}
+} 
       // --- END OF PROFILE MANAGER FUNCTIONS ---
 
   
@@ -8717,11 +8713,3 @@ document.addEventListener('DOMContentLoaded', function() {
 
 </body>
 </html>
-
-
-
-
-
-
-
-
