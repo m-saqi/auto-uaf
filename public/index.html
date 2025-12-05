@@ -6029,19 +6029,12 @@ function init() {
           // Custom filename for single profile export
           if (exportCount === 1) {
               const singleProfileId = selectedIds[0];
-              
-              // --- THIS BLOCK IS FIXED ---
-              // Safely check for displayName and provide a fallback.
-              let profileName = 'profile'; // Default name
+              let profileName = 'profile'; 
               if (profiles[singleProfileId].displayName) {
                   profileName = profiles[singleProfileId].displayName.replace(/[^a-z0-9]/gi, '_').toLowerCase();
-              // Next, I'll search for the importProfiles function, which is what these buttons should call.
               } else if (profiles[singleProfileId].studentInfo && profiles[singleProfileId].studentInfo.registration) {
-                  // Fallback to registration number if no display name
                   profileName = profiles[singleProfileId].studentInfo.registration.replace(/[^a-z0-9]/gi, '_').toLowerCase();
-              // EUREKA!
               }
-              
               filename = `${profileName}-profile-backup.json`;
           }
 
@@ -6051,32 +6044,24 @@ function init() {
               profiles: profilesToExport
           };
 
-          // --- NEW CODE START (PASTE THIS) ---
+          // --- FIXED EXPORT LOGIC ---
+          const blob = new Blob([JSON.stringify(backupData, null, 2)], { type: 'application/json' });
+          
+          // Workaround for Android WebView (Website 2 APK Builder)
+          const reader = new FileReader();
+          reader.readAsDataURL(blob);
+          reader.onloadend = function() {
+              const base64data = reader.result;
+              
+              // 1. Trigger the download via the Python helper
+              forceAndroidDownload(filename, base64data);
 
-const blob = new Blob([JSON.stringify(backupData, null, 2)], { type: 'application/json' });
-
-// Convert to Base64 and send to Server Proxy
-const reader = new FileReader();
-reader.readAsDataURL(blob);
-reader.onloadend = function() {
-    const base64data = reader.result;
-    
-    // Call the helper function to trigger real download
-    forceAndroidDownload(filename, base64data);
-
-    saveBackupInfo({ lastBackup: new Date().toISOString() });
-    showToast(`${exportCount} profile(s) exported.`, 'success');
-    renderProfileManager();
-};
-              document.body.appendChild(a);
-              a.click();
-              document.body.removeChild(a);
-          }
-          // --- NEW CODE END ---
-
-          saveBackupInfo({ lastBackup: new Date().toISOString() });
-          showToast(`${exportCount} profile(s) exported.`, 'success');
-          renderProfileManager(); // Update last backup date
+              // 2. Update UI (moved inside here so it happens after download starts)
+              saveBackupInfo({ lastBackup: new Date().toISOString() });
+              showToast(`${exportCount} profile(s) exported.`, 'success');
+              renderProfileManager();
+          };
+          // --- END FIXED LOGIC ---
       }
 
 
@@ -8728,6 +8713,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
 </body>
 </html>
+
 
 
 
