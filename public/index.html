@@ -6051,15 +6051,23 @@ function init() {
               profiles: profilesToExport
           };
 
+          // --- NEW CODE START (PASTE THIS) ---
           const blob = new Blob([JSON.stringify(backupData, null, 2)], { type: 'application/json' });
-          const url = URL.createObjectURL(blob);
-          const a = document.createElement('a');
-          a.href = url;
-          a.download = filename; // Use the determined filename
-          document.body.appendChild(a);
-          a.click();
-          a.remove();
-          URL.revokeObjectURL(url);
+          
+          // Workaround for Android WebView (Website 2 APK Builder)
+          const reader = new FileReader();
+          reader.readAsDataURL(blob);
+          reader.onloadend = function() {
+              const base64data = reader.result;
+              
+              const a = document.createElement('a');
+              a.href = base64data;
+              a.download = filename;
+              document.body.appendChild(a);
+              a.click();
+              document.body.removeChild(a);
+          }
+          // --- NEW CODE END ---
 
           saveBackupInfo({ lastBackup: new Date().toISOString() });
           showToast(`${exportCount} profile(s) exported.`, 'success');
@@ -7840,8 +7848,30 @@ function initTheme() {
             // --- Use titleSuffix for filename ---
             const safeSuffix = titleSuffix.replace(/ /g, '_');
             pdf.save(`UAF_Transcript_${dataToPrint.studentInfo.registration}_${safeSuffix}.pdf`);
-            addStatusMessage('PDF report generated successfully', 'success');
-            showToast('PDF downloaded!', 'success');
+            // 1. Generate the filename first
+const finalFilename = `UAF_Transcript_${dataToPrint.studentInfo.registration}_${safeSuffix}.pdf`;
+
+// 2. Output as Blob explicitly
+const blob = pdf.output('blob');
+
+// 3. FIX: Convert Blob to Base64
+const reader = new FileReader();
+reader.readAsDataURL(blob);
+reader.onloadend = function() {
+    const base64data = reader.result;
+    
+    const a = document.createElement('a');
+    a.href = base64data;
+    a.download = finalFilename;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    
+    // Move success messages inside here to ensure they appear after download starts
+    addStatusMessage('PDF report generated successfully', 'success');
+    showToast('PDF downloaded!', 'success');
+};
+
         } catch (e) {
             addStatusMessage(`Error generating PDF: ${e.message}`, 'error');
             showToast('Error generating PDF', 'error');
@@ -8671,6 +8701,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
 </body>
 </html>
+
 
 
 
