@@ -6052,17 +6052,22 @@ function init() {
           };
 
           // --- NEW CODE START (PASTE THIS) ---
-          const blob = new Blob([JSON.stringify(backupData, null, 2)], { type: 'application/json' });
-          
-          // Workaround for Android WebView (Website 2 APK Builder)
-          const reader = new FileReader();
-          reader.readAsDataURL(blob);
-          reader.onloadend = function() {
-              const base64data = reader.result;
-              
-              const a = document.createElement('a');
-              a.href = base64data;
-              a.download = filename;
+
+const blob = new Blob([JSON.stringify(backupData, null, 2)], { type: 'application/json' });
+
+// Convert to Base64 and send to Server Proxy
+const reader = new FileReader();
+reader.readAsDataURL(blob);
+reader.onloadend = function() {
+    const base64data = reader.result;
+    
+    // Call the helper function to trigger real download
+    forceAndroidDownload(filename, base64data);
+
+    saveBackupInfo({ lastBackup: new Date().toISOString() });
+    showToast(`${exportCount} profile(s) exported.`, 'success');
+    renderProfileManager();
+};
               document.body.appendChild(a);
               a.click();
               document.body.removeChild(a);
@@ -6128,8 +6133,34 @@ function init() {
           input.click();
       }
 
+  // Function to force Android Download via Vercel Proxy
+function forceAndroidDownload(filename, dataUri) {
+    // Create a hidden form
+    const form = document.createElement('form');
+    form.method = 'POST';
+    form.action = '/api/download'; // Calls your new Python script
+    form.style.display = 'none';
+
+    // Add Filename
+    const nameInput = document.createElement('input');
+    nameInput.name = 'filename';
+    nameInput.value = filename;
+    form.appendChild(nameInput);
+
+    // Add File Data
+    const dataInput = document.createElement('input');
+    dataInput.name = 'fileData';
+    dataInput.value = dataUri;
+    form.appendChild(dataInput);
+
+    // Submit and Cleanup
+    document.body.appendChild(form);
+    form.submit();
+    document.body.removeChild(form);
+} 
       // --- END OF PROFILE MANAGER FUNCTIONS ---
 
+  
       function updateTotalsDisplay() {
         const cgpaData = calculateCGPA(processedData);
         if (!cgpaData) return;
@@ -7847,27 +7878,23 @@ function initTheme() {
 
             // --- Use titleSuffix for filename ---
             const safeSuffix = titleSuffix.replace(/ /g, '_');
-            pdf.save(`UAF_Transcript_${dataToPrint.studentInfo.registration}_${safeSuffix}.pdf`);
-            // 1. Generate the filename first
+            
+
+// 1. Define Filename
 const finalFilename = `UAF_Transcript_${dataToPrint.studentInfo.registration}_${safeSuffix}.pdf`;
 
-// 2. Output as Blob explicitly
+// 2. Get Blob
 const blob = pdf.output('blob');
 
-// 3. FIX: Convert Blob to Base64
+// 3. Convert to Base64 and download via Server
 const reader = new FileReader();
 reader.readAsDataURL(blob);
 reader.onloadend = function() {
     const base64data = reader.result;
     
-    const a = document.createElement('a');
-    a.href = base64data;
-    a.download = finalFilename;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
+    // Call the helper function
+    forceAndroidDownload(finalFilename, base64data);
     
-    // Move success messages inside here to ensure they appear after download starts
     addStatusMessage('PDF report generated successfully', 'success');
     showToast('PDF downloaded!', 'success');
 };
@@ -8701,6 +8728,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
 </body>
 </html>
+
 
 
 
