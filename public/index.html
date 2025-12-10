@@ -7417,12 +7417,16 @@ function initTheme() {
         const courseTitle = document.getElementById('courseTitle').value.trim();
         const creditHours = parseInt(document.getElementById('creditHours').value);
         const marks = parseFloat(document.getElementById('courseMarks').value);
-        if (!courseCode || !courseTitle || !creditHours || isNaN(marks)) {
+        
+        // REMOVED !courseTitle to make it optional
+        if (!courseCode || !creditHours || isNaN(marks)) {
           showToast('Please fill all fields correctly', 'error');
           return;
         }
-        if (marks < 0 || marks > 100) {
-             showToast('Marks must be between 0 and 100', 'error');
+        
+        // UPDATED marks range to 0-200
+        if (marks < 0 || marks > 200) {
+             showToast('Marks must be between 0 and 200', 'error');
              return;
         }
         
@@ -7446,10 +7450,15 @@ function initTheme() {
         const qualityPoints = calculateQualityPoints(marks, creditHours, grade);
 
         const newCourse = {
-            code: courseCode, title: courseTitle, creditHours, creditHoursDisplay: `${creditHours}(${creditHours}-0)`, marks,
-            qualityPoints: qualityPoints, grade: grade,
+            code: courseCode, 
+            title: courseTitle, // Empty string is fine, it will fallback to 'Custom Course' in display
+            creditHours, 
+            creditHoursDisplay: `${creditHours}(${creditHours}-0)`, 
+            marks,
+            qualityPoints: qualityPoints, 
+            grade: grade,
             semesterName, teacher: 'Custom', mid: 'N/A', assignment: 'N/A', final: marks, practical: 'N/A', total: marks,
-            isExtraEnrolled: false, isRepeated: false, isDeleted: false, isCustom: true, originalSemester: semesterName // Add originalSemester for consistency
+            isExtraEnrolled: false, isRepeated: false, isDeleted: false, isCustom: true, originalSemester: semesterName 
         };
 
          // Check if course already exists (non-deleted) in the same semester
@@ -8713,3 +8722,4 @@ document.addEventListener('DOMContentLoaded', function() {
 
 </body>
 </html>
+
