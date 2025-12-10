@@ -315,7 +315,8 @@ class handler(BaseHTTPRequestHandler):
         session = requests.Session()
         session.headers.update({'User-Agent': random.choice(USER_AGENTS)})
         
-        schemes = ['http', 'https']
+        # Priority updated: HTTPS first, then HTTP
+        schemes = ['https', 'http']
         response = None
         base_url = ''
         
@@ -324,7 +325,9 @@ class handler(BaseHTTPRequestHandler):
                 base_url = f"{scheme}://lms.uaf.edu.pk"
                 login_url = f"{base_url}/login/index.php"
                 logger.info(f"Attempting connection to UAF LMS via {scheme.upper()}...")
-                response = session.get(login_url, timeout=15, verify=False)
+                
+                # Timeout updated to 3 seconds as requested
+                response = session.get(login_url, timeout=3, verify=False)
                 response.raise_for_status()
                 logger.info(f"Successfully connected via {scheme.upper()}.")
                 break 
@@ -333,7 +336,7 @@ class handler(BaseHTTPRequestHandler):
                 response = None 
         
         if not response:
-            logger.error("Both HTTP and HTTPS connections failed.")
+            logger.error("Both HTTPS and HTTP connections failed.")
             return False, "Could not connect to UAF LMS. The server may be down or blocking requests.", None
 
         try:
@@ -350,7 +353,8 @@ class handler(BaseHTTPRequestHandler):
             form_data = {'token': token, 'Register': registration_number}
             headers = {'Referer': login_url, 'Origin': base_url}
             
-            post_response = session.post(result_url, data=form_data, timeout=20, verify=False)
+            # Keep a slightly longer timeout for the actual result fetch as it might take longer than the ping
+            post_response = session.post(result_url, data=form_data, timeout=10, verify=False)
             
             if post_response.status_code != 200:
                 return False, f"UAF LMS returned status code {post_response.status_code} when fetching results.", None
@@ -410,3 +414,4 @@ class handler(BaseHTTPRequestHandler):
             return False, f"No result data found for: {registration_number}", None
         except Exception as e:
             return False, f"Error parsing results: {str(e)}", None
+
